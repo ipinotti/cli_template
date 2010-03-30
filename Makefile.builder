@@ -7,7 +7,7 @@ all:
 	LIBS='-lncurses -lcrypt -lcrypto -lreadline -lnetsnmp -lconfig -lconfigsnmp' \
 	make;
 
-install:
+install: all
 	cp -avf cish $(ROOTDIR)/$(FSDIR)/bin
 	cp -avf util/bwmon $(ROOTDIR)/$(FSDIR)/bin
 

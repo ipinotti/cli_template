@@ -1,2 +1,8 @@
 *.o
 .*
+*~
+cish
+bwmon
+cishinit
+ifstat
+systtyd
