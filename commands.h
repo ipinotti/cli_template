@@ -10,6 +10,65 @@
 
 #include <stdio.h>
 
+#include <options.h>
+
+/* Libconfig includes */
+#include <libconfig/acl.h>
+#include <libconfig/args.h>
+#include <libconfig/cish_defines.h>
+#include <libconfig/device.h>
+#include <libconfig/typedefs.h>
+#include <libconfig/ip.h>
+#include <libconfig/dev.h>
+#include <libconfig/dhcp.h>
+#include <libconfig/dns.h>
+#include <libconfig/lan.h>
+#include <libconfig/ppp.h>
+#include <libconfig/str.h>
+#include <libconfig/time.h>
+#include <libconfig/ntp.h>
+#include <libconfig/nv.h>
+#include <libconfig/pam.h>
+#include <libconfig/pim.h>
+#include <libconfig/defines.h>
+#include <libconfig/version.h>
+#include <libconfig/debug.h>
+#include <libconfig/qos.h>
+#include <libconfig/ipsec.h>
+#include <libconfig/exec.h>
+#include <libconfig/process.h>
+#include <libconfig/quagga.h>
+#include <libconfig/snmp.h>
+#include <libconfig/ppcio.h>
+#ifdef OPTION_SMCROUTE
+#include <libconfig/smcroute.h>
+#endif
+#include <libconfig/tunnel.h>
+#ifdef OPTION_VRRP
+#include <libconfig/vrrp.h>
+#endif
+#include <libconfig/ssh.h>
+#include <libconfig/system.h>
+#include <libconfig/vlan.h>
+
+/* IP Tables variables */
+#define IPT_BUF_SIZE 100
+struct iptables_t {
+	char in_acl[IPT_BUF_SIZE];
+	char out_acl[IPT_BUF_SIZE];
+	char in_mangle[IPT_BUF_SIZE];
+	char out_mangle[IPT_BUF_SIZE];
+	char in_nat[IPT_BUF_SIZE];
+	char out_nat[IPT_BUF_SIZE];
+};
+
+/* Addresses and Masks */
+struct ip_t {
+	char ipaddr[16];
+	char ipmask[16];
+	char ippeer[16];
+};
+
 void show_cpu (const char *);
 void show_interfaces (const char *);
 void show_mroute (const char *);
@@ -499,4 +558,76 @@ void interface_x25_map(const char *);
 void dump_x25_map(FILE *, char *);
 
 #endif
+
+/* Previously declared on configterm.c */
+void interface_no_shutdown (const char *);
+void interface_ethernet_ipaddr_dhcp(const char *);
+void interface_ethernet_ipaddr (const char *);
+void interface_ethernet_ipaddr_secondary (const char *);
+void interface_ethernet_no_ipaddr (const char *);
+void interface_ethernet_no_ipaddr_secondary (const char *);
+void interface_fr_ipaddr (const char *);
+void interface_subfr_ipaddr (const char *);
+void interface_subfr_fragment(const char *);
+void interface_subfr_bridgegroup (const char *);
+void interface_subfr_no_bridgegroup (const char *);
+void interface_ethernet_bridgegroup (const char *);
+void interface_ethernet_no_bridgegroup (const char *);
+void interface_chdlc_ipaddr (const char *);
+void interface_chdlc_bridgegroup (const char *);
+void interface_chdlc_no_bridgegroup (const char *);
+void interface_sppp_ipaddr (const char *);
+void interface_ipxnet (const char *);
+void interface_no_ipxnet (const char *);
+void interface_ethernet_ipxnet (const char *);
+void interface_ethernet_no_ipxnet (const char *);
+void interface_shutdown (const char *);
+void interface_txqueue (const char *);
+void config_interface_done (const char *);
+void interface_mtu (const char *);
+void interface_description (const char *);
+void interface_no_description (const char *);
+void interface_rxring(const char *);
+void interface_txring(const char *);
+void interface_weight(const char *);
+void interface_x25_lapb_mode(const char *);
+void interface_x25_lapb_n2(const char *);
+void interface_x25_lapb_t1(const char *);
+void interface_x25_lapb_t2(const char *);
+void interface_x25_lapb_window(const char *);
+void interface_x25_route_add(const char *);
+void interface_x25_route_del(const char *);
+void interface_x25_svc_add(const char *);
+void interface_x25_svc_del(const char *);
+void interface_subx25_ipaddr(const char *);
+void interface_subx25_address(const char *);
+void interface_subx25_ips(const char *);
+void interface_subx25_map_ip(const char *);
+void interface_subx25_ops(const char *);
+void interface_subx25_win(const char *);
+void interface_subx25_wout(const char *);
+void interface_policy_no(const char *);
+void interface_policy(const char *);
+void interface_sppp_ipaddr(const char *cmdline);
+void interface_traffic_rate_no(const char *);
+void interface_traffic_rate(const char *);
+void interface_subfr_fragment(const char *cmdline);
+void interface_snmptrap(const char *);
+void interface_no_snmptrap(const char *);
+void interface_ipaddr(const char *);
+void interface_ipaddr_secondary(const char *);
+void interface_no_ipaddr(const char *);
+void interface_no_ipaddr_secondary(const char *);
+void tunnel_destination(const char *);
+void tunnel_key(const char *);
+void tunnel_mode(const char *);
+void tunnel_source_interface(const char *);
+void tunnel_source(const char *);
+void tunnel_checksum(const char *);
+void tunnel_pmtu(const char *);
+void tunnel_sequence(const char *);
+void tunnel_keepalive(const char *);
+void tunnel_ttl(const char *);
+void interface_fec_autonegotiation(const char *cmdline);
+void interface_fec_cfg(const char *cmdline);
 

@@ -6,13 +6,11 @@ LIBS		= -lconfig
 HASHLIBS	=
 LDFLAGS 	= -L$(ROOTDIR)/lib
 
-all: cishinit ifstat systtyd bwmon #rfc1356
+all: cishinit ifstat bwmon #rfc1356
 
-install: cishinit ifstat systtyd bwmon
-#	cp -f systtyd /tftpboot/10.1.0.2/bin
-
+install: cishinit ifstat bwmon
 clean:
-	rm -f *.o cishinit ifstat systtyd bwmon rfc1356 core
+	rm -f *.o cishinit ifstat bwmon rfc1356 core
 
 cishinit: cishinit.o
 	$(CC) $(LDFLAGS) -o cishinit cishinit.o

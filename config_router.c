@@ -15,14 +15,6 @@
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
-#include <libconfig/args.h>
-#include <libconfig/debug.h>
-#include <libconfig/quagga.h>
-#include <libconfig/device.h>
-#include <libconfig/str.h>
-#include <libconfig/typedefs.h>
-#include <libconfig/wan.h>
-#include <libconfig/ip.h>
 
 #undef DEBUG_ZEBRA
 
@@ -44,29 +36,12 @@ extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_NO_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_NO_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SUBFR_NO_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SUBFR_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_CHDLC_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SPPP_NO_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SPPP_IP[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IP[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC[];
 extern cish_command CMD_SHOW[];
 extern cish_command CMD_SHOW_IP[];
 extern cish_command CMD_SHOW_INTERFACES[];
 extern cish_command CMD_CONFIG_INTERFACE[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_NO[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC_NO[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_FR_NO[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_FR[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_CHDLC_NO[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_CHDLC[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SPPP[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_IP[];
 #ifdef OPTION_BGP
 extern cish_command CMD_IP[];
@@ -74,23 +49,10 @@ extern cish_command CMD_CONFIG_NO_ROUTER[];
 #endif
 extern cish_command CMD_IP_ROUTE3[];
 extern cish_command CMD_CLEAR_INTERFACE[];
-#ifdef OPTION_X25
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SUBX25_IP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_X25_NO[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_X25[];
-#endif
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
-#ifdef CONFIG_BERLIN_SATROUTER
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_ENCAP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SUBFR_NO[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SUBFR[];
-extern cish_command CMD_DEBUG[];
-extern cish_command CMD_CONFIG_INTERFACE_FR_INTFTYPE[];
-#endif
 extern cish_command CMD_SHOW_LEVEL[];
 
 extern const char *_cish_source;
@@ -106,8 +68,6 @@ static char buf_daemon[1024];
 
 /*AS number for BGP*/
 int asn = 0;
-
-extern int _cish_aux;
 
 cish_command CMD_ROUTER_NO_RIP_DEFAULT_INFORMATION[] = {
 	{"originate", "Distribute a default route", NULL, rip_execute_router_cmd, 1},
@@ -159,11 +119,6 @@ cish_command CMD_ROUTER_RIP_NETWORK_MASK[] = {
         {NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_ROUTER_RIP_INTERFACE_AUX[] = {
-	{"0-1", "Aux interface number", NULL, rip_execute_router_cmd, 1},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_ROUTER_RIP_INTERFACE_ETHERNET[] = {
 	{"0-0", "Ethernet interface number", NULL, rip_execute_router_cmd, 1},
 	{NULL,NULL,NULL,NULL, 0}
@@ -174,21 +129,14 @@ cish_command CMD_ROUTER_RIP_INTERFACE_LOOPBACK[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_ROUTER_RIP_INTERFACE_SERIAL[] = {
-	{"0-0", "Serial interface number", NULL, rip_execute_router_cmd, 1},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_ROUTER_RIP_INTERFACE_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", NULL, rip_execute_router_cmd, 1},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_ROUTER_RIP_NETWORK[] = {
-	{"aux", "Aux interface", CMD_ROUTER_RIP_INTERFACE_AUX, NULL, 1000}, // config_router.c: set_model_aux_cmds()
 	{"ethernet", "Ethernet interface", CMD_ROUTER_RIP_INTERFACE_ETHERNET, NULL, 1},
 	{"loopback", "Loopback interface", CMD_ROUTER_RIP_INTERFACE_LOOPBACK, NULL, 1},
-	{"serial", "Serial interface", CMD_ROUTER_RIP_INTERFACE_SERIAL, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_ROUTER_RIP_INTERFACE_TUNNEL, NULL, 1},
 	{"<ipaddress>", "Network address", CMD_ROUTER_RIP_NETWORK_MASK, NULL, 1},
 	{NULL,NULL,NULL,NULL,0}
@@ -200,10 +148,8 @@ cish_command CMD_ROUTER_RIP_NEIGHBOR[] = {
 };
 
 cish_command CMD_ROUTER_RIP_PASSIVE_INTERFACE[] = {
-	{"aux", "Aux interface", CMD_ROUTER_RIP_INTERFACE_AUX, NULL, 1000}, // config_router.c: set_model_aux_cmds()
 	{"ethernet", "Ethernet interface", CMD_ROUTER_RIP_INTERFACE_ETHERNET, NULL, 1},
 	{"loopback", "Loopback interface", CMD_ROUTER_RIP_INTERFACE_LOOPBACK, NULL, 1},
-	{"serial", "Serial interface", CMD_ROUTER_RIP_INTERFACE_SERIAL, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_ROUTER_RIP_INTERFACE_TUNNEL, NULL, 1},
 	{NULL,NULL,NULL,NULL,0}
 };
@@ -428,11 +374,6 @@ cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE1[] = {
 	{NULL, NULL, NULL, NULL}
 };
 
-cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_AUX[] = {
-	{"0-1", "Aux interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1},
-	{NULL, NULL, NULL, NULL}
-};
-
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET[] = {
 	{"0-0", "Ethernet interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1},
 	{NULL, NULL, NULL, NULL}
@@ -443,21 +384,14 @@ cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_LOOPBACK[] = {
 	{NULL, NULL, NULL, NULL}
 };
 
-cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_SERIAL[] = {
-	{"0-0", "Serial interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1},
-	{NULL, NULL, NULL, NULL}
-};
-
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1},
 	{NULL, NULL, NULL, NULL}
 };
 
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE[] = {
-	{"aux", "Aux interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_AUX, NULL, 1000}, // config_router.c: set_model_aux_cmds()
 	{"ethernet", "Ethernet interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET, NULL, 1},
 	{"loopback", "Loopback interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_LOOPBACK, NULL, 1},
-	{"serial", "Serial interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_SERIAL, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_TUNNEL, NULL, 1},
 	{NULL, NULL, NULL, NULL}
 };
@@ -1166,11 +1100,6 @@ cish_command CMD_SHOW_OSPF_NEIGHBOR[] = {
 	{NULL, NULL, NULL, NULL}
 };
 
-cish_command CMD_SHOW_OSPF_INTERFACE_AUX[] = {
-	{"0-1", "Aux interface number", NULL, show_ip_ospf, 1},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_SHOW_OSPF_INTERFACE_ETHERNET[] = {
 	{"0-0", "Ethernet interface number", NULL, show_ip_ospf, 1},
 	{NULL,NULL,NULL,NULL, 0}
@@ -1181,21 +1110,14 @@ cish_command CMD_SHOW_OSPF_INTERFACE_LOOPBACK[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_SHOW_OSPF_INTERFACE_SERIAL[] = {
-	{"0-0", "Serial interface number", NULL, show_ip_ospf, 1},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_SHOW_OSPF_INTERFACE_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", NULL, show_ip_ospf, 1},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_SHOW_OSPF_INTERFACE[] = {
-	{"aux", "Aux interface", CMD_SHOW_OSPF_INTERFACE_AUX, NULL, 1000}, // config_router.c: set_model_aux_cmds()
 	{"ethernet", "Ethernet interface", CMD_SHOW_OSPF_INTERFACE_ETHERNET, NULL, 1},
 	{"loopback", "Loopback interface", CMD_SHOW_OSPF_INTERFACE_LOOPBACK, NULL, 1},
-	{"serial", "Serial interface", CMD_SHOW_OSPF_INTERFACE_SERIAL, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_SHOW_OSPF_INTERFACE_TUNNEL, NULL, 1},
 	{NULL,NULL,NULL,NULL,0}
 };
@@ -1451,11 +1373,6 @@ cish_command CMD_ROUTER_BGP_NEIGHBOR_DEF_ORIG[] = {
 	{NULL, NULL, NULL, NULL}
 };
 
-cish_command CMD_BGP_INTERFACE_AUX[] = { /* update-source */
-	{"0-1", "Aux interface number", NULL, bgp_execute_router_cmd, 1},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_BGP_INTERFACE_ETHERNET[] = {
 	{"0-0", "Ethernet interface number", NULL, bgp_execute_router_cmd, 1},
 	{NULL,NULL,NULL,NULL, 0}
@@ -1466,33 +1383,24 @@ cish_command CMD_BGP_INTERFACE_LOOPBACK[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_BGP_INTERFACE_SERIAL[] = {
-	{"0-0", "Serial interface number", NULL, bgp_execute_router_cmd, 1},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_BGP_INTERFACE_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", NULL, bgp_execute_router_cmd, 1},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_ROUTER_BGP_NEIGHBOR_UPDATE_SOURCE[] = {
-#ifndef CONFIG_BERLIN_SATROUTER
-	{"aux", "Aux interface", CMD_BGP_INTERFACE_AUX, NULL, 1},
-#endif
 	{"ethernet", "Ethernet interface", CMD_BGP_INTERFACE_ETHERNET, NULL, 1},
 	{"loopback", "Loopback interface", CMD_BGP_INTERFACE_LOOPBACK, NULL, 1},
-	{"serial", "Serial interface", CMD_BGP_INTERFACE_SERIAL, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_BGP_INTERFACE_TUNNEL, NULL, 1},
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_ROUTER_BGP_NEIGHBOR_WEIGHT[] = { /*weight*/
+cish_command CMD_ROUTER_BGP_NEIGHBOR_WEIGHT[] = { /* weight */
 	{"0-65535", "default weight", NULL, bgp_execute_router_cmd, 1},
 	{NULL, NULL, NULL, NULL}
 };
 
-cish_command CMD_ROUTER_BGP_NEIGHBOR_TIMERS[] = { /*timers*/
+cish_command CMD_ROUTER_BGP_NEIGHBOR_TIMERS[] = { /* timers */
 	{"0-65535", "keepalive interval", NULL, bgp_execute_router_cmd, 1},
 	{NULL, NULL, NULL, NULL}
 };
@@ -2076,63 +1984,6 @@ char *linux_to_zebra_network_cmdline(char *cmdline)
 	return new_cmdline;
 }
 
-#ifdef CONFIG_BERLIN_SATROUTER
-static void change_remote_null_network(char *line, unsigned int max_len)
-{	/*  Nao podemos exibir uma linha como:
-	 *  C>* 0.0.0.0/16 is directly connected, serial0
-	 *  Neste caso descobrimos o endereco local e aplicamos
-	 *  a mascara para saber a rede desta rota. O resultado
-	 *  seria algo como:
-	 *  C>* 10.1.0.0/16 is directly connected, serial0
-	 */
-	int i, n;
-	char *p, strnet[20];
-	arg_list argl = NULL;
-	IP addr, peer, mask, net;
-
-	if (!line)
-		return;
-	if ((n = parse_args_din(line, &argl)) > 0) {
-		if ((strcmp(argl[0], "C>*") == 0)
-			&& (strncmp(argl[1], "0.0.0.0/", strlen("0.0.0.0/")) == 0)
-			&& (strncmp(argl[n-1], SERIALDEV, strlen(SERIALDEV)) == 0)) {
-			if (get_interface_address(argl[n-1], &addr, &mask, NULL, &peer) >= 0) {
-				if (peer.s_addr == 0) {
-					switch (wan_get_protocol(atoi(argl[n-1]+strlen(SERIALDEV)))) {
-						case SCC_PROTO_MLPPP:
-						case IF_PROTO_CISCO:
-						{
-							net.s_addr = addr.s_addr & mask.s_addr;
-							strncpy(strnet, inet_ntoa(net), 15);
-							strnet[15] = 0;
-							if ((strlen(line)+strlen(strnet)) < max_len) {
-								if ((p = strchr(argl[1], '/'))) {
-									if (strlen(p) < 4) {
-										strcat(strnet, p);
-										for (i=0, line[0]=0; i < n; i++) {
-											if (i == 1)
-												strcat(line, strnet);
-											else
-												strcat(line, argl[i]);
-											strcat(line, " ");
-										}
-										line[strlen(line)-1] = 0;
-									}
-								}
-							}
-							break;
-						}
-						default:
-							break;
-					}
-				}
-			}
-		}
-		free_args_din(&argl);
-	}
-}
-#endif
-
 void set_rip_interface_cmds(int enable)
 {
 	if (enable) {
@@ -2161,20 +2012,6 @@ void set_bgp_interface_cmds(int enable)
 	}
 }
 #endif
-
-void set_model_aux_cmds(int enable)
-{
-	if (enable) {
-		_cish_mask |= MSK_AUX;
-	} else {
-		_cish_mask &= ~MSK_AUX;
-	}
-	/* aux */
-	_cish_aux=enable;
-#ifndef CONFIG_GIGA
-	aux_set_mgetty(0, enable); /* mgetty tts/aux0 */
-#endif
-}
 
 void set_model_qos_cmds(int enable)
 {
@@ -2217,7 +2054,6 @@ extern cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[];
 extern cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET[];
 #endif
 extern cish_command CMD_CLEAR_INTERFACE_ETHERNET_[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_IP_UNNUMBERED_ETHERNET[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[];
 
 void set_model_ethernet_cmds(const char *name)
@@ -2240,7 +2076,6 @@ void set_model_ethernet_cmds(const char *name)
 #endif
 	CMD_CLEAR_INTERFACE_ETHERNET_[0].name=name;
 	/* configterm.c */
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_IP_UNNUMBERED_ETHERNET[0].name=name;
 	CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[0].name=name;
 	/* config_router.c */
 	CMD_ROUTER_RIP_INTERFACE_ETHERNET[0].name=name;
@@ -2250,130 +2085,6 @@ void set_model_ethernet_cmds(const char *name)
 	CMD_BGP_INTERFACE_ETHERNET[0].name=name;
 #endif
 }
-
-extern cish_command CMD_SHOW_INTERFACE_SERIAL[];
-#ifdef OPTION_SMCROUTE
-extern cish_command CMD_IP_MROUTE8_SERIAL[];
-extern cish_command CMD_IP_MROUTE5_SERIAL[];
-#endif
-extern cish_command CMD_IP_ROUTE4_SERIAL[];
-#ifdef OPTION_PIMD
-extern cish_command CMD_IP_PIM_CAND_BSR_INTF_SERIAL[];
-extern cish_command CMD_IP_PIM_CAND_RP_INTF_SERIAL[];
-#endif
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_[];
-#ifdef OPTION_IPSEC
-extern cish_command CMD_IPSEC_CONNECTION_INTERFACE_SERIAL[];
-#endif
-extern cish_command CMD_CLEAR_INTERFACE_SERIAL_[];
-extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_SERIAL[];
-
-void set_model_serial_cmds(const char *name)
-{
-	/* commandtree.c */
-	CMD_SHOW_INTERFACE_SERIAL[0].name=name;
-#ifdef OPTION_SMCROUTE
-	CMD_IP_MROUTE8_SERIAL[0].name=name;
-	CMD_IP_MROUTE5_SERIAL[0].name=name;
-#endif
-	CMD_IP_ROUTE4_SERIAL[0].name=name;
-#ifdef OPTION_PIMD
-	CMD_IP_PIM_CAND_BSR_INTF_SERIAL[0].name=name;
-	CMD_IP_PIM_CAND_RP_INTF_SERIAL[0].name=name;
-#endif
-	CMD_CONFIG_INTERFACE_SERIAL_[0].name=name;
-#ifdef OPTION_IPSEC
-	CMD_IPSEC_CONNECTION_INTERFACE_SERIAL[0].name=name;
-#endif
-	CMD_CLEAR_INTERFACE_SERIAL_[0].name=name;
-	/* configterm.c */
-	CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_SERIAL[0].name=name;
-	/* config_router.c */
-	CMD_ROUTER_RIP_INTERFACE_SERIAL[0].name=name;
-	CMD_ROUTER_OSPF_PASSIVE_INTERFACE_SERIAL[0].name=name;
-	CMD_SHOW_OSPF_INTERFACE_SERIAL[0].name=name;
-#ifdef OPTION_BGP
-	CMD_BGP_INTERFACE_SERIAL[0].name=name;
-#endif
-}
-
-#ifdef CONFIG_BERLIN_SATROUTER
-
-void disable_exc_cmds(void)
-{
-	int i, v=1000;
-	
-	/* Exclude some commands from tree */
-	CMD_SHOW_INTERFACES[0].privilege = v;
-	CMD_IP_ROUTE3[0].privilege = v;
-	CMD_CONFIG_INTERFACE[0].privilege = v;
-	CMD_CONFIG_NO[4].privilege = v;
-	CMD_CONFIGURE[5].privilege = v;
-#if defined(OPTION_IPSEC) && defined(OPTION_RMON)
-	CMD_CONFIGURE[23].privilege = v;
-#endif
-#if defined(OPTION_IPSEC) && !defined(OPTION_RMON)
-	CMD_CONFIGURE[22].privilege = v;
-#endif
-#if !defined(OPTION_IPSEC) && defined(OPTION_RMON)
-	CMD_CONFIGURE[22].privilege = v;
-#endif
-#if !defined(OPTION_IPSEC) && !defined(OPTION_RMON)
-	CMD_CONFIGURE[21].privilege = v;
-#endif
-	CMD_CLEAR_INTERFACE[0].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_ENCAP[3].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL[0].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL[2].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL[7].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_NO[1].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_NO[2].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_NO[7].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP[0].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP[3].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP[4].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP[12].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC_NO[1].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC_NO[2].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC[0].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC[3].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC[4].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_FR_NO[0].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_FR_NO[1].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_FR_NO[5].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_FR[0].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_FR[2].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_FR[3].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_FR[9].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_CHDLC_NO[0].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_CHDLC_NO[2].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_CHDLC_NO[7].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_CHDLC[0].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_CHDLC[2].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_CHDLC[4].privilege = v;
-	CMD_CONFIG_INTERFACE_SERIAL_CHDLC[12].privilege = v;
-	CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC[0].privilege = v;
-	CMD_ROUTER_RIP_NETWORK[0].privilege = v;
-	CMD_ROUTER_RIP_PASSIVE_INTERFACE[0].privilege = v;
-	CMD_ROUTER_OSPF_PASSIVE_INTERFACE[0].privilege = v;
-	CMD_SHOW_OSPF_INTERFACE[0].privilege = v;
-	CMD_DEBUG[3].privilege = v;
-#ifdef OPTION_RMON
-	CMD_CONFIG_NO[16].privilege = v;
-#else
-	CMD_CONFIG_NO[15].privilege = v;
-#endif
-	for(i=0; CMD_DEBUG[i].name; i++)
-	{
-		if(!strcmp(CMD_DEBUG[i].name, "rfc1356"))
-		{
-			CMD_DEBUG[i].privilege = v;
-			break;
-		}
-	}
-}
-
-#endif
 
 void config_router(const char *cmdline)
 {
@@ -2896,9 +2607,7 @@ void zebra_dump_routes(FILE *out)
 					if (buf[0] == 'K')
 						continue;
 #endif
-#ifdef CONFIG_BERLIN_SATROUTER
-					change_remote_null_network(buf, sizeof(buf));
-#endif
+
 					new_buf = linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf + 4));
 					buf[3] = 0;
 					if (new_buf) {

@@ -3,19 +3,12 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <arpa/inet.h>
+
 #include "commands.h"
 #include "pprintf.h"
 #include "acl.h"
 #include "mangle.h"
 #include "cish_main.h"
-#include "options.h"
-#include <libconfig/args.h>
-#include <libconfig/exec.h>
-#include <libconfig/device.h>
-#include <libconfig/str.h>
-#include <libconfig/ip.h>
-#include <libconfig/qos.h>
-#include <libconfig/system.h>
 
 extern device_family *interface_edited;
 extern int interface_major, interface_minor;
@@ -1328,7 +1321,6 @@ int clean_iface_mangle_rules(char *iface)
 	return 0;
 }
 
-typedef enum {chain_in, chain_out, chain_both} acl_chain;
 void interface_mangle(const char *cmdline)
 {
 	arglist		*args;

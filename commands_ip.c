@@ -18,20 +18,7 @@
 #include <linux/config.h>
 #include <linux/if_arp.h>
 
-#include "options.h"
 #include "commands.h"
-#include <libconfig/cish_defines.h>
-#include <libconfig/device.h>
-#include <libconfig/args.h>
-#include <libconfig/defines.h>
-#include <libconfig/exec.h>
-#include <libconfig/dev.h>
-#include <libconfig/dhcp.h>
-#include <libconfig/dns.h>
-#include <libconfig/nv.h>
-#include <libconfig/pim.h>
-#include <libconfig/ssh.h>
-#include <libconfig/str.h>
 #include "acl.h"
 #include "pprintf.h"
 #include "cish_main.h"

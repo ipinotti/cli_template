@@ -4,14 +4,6 @@
 #include <ctype.h>
 #include <arpa/inet.h>
 
-#include <libconfig/args.h>
-#include <libconfig/exec.h>
-#include <libconfig/device.h>
-#include <libconfig/ip.h>
-#include <libconfig/str.h>
-#include <libconfig/system.h>
-
-#include "options.h"
 #include "commands.h"
 #include "pprintf.h"
 #include "nat.h"
@@ -1262,7 +1254,6 @@ int clean_iface_nat_rules(char *iface)
 	return 0;
 }
 
-typedef enum {chain_in, chain_out, chain_both} acl_chain;
 void interface_nat(const char *cmdline) /* ip nat <acl> <in|out> */
 {
 	arglist *args;

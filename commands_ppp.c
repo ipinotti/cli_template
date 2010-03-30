@@ -4,14 +4,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <libconfig/dev.h>
-#include <libconfig/device.h>
-#include <libconfig/args.h>
-#include <libconfig/ppp.h>
-#include <libconfig/ntp.h>
-#include <libconfig/ip.h>
-#include <libconfig/qos.h>
-
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
@@ -489,7 +481,7 @@ void ppp_unnumbered (const char *cmd) /* ip unnumbered ethernet 0-x */
 
 	args=make_args(cmd);
 	dev=convert_device(args->argv[2], atoi(args->argv[3]), -1);
-	get_ethernet_ip_addr(dev, addr, mask); // Captura o endereço e mascara da interface Ethernet
+	get_ethernet_ip_addr(dev, addr, mask); // Captura o endereï¿½o e mascara da interface Ethernet
 	ppp_get_config(interface_major, &cfg); // Armazena em cfg a configuracao da serial
 	strncpy(cfg.ip_addr, addr, 16); //Atualiza cfg com os dados da ethernet
 	cfg.ip_addr[15]=0;

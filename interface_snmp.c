@@ -5,20 +5,15 @@
  * This program is licensed under the GNU General Public License
  * ============================================================================== */
 
-#include "commands.h"
-#include "commandtree.h"
-#include "commands.h"
-#include "pprintf.h"
-#include <libconfig/args.h>
-#include <libconfig/snmp.h>
-#include <libconfig/str.h>
-#include <libconfig/defines.h>
-#include <libconfig/exec.h>
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "commands.h"
+#include "commandtree.h"
+#include "commands.h"
+#include "pprintf.h"
 
 cish_command CMD_CONFIG_SNMP_TEXT[] = {
 	{"<text>","", CMD_CONFIG_SNMP_TEXT, snmp_text, 1, MSK_NORMAL},

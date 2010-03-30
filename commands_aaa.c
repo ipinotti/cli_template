@@ -9,13 +9,6 @@
 #include <unistd.h>
 #include <sys/stat.h> /* fstat */
 
-#include <libconfig/args.h>
-#include <libconfig/cish_defines.h>
-#include <libconfig/defines.h>
-#include <libconfig/pam.h>
-#include <libconfig/ssh.h>
-#include <libconfig/str.h>
-
 #include "commands.h"
 #include "cish_config.h"
 #include "cish_main.h"

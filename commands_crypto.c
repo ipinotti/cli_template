@@ -11,18 +11,8 @@
 #include <sys/stat.h>
 #include <arpa/inet.h>
 
-#include <libconfig/defines.h>
-#include <libconfig/device.h>
-#include <libconfig/dhcp.h>
-#include <libconfig/args.h>
-#include <libconfig/str.h>
-#include <libconfig/ipsec.h>
-#include <libconfig/ip.h>
-#include <libconfig/ppp.h>
-#include <libconfig/quagga.h>
-
-#include "cish_main.h"
 #include "commandtree.h"
+#include "cish_main.h"
 #include "commands.h"
 #include "pprintf.h"
 #include "options.h"
@@ -1064,10 +1054,6 @@ void dump_crypto(FILE *out)
 	int idx, mtu, auto_reload;
 	char **list=NULL, **list_ini=NULL;
 	ppp_config cfg;
-
-#ifdef OPTION_FEATURE
-	if (!is_feature_on(FEATURE_VPN)) return;
-#endif
 
 	pfprintf(out, "crypto\n");
 #if 0

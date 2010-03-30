@@ -10,7 +10,6 @@ all:
 install:
 	cp -avf cish $(ROOTDIR)/$(FSDIR)/bin
 	cp -avf util/bwmon $(ROOTDIR)/$(FSDIR)/bin
-	cp -avf util/systtyd $(ROOTDIR)/$(FSDIR)/bin
 
 clean:
 	rm -f cish

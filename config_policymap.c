@@ -20,19 +20,14 @@
 
 #include "options.h"
 
-#ifdef OPTION_NEW_QOS_CONFIG
-
 #include "defines.h"
 #include "commands.h"
 #include "commandtree.h"
-
 #include "cish_main.h"
 #include "pprintf.h"
 #include "mangle.h"
-
 #include "policymap.h"
-#include "../libconfig/qos.h"
-#include "../libconfig/args.h" /* arglist */
+
 
 //#define PRINTF() printf("%s : %d\n", __FUNCTION__, __LINE__);
 
@@ -360,5 +355,3 @@ void policymap_done(const char *cmdline)
 	memset(pname,0,32); /* Clear global value pname */
 	command_root = CMD_CONFIGURE;
 }
-
-#endif /*OPTION_NEW_QOS_CONFIG*/

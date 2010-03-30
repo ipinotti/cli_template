@@ -30,11 +30,6 @@ extern cish_command CMD_SHOW_OSPF[];
 
 cish_command CMD_CONFIG_KEY[];
 
-cish_command CMD_SHOW_INTERFACE_AUX[] = {
-	{"0-1", "Aux interface number", NULL, show_interfaces, 0, MSK_AUX},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_SHOW_INTERFACE_ETHERNET[] = {
 	{"0-0", "Ethernet interface number", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -45,21 +40,14 @@ cish_command CMD_SHOW_INTERFACE_LOOPBACK[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_SHOW_INTERFACE_SERIAL[] = {
-	{"0-0", "Serial interface number", NULL, show_interfaces, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_SHOW_INTERFACE_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_SHOW_INTERFACES[] = {
-	{"aux", "Aux interface", CMD_SHOW_INTERFACE_AUX, NULL, 0, MSK_AUX},
 	{"ethernet", "Ethernet interface", CMD_SHOW_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_SHOW_INTERFACE_LOOPBACK, NULL, 0, MSK_NORMAL},
-	{"serial", "Serial interface", CMD_SHOW_INTERFACE_SERIAL, NULL, 0, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_SHOW_INTERFACE_TUNNEL, NULL, 0, MSK_NORMAL},
 	{"<enter>", "", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -83,25 +71,8 @@ cish_command CMD_SHOW_NAT[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_SHOW_BRIDGE[] = {
-	{"1-1", "Bridge Group number", NULL, bridge_show, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 #ifdef OPTION_BGP
 extern cish_command CMD_SHOW_BGP[];
-#endif
-
-#ifdef CONFIG_IPHC
-cish_command CMD_SHOW_IP_IPHC_SERIAL[] = {
-	{"0-0", "Interface number", NULL, show_iphc_stats, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_SHOW_IP_IPHC[] = {
-	{"serial", "Serial interface", CMD_SHOW_IP_IPHC_SERIAL, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
 #endif
 
 cish_command CMD_SHOW_IP[] = {
@@ -116,30 +87,8 @@ cish_command CMD_SHOW_IP[] = {
 	{"ospf", "OSPF information", CMD_SHOW_OSPF, show_ip_ospf, 1, MSK_OSPF},
 	{"rip", "RIP information", NULL, show_ip_rip, 1, MSK_RIP},
 	{"route", "Routing information", NULL, show_routingtables, 0, MSK_NORMAL},
-#ifdef CONFIG_IPHC
-	{"header-compression", "IPHC header-compression statistics", CMD_SHOW_IP_IPHC, NULL, 1, MSK_NORMAL},
-#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
-
-cish_command CMD_SHOW_IPX[] = {
-	{"route", "Routing information", NULL, show_ipx_routingtables, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-#ifdef OPTION_X25
-cish_command CMD_SHOW_X25[] = {
-#ifdef OPTION_X25XOT
-	{"forward", "Forwarding information", NULL, show_x25_forward, 1, MSK_X25XOT},
-#endif
-#ifdef OPTION_X25MAP
-	{"map", "Map information", NULL, show_x25_map, 1, MSK_X25MAP},
-#endif
-	{"route", "Routing information", NULL, show_x25_routes, 0, MSK_X25},
-	{"svc", "SVC information", NULL, show_x25_svc, 0, MSK_X25},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif
 
 cish_command CMD_SHOW_SNMP[] = {
 	{"users", "Show SNMP v3 users", NULL, show_snmp_users, 0, MSK_NORMAL},
@@ -210,15 +159,9 @@ cish_command CMD_SHOW_RMON[] = {
 };
 #endif
 
-cish_command CMD_SHOW_FR[] = {
-	{"pvc", "show frame relay pvc statistics", NULL, show_fr_pvc, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_SHOW[] = {
 	{"access-lists", "List access lists", CMD_SHOW_ACL, show_accesslists, 1, MSK_NORMAL},
 	{"arp", "ARP table", NULL, show_arp, 0, MSK_NORMAL},
-	{"bridge", "Bridge Forwarding/Filtering Database", CMD_SHOW_BRIDGE, NULL, 1, MSK_NORMAL},
 	{"clock", "System clock", NULL, show_clock, 0, MSK_NORMAL},
 #ifdef OPTION_IPSEC
 	{"crypto", "VPN tunnels", CMD_SHOW_CRYPTO, show_crypto, 1, MSK_VPN},
@@ -226,13 +169,8 @@ cish_command CMD_SHOW[] = {
 	{"cpu", "CPU Information", NULL, show_cpu, 0, MSK_NORMAL},
 	{"debugging", "State of each debugging option", NULL, show_debug, 0, MSK_NORMAL},
 	{"dhcp", "Show DHCP leases", NULL, show_dumpleases, 0, MSK_NORMAL},
-#ifdef OPTION_FEATURE
-	{"features", "Features", NULL, show_features, 1, MSK_FEATURE},
-#endif
-	{"frame-relay", "Frame-Relay information", CMD_SHOW_FR, NULL, 0, MSK_NORMAL},
 	{"interfaces", "Network interfaces", CMD_SHOW_INTERFACES, show_interfaces, 0, MSK_NORMAL},
 	{"ip", "IP system information", CMD_SHOW_IP, NULL, 0, MSK_NORMAL},
-	{"ipx", "IPX system information", CMD_SHOW_IPX, NULL, 0, MSK_NORMAL},
 #ifdef OPTION_IPSEC
 	{"l2tp", "L2TP tunnels", NULL, show_l2tp, 1, MSK_VPN},
 #endif
@@ -262,14 +200,6 @@ cish_command CMD_SHOW[] = {
 #endif
 	{"running-config", "Current operating configuration", NULL, show_running_config, 1, MSK_NORMAL},
 #ifdef CONFIG_DEVELOPMENT
-	/* Verificar SatRouter para implementar essas funções */
-// 	{"slot0-config", "Contents of slot0 configuration", NULL, show_slot_config, 1, MSK_NORMAL},
-// 	{"slot1-config", "Contents of slot1 configuration", NULL, show_slot_config, 1, MSK_NORMAL},
-// 	{"slot2-config", "Contents of slot2 configuration", NULL, show_slot_config, 1, MSK_NORMAL},
-// 	{"slot3-config", "Contents of slot3 configuration", NULL, show_slot_config, 1, MSK_NORMAL},
-// 	{"slot4-config", "Contents of slot4 configuration", NULL, show_slot_config, 1, MSK_NORMAL},
-#endif
-#ifdef CONFIG_DEVELOPMENT
 	{"softnet_stat", "Show cpu RX stats", NULL, show_softnet, 1, MSK_NORMAL},
 #endif
 	{"startup-config", "Contents of startup configuration", NULL, show_startup_config, 1, MSK_NORMAL},
@@ -279,16 +209,7 @@ cish_command CMD_SHOW[] = {
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP information", NULL, show_vrrp, 1, MSK_VRRP},
 #endif	
-#ifdef OPTION_X25
-	{"x25", "X.25 system information", CMD_SHOW_X25, NULL, 1, MSK_X25},
-#endif
 	{"snmp", "Show SNMP informations", CMD_SHOW_SNMP, NULL, 1, MSK_NORMAL},
-#ifdef CONFIG_BERLIN_SATROUTER
-	{"manufacturer", "Manufacturer", NULL, show_motherboard_info, 1, MSK_NORMAL},
-	{"serial-number", "Shows modem serial number", NULL, show_satrouter_info, 1, MSK_NORMAL},
-	{"serial-number-router", "Shows router serial number", NULL, show_satrouter_info, 1, MSK_NORMAL},
-	{"release-date", "Shows release date", NULL, show_release_date, 1, MSK_NORMAL},
-#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -326,21 +247,6 @@ cish_command CMD_NO_IP_DHCP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-#if 0
-cish_command CMD_NO_IPX_ROUTE[] = {
-	{"<ipx network>", "Destination network", NULL, no_ipx_route, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif
-
-cish_command CMD_NO_IPX[] = {
-#if 0
-	{"route", "Unset routing information", CMD_NO_IPX_ROUTE, NULL, 1, MSK_NORMAL},
-#endif
-	{"routing", "Disable IPX routing", NULL, no_ipx_routing, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_IP_FRAG_HIGH[] = {
 	{"1-2000000000", "High IP fragment memory threshold (bytes)", NULL, ip_param, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -363,21 +269,6 @@ cish_command CMD_IP_FRAG[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
-#ifndef CONFIG_BERLIN
-cish_command CMD_IP_ICMP_RATE2[] = {
-	{"0-1000", "Rate (hundreths of a second)", NULL, ip_param, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_IP_ICMP_RATE[] = {
-	{"dest-unreachable", "Destination unreachable messages rate", CMD_IP_ICMP_RATE2, NULL, 1, MSK_NORMAL},
-	{"echo-reply", "Echo reply messages rate", CMD_IP_ICMP_RATE2, NULL, 1, MSK_NORMAL},
-	{"param-prob", "Parameter probe messages rate", CMD_IP_ICMP_RATE2, NULL, 1, MSK_NORMAL},
-	{"time-exceed", "Time exceeded messages rate", CMD_IP_ICMP_RATE2, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-#endif
-
 cish_command CMD_IP_ICMP_IGNORE[] = {
 	{"all", "Ignore all icmp traffic", NULL, ip_param, 1, MSK_NORMAL},
 	{"bogus", "Ignore bogus error responses", NULL, ip_param, 1, MSK_NORMAL},
@@ -387,9 +278,6 @@ cish_command CMD_IP_ICMP_IGNORE[] = {
 
 cish_command CMD_IP_ICMP[] = {
 	{"ignore", "Set ignore parameters", CMD_IP_ICMP_IGNORE, NULL, 1, MSK_NORMAL},
-#ifndef CONFIG_BERLIN
-	{"rate", "Set icmp rates", CMD_IP_ICMP_RATE, NULL, 1, MSK_NORMAL},
-#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -453,11 +341,6 @@ cish_command CMD_IP_ROUTE5[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_IP_ROUTE4_AUX[] = {
-	{"0-1", "Aux interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_AUX},
-	{NULL,NULL,NULL,NULL,0}
-};
-
 cish_command CMD_IP_ROUTE4_ETHERNET[] = {
 	{"0-0", "Ethernet interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -468,21 +351,14 @@ cish_command CMD_IP_ROUTE4_LOOPBACK[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_IP_ROUTE4_SERIAL[] = {
-	{"0-0", "Serial interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
 cish_command CMD_IP_ROUTE4_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_IP_ROUTE3[] = {
-	{"aux", "Aux interface", CMD_IP_ROUTE4_AUX, NULL, 1, MSK_AUX},
 	{"ethernet", "Ethernet interface", CMD_IP_ROUTE4_ETHERNET, NULL, 1, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_IP_ROUTE4_LOOPBACK, NULL, 1, MSK_NORMAL},
-	{"serial", "Serial interface", CMD_IP_ROUTE4_SERIAL, NULL, 1, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_IP_ROUTE4_TUNNEL, NULL, 1, MSK_NORMAL},
 	{"<ipaddress>", "Forwarding router's address", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -958,43 +834,6 @@ cish_command CMD_IP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-#if 0
-cish_command CMD_IPX_ROUTE3[] = {
-	{"<ipx node>", "Router node", NULL, ipx_route, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_IPX_ROUTE2[] = {
-	{"<ipx network>", "Router network", CMD_IPX_ROUTE3, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_IPX_ROUTE1[] = {
-	{"<ipx network>", "Destination network", CMD_IPX_ROUTE2, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-#endif
-
-cish_command CMD_IPX[] = {
-#if 0
-	{"route", "Set an IPX static routing table entry", CMD_IPX_ROUTE1, ip_route, 1, MSK_NORMAL},
-#endif
-	{"routing", "Enable IPX routing", NULL, ipx_routing, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_AUX_[] = {
-	{"0-1", "Aux interface number", NULL, config_interface, 0, MSK_AUX},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-#if 0
-cish_command CMD_CONFIG_INTERFACE_BRIDGE_[] = {
-	{"1-1", "Bridge number", NULL, config_interface, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif
-
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_[] = {
 	{"0-0", "Ethernet interface number", NULL, config_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -1005,21 +844,14 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_INTERFACE_SERIAL_[] = {
-	{"0-0", "Serial interface number", NULL, config_interface, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_[] = {
 	{"0-9", "Tunnel interface number", NULL, config_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CONFIG_INTERFACE[] = {
-	{"aux", "Aux interface", CMD_CONFIG_INTERFACE_AUX_, NULL, 0, MSK_AUX},
 	{"ethernet", "Ethernet interface", CMD_CONFIG_INTERFACE_ETHERNET_, NULL, 0, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_CONFIG_INTERFACE_LOOPBACK_, NULL, 0, MSK_NORMAL},
-	{"serial", "Serial interface", CMD_CONFIG_INTERFACE_SERIAL_, NULL, 0, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_CONFIG_INTERFACE_TUNNEL_, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -1084,17 +916,6 @@ cish_command CMD_CONFIG_NO_LOG[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_CONFIG_NO_BRIDGE2[] = {
-	{"spanning-disabled", "Enable spanning tree", NULL, bridge_stp, 1, MSK_NORMAL},
-	{"<enter>", "", NULL, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_CONFIG_NO_BRIDGE[] = {
-	{"1-1", "Bridge Group number for Bridging", CMD_CONFIG_NO_BRIDGE2, bridge_no, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
 cish_command CMD_NO_SECRET[] = {
 	{"login", "Disable login password", NULL, set_nosecret, 1, MSK_NORMAL},
 	{"enable", "Disable privileged password", NULL, set_nosecret, 1, MSK_NORMAL},
@@ -1123,13 +944,7 @@ cish_command CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT[] = {
 };
 
 cish_command CMD_CONFIG_NO_AAA_AUTHENTICATION[] = {
-#ifdef CONFIG_BERLIN_SATROUTER
-	{"enable", "Set authentication list for enable.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
-#endif
 	{"login", "Set authentication lists for logins.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
-#ifdef CONFIG_SPPP_NETLINK
-	{"ppp", "Set authentication lists for ppp.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
-#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1218,72 +1033,18 @@ cish_command CMD_NO_ARP_IP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-#ifdef OPTION_X25XOT
-cish_command CMD_X25_ROUTE5[] = {
-	{"<ipaddress>", "Address of remote XOT host", NULL, x25_route_xot, 1, MSK_X25XOT},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif
-
-#ifdef OPTION_X25
-cish_command CMD_X25_ROUTE4[] = {
-	{"0-0", "Serial interface number", NULL, x25_route_interface, 0, MSK_X25},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_X25_ROUTE3[] = {
-	{"serial", "Serial interface", CMD_X25_ROUTE4, NULL, 1, MSK_X25},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_X25_ROUTE2[] = {
-	{"interface", "Route to a local interface", CMD_X25_ROUTE3, NULL, 1, MSK_X25},
-#ifdef OPTION_X25XOT
-	{"xot", "Route to a remote host using XOT (X.25-Over-TCP)", CMD_X25_ROUTE5, NULL, 1, MSK_X25XOT},
-#endif
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_X25_ROUTE1[] = {
-	{"<x121>", "Destination X.121 route to match <address>[/<mask>]", CMD_X25_ROUTE2, NULL, 1, MSK_X25},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_X25_NO[] = {
-	{"route","Add an entry to the X.25 routing table", CMD_X25_ROUTE1, NULL, 1, MSK_X25},
-#ifdef OPTION_X25XOT
-	{"routing","Enable X.25 switching", NULL, x25_param, 1, MSK_X25XOT},
-#endif
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif /* OPTION_X25 */
-
-#ifdef CONFIG_BERLIN_SATROUTER
-cish_command CMD_CONFIG_NO_ENABLESECRET[] = {
-	{"secret", "No secret required for privileged level", NULL, clear_enable_secret, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif
-
-#ifdef OPTION_NEW_QOS_CONFIG
 cish_command CMD_CONFIG_POLICYMAP[] = {
 	{"<text>","policy-map name", NULL, do_policymap, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL, 0}
 };
-#endif
 
 cish_command CMD_CONFIG_NO[] = {
 	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_NO_AAA, NULL, 1, MSK_NORMAL},
 	{"access-list","Remove access-list", CMD_NO_ACL, NULL, 1, MSK_NORMAL},
 	{"arp", "Unset a static ARP entry", CMD_NO_ARP_IP, NULL, 1, MSK_NORMAL},
-	{"bridge", "Bridging Group", CMD_CONFIG_NO_BRIDGE, NULL, 1, MSK_NORMAL},
 	{"chatscript", "Reset a chatscript", CMD_CONFIG_NO_CHATSCRIPT, NULL, 1, MSK_NORMAL},
-#ifdef CONFIG_BERLIN_SATROUTER
-	{"enable", "Modify enable secret parameters", CMD_CONFIG_NO_ENABLESECRET, NULL, 1, MSK_NORMAL},
-#endif
 	{"interface","Interface Configuration", CMD_CONFIG_NO_INTERFACE, NULL, 1, MSK_NORMAL},
 	{"ip","IPv4 Configuration", CMD_NO_IP, NULL, 1, MSK_NORMAL},
-	{"ipx","IPX Configuration", CMD_NO_IPX, NULL, 1, MSK_NORMAL},
 	{"key","Authentication key management (RIP)", CMD_CONFIG_KEY, NULL, 1, MSK_RIP},
 	{"logging", "Unset a logging target", CMD_CONFIG_NO_LOG, NULL, 1, MSK_NORMAL},
 	{"mark-rule","Remove MARK rule", CMD_NO_MANGLE, NULL, 1, MSK_QOS},
@@ -1293,9 +1054,7 @@ cish_command CMD_CONFIG_NO[] = {
 #else
 	{"ntp-sync", "Disable NTP synchronization", NULL, no_ntp_sync, 1, MSK_NORMAL},
 #endif
-#ifdef OPTION_NEW_QOS_CONFIG
 	{"policy-map", "Configure QoS Policy Map", CMD_CONFIG_POLICYMAP, NULL, 1, MSK_QOS},
-#endif
 	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_NO_RADIUSSERVER_HOST, 
 								del_radiusserver, 1, MSK_NORMAL},
 #ifdef OPTION_RMON
@@ -1306,9 +1065,6 @@ cish_command CMD_CONFIG_NO[] = {
 	{"snmp-server", "Remove SNMP settings", CMD_CONFIG_NO_SNMP, snmp_no_server, 1, MSK_NORMAL},
 	{"tacacs-server", "Modify TACACS query parameters", CMD_CONFIG_NO_TACACSSERVER_HOST, 
 								del_tacacsserver, 1, MSK_NORMAL},
-#ifdef OPTION_X25
-	{"x25","X.25 Level 3", CMD_X25_NO, NULL, 1, MSK_X25},
-#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -2611,9 +2367,7 @@ cish_command CMD_CONFIG_NTP[] = {
 	{"restrict","NTP restriction rules", CMD_CONFIG_NTP_RESTRICT_IP, NULL, 1, MSK_NORMAL},
 	{"server","Add time synchronization server", CMD_CONFIG_NTP_SERVER, NULL, 1, MSK_NORMAL},
 	{"trusted-key","Configure trusted keys", CMD_CONFIG_NTP_TRUSTEDKEY, NULL, 1, MSK_NORMAL},
-#ifndef CONFIG_BERLIN_SATROUTER
 	{"update-calendar","Sync RTC with system clock", NULL, ntp_update_calendar, 1, MSK_NORMAL},
-#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -2630,51 +2384,6 @@ cish_command CMD_CONFIG_NTP[] = {
 };
 #endif
 
-cish_command CMD_CONFIG_BRIDGE_AGING[] = {
-	{"10-1000000", "Seconds", NULL, bridge_setaging, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_CONFIG_BRIDGE_FD[] = {
-	{"4-200", "Seconds", NULL, bridge_setfd, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_CONFIG_BRIDGE_HELLO[] = {
-	{"1-10", "Seconds", NULL, bridge_sethello, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_CONFIG_BRIDGE_MAXAGE[] = {
-	{"6-200", "Seconds", NULL, bridge_setmaxage, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_CONFIG_BRIDGE_PRIO[] = {
-	{"0-65535", "Priority (low priority more likely to be root)", NULL, bridge_setprio, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_CONFIG_BRIDGE_PROTO[] = {
-	{"ieee", "IEEE 802.1 protocol", NULL, bridge_setproto, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_CONFIG_BRIDGE2[] = {
-	{"aging-time", "Set forwarding entry aging time", CMD_CONFIG_BRIDGE_AGING, NULL, 1, MSK_NORMAL},
-	{"forward-time", "Set forwarding delay time", CMD_CONFIG_BRIDGE_FD, NULL, 1, MSK_NORMAL},
-	{"hello-time", "Set interval between HELLOs", CMD_CONFIG_BRIDGE_HELLO, NULL, 1, MSK_NORMAL},
-	{"max-age", "Maximum allowed message age of received Hello BPDUs", CMD_CONFIG_BRIDGE_MAXAGE, NULL, 1, MSK_NORMAL},
-	{"priority", "Set bridge priority", CMD_CONFIG_BRIDGE_PRIO, NULL, 1, MSK_NORMAL},
-	{"protocol", "Specify spanning tree protocol", CMD_CONFIG_BRIDGE_PROTO, NULL, 1, MSK_NORMAL},
-	{"spanning-disabled", "Disable spanning tree", NULL, bridge_nostp, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
-
-cish_command CMD_CONFIG_BRIDGE[] = {
-	{"1-1", "Bridge Group number for Bridging", CMD_CONFIG_BRIDGE2, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL,0}
-};
 
 cish_command CMD_CONFIG_HOSTNAME[] = {
 	{"<text>", "This system's hostname", NULL, hostname, 1, MSK_NORMAL},
@@ -2695,26 +2404,6 @@ cish_command CMD_CONFIG_ROUTER[] = {
 	{"rip", "Routing Information Protocol (RIP)", NULL, config_router, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
-
-#ifdef CONFIG_BERLIN_SATROUTER
-
-cish_command CMD_ENABLE_AUTH_SECRET_VALUE[] = {
-	{"<string>", "Password string", NULL, set_enable_secret, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_ENABLE_AUTH_SECRET[] = {
-	{"hash", "Encrypted secret for enable will follow", CMD_ENABLE_AUTH_SECRET_VALUE, NULL, 1, MSK_NORMAL},
-	{"cleartext", "UNENCRYPTED secret for enable will follow", CMD_ENABLE_AUTH_SECRET_VALUE, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_ENABLE_AUTH[] = {
-	{"secret", "Assign the privileged level secret", CMD_ENABLE_AUTH_SECRET, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-#endif
 
 cish_command CMD_SECRET3[] = {
 	{"<string>", "Encrypted password", NULL, setsecret, 1, MSK_NORMAL},
@@ -2839,9 +2528,7 @@ cish_command CMD_IPSEC_CONNECTION_ESP_HASH[] = {
 cish_command CMD_IPSEC_CONNECTION_ESP[] = {
 	{"3des", "3DES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, set_esp_hash, 1, MSK_NORMAL},
 	{"aes", "AES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, set_esp_hash, 1, MSK_NORMAL},
-#ifndef CONFIG_BERLIN_SATROUTER
 	{"des", "DES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, set_esp_hash, 1, MSK_NORMAL},
-#endif
 	{"null", "NULL cypher", CMD_IPSEC_CONNECTION_ESP_HASH, set_esp_hash, 1, MSK_NORMAL},
 	{"<enter>", "cypher do not care", NULL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -2862,14 +2549,9 @@ cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IPSEC_CONNECTION_INTERFACE_SERIAL[] = {
-	{"0-0", "Serial interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
 
 cish_command CMD_IPSEC_CONNECTION_INTERFACE[] = {
 	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET, NULL, 1, MSK_NORMAL},
-	{"serial", "Serial interface", CMD_IPSEC_CONNECTION_INTERFACE_SERIAL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -2963,12 +2645,6 @@ cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_ADDRESS[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_IP_PEER[] = {
-	{"pool", "Remote address from pool", NULL, l2tp_ppp_peeraddr, 1, MSK_NORMAL},
-	{"<ipaddress>", "Remote address (on internal interface)", NULL, l2tp_ppp_peeraddr, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET[] = {
 	{"0-0", "Ethernet interface number", NULL, l2tp_ppp_unnumbered, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -2988,7 +2664,6 @@ cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED[] = {
 cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP[] = {
 	{"address", "Set local address", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_ADDRESS, NULL, 1, MSK_NORMAL},
 	{"default-route", "Use default-route on this interface", NULL, l2tp_ppp_defaultroute, 1, MSK_NORMAL},
-	{"peer-address", "Set peer address", CMD_CONFIG_INTERFACE_SERIAL_PPP_IP_PEER, NULL, 1, MSK_NORMAL},
 	{"unnumbered", "Enable IP processing without an explicit address", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED, NULL, 1, MSK_NORMAL},
 	{"vj", "Enable Van Jacobson style TCP/IP header compression", NULL, l2tp_ppp_vj, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -3334,13 +3009,7 @@ cish_command CMD_CONFIG_AAA_AUTHEN_DEFAULT[] = {
 
 
 cish_command CMD_CONFIG_AAA_AUTHENTICATION[] = {
-#ifdef CONFIG_BERLIN_SATROUTER
-	{"enable", "Set authentication list for enable.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
-#endif
 	{"login", "Set authentication lists for logins.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
-#ifdef CONFIG_SPPP_NETLINK
-	{"ppp", "Set authentication lists for ppp", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
-#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -3630,27 +3299,6 @@ cish_command CMD_ARP_IP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-#ifdef OPTION_X25
-cish_command CMD_X25_T2X[] = {
-	{"1-300", "Seconds", NULL, x25_param, 1, MSK_X25},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_X25[] = {
-	{"route","Add an entry to the X.25 routing table", CMD_X25_ROUTE1, NULL, 1, MSK_X25},
-#ifdef OPTION_X25XOT
-	{"routing","Enable X.25 switching", NULL, x25_param, 1, MSK_X25XOT},
-#endif
-	{"t2","Set DTE Frame Acknowledgement timeout", CMD_X25_T2X, NULL, 1, MSK_X25},
-	{"t20","Set DTE Restart Request timeout", CMD_X25_T2X, NULL, 1, MSK_X25},
-	{"t21","Set DTE Call Request timeout", CMD_X25_T2X, NULL, 1, MSK_X25},
-	{"t22","Set DTE Reset Request timeout", CMD_X25_T2X, NULL, 1, MSK_X25},
-	{"t23","Set DTE Clear Request timeout", CMD_X25_T2X, NULL, 1, MSK_X25},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif
-
-#ifdef OPTION_NEW_QOS_CONFIG
 cish_command CMD_POLICYMAP_WFQ[] = {
 	{"1-4096", "WFQ hold-queue size", NULL, config_policy_queue, 1, MSK_QOS},
 	{"<enter>", "", NULL, NULL, 1, MSK_QOS},
@@ -3772,13 +3420,11 @@ cish_command CMD_POLICYMAP[] = {
 	{"no","Negate or set default values of a command", CMD_POLICYMAP_NO, NULL, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL, 0}
 };
-#endif /* OPTION_NEW_QOS_CONFIG */
 cish_command CMD_CONFIGURE[] = {
 	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_AAA, NULL, 1, MSK_NORMAL},
 	{"access-list","Set an ACL", CMD_CONFACL1, NULL, 1, MSK_NORMAL},
 	{"access-policy", "Set default access policy", CMD_CONFACLPOL, NULL, 1, MSK_NORMAL},
 	{"arp", "Set a static ARP entry", CMD_ARP_IP, NULL, 1, MSK_NORMAL},
-	{"bridge","Bridging Group", CMD_CONFIG_BRIDGE, NULL, 1, MSK_NORMAL},
 	{"chatscript", "Set a chatscript line", CMD_CONFIG_CHATSCRIPT, NULL, 1, MSK_NORMAL},
 	{"clock","Manage the system clock", CMD_CONFIGURE_CLOCK, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_IPSEC
@@ -3788,7 +3434,6 @@ cish_command CMD_CONFIGURE[] = {
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"hostname","Set system's hostname", CMD_CONFIG_HOSTNAME, NULL, 1, MSK_NORMAL},
 	{"ip","IPv4 Configuration", CMD_IP, NULL, 1, MSK_NORMAL},
-	{"ipx","IPX Configuration", CMD_IPX, NULL, 1, MSK_NORMAL},
 	{"interface","Interface Configuration", CMD_CONFIG_INTERFACE, NULL, 1, MSK_NORMAL},
 	{"key","Authentication key management (RIP)", CMD_CONFIG_KEY, NULL, 1, MSK_RIP},
 	{"logging","Logging info", CMD_CONFIG_LOG, NULL, 1, MSK_NORMAL},
@@ -3800,9 +3445,7 @@ cish_command CMD_CONFIGURE[] = {
 #else
 	{"ntp-sync","Set time synchronization", CMD_CONFIG_NTP, NULL, 1, MSK_NORMAL},
 #endif
-#ifdef OPTION_NEW_QOS_CONFIG
 	{"policy-map", "Configure QoS Policy Map", CMD_CONFIG_POLICYMAP, NULL, 1, MSK_QOS},
-#endif
 	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_RADIUSSERVER_HOST, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_RMON
 	{"rmon","Set RMON agent configuration", CMD_CONFIG_RMON, NULL, 1, MSK_NORMAL},
@@ -3812,9 +3455,6 @@ cish_command CMD_CONFIGURE[] = {
 	{"snmp-server","Set SNMP server configuration", CMD_CONFIG_SNMP, NULL, 1, MSK_NORMAL},
 	{"tacacs-server","Modify TACACS query parameters", CMD_CONFIG_TACACSSERVER_HOST, NULL, 1, MSK_NORMAL},
 	{"terminal","Set terminal line parameters", CMD_TERMINAL, NULL, 0, MSK_NORMAL},
-#ifdef OPTION_X25
-	{"x25","X.25 Level 3", CMD_X25, NULL, 1, MSK_X25},
-#endif
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -3908,24 +3548,6 @@ cish_command CMD_TCPDUMP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-#ifdef OPTION_FEATURE
-#ifdef NO_FEATURE
-cish_command CMD_NO_FEATURE[] = {
-#ifdef OPTION_IPSEC
-	{"vpn", "Disable VPN support", NULL, no_feature, 1, MSK_FEATURE},
-#endif
-#ifdef OPTION_X25MAP
-#if 1
-	{"x25", "Disable X25 support", NULL, no_feature, 1, MSK_FEATURE},
-#else
-	{"x25map", "Disable X25 map support", NULL, no_feature, 1, MSK_FEATURE},
-#endif
-#endif
-	{NULL, NULL, NULL, NULL}
-};
-#endif
-#endif
-
 cish_command CMD_COPY_TFTP3[] = {
 	{"<text>", "Name of configuration file", NULL, cmd_copy, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL}
@@ -3981,39 +3603,6 @@ cish_command CMD_ERASE[] = {
 	{NULL, NULL, NULL, NULL}
 };
 
-#ifdef OPTION_FEATURE
-cish_command CMD_FEATURE[] = {
-#ifdef OPTION_IPSEC
-	{"vpn", "Enable VPN support", NULL, feature, 1, MSK_FEATURE},
-#endif
-#ifdef OPTION_X25MAP
-#ifndef OPTION_X25
-	{"x25", "Enable X25 support", NULL, feature, 1, MSK_FEATURE},
-#else
-	{"x25map", "Enable X25 map support", NULL, feature, 1, MSK_FEATURE},
-#endif
-#endif
-#if 0
-	{"ospf", "Enable OSPF support", NULL, feature, 1, MSK_FEATURE},
-	{"rip", "Enable RIP support", NULL, feature, 1, MSK_FEATURE},
-#endif
-	{NULL, NULL, NULL, NULL}
-};
-#endif
-
-#if 0
-cish_command CMD_FIRMWARE_DOWNLOAD_PASSWD[] = {
-	{"<text>", "User password", NULL, firmware_download, 1, MSK_NORMAL},
-	{NULL, NULL, NULL, NULL}
-};
-
-cish_command CMD_FIRMWARE_DOWNLOAD_USER[] = {
-	{"<text>", "Username", CMD_FIRMWARE_DOWNLOAD_PASSWD, NULL, 1, MSK_NORMAL},
-	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
-	{NULL, NULL, NULL, NULL}
-};
-#endif
-
 cish_command CMD_FIRMWARE_DOWNLOAD[] = {
 #ifdef CONFIG_DM
 	{"<url>", "Remote site url (http://user:pass@www.enterprise.com.br/filename)", NULL, firmware_download, 1, MSK_NORMAL},
@@ -4037,11 +3626,6 @@ cish_command CMD_FIRMWARE[] = {
 
 cish_command CMD_NO[] = {
 	{"debug", "Disable Debugging parameters", CMD_DEBUG, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_FEATURE
-#ifdef NO_FEATURE
-	{"feature", "Disable feature", CMD_NO_FEATURE, NULL, 1, MSK_FEATURE},
-#endif
-#endif
 	{"firmware", "Firmware update", CMD_NO_FIRMWARE, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -4075,11 +3659,6 @@ cish_command CMD_CLEAR_INTERFACE_LOOPBACK_[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CLEAR_INTERFACE_SERIAL_[] = {
-	{"0-0", "Serial interface number", NULL, clear_counters, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_CLEAR_INTERFACE_TUNNEL_[] = {
 	{"0-9", "Tunnel interface number", NULL, clear_counters, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -4097,7 +3676,6 @@ cish_command CMD_CLEAR_INTERFACE[] = {
 	{"aux", "Aux interface", CMD_CLEAR_INTERFACE_AUX_, NULL, 1, MSK_AUX},
 	{"ethernet", "Ethernet interface", CMD_CLEAR_INTERFACE_ETHERNET_, NULL, 1, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_CLEAR_INTERFACE_LOOPBACK_, NULL, 1, MSK_NORMAL},
-	{"serial", "Serial interface", CMD_CLEAR_INTERFACE_SERIAL_, NULL, 1, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_CLEAR_INTERFACE_TUNNEL_, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_IPSEC
 	{"crypto", "IPSec tunnel", CMD_CLEAR_CRYPTO_TUNNEL_, clear_counters, 1, MSK_VPN},
@@ -4178,9 +3756,6 @@ cish_command CMD[] = {
 	{"enable", "Enter administrator mode", NULL, enable, 0, MSK_NORMAL}, /* enable(); disable(); */
 	{"erase", "Erase configuration memory", CMD_ERASE, NULL, 1, MSK_NORMAL},
 	{"exit", "Exit session", NULL, exit_cish, 0, MSK_NORMAL},
-#ifdef OPTION_FEATURE
-	{"feature", "Enable feature", CMD_FEATURE, NULL, 1, MSK_FEATURE},
-#endif
 	{"firmware", "Firmware update", CMD_FIRMWARE, NULL, 1, MSK_NORMAL},
 #ifdef CONFIG_GIGA
 	{"giga", "Test commands", CMD_GIGA, NULL, 1, MSK_NORMAL},
@@ -4195,9 +3770,6 @@ cish_command CMD[] = {
 	{"telnet", "Open a telnet connection", CMD_TELNET, NULL, 1, MSK_NORMAL},
 	{"terminal", "Set terminal line parameters", CMD_TERMINAL, NULL, 0, MSK_NORMAL},
 	{"traceroute", "Traceroute to destination", CMD_TRACEROUTE, NULL, 0, MSK_NORMAL},
-#ifdef OPTION_X25MAP
-	{"wizard", "Run TEF Wizard", NULL, tefwiz_init, 1, MSK_X25MAP},
-#endif
 	{NULL, NULL, NULL, NULL}
 };
 

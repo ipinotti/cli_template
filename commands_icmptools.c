@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <linux/config.h>
 
-#include <libconfig/args.h>
 #include "commands.h"
 #include "cish_main.h"
 

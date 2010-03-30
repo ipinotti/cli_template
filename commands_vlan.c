@@ -49,6 +49,7 @@ void vlan_del(const char *cmd) /* no vlan <id> */
 	destroy_args(args);
 }
 
+#if 0
 void vlan_change_cos(const char *cmd) /* set cos [precedence|dscp] */
 {
 	arglist *args;
@@ -67,4 +68,5 @@ void vlan_change_cos(const char *cmd) /* set cos [precedence|dscp] */
 
 	destroy_args(args);
 }
+#endif
 
