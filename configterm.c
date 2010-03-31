@@ -112,7 +112,6 @@ void config_key_string(const char *cmdline) /* key-string <text> */
 	destroy_args(args);
 }
 
-#ifdef OPTION_NEW_QOS_CONFIG
 void do_bandwidth(const char *cmdline)
 {
 	char *dev;
@@ -206,83 +205,6 @@ cish_command CMD_CONFIG_SERV_POLICY[] = {
 	{"<text>", "policy-map name", NULL, do_service_policy, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL, 0}
 };
-#else
-cish_command CMD_CONFIG_INTERFACE_POLICY_NO[] = {
-	{"1-2000000000", "Unset mark rule (as marked on mark-rule)", NULL, interface_policy_no, 1, MSK_QOS},
-	{"<enter>", "", NULL, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY12[] = {
-	{"1-4096", "WFQ hold-queue size", NULL, interface_policy, 1, MSK_QOS},
-	{"<enter>", "", NULL, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY11[] = {
-	{"1-2048", "FIFO packets size", NULL, interface_policy, 1, MSK_QOS},
-	{"<enter>", "", NULL, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY10[] = {
-	{"ecn", "Use early congestion notification", NULL, interface_policy, 1, MSK_QOS},
-	{"<enter>", "", NULL, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY9[] = {
-	{"1-100", "Drop probability (%)", CMD_CONFIG_INTERFACE_POLICY10, interface_policy, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY8[] = {
-	{"10-5000", "Desired latency (ms)", CMD_CONFIG_INTERFACE_POLICY9, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY7[] = {
-	{"1-120", "Perturb (s)", NULL, interface_policy, 1, MSK_QOS},
-	{"<enter>", "", NULL, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY6[] = {
-	{"fifo", "Standard first-in first-out", CMD_CONFIG_INTERFACE_POLICY11, interface_policy, 1, MSK_QOS},
-	{"red", "Random Early Detection", CMD_CONFIG_INTERFACE_POLICY8, NULL, 1, MSK_QOS},
-	{"sfq", "Stochastic Fairness Queue", CMD_CONFIG_INTERFACE_POLICY7, interface_policy, 1, MSK_QOS},
-	{"wfq", "Weighted Fairness Queue", CMD_CONFIG_INTERFACE_POLICY12, interface_policy, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY5[] = {
-	{"queue", "Set queue strategy", CMD_CONFIG_INTERFACE_POLICY6, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY4[] = {
-	{"<burst>", "Set burst <1500-65536>[k]bytes", CMD_CONFIG_INTERFACE_POLICY5, interface_policy, 1, MSK_QOS},
-	{"queue", "Set queue strategy", CMD_CONFIG_INTERFACE_POLICY6, NULL, 1, MSK_QOS},
-	{"<enter>", "", NULL, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY3[] = {
-	{"<bandwidth>", "Set bandwidth <1000-5056000>[k|m]bps or <1-100>% of remainder", CMD_CONFIG_INTERFACE_POLICY4, interface_policy, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CONFIG_INTERFACE_POLICY2[] = {
-	{"0-2", "Set priority (0: high; 2:low)", CMD_CONFIG_INTERFACE_POLICY3, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-
-cish_command CMD_CONFIG_INTERFACE_POLICY[] = {
-	{"1-2000000000", "Set mark rule (as marked on mark-rule)", CMD_CONFIG_INTERFACE_POLICY2, NULL, 1, MSK_QOS},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif /*OPTION_NEW_QOS_CONFIG*/
 
 cish_command CMD_CONFIG_INTERFACE_IP_OSPF_NO_INTF[] = {
 	{"<ipaddress>", "Address of interface", NULL, ospf_execute_interface_cmd, 1, MSK_OSPF},
@@ -420,9 +342,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP[] = {
 	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF_NO, NULL, 1, MSK_OSPF},
 #ifdef OPTION_PIMD
 	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
-#endif
-#ifndef OPTION_NEW_QOS_CONFIG
-	{"policy", "Remove QoS policy", CMD_CONFIG_INTERFACE_POLICY_NO, interface_policy_no, 1, MSK_QOS},
 #endif
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
@@ -673,9 +592,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP[] = {
 #ifdef OPTION_PIMD
 	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
 #endif
-#ifndef OPTION_NEW_QOS_CONFIG
-	{"policy", "Add QoS policy", CMD_CONFIG_INTERFACE_POLICY, NULL, 1, MSK_QOS},
-#endif
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL}
@@ -809,9 +725,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP[] = {
 #ifdef OPTION_PIMD
 	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
 #endif
-#ifndef OPTION_NEW_QOS_CONFIG
-	{"policy", "Remove QoS policy", CMD_CONFIG_INTERFACE_POLICY_NO, interface_policy_no, 1, MSK_QOS},
-#endif
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL, 0}
@@ -841,9 +754,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP[] = {
 	{"ospf", "OSPF protocol",CMD_CONFIG_INTERFACE_IP_OSPF, NULL, 1, MSK_OSPF},
 #ifdef OPTION_PIMD
 	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
-#endif
-#ifndef OPTION_NEW_QOS_CONFIG
-	{"policy", "Add QoS policy", CMD_CONFIG_INTERFACE_POLICY, NULL, 1, MSK_QOS},
 #endif
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
@@ -1507,106 +1417,6 @@ void interface_no_description(const char *cmd)
 	free(dev);
 }
 
-#ifndef OPTION_NEW_QOS_CONFIG
-void interface_policy_no(const char *cmdline)
-{
-	char *dev;
-	arglist *args;
-
-	dev=convert_device (interface_edited->cish_string, interface_major, interface_minor);
-	args=make_args(cmdline); /* no ip policy <mark> */
-	if (args->argc < 4) del_qos_cfg(dev, -1); /* clear all! */
-		else del_qos_cfg(dev, atoi(args->argv[3]));
-	destroy_args(args);
-	tc_insert_all(dev);
-	free(dev);
-}
-
-void interface_policy(const char *cmdline)
-{
-	char *dev;
-	int i;
-	arglist *args;
-	qos_cfg_t cfg;
-	unsigned int bandwidth, burst, band_total_bps, band_total_perc, band_total_temp;
-	char *endptr;
-
-	dev=convert_device (interface_edited->cish_string, interface_major, interface_minor);
-	args=make_args(cmdline); /* ip policy <mark> <priority> <bandwidth kbps> [[<burst kbytes>] [queue fifo|sfq 1-120|red 1-1000 1-100 ecn]] */
-	cfg.mark=atoi(args->argv[2]);
-	if (check_qos_cfg_mark(dev, cfg.mark))
-	{
-		fprintf(stderr, "%% Policy for mark %ld already set for this interface\n", cfg.mark);
-		return;
-	}
-	cfg.prio=atoi(args->argv[3]);
-	bandwidth=strtol(args->argv[4], &endptr, 10);
-	cfg.bandwidth_bps=cfg.bandwidth_perc=cfg.bandwidth_temp=cfg.burst=0;
-	cfg.queue=queue_fifo;
-	cfg.fifo_limit=0;
-	if (strcasecmp(endptr,"bps")==0) cfg.bandwidth_bps=bandwidth;
-	else if (strcasecmp(endptr,"kbps")==0) cfg.bandwidth_bps=bandwidth*1024;
-	else if (strcasecmp(endptr,"mbps")==0) cfg.bandwidth_bps=bandwidth*1048576;
-	else if (strcasecmp(endptr,"%")==0) cfg.bandwidth_perc=bandwidth;
-	if (check_qos_cfg_totals(dev, -1, &band_total_bps, &band_total_perc, &band_total_temp) < 0) return;
-	if ((band_total_perc+cfg.bandwidth_perc) > 100)
-	{
-		fprintf(stderr, "%% Reserved bandwidth exceeds 100%% (%d%%)\n", band_total_perc+cfg.bandwidth_perc);
-		return;
-	}
-	if (args->argc > 5)
-	{
-		i=5;
-		if (strcmp(args->argv[i], "queue") != 0)
-		{
-			burst=strtol(args->argv[i], &endptr, 10);
-			if (strcasecmp(endptr,"bytes") == 0) cfg.burst=burst;
-			else if (strcasecmp(endptr,"kbytes")==0) cfg.burst=burst*1024;
-			if (args->argc > 6) i++;
-		}
-		if (strcmp(args->argv[i], "queue") == 0)
-		{
-			i++;
-			if (strcmp(args->argv[i], "fifo") == 0) {
-				cfg.queue=queue_fifo;
-				if (args->argc == i+2) {
-					cfg.fifo_limit=atoi(args->argv[i+1]);
-				}
-					else cfg.fifo_limit=0;
-			}
-			else if (strcmp(args->argv[i], "sfq") == 0) {
-				cfg.queue=queue_sfq;
-				if (args->argc == i+2) {
-					cfg.sfq_perturb=atoi(args->argv[i+1]);
-				}
-					else cfg.sfq_perturb=0;
-			}
-			else if (strcmp(args->argv[i], "wfq") == 0) {
-				cfg.queue=queue_wfq;
-				if (args->argc == i+2) {
-					cfg.wfq_hold_queue=atoi(args->argv[i+1]);
-				}
-					else cfg.wfq_hold_queue=1024;
-			}
-			else if (strcmp(args->argv[i], "red") == 0) {
-				cfg.queue=queue_red;
-				cfg.red_latency=atoi(args->argv[i+1]);
-				cfg.red_probability=atoi(args->argv[i+2]);
-				if (args->argc == i+4) {
-					if (strcmp(args->argv[i+3], "ecn") == 0) cfg.red_ecn=1;
-						else cfg.red_ecn=0;
-				}
-					else cfg.red_ecn=0;
-			}
-		}
-	}
-	add_qos_cfg(dev, &cfg);
-	destroy_args(args);
-	tc_insert_all(dev);
-	free(dev);
-}
-#endif
-
 void interface_traffic_rate_no(const char *cmdline) /* no frame-relay traffic-rate */
 {
 	char *dev;
@@ -1616,45 +1426,6 @@ void interface_traffic_rate_no(const char *cmdline) /* no frame-relay traffic-ra
 	tc_insert_all(dev);
 	free(dev);
 }
-
-#ifdef CONFIG_NET_SCH_FRTBF
-void interface_traffic_rate(const char *cmdline) /* frame-relay traffic-rate <CIR> [<EIR>] */
-{
-	char *dev;
-	arglist *args;
-	frts_cfg_t cfg;
-
-	dev=convert_device (interface_edited->cish_string, interface_major, interface_minor);
-	args=make_args(cmdline);
-	cfg.cir=atoi(args->argv[2]);
-	if (args->argc > 3) cfg.eir=atoi(args->argv[3]);
-		else cfg.eir=0;
-	add_frts_cfg(dev, &cfg);
-	destroy_args(args);
-	tc_insert_all(dev);
-	free(dev);
-}
-#endif
-
-#ifdef CONFIG_HDLC_FR_FRAG
-void interface_subfr_fragment(const char *cmdline) /* [no] frame-relay fragment [<16-1600>] */
-{
-	int frag;
-	char *dev;
-	arglist *args;
-
-	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	args = make_args(cmdline);
-	if( strcmp(args->argv[0], "no") )
-		frag = atoi(args->argv[2]);
-	else
-		frag = 0;
-	destroy_args(args);
-	fr_pvc_set_fragment(dev, frag);
-	tc_insert_all(dev);
-	free(dev);
-}
-#endif
 
 void dev_add_snmptrap(char *itf)
 {
@@ -1821,18 +1592,7 @@ void interface_sppp_ipaddr(const char *cmdline) /* ip address [local] [remote] [
 	remote=args->argv[3];
 	if (args->argc > 4) mask=args->argv[4];
 		else mask=NULL;
-#ifdef CONFIG_BERLIN_SATROUTER
-	{ /* Inclui enderecos da interface */
-		IP addr;
-		ppp_proto ppp;
 
-		sppp_get_config(interface_major, &ppp);
-		ppp.cfg_local = (inet_aton(local, &addr) != 0) ? addr.s_addr : 0;
-		ppp.cfg_dest = (inet_aton(remote, &addr) != 0) ? addr.s_addr : 0;
-		ppp.cfg_mask = (inet_aton(mask, &addr) != 0) ? addr.s_addr : 0;
-		sppp_set_config(interface_major, &ppp);
-	}
-#endif
 	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
 	ip_addr_flush(dev);
 	ip_addr_add(dev, local, remote, mask ? mask : "255.255.255.255");
