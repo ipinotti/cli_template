@@ -191,11 +191,11 @@ void dump_snmp(FILE *out, int conf_format)
 
 	if (snmp_get_contact(buf, 511) == 0) {
 		print=1;
-		pfprintf(out, "snmp-server contact %s\n", buf);
+		fprintf(out, "snmp-server contact %s\n", buf);
 	}
 	if (snmp_get_location(buf, 511) == 0) {
 		print=1;
-		pfprintf(out, "snmp-server location %s\n", buf);
+		fprintf(out, "snmp-server location %s\n", buf);
 	}
 	if ((len=snmp_get_trapsinks(&sinks)) > 0)
 	{
@@ -208,7 +208,7 @@ void dump_snmp(FILE *out, int conf_format)
 				if (sinks[i])
 				{
 					print=1;
-					pfprintf(out, "snmp-server trapsink %s\n", sinks[i]);
+					fprintf(out, "snmp-server trapsink %s\n", sinks[i]);
 					free(sinks[i]);
 				}
 			}
@@ -232,7 +232,7 @@ void dump_snmp(FILE *out, int conf_format)
 #endif
 
 	if (print)
-		pfprintf(out, "!\n");
+		fprintf(out, "!\n");
 }
 
 void snmp_community (const char *cmd)

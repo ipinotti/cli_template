@@ -48,7 +48,6 @@
 #include <libconfig/vrrp.h>
 #endif
 #include <libconfig/ssh.h>
-#include <libconfig/system.h>
 #include <libconfig/vlan.h>
 
 /* IP Tables variables */

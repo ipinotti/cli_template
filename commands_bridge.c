@@ -180,16 +180,16 @@ void dump_bridge (FILE *out)
 		sprintf(brname, "%s%d", BRIDGE_NAME, i);
 		if (!br_exists(brname)) continue;
 		printed_something = 1;	
-		pfprintf(out, "bridge %d protocol ieee\n", i);
-		pfprintf(out, "bridge %d aging-time %d\n", i, br_getageing(brname));
-		pfprintf(out, "bridge %d forward-time %d\n", i, br_getfd(brname));
-		pfprintf(out, "bridge %d hello-time %d\n", i, br_gethello(brname));
-		pfprintf(out, "bridge %d max-age %d\n", i, br_getmaxage(brname));
-		pfprintf(out, "bridge %d priority %d\n", i, br_getbridgeprio(brname));
+		fprintf(out, "bridge %d protocol ieee\n", i);
+		fprintf(out, "bridge %d aging-time %d\n", i, br_getageing(brname));
+		fprintf(out, "bridge %d forward-time %d\n", i, br_getfd(brname));
+		fprintf(out, "bridge %d hello-time %d\n", i, br_gethello(brname));
+		fprintf(out, "bridge %d max-age %d\n", i, br_getmaxage(brname));
+		fprintf(out, "bridge %d priority %d\n", i, br_getbridgeprio(brname));
 		if (!br_get_stp(brname))
-			pfprintf(out, "bridge %d spanning-disabled\n", i);
+			fprintf(out, "bridge %d spanning-disabled\n", i);
 	}	
-	if (printed_something) pfprintf(out, "!\n");
+	if (printed_something) fprintf(out, "!\n");
 }
 
 void bridge_show (const char *cmd) /* show bridge 1 */

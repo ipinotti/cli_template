@@ -1906,9 +1906,9 @@ void config_clock_timezone (const char *cmd)
 
 void dump_terminal (FILE *O)
 {
-	pfprintf(O, "terminal length %d\n", cish_cfg->terminal_lines);
-	pfprintf(O, "terminal timeout %d\n", cish_cfg->terminal_timeout);
-	pfprintf(O, "!\n");
+	fprintf(O, "terminal length %d\n", cish_cfg->terminal_lines);
+	fprintf(O, "terminal timeout %d\n", cish_cfg->terminal_timeout);
+	fprintf(O, "!\n");
 }
 
 void hostname (const char *cmd)
@@ -2077,7 +2077,7 @@ void dump_log(FILE *out, int cform)
 	char buf[16];
 
 	if( init_program_get_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 )
-		pfprintf(out, "logging remote %s\n!\n", buf);
+		fprintf(out, "logging remote %s\n!\n", buf);
 }
 
 int ctrlz (int count, int KEY)

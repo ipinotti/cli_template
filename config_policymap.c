@@ -25,7 +25,7 @@
 #include "commandtree.h"
 #include "cish_main.h"
 #include "pprintf.h"
-#include "mangle.h"
+#include "commands_mangle.h"
 #include "policymap.h"
 
 

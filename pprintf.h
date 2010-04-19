@@ -8,6 +8,5 @@ extern int terminal_lines;
 void pager_init (void);
 int pager_skipping (void);
 void pprintf (const char *, ...);
-void pfprintf (FILE *, const char *, ...);
 
 #endif

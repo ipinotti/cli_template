@@ -27,14 +27,16 @@
 #include "defines.h"
 #include "commands.h"
 #include "commandtree.h"
-#include "nat.h"
-#include "options.h"
-#include "acl.h"
-#include "commands_vrrp.h"
 
+#include "commands_nat.h"
+#include "commands_acl.h"
+#include "commands_mangle.h"
+
+#include "options.h"
+#include "commands_vrrp.h"
 #include "cish_main.h"
 #include "pprintf.h"
-#include "mangle.h"
+
 
 extern cish_command CMD[];
 extern cish_command CMD_CONFIGURE[];
@@ -640,7 +642,7 @@ cish_command CMD_CONFIG_INTERFACE_SNMPTRAP1[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-#ifdef CONFIG_DEVELOPMENT
+#if 0 //#ifdef CONFIG_DEVELOPMENT
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_RXRING[] = {
  	{"2-2048", "Set RX ring size", NULL, interface_rxring, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
@@ -690,7 +692,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
 #endif
 
-#ifdef CONFIG_DEVELOPMENT
+#if 0 //#ifdef CONFIG_DEVELOPMENT
 	{"rx-ring", "Configure RX ring size", CMD_CONFIG_INTERFACE_ETHERNET_RXRING, NULL, 1, MSK_NORMAL},
 	{"tx-ring", "Configure TX ring size", CMD_CONFIG_INTERFACE_ETHERNET_TXRING, NULL, 1, MSK_NORMAL},
 	{"weight", "Configure interface weight", CMD_CONFIG_INTERFACE_WEIGHT, NULL, 1, MSK_NORMAL},
@@ -1344,7 +1346,7 @@ void interface_txqueue(const char *cmdline)
 	free(dev);
 }
 
-#ifdef CONFIG_DEVELOPMENT
+#if 0 //#ifdef CONFIG_DEVELOPMENT
 void interface_rxring(const char *cmdline) /* rxring <2-2048> */
 {
 	arglist *args;

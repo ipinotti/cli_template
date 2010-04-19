@@ -536,45 +536,45 @@ void dump_aaa(FILE *out)
 	{
 		if (cish_cfg->radius[i].ip_addr[0])
 		{
-			pfprintf(out, "radius-server host %s", cish_cfg->radius[i].ip_addr);
-			if(cish_cfg->radius[i].authkey[0]) pfprintf(out, " key %s", cish_cfg->radius[i].authkey);
-			if(cish_cfg->radius[i].timeout)	pfprintf(out, " timeout %d", cish_cfg->radius[i].timeout);
-			pfprintf(out, "\n");
+			fprintf(out, "radius-server host %s", cish_cfg->radius[i].ip_addr);
+			if(cish_cfg->radius[i].authkey[0]) fprintf(out, " key %s", cish_cfg->radius[i].authkey);
+			if(cish_cfg->radius[i].timeout)	fprintf(out, " timeout %d", cish_cfg->radius[i].timeout);
+			fprintf(out, "\n");
 		}
 	}
 	for(i=0; i < MAX_SERVERS; i++)
 	{
 		if(cish_cfg->tacacs[i].ip_addr[0])
 		{
-			pfprintf(out, "tacacs-server host %s", cish_cfg->tacacs[i].ip_addr);
-			if(cish_cfg->tacacs[i].authkey[0]) pfprintf(out, " key %s", cish_cfg->tacacs[i].authkey);
-			if(cish_cfg->tacacs[i].timeout)	pfprintf(out, " timeout %d", cish_cfg->tacacs[i].timeout);
-			pfprintf(out, "\n");
+			fprintf(out, "tacacs-server host %s", cish_cfg->tacacs[i].ip_addr);
+			if(cish_cfg->tacacs[i].authkey[0]) fprintf(out, " key %s", cish_cfg->tacacs[i].authkey);
+			if(cish_cfg->tacacs[i].timeout)	fprintf(out, " timeout %d", cish_cfg->tacacs[i].timeout);
+			fprintf(out, "\n");
 		}
 	}
 	/* Dump aaa authentication login mode */
 	switch(discover_pam_current_mode(FILE_PAM_GENERIC))
 	{
 		case AAA_AUTH_NONE:
-			pfprintf(out, "aaa authentication login default none\n");
+			fprintf(out, "aaa authentication login default none\n");
 			break;
 		case AAA_AUTH_LOCAL:
-			pfprintf(out, "aaa authentication login default local\n");
+			fprintf(out, "aaa authentication login default local\n");
 			break;
 		case AAA_AUTH_RADIUS:
-			pfprintf(out, "aaa authentication login group radius\n");
+			fprintf(out, "aaa authentication login group radius\n");
 			break;
 		case AAA_AUTH_RADIUS_LOCAL:
-			pfprintf(out, "aaa authentication login group radius local\n");
+			fprintf(out, "aaa authentication login group radius local\n");
 			break;
 		case AAA_AUTH_TACACS:
-			pfprintf(out, "aaa authentication login default group tacacs+\n");
+			fprintf(out, "aaa authentication login default group tacacs+\n");
 			break;
 		case AAA_AUTH_TACACS_LOCAL:
-			pfprintf(out, "aaa authentication login default group tacacs+ local\n");
+			fprintf(out, "aaa authentication login default group tacacs+ local\n");
 			break;
 		default:
-			pfprintf(out, "aaa authentication login none\n");
+			fprintf(out, "aaa authentication login none\n");
 			break;
 	}
 #ifdef CONFIG_SPPP_NETLINK
@@ -582,25 +582,25 @@ void dump_aaa(FILE *out)
 	switch(discover_pam_current_mode(FILE_PAM_SPPP))
 	{
 		case AAA_AUTH_NONE:
-			pfprintf(out, "aaa authentication ppp default none\n");
+			fprintf(out, "aaa authentication ppp default none\n");
 			break;
 		case AAA_AUTH_LOCAL:
-			pfprintf(out, "aaa authentication ppp default local\n");
+			fprintf(out, "aaa authentication ppp default local\n");
 			break;
 		case AAA_AUTH_RADIUS:
-			pfprintf(out, "aaa authentication ppp default group radius\n");
+			fprintf(out, "aaa authentication ppp default group radius\n");
 			break;
 		case AAA_AUTH_RADIUS_LOCAL:
-			pfprintf(out, "aaa authentication ppp default group radius local\n");
+			fprintf(out, "aaa authentication ppp default group radius local\n");
 			break;
 		case AAA_AUTH_TACACS:
-			pfprintf(out, "aaa authentication ppp default group tacacs+\n");
+			fprintf(out, "aaa authentication ppp default group tacacs+\n");
 			break;
 		case AAA_AUTH_TACACS_LOCAL:
-			pfprintf(out, "aaa authentication ppp default group tacacs+ local\n");
+			fprintf(out, "aaa authentication ppp default group tacacs+ local\n");
 			break;
 		default:
-			pfprintf(out, "aaa authentication ppp default none\n");
+			fprintf(out, "aaa authentication ppp default none\n");
 			break;
 	}
 #endif /* CONFIG_SPPP_NETLINK*/
@@ -608,23 +608,23 @@ void dump_aaa(FILE *out)
 	switch(discover_pam_current_author_mode(FILE_PAM_GENERIC))
 	{
 		case AAA_AUTHOR_NONE:
-			pfprintf(out, "aaa authorization exec default none\n");
+			fprintf(out, "aaa authorization exec default none\n");
 			break;
 		case AAA_AUTHOR_TACACS:
-			pfprintf(out, "aaa authorization exec default group tacacs+\n");
+			fprintf(out, "aaa authorization exec default group tacacs+\n");
 			break;
 		case AAA_AUTHOR_TACACS_LOCAL:
-			pfprintf(out, "aaa authorization exec default group tacacs+ local\n");
+			fprintf(out, "aaa authorization exec default group tacacs+ local\n");
 			break;
 	}
 	/* Dump aaa accounting mode */
 	switch(discover_pam_current_acct_mode(FILE_PAM_GENERIC))
 	{
 		case AAA_ACCT_NONE:
-			pfprintf(out, "aaa accounting exec default none\n");
+			fprintf(out, "aaa accounting exec default none\n");
 			break;
 		case AAA_ACCT_TACACS:
-			pfprintf(out, "aaa accounting exec default start-stop group tacacs+\n");
+			fprintf(out, "aaa accounting exec default start-stop group tacacs+\n");
 			break;
 	}
 	switch(discover_pam_current_acct_command_mode(FILE_PAM_GENERIC))
@@ -632,14 +632,14 @@ void dump_aaa(FILE *out)
 		case AAA_ACCT_TACACS_CMD_NONE:
 			break;
 		case AAA_ACCT_TACACS_CMD_1:
-			pfprintf(out, "aaa accounting commands 1 default start-stop group tacacs+\n");
+			fprintf(out, "aaa accounting commands 1 default start-stop group tacacs+\n");
 			break;
 		case AAA_ACCT_TACACS_CMD_15:
-			pfprintf(out, "aaa accounting commands 15 default start-stop group tacacs+\n");
+			fprintf(out, "aaa accounting commands 15 default start-stop group tacacs+\n");
 			break;
 		case AAA_ACCT_TACACS_CMD_ALL:
-			pfprintf(out, "aaa accounting commands 1 default start-stop group tacacs+\n");
-			pfprintf(out, "aaa accounting commands 15 default start-stop group tacacs+\n");
+			fprintf(out, "aaa accounting commands 1 default start-stop group tacacs+\n");
+			fprintf(out, "aaa accounting commands 15 default start-stop group tacacs+\n");
 			break;
 	}
 
@@ -656,7 +656,7 @@ void dump_aaa(FILE *out)
 				if( strcmp(pw->pw_name, "support") == 0 )
 					continue;
 #endif
-				pfprintf(out, "aaa username %s password hash %s\n", pw->pw_name, pw->pw_passwd);
+				fprintf(out, "aaa username %s password hash %s\n", pw->pw_name, pw->pw_passwd);
 			}
 		}
 		fclose(passwd);
@@ -667,11 +667,11 @@ void dump_aaa(FILE *out)
 	switch( discover_pam_enable_current_mode() )
 	{
 		case AAA_AUTH_RADIUS:
-			pfprintf(out, "aaa authentication enable group radius\n");
+			fprintf(out, "aaa authentication enable group radius\n");
 			break;
 
 		case AAA_AUTH_TACACS:
-			pfprintf(out, "aaa authentication enable group tacacs\n");
+			fprintf(out, "aaa authentication enable group tacacs\n");
 			break;
 
 		case AAA_AUTH_NONE:
@@ -679,11 +679,11 @@ void dump_aaa(FILE *out)
 		case AAA_AUTH_RADIUS_LOCAL:
 		case AAA_AUTH_TACACS_LOCAL:
 		default:
-			pfprintf(out, "no aaa authentication enable\n");
+			fprintf(out, "no aaa authentication enable\n");
 			break;
 	}
 #endif
 
-	pfprintf(out, "!\n");
+	fprintf(out, "!\n");
 }
 

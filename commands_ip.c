@@ -19,7 +19,7 @@
 #include <linux/if_arp.h>
 
 #include "commands.h"
-#include "acl.h"
+#include "commands_acl.h"
 #include "pprintf.h"
 #include "cish_main.h"
 #include "cish_config.h"
@@ -255,62 +255,62 @@ void dump_ip (FILE *out, int conf_format)
 
 	val = get_procip_val ("ip_forward");
 #if 1
-	pfprintf (out, val ? "ip routing\n" : "no ip routing\n");
+	fprintf (out, val ? "ip routing\n" : "no ip routing\n");
 #else
-	pfprintf (out, val ? "ip forwarding\n" : "no ip forwarding\n");
+	fprintf (out, val ? "ip forwarding\n" : "no ip forwarding\n");
 #endif
 #ifdef OPTION_PIMD
 	val = get_procip_val ("conf/all/mc_forwarding");
-	pfprintf (out, val ? "ip multicast-routing\n" : "no ip multicast-routing\n");
+	fprintf (out, val ? "ip multicast-routing\n" : "no ip multicast-routing\n");
 #endif
 	val = get_procip_val ("ip_no_pmtu_disc");
-	pfprintf (out, val ? "no ip pmtu-discovery\n" : "ip pmtu-discovery\n");
+	fprintf (out, val ? "no ip pmtu-discovery\n" : "ip pmtu-discovery\n");
 
 	val = get_procip_val ("ip_default_ttl");
-	pfprintf (out, "ip default-ttl %i\n", val);
+	fprintf (out, "ip default-ttl %i\n", val);
 
 	val = get_procip_val ("conf/all/rp_filter");
-	pfprintf (out, val ? "ip rp-filter\n" : "no ip rp-filter\n");
+	fprintf (out, val ? "ip rp-filter\n" : "no ip rp-filter\n");
 
 	val = get_procip_val ("icmp_echo_ignore_all");
-	pfprintf (out, val ? "ip icmp ignore all\n" : "no ip icmp ignore all\n");
+	fprintf (out, val ? "ip icmp ignore all\n" : "no ip icmp ignore all\n");
 
 	val = get_procip_val ("icmp_echo_ignore_broadcasts");
-	pfprintf (out, val ? "ip icmp ignore broadcasts\n" : "no ip icmp ignore broadcasts\n");
+	fprintf (out, val ? "ip icmp ignore broadcasts\n" : "no ip icmp ignore broadcasts\n");
 
 	val = get_procip_val ("icmp_ignore_bogus_error_responses");
-	pfprintf (out, val ? "ip icmp ignore bogus\n" : "no ip icmp ignore bogus\n");
+	fprintf (out, val ? "ip icmp ignore bogus\n" : "no ip icmp ignore bogus\n");
 
 #ifndef CONFIG_BERLIN
 	val = get_procip_val ("icmp_destunreach_rate");
-	pfprintf (out, "ip icmp rate dest-unreachable %i\n", val);
+	fprintf (out, "ip icmp rate dest-unreachable %i\n", val);
 
 	val = get_procip_val ("icmp_echoreply_rate");
-	pfprintf (out, "ip icmp rate echo-reply %i\n", val);
+	fprintf (out, "ip icmp rate echo-reply %i\n", val);
 
 	val = get_procip_val ("icmp_paramprob_rate");
-	pfprintf (out, "ip icmp rate param-prob %i\n", val);
+	fprintf (out, "ip icmp rate param-prob %i\n", val);
 
 	val = get_procip_val ("icmp_timeexceed_rate");
-	pfprintf (out, "ip icmp rate time-exceed %i\n", val);
+	fprintf (out, "ip icmp rate time-exceed %i\n", val);
 #endif
 
 	val = get_procip_val ("ipfrag_high_thresh");
-	pfprintf (out, "ip fragment high %i\n", val);
+	fprintf (out, "ip fragment high %i\n", val);
 
 	val = get_procip_val ("ipfrag_low_thresh");
-	pfprintf (out, "ip fragment low %i\n", val);
+	fprintf (out, "ip fragment low %i\n", val);
 
 	val = get_procip_val ("ipfrag_time");
-	pfprintf (out, "ip fragment time %i\n", val);
+	fprintf (out, "ip fragment time %i\n", val);
 
 	val = get_procip_val ("tcp_ecn");
-	pfprintf (out, val ? "ip tcp ecn\n" : "no ip tcp ecn\n");
+	fprintf (out, val ? "ip tcp ecn\n" : "no ip tcp ecn\n");
 
 	val = get_procip_val ("tcp_syncookies");
-	pfprintf (out, val ? "ip tcp syncookies\n" : "no ip tcp syncookies\n");
+	fprintf (out, val ? "ip tcp syncookies\n" : "no ip tcp syncookies\n");
 
-	pfprintf (out, "!\n");
+	fprintf (out, "!\n");
 }
 
 void dump_ip_nameservers(FILE *out, int conf_format)
@@ -322,7 +322,7 @@ void dump_ip_nameservers(FILE *out, int conf_format)
 	for (i=0; i < DNS_MAX_SERVERS; i++) {
 		if (get_nameserver_by_type_index(DNS_STATIC_NAMESERVER, i, addr) < 0)
 			break;
-		pfprintf(out, "ip name-server %s\n", addr);
+		fprintf(out, "ip name-server %s\n", addr);
 	}
 }
 
@@ -336,45 +336,45 @@ void dump_ip_servers(FILE *out, int conf_format)
 	{
 		if (get_dhcp_server(buf) == 0)
 		{
-			pfprintf(out, "%s\n", buf);
-			pfprintf(out, "no ip dhcp relay\n");
+			fprintf(out, "%s\n", buf);
+			fprintf(out, "no ip dhcp relay\n");
 		}
 	}
 	else if (dhcp == DHCP_RELAY)
 	{
 		if (get_dhcp_relay(buf) == 0)
 		{
-			pfprintf(out, "no ip dhcp server\n");
-			pfprintf(out, "ip dhcp relay %s\n", buf);
+			fprintf(out, "no ip dhcp server\n");
+			fprintf(out, "ip dhcp relay %s\n", buf);
 		}
 	}
 	else
 	{
-		pfprintf(out, "no ip dhcp server\n");
-		pfprintf(out, "no ip dhcp relay\n");
+		fprintf(out, "no ip dhcp server\n");
+		fprintf(out, "no ip dhcp relay\n");
 	}
 
-	pfprintf (out, "%sip dns relay\n", is_daemon_running(DNS_DAEMON) ? "" : "no ");
-	pfprintf (out, "%sip domain lookup\n", is_domain_lookup_enabled() ? "" : "no ");
+	fprintf (out, "%sip dns relay\n", is_daemon_running(DNS_DAEMON) ? "" : "no ");
+	fprintf (out, "%sip domain lookup\n", is_domain_lookup_enabled() ? "" : "no ");
 	dump_ip_nameservers(out, conf_format);
 
 #ifdef OPTION_HTTP
-	pfprintf (out, "%sip http server\n", is_daemon_running(HTTP_DAEMON) ? "" : "no ");
+	fprintf (out, "%sip http server\n", is_daemon_running(HTTP_DAEMON) ? "" : "no ");
 #endif
 #ifdef OPTION_PIMD
 #if 0
-	if (is_daemon_running(PIMD_DAEMON)) pfprintf(out, "ip pim dense-mode\n");
-	if (is_daemon_running(PIMS_DAEMON)) pfprintf(out, "ip pim sparse-mode\n");
+	if (is_daemon_running(PIMD_DAEMON)) fprintf(out, "ip pim dense-mode\n");
+	if (is_daemon_running(PIMS_DAEMON)) fprintf(out, "ip pim sparse-mode\n");
 #endif
 	dump_pim(out, conf_format);
 #endif
 #ifdef OPTION_OPENSSH
-	pfprintf (out, "%sip ssh server\n", is_daemon_running(SSH_DAEMON) ? "" : "no ");
+	fprintf (out, "%sip ssh server\n", is_daemon_running(SSH_DAEMON) ? "" : "no ");
 #else
-	pfprintf (out, "%sip ssh server\n", get_inetd_program(SSH_DAEMON) ? "" : "no ");
+	fprintf (out, "%sip ssh server\n", get_inetd_program(SSH_DAEMON) ? "" : "no ");
 #endif
-	pfprintf (out, "%sip telnet server\n", get_inetd_program(TELNET_DAEMON) ? "" : "no ");
-	pfprintf (out, "!\n");
+	fprintf (out, "%sip telnet server\n", get_inetd_program(TELNET_DAEMON) ? "" : "no ");
+	fprintf (out, "!\n");
 }
 
 #ifdef OPTION_HTTP
@@ -559,21 +559,21 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 void dump_nat_helper(FILE *F)
 {
 	if (cish_cfg->nat_helper_ftp_ports[0]) {
-		pfprintf(F, "ip nat helper ftp ports %s\n", cish_cfg->nat_helper_ftp_ports);
+		fprintf(F, "ip nat helper ftp ports %s\n", cish_cfg->nat_helper_ftp_ports);
 	} else {
-		pfprintf(F, "no ip nat helper ftp\n");
+		fprintf(F, "no ip nat helper ftp\n");
 	}
 	if (cish_cfg->nat_helper_irc_ports[0]) {
-		pfprintf(F, "ip nat helper irc ports %s\n", cish_cfg->nat_helper_irc_ports);
+		fprintf(F, "ip nat helper irc ports %s\n", cish_cfg->nat_helper_irc_ports);
 	} else {
-		pfprintf(F, "no ip nat helper irc\n");
+		fprintf(F, "no ip nat helper irc\n");
 	}
 	if (cish_cfg->nat_helper_tftp_ports[0]) {
-		pfprintf(F, "ip nat helper tftp ports %s\n", cish_cfg->nat_helper_tftp_ports);
+		fprintf(F, "ip nat helper tftp ports %s\n", cish_cfg->nat_helper_tftp_ports);
 	} else {
-		pfprintf(F, "no ip nat helper tftp\n");
+		fprintf(F, "no ip nat helper tftp\n");
 	}
-	pfprintf(F, "!\n");
+	fprintf(F, "!\n");
 }
 
 void ssh_server(const char *cmd)
@@ -795,13 +795,13 @@ void dump_arp(FILE *out)
 			flags = strtoul(args->argv[2], 0, 16);
 			if (flags&ATF_PERM) // permanent entry
 			{
-				pfprintf(out, "arp %s %s\n", ipaddr, hwaddr);
+				fprintf(out, "arp %s %s\n", ipaddr, hwaddr);
 				print_something=1;
 			}
 		}
 		destroy_args(args);
 	}
-	if (print_something) pfprintf(out, "!\n");
+	if (print_something) fprintf(out, "!\n");
 }
 
 void clear_ssh_hosts(const char *cmd)

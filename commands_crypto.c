@@ -1055,24 +1055,24 @@ void dump_crypto(FILE *out)
 	char **list=NULL, **list_ini=NULL;
 	ppp_config cfg;
 
-	pfprintf(out, "crypto\n");
+	fprintf(out, "crypto\n");
 #if 0
 	if (get_ipsec_interface(iface, 40) > 0)
 	{
-		pfprintf(out, " interface %s\n", iface);
+		fprintf(out, " interface %s\n", iface);
 	}
 #endif
 	if ((auto_reload=get_ipsec_autoreload()) > 0)
 	{
-		pfprintf(out, " auto-reload %d\n", auto_reload);
+		fprintf(out, " auto-reload %d\n", auto_reload);
 	}
 	if (get_ipsec_nat_traversal() > 0)
 	{
-		pfprintf(out, " nat-traversal\n");
+		fprintf(out, " nat-traversal\n");
 	}
 	if ((mtu=get_ipsec_overridemtu()) > 0)
 	{
-		pfprintf(out, " overridemtu %d\n", mtu);
+		fprintf(out, " overridemtu %d\n", mtu);
 	}
 	if (list_all_ipsec_names(&list) > 0)
 	{
@@ -1086,14 +1086,14 @@ void dump_crypto(FILE *out)
 					char buf[300], *pt;
 
 					// name
-					pfprintf(out, " ipsec connection add %s\n", *list);
-					pfprintf(out, " ipsec connection %s\n", *list);
+					fprintf(out, " ipsec connection add %s\n", *list);
+					fprintf(out, " ipsec connection %s\n", *list);
 
 					// authby
 					switch(get_ipsec_auth(*list, buf))
 					{
 						case RSA:
-							pfprintf(out, "  authby rsa\n");
+							fprintf(out, "  authby rsa\n");
 							break;
 						case SECRET:
 						{
@@ -1102,7 +1102,7 @@ void dump_crypto(FILE *out)
 							{
 								if (pt)
 								{
-									pfprintf(out, "  authby secret %s\n", pt);
+									fprintf(out, "  authby secret %s\n", pt);
 									free(pt);
 								}
 							}
@@ -1116,13 +1116,13 @@ void dump_crypto(FILE *out)
 					switch(get_ipsec_ike_authproto(*list))
 					{
 						case AH:
-							pfprintf(out, "  authproto transport\n");
+							fprintf(out, "  authproto transport\n");
 							break;
 						case ESP:
-							pfprintf(out, "  authproto tunnel\n");
+							fprintf(out, "  authproto tunnel\n");
 							if (get_ipsec_esp(*list, buf) > 0)
 							{
-								pfprintf(out, "  esp %s\n", buf);
+								fprintf(out, "  esp %s\n", buf);
 							}
 							break;
 					}
@@ -1131,7 +1131,7 @@ void dump_crypto(FILE *out)
 					buf[0] = '\0';
 					if(get_ipsec_id(LOCAL, *list, buf) > 0)
 					{
-						if (strlen(buf) > 0) pfprintf(out, "  local id %s\n", buf);
+						if (strlen(buf) > 0) fprintf(out, "  local id %s\n", buf);
 					}
 
 					// left address
@@ -1139,20 +1139,20 @@ void dump_crypto(FILE *out)
 					switch (get_ipsec_local_addr(*list, buf))
 					{
 						case ADDR_DEFAULT:
-							pfprintf(out, "  local address default-route\n");
+							fprintf(out, "  local address default-route\n");
 							break;
 						case ADDR_INTERFACE:
 							if (strlen(buf) > 0)
-								pfprintf(out, "  local address interface %s\n", convert_os_device(buf+1, 0)); /* skip % */
+								fprintf(out, "  local address interface %s\n", convert_os_device(buf+1, 0)); /* skip % */
 							break;
 						case ADDR_IP:
 							if (strlen(buf) > 0)
-								pfprintf(out, "  local address ip %s\n", buf);
+								fprintf(out, "  local address ip %s\n", buf);
 							break;
 #if 0
 						case ADDR_FQDN:
 							if (strlen(buf) > 0)
-								pfprintf(out, "  local address fqdn %s\n", buf);
+								fprintf(out, "  local address fqdn %s\n", buf);
 							break;
 #endif
 					}
@@ -1161,21 +1161,21 @@ void dump_crypto(FILE *out)
 					buf[0] = '\0';
 					if (get_ipsec_subnet(LOCAL, *list, buf) > 0)
 					{
-						if (strlen(buf) > 0) pfprintf(out, "  local subnet %s\n", buf);
+						if (strlen(buf) > 0) fprintf(out, "  local subnet %s\n", buf);
 					}
 
 					// leftnexthop
 					buf[0] = '\0';
 					if (get_ipsec_nexthop(LOCAL, *list, buf) > 0)
 					{
-						if (strlen(buf) > 0) pfprintf(out, "  local nexthop %s\n", buf);
+						if (strlen(buf) > 0) fprintf(out, "  local nexthop %s\n", buf);
 					}
 
 					// rightid
 					buf[0]='\0';
 					if (get_ipsec_id(REMOTE, *list, buf) > 0)
 					{
-						if (strlen(buf) > 0) pfprintf(out, "  remote id %s\n", buf);
+						if (strlen(buf) > 0) fprintf(out, "  remote id %s\n", buf);
 					}
 
 					// right address
@@ -1183,15 +1183,15 @@ void dump_crypto(FILE *out)
 					switch (get_ipsec_remote_addr(*list, buf))
 					{
 						case ADDR_ANY:
-							pfprintf(out, "  remote address any\n");
+							fprintf(out, "  remote address any\n");
 							break;
 						case ADDR_IP:
 							if (strlen(buf) > 0)
-								pfprintf(out, "  remote address ip %s\n", buf);
+								fprintf(out, "  remote address ip %s\n", buf);
 							break;
 						case ADDR_FQDN:
 							if (strlen(buf) > 0)
-								pfprintf(out, "  remote address fqdn %s\n", buf);
+								fprintf(out, "  remote address fqdn %s\n", buf);
 							break;
 					}
 
@@ -1199,14 +1199,14 @@ void dump_crypto(FILE *out)
 					buf[0] = '\0';
 					if (get_ipsec_subnet(REMOTE, *list, buf) > 0)
 					{
-						if (strlen(buf) > 0) pfprintf(out, "  remote subnet %s\n", buf);
+						if (strlen(buf) > 0) fprintf(out, "  remote subnet %s\n", buf);
 					}
 
 					// rightnexthop
 					buf[0] = '\0';
 					if (get_ipsec_nexthop(REMOTE, *list, buf) > 0)
 					{
-						if (strlen(buf) > 0) pfprintf(out, "  remote nexthop %s\n", buf);
+						if (strlen(buf) > 0) fprintf(out, "  remote nexthop %s\n", buf);
 					}
 
 					// rightrsasigkey
@@ -1215,7 +1215,7 @@ void dump_crypto(FILE *out)
 					{
 						if (pt)
 						{
-							pfprintf(out, "  remote rsakey %s\n", pt);
+							fprintf(out, "  remote rsakey %s\n", pt);
 							free(pt);
 						}
 					}
@@ -1224,10 +1224,10 @@ void dump_crypto(FILE *out)
 					switch (get_ipsec_pfs(*list))
 					{
 						case 0:
-							pfprintf(out, "  no pfs\n");
+							fprintf(out, "  no pfs\n");
 							break;
 						case 1:
-							pfprintf(out, "  pfs\n");
+							fprintf(out, "  pfs\n");
 							break;
 					}
 					// l2tp ppp
@@ -1238,43 +1238,43 @@ void dump_crypto(FILE *out)
 						if (cfg.peer[0])
 						{
 							if (cidr_to_netmask(cfg.peer_mask, netmask) != -1)
-								pfprintf(out, "  l2tp peer %s %s\n", cfg.peer, netmask);
+								fprintf(out, "  l2tp peer %s %s\n", cfg.peer, netmask);
 						}
-						if (cfg.auth_user[0]) pfprintf(out, "  l2tp ppp authentication user %s\n", cfg.auth_user);
-						if (cfg.auth_pass[0]) pfprintf(out, "  l2tp ppp authentication pass %s\n", cfg.auth_pass);
+						if (cfg.auth_user[0]) fprintf(out, "  l2tp ppp authentication user %s\n", cfg.auth_user);
+						if (cfg.auth_pass[0]) fprintf(out, "  l2tp ppp authentication pass %s\n", cfg.auth_pass);
 						if (cfg.ip_unnumbered != -1) { /* exibir ip unnumbered no show running config */
-							pfprintf(out, "  l2tp ppp ip unnumbered ethernet %d\n", cfg.ip_unnumbered);
+							fprintf(out, "  l2tp ppp ip unnumbered ethernet %d\n", cfg.ip_unnumbered);
 						} else {
 							if (cfg.ip_addr[0])
-								pfprintf(out, "  l2tp ppp ip address %s\n", cfg.ip_addr);
+								fprintf(out, "  l2tp ppp ip address %s\n", cfg.ip_addr);
 							else
-								pfprintf(out, "  no l2tp ppp ip address\n");
+								fprintf(out, "  no l2tp ppp ip address\n");
 						}
-						if (cfg.ip_peer_addr[0]) pfprintf(out, "  l2tp ppp ip peer-address %s\n", cfg.ip_peer_addr);
-							else pfprintf(out, "  l2tp ppp ip peer-address pool\n");
-						if (cfg.default_route) pfprintf(out, "  l2tp ppp ip default-route\n");
-						if (cfg.novj) pfprintf(out, "  no l2tp ppp ip vj\n");
-						else pfprintf(out, "  l2tp ppp ip vj\n");
+						if (cfg.ip_peer_addr[0]) fprintf(out, "  l2tp ppp ip peer-address %s\n", cfg.ip_peer_addr);
+							else fprintf(out, "  l2tp ppp ip peer-address pool\n");
+						if (cfg.default_route) fprintf(out, "  l2tp ppp ip default-route\n");
+						if (cfg.novj) fprintf(out, "  no l2tp ppp ip vj\n");
+						else fprintf(out, "  l2tp ppp ip vj\n");
 
-						if (cfg.echo_interval) pfprintf(out, "  l2tp ppp keepalive interval %d\n", cfg.echo_interval);
-						if (cfg.echo_failure) pfprintf(out, "  l2tp ppp keepalive timeout %d\n", cfg.echo_failure);
-						if (cfg.mtu) pfprintf(out, "  l2tp ppp mtu %d\n", cfg.mtu);
+						if (cfg.echo_interval) fprintf(out, "  l2tp ppp keepalive interval %d\n", cfg.echo_interval);
+						if (cfg.echo_failure) fprintf(out, "  l2tp ppp keepalive timeout %d\n", cfg.echo_failure);
+						if (cfg.mtu) fprintf(out, "  l2tp ppp mtu %d\n", cfg.mtu);
 					}
 					// l2tp protoport SP1|SP2
 					if ((pt=get_ipsec_protoport(*list)) != NULL)
 					{
-							pfprintf(out, "  l2tp protoport %s\n", pt);
+							fprintf(out, "  l2tp protoport %s\n", pt);
 					}
 
 					// auto
 					switch (get_ipsec_auto(*list))
 					{
 						case AUTO_IGNORE:
-							pfprintf(out, "  shutdown\n");
+							fprintf(out, "  shutdown\n");
 							break;
 						case AUTO_START:
 						case AUTO_ADD:
-							pfprintf(out, "  no shutdown\n");
+							fprintf(out, "  no shutdown\n");
 							break;
 					}
 					free(*list);
@@ -1288,16 +1288,16 @@ void dump_crypto(FILE *out)
 	{
 		if (get_dhcp_server_local(buf) == 0)
 		{
-			pfprintf(out, " %s\n", buf);
+			fprintf(out, " %s\n", buf);
 		}
 	}
-		else pfprintf(out, " l2tp pool ethernet 0\n", buf); /* !!! MU ethernet1 !!! */
+		else fprintf(out, " l2tp pool ethernet 0\n", buf); /* !!! MU ethernet1 !!! */
 
 	if (get_l2tp() > 0)
 	{
-		pfprintf(out, " l2tp server\n");
+		fprintf(out, " l2tp server\n");
 	}
-	pfprintf(out, "!\n");
+	fprintf(out, "!\n");
 }
 
 /*************************************** L2TP ********************************************/

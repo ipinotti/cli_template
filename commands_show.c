@@ -35,14 +35,15 @@
 #include <time.h>
 #include <linux/if_vlan.h>	/* 802.1p mappings */
 
-#include "acl.h"
+#include "commands_acl.h"
+#include "commands_mangle.h"
+#include "commands_nat.h"
+
 #include "options.h"
 #include "commands.h"
 #include "cish_main.h"
 #include "pprintf.h"
 #include "cish_config.h"
-#include "mangle.h"
-#include "nat.h"
 #include "commandtree.h"
 #include "terminal_echo.h"
 
@@ -482,8 +483,8 @@ void show_version(const char *cmdline)
 
 void dump_version(FILE *out)
 {
-	pfprintf(out, "version %s\n", get_system_version());
-	pfprintf(out, "!\n");
+	fprintf(out, "version %s\n", get_system_version());
+	fprintf(out, "!\n");
 }
 
 const char SPAC32[] = "                                ";
@@ -808,94 +809,94 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		if (conf_format)
 		{
 			memset(&ipt, 0, sizeof(struct iptables_t));
-			get_iface_acls(osdev, ipt.in_acl, ipt.out_acl);
+			acl_get_iface_acls(osdev, ipt.in_acl, ipt.out_acl);
 			get_iface_mangle_rules(osdev, ipt.in_mangle, ipt.out_mangle);
 			get_iface_nat_rules(osdev, ipt.in_nat, ipt.out_nat);
 
 			if (linktype == ARPHRD_TUNNEL6) continue; /* skip ipsec ones... */
-			pfprintf (out, "interface %s\n", cish_dev);
+			fprintf (out, "interface %s\n", cish_dev);
 			description = dev_get_description(osdev);
-			if (description) pfprintf(out, " description %s\n", description);
+			if (description) fprintf(out, " description %s\n", description);
 			switch (linktype)
 			{
 				case ARPHRD_ASYNCPPP:
 				{
 					ppp_config cfg;
 
-					pfprintf(out, " encapsulation ppp\n");
+					fprintf(out, " encapsulation ppp\n");
 					ppp_get_config(serial_no, &cfg);
-					if (ipt.in_acl[0]) pfprintf(out, " ip access-group %s in\n", ipt.in_acl);
-					if (ipt.out_acl[0]) pfprintf(out, " ip access-group %s out\n", ipt.out_acl);
-					if (ipt.in_mangle[0]) pfprintf(out, " ip mark %s in\n", ipt.in_mangle);
-					if (ipt.out_mangle[0]) pfprintf(out, " ip mark %s out\n", ipt.out_mangle);
-					if (ipt.in_nat[0]) pfprintf(out, " ip nat %s in\n", ipt.in_nat);
-					if (ipt.out_nat[0]) pfprintf(out, " ip nat %s out\n", ipt.out_nat);
+					if (ipt.in_acl[0]) fprintf(out, " ip access-group %s in\n", ipt.in_acl);
+					if (ipt.out_acl[0]) fprintf(out, " ip access-group %s out\n", ipt.out_acl);
+					if (ipt.in_mangle[0]) fprintf(out, " ip mark %s in\n", ipt.in_mangle);
+					if (ipt.out_mangle[0]) fprintf(out, " ip mark %s out\n", ipt.out_mangle);
+					if (ipt.in_nat[0]) fprintf(out, " ip nat %s in\n", ipt.in_nat);
+					if (ipt.out_nat[0]) fprintf(out, " ip nat %s out\n", ipt.out_nat);
 
 					dump_policy_interface(out, osdev);
 					dump_rip_interface(out, osdev);
 					dump_ospf_interface(out, osdev);
 					if ((cfg.ip_addr[0])&&(cfg.ip_mask[0]))
-						pfprintf(out, " ip address %s %s\n", cfg.ip_addr, cfg.ip_mask);
+						fprintf(out, " ip address %s %s\n", cfg.ip_addr, cfg.ip_mask);
 					else
-						pfprintf(out, " no ip address\n");
+						fprintf(out, " no ip address\n");
 					if (cfg.ip_peer_addr[0])
-						pfprintf(out, " ip peer-address %s\n", cfg.ip_peer_addr);
-					if (cfg.default_route) pfprintf(out, " ip default-route\n");
-					if (cfg.novj) pfprintf(out, " no ip vj\n");
-					else pfprintf(out, " ip vj\n");
+						fprintf(out, " ip peer-address %s\n", cfg.ip_peer_addr);
+					if (cfg.default_route) fprintf(out, " ip default-route\n");
+					if (cfg.novj) fprintf(out, " no ip vj\n");
+					else fprintf(out, " ip vj\n");
 
-					if (cfg.echo_interval) pfprintf(out, " keepalive interval %d\n", cfg.echo_interval);
-					if (cfg.echo_failure) pfprintf(out, " keepalive timeout %d\n", cfg.echo_failure);
-					if (cfg.mtu) pfprintf(out, " mtu %d\n", cfg.mtu);
-					if (cfg.debug) pfprintf(out, " ppp debug\n");
+					if (cfg.echo_interval) fprintf(out, " keepalive interval %d\n", cfg.echo_interval);
+					if (cfg.echo_failure) fprintf(out, " keepalive timeout %d\n", cfg.echo_failure);
+					if (cfg.mtu) fprintf(out, " mtu %d\n", cfg.mtu);
+					if (cfg.debug) fprintf(out, " ppp debug\n");
 					if (cfg.multilink)
-						pfprintf(out, " ppp multilink\n");
-					if (cfg.usepeerdns) pfprintf(out, " ppp usepeerdns\n");
+						fprintf(out, " ppp multilink\n");
+					if (cfg.usepeerdns) fprintf(out, " ppp usepeerdns\n");
 
-					if (cfg.speed) pfprintf(out, " speed %d\n", cfg.speed);
+					if (cfg.speed) fprintf(out, " speed %d\n", cfg.speed);
 
 					if (cfg.flow_control == FLOW_CONTROL_NONE)
-						pfprintf(out, " no flow-control\n");
+						fprintf(out, " no flow-control\n");
 					else
-						pfprintf(out, " flow-control %s\n", 
+						fprintf(out, " flow-control %s\n", 
 							cfg.flow_control==FLOW_CONTROL_RTSCTS ? 
 							"rts-cts" : "xon-xoff");
 
 					if (cfg.chat_script[0]) 
-						pfprintf(out, " chat-script %s\n", cfg.chat_script);
+						fprintf(out, " chat-script %s\n", cfg.chat_script);
 					else 
-						pfprintf(out, " no chat-script\n");
-					pfprintf(out, " %sdial-on-demand\n", cfg.dial_on_demand ? "" : "no ");
+						fprintf(out, " no chat-script\n");
+					fprintf(out, " %sdial-on-demand\n", cfg.dial_on_demand ? "" : "no ");
 					if (cfg.holdoff)
-						pfprintf(out, " holdoff %d\n", cfg.holdoff);
+						fprintf(out, " holdoff %d\n", cfg.holdoff);
 					if (cfg.idle)
-						pfprintf(out, " idle %d\n", cfg.idle);
+						fprintf(out, " idle %d\n", cfg.idle);
 
-					if (cfg.auth_user[0]) pfprintf(out, " authentication user %s\n", cfg.auth_user);
-					if (cfg.auth_pass[0]) pfprintf(out, " authentication pass %s\n", cfg.auth_pass);
-					if ((!cfg.auth_user[0]) && (!cfg.auth_pass[0])) pfprintf(out, " no authentication\n");
-					if (cfg.server_flags & (SERVER_FLAGS_PAP|SERVER_FLAGS_CHAP)) pfprintf(out, " server authentication local algorithm %s\n", cfg.server_flags&SERVER_FLAGS_PAP ? "pap" : \
+					if (cfg.auth_user[0]) fprintf(out, " authentication user %s\n", cfg.auth_user);
+					if (cfg.auth_pass[0]) fprintf(out, " authentication pass %s\n", cfg.auth_pass);
+					if ((!cfg.auth_user[0]) && (!cfg.auth_pass[0])) fprintf(out, " no authentication\n");
+					if (cfg.server_flags & (SERVER_FLAGS_PAP|SERVER_FLAGS_CHAP)) fprintf(out, " server authentication local algorithm %s\n", cfg.server_flags&SERVER_FLAGS_PAP ? "pap" : \
 						cfg.server_flags&SERVER_FLAGS_CHAP ? "chap" : "");
-					if (cfg.server_auth_user[0]) pfprintf(out, " server authentication local user %s\n", cfg.server_auth_user);
-					if (cfg.server_auth_pass[0]) pfprintf(out, " server authentication local pass %s\n", cfg.server_auth_pass);
+					if (cfg.server_auth_user[0]) fprintf(out, " server authentication local user %s\n", cfg.server_auth_user);
+					if (cfg.server_auth_pass[0]) fprintf(out, " server authentication local pass %s\n", cfg.server_auth_pass);
 					// radius authentication
-					if (cfg.radius_authkey[0]) pfprintf(out, " server authentication radius auth_key %s\n", cfg.radius_authkey);
-					if (cfg.radius_retries > 0) pfprintf(out, " server authentication radius retries %d\n", cfg.radius_retries);
-					if (cfg.radius_sameserver > 0) pfprintf(out, " server authentication radius same_server\n");
-					if (cfg.radius_servers[0]) pfprintf(out, " server authentication radius servers %s\n", cfg.radius_servers);
-					if (cfg.radius_timeout > 0) pfprintf(out, " server authentication radius timeout %d\n", cfg.radius_timeout);
-					if (cfg.radius_trynextonreject > 0) pfprintf(out, " server authentication radius try_next_on_reject\n");
+					if (cfg.radius_authkey[0]) fprintf(out, " server authentication radius auth_key %s\n", cfg.radius_authkey);
+					if (cfg.radius_retries > 0) fprintf(out, " server authentication radius retries %d\n", cfg.radius_retries);
+					if (cfg.radius_sameserver > 0) fprintf(out, " server authentication radius same_server\n");
+					if (cfg.radius_servers[0]) fprintf(out, " server authentication radius servers %s\n", cfg.radius_servers);
+					if (cfg.radius_timeout > 0) fprintf(out, " server authentication radius timeout %d\n", cfg.radius_timeout);
+					if (cfg.radius_trynextonreject > 0) fprintf(out, " server authentication radius try_next_on_reject\n");
 					// tacacs authentication
-					if (cfg.tacacs_authkey[0]) pfprintf(out, " server authentication tacacs auth_key %s\n", cfg.tacacs_authkey);
-					if (cfg.tacacs_sameserver > 0) pfprintf(out, " server authentication tacacs same_server\n");
-					if (cfg.tacacs_servers[0]) pfprintf(out, " server authentication tacacs servers %s\n", cfg.tacacs_servers);
-					if (cfg.tacacs_trynextonreject > 0) pfprintf(out, " server authentication tacacs try_next_on_reject\n");
+					if (cfg.tacacs_authkey[0]) fprintf(out, " server authentication tacacs auth_key %s\n", cfg.tacacs_authkey);
+					if (cfg.tacacs_sameserver > 0) fprintf(out, " server authentication tacacs same_server\n");
+					if (cfg.tacacs_servers[0]) fprintf(out, " server authentication tacacs servers %s\n", cfg.tacacs_servers);
+					if (cfg.tacacs_trynextonreject > 0) fprintf(out, " server authentication tacacs try_next_on_reject\n");
 					if ((cfg.server_ip_addr[0])&&(cfg.server_ip_mask[0]))
-						pfprintf(out, " server ip address %s %s\n", cfg.server_ip_addr, cfg.server_ip_mask);
+						fprintf(out, " server ip address %s %s\n", cfg.server_ip_addr, cfg.server_ip_mask);
 					if (cfg.server_ip_peer_addr[0])
-						pfprintf(out, " server ip peer-address %s\n", cfg.server_ip_peer_addr);
-					pfprintf(out, " %sserver shutdown\n", (cfg.server_flags & SERVER_FLAGS_ENABLE) ? "no " : "");
-					pfprintf(out, " %sshutdown\n", cfg.up ? "no " : "");
+						fprintf(out, " server ip peer-address %s\n", cfg.server_ip_peer_addr);
+					fprintf(out, " %sserver shutdown\n", (cfg.server_flags & SERVER_FLAGS_ENABLE) ? "no " : "");
+					fprintf(out, " %sshutdown\n", cfg.up ? "no " : "");
 					break;
 				}
 
@@ -905,12 +906,12 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 					char *p;
 					char daemon_dhcpc[32];
 
-					if (ipt.in_acl[0]) pfprintf (out, " ip access-group %s in\n", ipt.in_acl);
-					if (ipt.out_acl[0]) pfprintf (out, " ip access-group %s out\n", ipt.out_acl);
-					if (ipt.in_mangle[0]) pfprintf (out, " ip mark %s in\n", ipt.in_mangle);
-					if (ipt.out_mangle[0]) pfprintf (out, " ip mark %s out\n", ipt.out_mangle);
-					if (ipt.in_nat[0]) pfprintf (out, " ip nat %s in\n", ipt.in_nat);
-					if (ipt.out_nat[0]) pfprintf (out, " ip nat %s out\n", ipt.out_nat);
+					if (ipt.in_acl[0]) fprintf (out, " ip access-group %s in\n", ipt.in_acl);
+					if (ipt.out_acl[0]) fprintf (out, " ip access-group %s out\n", ipt.out_acl);
+					if (ipt.in_mangle[0]) fprintf (out, " ip mark %s in\n", ipt.in_mangle);
+					if (ipt.out_mangle[0]) fprintf (out, " ip mark %s out\n", ipt.out_mangle);
+					if (ipt.in_nat[0]) fprintf (out, " ip nat %s in\n", ipt.in_nat);
+					if (ipt.out_nat[0]) fprintf (out, " ip nat %s out\n", ipt.out_nat);
 #ifdef OPTION_PIMD
 					dump_pim_interface(out, osdev);
 #endif
@@ -921,9 +922,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 					if ((p=strchr(osdev, '.')) != NULL) minor=atoi(p+1); /* skip '.' */
 					if (minor) daemon_dhcpc[0]=0; /* dhcpc only on ethernet0 */
 						else sprintf(daemon_dhcpc, DHCPC_DAEMON, osdev);
-					if (strlen(daemon_dhcpc) && is_daemon_running(daemon_dhcpc)) pfprintf(out, " ip address dhcp\n");
-						else if (ip.ipaddr[0]) pfprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
-								else  pfprintf(out, " no ip address\n");
+					if (strlen(daemon_dhcpc) && is_daemon_running(daemon_dhcpc)) fprintf(out, " ip address dhcp\n");
+						else if (ip.ipaddr[0]) fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
+								else  fprintf(out, " no ip address\n");
 					/* search for alias */
 					strncpy(devtmp, osdev, 14);
 					strcat(devtmp, ":0");
@@ -933,13 +934,13 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 						{
 							strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[k].local));
 							ip_bitlen2mask(ip_addr_table[k].bitlen, ip.ipmask);
-							pfprintf (out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
+							fprintf (out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
 							found=1;
 						}
 					}
 
-					if (mtu) pfprintf (out, " mtu %d\n", mtu);
-					if (txqueue) pfprintf (out, " txqueuelen %d\n", txqueue);
+					if (mtu) fprintf (out, " mtu %d\n", mtu);
+					if (txqueue) fprintf (out, " txqueuelen %d\n", txqueue);
 					/* search for vlan */
 					strncpy(devtmp, osdev, 14);
 					strcat(devtmp, ".");
@@ -947,7 +948,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 					{
 						if (strncmp(link_table[k].ifname, devtmp, strlen(devtmp)) == 0)
 						{
-							pfprintf (out, " vlan %s\n", link_table[k].ifname+strlen(devtmp));
+							fprintf (out, " vlan %s\n", link_table[k].ifname+strlen(devtmp));
 						}
 					}
 
@@ -956,9 +957,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 						bmcr = lan_get_phy_reg(osdev, MII_BMCR);
 						if (bmcr & BMCR_ANENABLE)
-							pfprintf(out, " speed auto\n");
+							fprintf(out, " speed auto\n");
 						else {
-							pfprintf(out, " speed %s %s\n",
+							fprintf(out, " speed %s %s\n",
 								(bmcr & BMCR_SPEED100) ? "100" : "10",
 								(bmcr & BMCR_FULLDPLX) ? "full" : "half");
 						}
@@ -966,7 +967,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 #ifdef OPTION_VRRP
 					dump_vrrp_interface(out, osdev);
 #endif
-					pfprintf (out, " %sshutdown\n", up ? "no " : "");
+					fprintf (out, " %sshutdown\n", up ? "no " : "");
 					break;
 				}
 
@@ -974,10 +975,10 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 				{
 					int k;
 
-					if (ipt.in_acl[0]) pfprintf (out, " ip access-group %s in\n", ipt.in_acl);
-					if (ipt.out_acl[0]) pfprintf (out, " ip access-group %s out\n", ipt.out_acl);
-					if (ip.ipaddr[0]) pfprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
-						else  pfprintf(out, " no ip address\n");
+					if (ipt.in_acl[0]) fprintf (out, " ip access-group %s in\n", ipt.in_acl);
+					if (ipt.out_acl[0]) fprintf (out, " ip access-group %s out\n", ipt.out_acl);
+					if (ip.ipaddr[0]) fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
+						else  fprintf(out, " no ip address\n");
 					/* search for alias */
 					strncpy(devtmp, osdev, 14);
 					strcat(devtmp, ":0");
@@ -987,11 +988,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 						{
 							strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[k].local));
 							ip_bitlen2mask(ip_addr_table[k].bitlen, ip.ipmask);
-							pfprintf(out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
+							fprintf(out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
 						}
 					}
 					/* Doesnt need to search for backuped secondary addresses */
-					pfprintf (out, " %sshutdown\n", up ? "no " : "");
+					fprintf (out, " %sshutdown\n", up ? "no " : "");
 					break;
 				}
 
@@ -1000,16 +1001,16 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 				{
 					int k, found;
 
-					if (ipt.in_acl[0]) pfprintf (out, " ip access-group %s in\n", ipt.in_acl);
-					if (ipt.out_acl[0]) pfprintf (out, " ip access-group %s out\n", ipt.out_acl);
-					if (ipt.in_mangle[0]) pfprintf (out, " ip mark %s in\n", ipt.in_mangle);
-					if (ipt.out_mangle[0]) pfprintf (out, " ip mark %s out\n", ipt.out_mangle);
-					if (ipt.in_nat[0]) pfprintf (out, " ip nat %s in\n", ipt.in_nat);
-					if (ipt.out_nat[0]) pfprintf (out, " ip nat %s out\n", ipt.out_nat);
+					if (ipt.in_acl[0]) fprintf (out, " ip access-group %s in\n", ipt.in_acl);
+					if (ipt.out_acl[0]) fprintf (out, " ip access-group %s out\n", ipt.out_acl);
+					if (ipt.in_mangle[0]) fprintf (out, " ip mark %s in\n", ipt.in_mangle);
+					if (ipt.out_mangle[0]) fprintf (out, " ip mark %s out\n", ipt.out_mangle);
+					if (ipt.in_nat[0]) fprintf (out, " ip nat %s in\n", ipt.in_nat);
+					if (ipt.out_nat[0]) fprintf (out, " ip nat %s out\n", ipt.out_nat);
 					dump_rip_interface(out, osdev);
 					dump_ospf_interface(out, osdev);
-					if (ip.ipaddr[0]) pfprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
-						else  pfprintf(out, " no ip address\n");
+					if (ip.ipaddr[0]) fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
+						else  fprintf(out, " no ip address\n");
 					/* search for alias */
 					strncpy(devtmp, osdev, 14);
 					strcat(devtmp, ":0");
@@ -1019,15 +1020,15 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 						{
 							strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[k].local));
 							ip_bitlen2mask(ip_addr_table[k].bitlen, ip.ipmask);
-							pfprintf (out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
+							fprintf (out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
 							found=1;
 						}
 					}
 
-					if (mtu) pfprintf(out, " mtu %d\n", mtu);
-					if (txqueue) pfprintf(out, " txqueuelen %d\n", txqueue);
+					if (mtu) fprintf(out, " mtu %d\n", mtu);
+					if (txqueue) fprintf(out, " txqueuelen %d\n", txqueue);
 					dump_tunnel_interface(out, conf_format, osdev);
-					pfprintf(out, " %sshutdown\n", up ? "no " : "");
+					fprintf(out, " %sshutdown\n", up ? "no " : "");
 					break;
 				}
 
@@ -1057,15 +1058,15 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 					}
 					if(!strchr(buf, '.'))
 					{
-						if (itf_should_sendtrap(buf)) pfprintf(out, " snmp trap link-status\n");
+						if (itf_should_sendtrap(buf)) fprintf(out, " snmp trap link-status\n");
 #if 0
-							else pfprintf(out, " no snmp trap link-status\n");
+							else fprintf(out, " no snmp trap link-status\n");
 #endif
 					}
 				}
 			}
 
-			pfprintf (out, "!\n");
+			fprintf (out, "!\n");
 		}
 		else
 		{
@@ -1076,13 +1077,13 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 				strcasecmp(cish_dev, intf)
 				)) continue; /* skip not matched interfaces */
 
-			pfprintf(out, "%s is %s, line protocol is %s%s\n",
+			fprintf(out, "%s is %s, line protocol is %s%s\n",
 					cish_dev,
 					up ? (1 ? "up" : "down") : "administratively down", //FIXME
 					running & IF_STATE_UP ? "up" : "down", running & IF_STATE_LOOP ? " (looped)" : "");
 
 			description = dev_get_description(osdev);
-			if (description) pfprintf(out, "  Description: %s\n",description);
+			if (description) fprintf(out, "  Description: %s\n",description);
 
 			// Caso especial (mais um...) - no PPP temos as seguintes situacoes em relacao aos IPs:
 			// 1. IP local configurado - nesse caso devemos sempre apresentar o IP configurado
@@ -1103,11 +1104,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 					ip.ippeer[0]=0;
 				}
 				if (cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
-					pfprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", cfg.ip_unnumbered, ip.ipaddr);
+					fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", cfg.ip_unnumbered, ip.ipaddr);
 				else
-					if (ip.ipaddr[0]) pfprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+					if (ip.ipaddr[0]) fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 			}
-				else if (ip.ipaddr[0]) pfprintf (out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+				else if (ip.ipaddr[0]) fprintf (out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 				/* Secondary address search */		
 				strncpy(devtmp, osdev, 14);
 				strcat(devtmp, ":0");
@@ -1115,14 +1116,14 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 					if (strcmp(devtmp, ip_addr_table[i].ifname) == 0)  {
 						strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[i].local));
 						ip_bitlen2mask(ip_addr_table[i].bitlen, ip.ipmask);
-						pfprintf (out, "  Secondary internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+						fprintf (out, "  Secondary internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 					}
 				}
 
 			if (ip.ippeer[0] && !(linktype == ARPHRD_TUNNEL || linktype == ARPHRD_IPGRE))
-				pfprintf (out, "  Peer address is %s\n", ip.ippeer);
-			pfprintf (out, "  MTU is %i bytes\n", mtu);
-			if (txqueue) pfprintf (out, "  Output queue size: %i\n", txqueue);
+				fprintf (out, "  Peer address is %s\n", ip.ippeer);
+			fprintf (out, "  MTU is %i bytes\n", mtu);
+			if (txqueue) fprintf (out, "  Output queue size: %i\n", txqueue);
 
 			switch (linktype)
 			{
@@ -1132,74 +1133,74 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 						ppp_config cfg;
 
 						ppp_get_config(serial_no, &cfg);
-						pfprintf(out, "  Encapsulation PPP");
-						if (cfg.echo_interval) pfprintf(out, ", echo interval %d", cfg.echo_interval);
-						if (cfg.echo_failure) pfprintf(out, ", echo failure %d", cfg.echo_failure);
-						pfprintf(out, "\n");
+						fprintf(out, "  Encapsulation PPP");
+						if (cfg.echo_interval) fprintf(out, ", echo interval %d", cfg.echo_interval);
+						if (cfg.echo_failure) fprintf(out, ", echo failure %d", cfg.echo_failure);
+						fprintf(out, "\n");
 				}
 				break;
 
 				case ARPHRD_ETHER:
 				{
-					if (mac[0]) pfprintf (out, "  Hardware address is %s\n", mac);
+					if (mac[0]) fprintf (out, "  Hardware address is %s\n", mac);
 					if (running)
 					{
 						int bmcr, pgsr, pssr;
 
 						bmcr = lan_get_phy_reg(osdev, MII_BMCR);
 						if (bmcr & BMCR_ANENABLE) {
-							pfprintf(out, "  Auto-sense");
+							fprintf(out, "  Auto-sense");
 							if (phy_status & PHY_STAT_ANC) {
 								switch (phy_status & PHY_STAT_SPMASK) {
-									case PHY_STAT_10HDX: pfprintf(out, " 10Mbps, Half-Duplex"); break;
-									case PHY_STAT_10FDX: pfprintf(out, " 10Mbps, Full-Duplex"); break;
-									case PHY_STAT_100HDX: pfprintf(out, " 100Mbps, Half-Duplex"); break;
-									case PHY_STAT_100FDX: pfprintf(out, " 100Mbps, Full-Duplex"); break;
+									case PHY_STAT_10HDX: fprintf(out, " 10Mbps, Half-Duplex"); break;
+									case PHY_STAT_10FDX: fprintf(out, " 10Mbps, Full-Duplex"); break;
+									case PHY_STAT_100HDX: fprintf(out, " 100Mbps, Half-Duplex"); break;
+									case PHY_STAT_100FDX: fprintf(out, " 100Mbps, Full-Duplex"); break;
 								}
 							} else {
-								pfprintf(out, " waiting...");
+								fprintf(out, " waiting...");
 							}
 						} else {
-							pfprintf(out, "  Forced");
-							pfprintf(out, " %sMbps, %s-Duplex",
+							fprintf(out, "  Forced");
+							fprintf(out, " %sMbps, %s-Duplex",
 								(bmcr & BMCR_SPEED100) ? "100" : "10",
 								(bmcr & BMCR_FULLDPLX) ? "Full" : "Half");
 
 						}
 						if (phy_status & PHY_STAT_FAULT) {
-							pfprintf(out, ", Remote Fault Detect!\n");
+							fprintf(out, ", Remote Fault Detect!\n");
 						} else {
-							pfprintf(out, "\n");
+							fprintf(out, "\n");
 						}
 
 						pgsr = lan_get_phy_reg(osdev, MII_ADM7001_PGSR);
 						pssr = lan_get_phy_reg(osdev, MII_ADM7001_PSSR);
 						if (pgsr & MII_ADM7001_PGSR_XOVER) {
-							pfprintf(out, "  Cable MDIX");
+							fprintf(out, "  Cable MDIX");
 						} else {
-							pfprintf(out, "  Cable MDI");
+							fprintf(out, "  Cable MDI");
 						}
 						if (pssr & MII_ADM7001_PSSR_SPD) {
 							if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xab)
-								pfprintf(out, ", length over 140m");
+								fprintf(out, ", length over 140m");
 							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xa2)
-								pfprintf(out, ", length over 120m");
+								fprintf(out, ", length over 120m");
 							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x9a)
-								pfprintf(out, ", length over 100m");
+								fprintf(out, ", length over 100m");
 							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x94)
-								pfprintf(out, ", length over 80m");
+								fprintf(out, ", length over 80m");
 							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x22)
-								pfprintf(out, ", length over 60m");
+								fprintf(out, ", length over 60m");
 							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x1a)
-								pfprintf(out, ", length over 40m");
-							else pfprintf(out, ", length below 40m");
+								fprintf(out, ", length over 40m");
+							else fprintf(out, ", length below 40m");
 #ifdef CONFIG_DEVELOPMENT
-							pfprintf(out, " (cblen=%d)\n", pgsr & MII_ADM7001_PGSR_CBLEN);
+							fprintf(out, " (cblen=%d)\n", pgsr & MII_ADM7001_PGSR_CBLEN);
 #else
-							pfprintf(out, "\n");
+							fprintf(out, "\n");
 #endif
 						} else {
-							pfprintf(out, "\n");
+							fprintf(out, "\n");
 						}
 					}
 					break;
@@ -1220,38 +1221,38 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 					fprintf(stderr, "%% unknown link type: %d\n", linktype);
 					break;
 			}
-			pfprintf(out, "     %lu packets input, %lu bytes\n", st->rx_packets, st->rx_bytes);
-			pfprintf(out, "     %lu input errors, %lu dropped, %lu overruns, %lu frame, %lu crc, %lu fifo\n", 
+			fprintf(out, "     %lu packets input, %lu bytes\n", st->rx_packets, st->rx_bytes);
+			fprintf(out, "     %lu input errors, %lu dropped, %lu overruns, %lu frame, %lu crc, %lu fifo\n", 
 				st->rx_errors, st->rx_dropped, st->rx_over_errors, st->rx_frame_errors, st->rx_crc_errors, st->rx_fifo_errors);
 #ifdef CONFIG_DEVELOPMENT
-			pfprintf(out, "     %lu length, %lu missed\n", st->rx_length_errors, st->rx_missed_errors);
-			pfprintf(out, "     %lu enable int, %lu max worked\n", st->rx_enable_int, st->rx_max_worked);
+			fprintf(out, "     %lu length, %lu missed\n", st->rx_length_errors, st->rx_missed_errors);
+			fprintf(out, "     %lu enable int, %lu max worked\n", st->rx_enable_int, st->rx_max_worked);
 
 #endif
-			pfprintf(out, "     %lu packets output, %lu bytes\n", st->tx_packets, st->tx_bytes);
-			pfprintf(out, "     %lu output errors, %lu collisions, %lu dropped, %lu carrier, %lu fifo\n", 
+			fprintf(out, "     %lu packets output, %lu bytes\n", st->tx_packets, st->tx_bytes);
+			fprintf(out, "     %lu output errors, %lu collisions, %lu dropped, %lu carrier, %lu fifo\n", 
 				st->tx_errors, st->collisions, st->tx_dropped, st->tx_carrier_errors, st->tx_fifo_errors);
 #ifdef CONFIG_DEVELOPMENT
-			pfprintf(out, "     %lu aborted, %lu heartbeat, %lu window\n", 
+			fprintf(out, "     %lu aborted, %lu heartbeat, %lu window\n", 
 				st->tx_aborted_errors, st->tx_heartbeat_errors, st->tx_window_errors);
-			pfprintf(out, "     %lu enable int, %lu max worked\n", st->tx_enable_int, st->tx_max_worked);
-			pfprintf(out, "     %lu stopped, %lu restarted\n", st->tx_stopped, st->tx_restarted);
+			fprintf(out, "     %lu enable int, %lu max worked\n", st->tx_enable_int, st->tx_max_worked);
+			fprintf(out, "     %lu stopped, %lu restarted\n", st->tx_stopped, st->tx_restarted);
 #endif
 
 
 #if 0
 			if (modem_info != -1) {
-				pfprintf(out, "     ");
+				fprintf(out, "     ");
 				if (serial_no < MAX_WAN_INTF) /* serial[ 0-1 ] */
-					pfprintf(out, "DCD=%s  ", modem_info & TIOCM_CD?"up":"down");
-				pfprintf(out, "DSR=%s  DTR=%s  RTS=%s  CTS=%s\n", 
+					fprintf(out, "DCD=%s  ", modem_info & TIOCM_CD?"up":"down");
+				fprintf(out, "DSR=%s  DTR=%s  RTS=%s  CTS=%s\n", 
 					modem_info & TIOCM_DSR ? "up" : "down",
 					modem_info & TIOCM_DTR ? "up" : "down", 
 					modem_info & TIOCM_RTS ? "up" : "down", 
 					modem_info & TIOCM_CTS ? "up" : "down");
 			}
 #endif
-			pfprintf(out, "\n");
+			fprintf(out, "\n");
 		}
 	}
 }
@@ -1281,7 +1282,7 @@ void dump_chatscripts(FILE *out)
 			if (f)
 			{
 				fgets (buf, 1024, f); buf[1023] = 0;
-				pfprintf(out, "chatscript %s %s\n", namelist[n]->d_name, buf); 
+				fprintf(out, "chatscript %s %s\n", namelist[n]->d_name, buf); 
 				fclose(f);
 				printed_something = 1;
 			}
@@ -1290,14 +1291,14 @@ void dump_chatscripts(FILE *out)
 	}
 	free(namelist);
 
-	if (printed_something) pfprintf(out, "!\n");
+	if (printed_something) fprintf(out, "!\n");
 }
 
 void dump_hostname(FILE *out)
 {
 	gethostname(buf, sizeof(buf)-1);
 	buf[sizeof(buf)-1]=0;
-	pfprintf(out, "hostname %s\n!\n", buf);
+	fprintf(out, "hostname %s\n!\n", buf);
 }
 
 void dump_clock(FILE *out)
@@ -1307,10 +1308,10 @@ void dump_clock(FILE *out)
 
 	if (get_timezone(name, &hours, &mins)==0)
 	{
-		pfprintf(out, "clock timezone %s %d", name, hours);
-		if (mins > 0) pfprintf(out, " %d\n", mins);
-			else pfprintf(out, "\n");
-		pfprintf(out, "!\n");
+		fprintf(out, "clock timezone %s %d", name, hours);
+		if (mins > 0) fprintf(out, " %d\n", mins);
+			else fprintf(out, "\n");
+		fprintf(out, "!\n");
 	}
 }
 
@@ -1323,8 +1324,8 @@ void dump_ntp(FILE *out)
 	char *p, line[200];
 
 #ifdef OPTION_NTPD_authenticate
-	if (is_ntp_auth_used()) pfprintf(out, "ntp authenticate\n");
-		else pfprintf(out, "no ntp authenticate\n");
+	if (is_ntp_auth_used()) fprintf(out, "ntp authenticate\n");
+		else fprintf(out, "no ntp authenticate\n");
 #endif
 
 	if((f=fopen(FILE_NTP_CONF, "r")))
@@ -1339,7 +1340,7 @@ void dump_ntp(FILE *out)
 				{
 					if (args->argc >= 4) {
 						printed_something=1;
-						pfprintf(out, "ntp restrict %s %s\n", args->argv[1], args->argv[3]);
+						fprintf(out, "ntp restrict %s %s\n", args->argv[1], args->argv[3]);
 					}
 				}
 				destroy_args(args);
@@ -1359,9 +1360,9 @@ void dump_ntp(FILE *out)
 					if (args->argc > 1)
 					{
 						for(i=1; i < args->argc; i++)
-							pfprintf(out, "ntp trusted-key %s\n", args->argv[i]);
+							fprintf(out, "ntp trusted-key %s\n", args->argv[i]);
 					}
-						else pfprintf(out, "no ntp trusted-key\n");
+						else fprintf(out, "no ntp trusted-key\n");
 				}
 				destroy_args(args);
 			}
@@ -1377,16 +1378,16 @@ void dump_ntp(FILE *out)
 				if(args->argc >= 2 && !strcmp(args->argv[0], "server")) /* server <ipaddr> iburst [key 1-16] */
 				{
 					printed_something=1;
-					pfprintf(out, "ntp server %s", args->argv[1]);
-					if (args->argc >= 5 && !strcmp(args->argv[3], "key")) pfprintf(out, " key %s\n", args->argv[4]);
-						else pfprintf(out, "\n");
+					fprintf(out, "ntp server %s", args->argv[1]);
+					if (args->argc >= 5 && !strcmp(args->argv[3], "key")) fprintf(out, " key %s\n", args->argv[4]);
+						else fprintf(out, "\n");
 				}
 				destroy_args(args);
 			}
 		}
 		fclose(f);
 		if (printed_something)
-			pfprintf(out, "!\n");
+			fprintf(out, "!\n");
 	}
 #endif /* OPTION_NTPD */
 }
@@ -1397,17 +1398,17 @@ void dump_secret(FILE *out)
 
 	if (cish_cfg->enable_secret[0])
 	{
-		pfprintf(out, "secret enable hash %s\n", cish_cfg->enable_secret);
+		fprintf(out, "secret enable hash %s\n", cish_cfg->enable_secret);
 		printed_something = 1;
 	}
 
 	if (cish_cfg->login_secret[0])
 	{
-		pfprintf(out, "secret login hash %s\n", cish_cfg->login_secret);
+		fprintf(out, "secret login hash %s\n", cish_cfg->login_secret);
 		printed_something = 1;
 	}
 
-	if (printed_something) pfprintf(out, "!\n");
+	if (printed_something) fprintf(out, "!\n");
 }
 
 void show_routingtables(const char *cmdline)
@@ -1417,7 +1418,7 @@ void show_routingtables(const char *cmdline)
 
 void write_config(FILE *f)
 {
-	pfprintf(f, "!\n");
+	fprintf(f, "!\n");
 	dump_version(f);
 	dump_terminal(f);
 	dump_secret(f);
@@ -1434,8 +1435,8 @@ void write_config(FILE *f)
 #endif
 
 	dump_chatscripts(f);
-	dump_policy(f);
-	dump_acl(0, f, 1);
+	acl_dump_policy(f);
+	acl_dump(0, f, 1);
 	dump_nat(0, f, 1);
 	dump_mangle(0, f, 1);
 	dump_qos_config(f);
@@ -1498,8 +1499,8 @@ void show_level_running_config(const char *cmdline)
 		dump_rmon(f);
 #endif
 		dump_chatscripts(f);
-		dump_policy(f);
-		dump_acl(0, f, 1);
+		acl_dump_policy(f);
+		acl_dump(0, f, 1);
 		dump_nat(0, f, 1);
 		dump_mangle(0, f, 1);
 		dump_nat_helper(f);
@@ -1762,7 +1763,7 @@ void show_accesslists(const char *cmdline)
 	arglist *args;
 
 	args=make_args(cmdline);
-	dump_acl((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	destroy_args(args);
 }
 
@@ -2427,16 +2428,16 @@ void dump_rmon(FILE *out)
 	if( get_access_rmon_config(&shm_rmon_p) == 1 ) {
 		for( i=0; i < NUM_EVENTS; i++ ) {
 			if( shm_rmon_p->events[i].index > 0 ) {
-				pfprintf(out, "rmon event %d", shm_rmon_p->events[i].index);
+				fprintf(out, "rmon event %d", shm_rmon_p->events[i].index);
 				if( shm_rmon_p->events[i].do_log )
-					pfprintf(out, " log");
+					fprintf(out, " log");
 				if( shm_rmon_p->events[i].community[0] != 0 )
-					pfprintf(out, " trap %s", shm_rmon_p->events[i].community);
+					fprintf(out, " trap %s", shm_rmon_p->events[i].community);
 				if( shm_rmon_p->events[i].description[0] != 0 )
-					pfprintf(out, " description %s", shm_rmon_p->events[i].description);
+					fprintf(out, " description %s", shm_rmon_p->events[i].description);
 				if( shm_rmon_p->events[i].owner[0] != 0 )
-					pfprintf(out, " owner %s", shm_rmon_p->events[i].owner);
-				pfprintf(out, "\n");
+					fprintf(out, " owner %s", shm_rmon_p->events[i].owner);
+				fprintf(out, "\n");
 			}
 		}
 		for( i=0; i < NUM_ALARMS; i++ ) {
@@ -2448,38 +2449,38 @@ void dump_rmon(FILE *out)
 				}
 				*(result + strlen(result) - 1) = '\0';
 
-				pfprintf(out, "rmon alarm %d %s %d", shm_rmon_p->alarms[i].index, result, shm_rmon_p->alarms[i].interval);
+				fprintf(out, "rmon alarm %d %s %d", shm_rmon_p->alarms[i].index, result, shm_rmon_p->alarms[i].interval);
 				switch( shm_rmon_p->alarms[i].sample_type ) {
 					case SAMPLE_ABSOLUTE:
-						pfprintf(out, " absolute");
+						fprintf(out, " absolute");
 						break;
 
 					case SAMPLE_DELTA:
-						pfprintf(out, " delta");
+						fprintf(out, " delta");
 						break;
 				}
 				if( shm_rmon_p->alarms[i].rising_threshold ) {
-					pfprintf(out, " rising-threshold %d", shm_rmon_p->alarms[i].rising_threshold);
+					fprintf(out, " rising-threshold %d", shm_rmon_p->alarms[i].rising_threshold);
 					if( shm_rmon_p->alarms[i].rising_event_index )
-						pfprintf(out, " %d", shm_rmon_p->alarms[i].rising_event_index);
+						fprintf(out, " %d", shm_rmon_p->alarms[i].rising_event_index);
 				}
 				if( shm_rmon_p->alarms[i].falling_threshold ) {
-					pfprintf(out, " falling-threshold %d", shm_rmon_p->alarms[i].falling_threshold);
+					fprintf(out, " falling-threshold %d", shm_rmon_p->alarms[i].falling_threshold);
 					if( shm_rmon_p->alarms[i].falling_event_index )
-						pfprintf(out, " %d", shm_rmon_p->alarms[i].falling_event_index);
+						fprintf(out, " %d", shm_rmon_p->alarms[i].falling_event_index);
 				}
 				if( shm_rmon_p->alarms[i].owner[0] != 0 )
-					pfprintf(out, " owner %s", shm_rmon_p->alarms[i].owner);
-				pfprintf(out, "\n");
+					fprintf(out, " owner %s", shm_rmon_p->alarms[i].owner);
+				fprintf(out, "\n");
 			}
 		}
 		loose_access_rmon_config(&shm_rmon_p);
 	}
 	if( is_daemon_running(RMON_DAEMON) )
-		pfprintf(out, "rmon agent\n");
+		fprintf(out, "rmon agent\n");
 	else
-		pfprintf(out, "no rmon agent\n");
-	pfprintf(out, "!\n");
+		fprintf(out, "no rmon agent\n");
+	fprintf(out, "!\n");
 }
 #endif
 

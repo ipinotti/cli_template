@@ -20,9 +20,9 @@ OBJS 		= cish_main.o \
 		  enable.o \
 		  configterm.o \
 		  config_policymap.o \
-		  acl.o \
-		  mangle.o \
-		  nat.o \
+		  commands_acl.o \
+		  commands_mangle.o \
+		  commands_nat.o \
 		  sys_exec.o \
 		  interface_snmp.o \
 		  pprintf.o \

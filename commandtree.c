@@ -15,11 +15,10 @@
 #include "commandtree.h"
 #include "commands.h"
 #include "debug.h"
-#include "mangle.h"
 #include "interface_snmp.h"
-#include "acl.h"
-#include "mangle.h"
-#include "nat.h"
+#include "commands_acl.h"
+#include "commands_mangle.h"
+#include "commands_nat.h"
 #include "policymap.h"
 
 char EXTCMD[1024];
