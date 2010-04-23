@@ -15,10 +15,10 @@ libcmds_la_SOURCES = \
 	ntp.c \
 	ppp.c \
 	rmon.c \
-	route.c \ 
+	route.c \
 	show.c \
 	tcpdump.c \
 	telnet.c \
 	vlan.c \
-	vrrp.c \
+	vrrp.c 
 

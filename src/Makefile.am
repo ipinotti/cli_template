@@ -24,5 +24,5 @@ cish_SOURCES = \
 	terminal_echo.c \
 	crc.S
 
-cish_LIBADD = \
+cish_LDADD = \
 	$(top_builddir)/src/cmds/libcmds.la

@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#include <options.h>
+#include "options.h"
 
 /* Libconfig includes */
 #include <libconfig/acl.h>

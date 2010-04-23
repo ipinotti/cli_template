@@ -1,12 +1,14 @@
 AC_PREREQ([2.64])
 AC_INIT([cish], [0.1], [tgrande@pd3.com.br])
-AC_CONFIG_SRCDIR([src/bwmon.h])
+AC_CONFIG_SRCDIR([src/cish_main.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
+AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
 # Checks for programs.
 AC_PROG_CC
+AM_PROG_AS
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 

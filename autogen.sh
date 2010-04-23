@@ -16,7 +16,7 @@ have_libtool=false
 if libtoolize --version < /dev/null > /dev/null 2>&1 ; then
 	libtool_version=`libtoolize --version | sed 's/^[^0-9]*\([0-9.][0-9.]*\).*/\1/'`
 	case $libtool_version in
-	    1.4*|1.5*)
+	    1.4*|1.5*|2.*)
 		have_libtool=true
 		;;
 	esac
@@ -29,14 +29,6 @@ if $have_libtool ; then : ; else
 	DIE=1
 fi
 
-(gtkdocize --version) < /dev/null > /dev/null 2>&1 || {
-	echo
-	echo "You must have gtk-doc installed to compile $PROJECT."
-	echo "Install the appropriate package for your distribution,"
-	echo "or get the source tarball at ftp://ftp.gnome.org/pub/GNOME/sources/gtk-doc/"
-	DIE=1
-}
-
 (autoconf --version) < /dev/null > /dev/null 2>&1 || {
 	echo
 	echo "You must have autoconf installed to compile $PROJECT."
@@ -45,9 +37,9 @@ fi
 	DIE=1
 }
 
-if automake-1.7 --version < /dev/null > /dev/null 2>&1 ; then
-    AUTOMAKE=automake-1.7
-    ACLOCAL=aclocal-1.7
+if automake --version < /dev/null > /dev/null 2>&1 ; then
+    AUTOMAKE=automake
+    ACLOCAL=aclocal
 else
 	echo
 	echo "You must have automake 1.7.x installed to compile $PROJECT."
@@ -79,14 +71,13 @@ rm -rf autom4te.cache
 # regenerated from their corresponding *.in files by ./configure anyway.
 touch README INSTALL
 
-$ACLOCAL $ACLOCAL_FLAGS || exit $?
+$ACLOCAL -I m4 $ACLOCAL_FLAGS || exit $?
 
 libtoolize --force || exit $?
-gtkdocize || exit $?
 
 autoheader || exit $?
 
-$AUTOMAKE --add-missing || exit $?
+$AUTOMAKE --add-missing --gnu || exit $?
 autoconf || exit $?
 cd $ORIGDIR || exit $?
 
