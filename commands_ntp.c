@@ -16,7 +16,7 @@
 #include <libconfig/args.h>
 #include <libconfig/ntp.h>
 #include <libconfig/nv.h>
-#include <libconfig/time.h>
+#include <libconfig/libtime.h>
 #include <libconfig/quagga.h>
 
 #ifdef OPTION_NTPD

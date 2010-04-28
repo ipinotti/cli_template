@@ -281,7 +281,7 @@ void dump_ip (FILE *out, int conf_format)
 	val = get_procip_val ("icmp_ignore_bogus_error_responses");
 	fprintf (out, val ? "ip icmp ignore bogus\n" : "no ip icmp ignore bogus\n");
 
-#ifndef CONFIG_BERLIN
+#if 0 /* This are not present in earlier kernel versions ... is this PD3 invention ? */
 	val = get_procip_val ("icmp_destunreach_rate");
 	fprintf (out, "ip icmp rate dest-unreachable %i\n", val);
 

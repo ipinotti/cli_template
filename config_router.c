@@ -1986,57 +1986,37 @@ char *linux_to_zebra_network_cmdline(char *cmdline)
 
 void set_rip_interface_cmds(int enable)
 {
-	if (enable) {
+	if (enable)
 		_cish_mask |= MSK_RIP;
-	} else {
+	else
 		_cish_mask &= ~MSK_RIP;
-	}
 }
 
 void set_ospf_interface_cmds(int enable)
 {
-	if (enable) {
+	if (enable)
 		_cish_mask |= MSK_OSPF;
-	} else {
+	else
 		_cish_mask &= ~MSK_OSPF;
-	}
 }
 
 #ifdef OPTION_BGP
 void set_bgp_interface_cmds(int enable)
 {
-	if (enable) {
+	if (enable)
 		_cish_mask |= MSK_BGP;
-	} else {
+	else
 		_cish_mask &= ~MSK_BGP;
-	}
 }
 #endif
 
 void set_model_qos_cmds(int enable)
 {
-	if (enable) {
-		_cish_mask |= (MSK_QOS | MSK_VRRP);
-	} else {
-		_cish_mask &= ~(MSK_QOS | MSK_VRRP);
-	}
+	if (enable)
+		_cish_mask |= MSK_QOS;
+	else
+		_cish_mask &= ~MSK_QOS;
 }
-
-/*
-OK! show_interfaces
-OK! ip_mroute
-OK! zebra_execute_cmd
-OK! pim_bsr_candidate
-OK! pim_rp_candidate
-OK! config_interface
-OK! set_ipsec_addr
-OK! l2tp_ppp_unnumbered
-OK! clear_counters
-OK! ppp_unnumbered
-OK! rip_execute_router_cmd
-OK! ospf_execute_router_cmd
-OK! show_ip_ospf
-*/
 
 extern cish_command CMD_SHOW_INTERFACE_ETHERNET[];
 #ifdef OPTION_SMCROUTE

@@ -3,9 +3,9 @@ include ../../common.mk
 all:
 	CFLAGS='-O2 -Wall' \
 	INCLUDES='-I. -I$(ROOTDIR)/include -I$(ROOTDIR)/include/ncurses' \
-	LDFLAGS='-L$(ROOTDIR)/lib' \
-	LIBS='-lncurses -lcrypt -lcrypto -lreadline -lnetsnmp -lconfig -lconfigsnmp' \
-	make;
+	LDFLAGS='-L$(ROOTDIR)/$(FSDIR)/lib' \
+	LIBS='-lncurses -lcrypt -lreadline -lconfig -lconfigsnmp' \
+	$(MAKE);
 
 install: all
 	cp -avf cish $(ROOTDIR)/$(FSDIR)/bin

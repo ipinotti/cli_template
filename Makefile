@@ -40,17 +40,17 @@ install: cish utils
 	cp -f cish /tftpboot/10.1.0.2/web/ssi
 	cp -f cish /tftpboot/10.1.0.2/web/config
 	cp -f cish /tftpboot/10.1.0.2/web/interface
-	make -C util install
+	$(MAKE) -C util install
 
 clean:
 	rm -f $(OBJS) cish
-	make -C util clean
+	$(MAKE) -C util clean
 
 cish: $(OBJS)
-	$(CC) -o cish $(OBJS) $(LDFLAGS) $(LIBS)
+	$(CC) -o cish -Wl,--rpath,$(ROOTDIR)/$(FSDIR)/lib $(OBJS) $(LDFLAGS) $(LIBS)
 
 utils:
-	make -C util
+	$(MAKE) -C util
 
 .SUFFIXES: .c .o
 .c.o:

@@ -25,7 +25,7 @@
 #include <libconfig/lan.h>
 #include <libconfig/ppp.h>
 #include <libconfig/str.h>
-#include <libconfig/time.h>
+#include <libconfig/libtime.h>
 #include <libconfig/ntp.h>
 #include <libconfig/nv.h>
 #include <libconfig/pam.h>
@@ -40,6 +40,7 @@
 #include <libconfig/quagga.h>
 #include <libconfig/snmp.h>
 #include <libconfig/ppcio.h>
+
 #ifdef OPTION_SMCROUTE
 #include <libconfig/smcroute.h>
 #endif
@@ -49,6 +50,16 @@
 #endif
 #include <libconfig/ssh.h>
 #include <libconfig/vlan.h>
+
+#define DEBUG
+#ifdef DEBUG
+#define cish_dbg(x,...) \
+		printf("%s : %d =>", __FUNCTION__, __LINE__); \
+		printf(x, ##__VA_ARGS__)
+#else
+#define cish_dbg(x,...)
+#endif
+
 
 /* IP Tables variables */
 #define IPT_BUF_SIZE 100

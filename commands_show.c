@@ -672,6 +672,7 @@ void dump_policy_interface(FILE *out, char *intf)
 	}
 }
 
+#if 0
 int qsort_dump_interfaces(const void *a, const void *b)
 {
 	char idx;
@@ -703,97 +704,563 @@ int qsort_dump_interfaces(const void *a, const void *b)
 	}
 	return strcmp(if_a, if_b);
 }
+#endif
 
+
+/*
+ * REFACTOR INIT!
+ */
+
+
+struct interface_conf {
+	char *name;
+	struct iptables_t ipt;
+	/*
+	 * intf_info : This points to a generic structure with all interfaces.
+	 * Perhaps it would be nicer to have only one interface referenced here.
+	 */
+	struct intf_info *info;
+
+	int mtu;
+	int flags;
+	int up;
+	int running;
+	struct net_device_stats *stats;
+	unsigned short linktype;
+	int txqueue;
+	char mac[32];
+};
+
+static void __dump_intf_secondary_ipaddr (FILE *out, struct interface_conf *conf)
+{
+	struct ip_t ip;
+	int i;
+	char name[16] = "";
+	struct ipaddr_table *ipaddr= &(conf->info->ipaddr[0]);
+
+	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
+
+	/* Search for aliases */
+	strncpy (name, conf->name, 14);
+	strcat (name, ":0");
+
+	/* Go through IP configuration */
+	for (i = 0; i < MAX_NUM_IPS; i++, ipaddr++) {
+
+		if (ipaddr->ifname[0] == 0)
+			break; /* Finished */
+
+		if (strcmp (name, ipaddr->ifname) == 0) {
+			strcpy (ip.ipaddr, inet_ntoa (ipaddr->local));
+			ip_bitlen2mask (ipaddr->bitlen, ip.ipmask);
+
+			fprintf (out, " ip address %s %s secondary\n",
+			                ip.ipaddr, ip.ipmask);
+		}
+	}
+
+	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
+}
+
+static void __dump_intf_iptables_config(FILE *out, struct interface_conf *conf)
+{
+	struct iptables_t *ipt = &conf->ipt;
+
+	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
+
+	if (ipt->in_acl[0])
+		fprintf (out, " ip access-group %s in\n", ipt->in_acl);
+	if (ipt->out_acl[0])
+		fprintf (out, " ip access-group %s out\n", ipt->out_acl);
+	if (ipt->in_mangle[0])
+		fprintf (out, " ip mark %s in\n", ipt->in_mangle);
+	if (ipt->out_mangle[0])
+		fprintf (out, " ip mark %s out\n", ipt->out_mangle);
+	if (ipt->in_nat[0])
+		fprintf (out, " ip nat %s in\n", ipt->in_nat);
+	if (ipt->out_nat[0])
+		fprintf (out, " ip nat %s out\n", ipt->out_nat);
+
+	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
+}
+
+static void __dump_intf_ipaddr(FILE *out, struct interface_conf *conf)
+{
+	int i;
+	struct ip_t ip;
+	char *ifname = conf->name;
+	struct ipaddr_table *ipaddr= &(conf->info->ipaddr[0]);
+
+	cish_dbg("%s : %s\n", __FUNCTION__, ifname);
+
+	memset(&ip, 0, sizeof(struct ip_t));
+
+	for (i = 0; i < MAX_NUM_IPS; i++, ipaddr++) {
+
+		if (ipaddr->ifname[0] == 0)
+			break; /* Finished */
+
+		if (!strcmp (ifname, ipaddr->ifname)) {
+			strcpy (ip.ipaddr, inet_ntoa (ipaddr->local));
+			ip_bitlen2mask (ipaddr->bitlen, ip.ipmask);
+			/* If point-to-point, there is a remote IP address */
+			if (conf->flags & IFF_POINTOPOINT)
+				strcpy (ip.ippeer, inet_ntoa (ipaddr->remote));
+			break;
+		}
+	}
+
+	if (ip.ipaddr[0])
+		fprintf (out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
+	else
+		fprintf (out, " no ip address\n");
+
+	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
+}
+
+static void __dump_ethernet_config(FILE *out, struct interface_conf *conf)
+{
+	char *osdev = conf->name; /* Interface name (linux name) */
+	int ether_no; /* Ethernet index */
+	int minor; /* Sub-interface index */
+	char daemon_dhcpc[32];
+	char devtmp[32];
+	int i;
+	char *p;
+
+	ether_no = atoi (osdev + strlen (ETHERNETDEV));
+	if ((p = strchr (osdev, '.')) != NULL)
+		minor = atoi (p + 1); /* skip '.' */
+
+	/* Don't allow DHCP for sub-interfaces */
+	if (minor)
+		daemon_dhcpc[0] = 0;
+	else
+		sprintf (daemon_dhcpc, DHCPC_DAEMON, osdev);
+
+	/* Dump iptables configuration */
+	__dump_intf_iptables_config(out, conf);
+
+#ifdef OPTION_PIMD
+	dump_pim_interface(out, osdev);
+#endif
+	/* Dump QoS */
+	dump_policy_interface(out, osdev);
+
+	/* Dump Quagga */
+	dump_rip_interface(out, osdev);
+	dump_ospf_interface(out, osdev);
+
+
+	/* Print main IP address */
+	if (strlen (daemon_dhcpc) && is_daemon_running (daemon_dhcpc))
+		fprintf (out, " ip address dhcp\n");
+	else
+		__dump_intf_ipaddr(out, conf);
+
+	/* Print secondary IP addresses */
+	__dump_intf_secondary_ipaddr(out, conf);
+
+	if (conf->mtu)
+		fprintf (out, " mtu %d\n", conf->mtu);
+
+	if (conf->txqueue)
+		fprintf (out, " txqueuelen %d\n", conf->txqueue);
+
+	/* search for VLAN */
+	strncpy(devtmp, osdev, 14);
+	strcat(devtmp, ".");
+	for (i = 0; i < MAX_NUM_LINKS; i++) {
+		if (strncmp (conf->info->link[i].ifname, devtmp,
+		                strlen (devtmp)) == 0) {
+			fprintf (out, " vlan %s\n", conf->info->link[i].ifname
+			                + strlen (devtmp));
+		}
+	}
+
+	/* Show line status if main interface. Avoid VLANs ... */
+	if (strchr(osdev, '.') == NULL)	{
+		int bmcr;
+
+		bmcr = lan_get_phy_reg(osdev, MII_BMCR);
+		if (bmcr & BMCR_ANENABLE)
+			fprintf(out, " speed auto\n");
+		else {
+			fprintf(out, " speed %s %s\n",
+				(bmcr & BMCR_SPEED100) ? "100" : "10",
+				(bmcr & BMCR_FULLDPLX) ? "full" : "half");
+		}
+	}
+
+#ifdef OPTION_VRRP
+	dump_vrrp_interface(out, osdev);
+#endif
+
+	/* Finally, return if interface is on or off */
+	fprintf (out, " %sshutdown\n", conf->up ? "no " : "");
+
+	return;
+}
+
+static void dump_ethernet_status(FILE *out, struct interface_conf *conf)
+{
+	int phy_status = lan_get_status(conf->name);
+
+	if (conf->mac[0])
+		fprintf (out, "  Hardware address is %s\n", conf->mac);
+
+	if (conf->running) {
+		int bmcr, pgsr, pssr;
+
+		bmcr = lan_get_phy_reg (conf->name, MII_BMCR);
+		if (bmcr & BMCR_ANENABLE) {
+			fprintf (out, "  Auto-sense");
+			if (phy_status & PHY_STAT_ANC) {
+				switch (phy_status & PHY_STAT_SPMASK) {
+				case PHY_STAT_10HDX:
+					fprintf (out, " 10Mbps, Half-Duplex");
+					break;
+				case PHY_STAT_10FDX:
+					fprintf (out, " 10Mbps, Full-Duplex");
+					break;
+				case PHY_STAT_100HDX:
+					fprintf (out, " 100Mbps, Half-Duplex");
+					break;
+				case PHY_STAT_100FDX:
+					fprintf (out, " 100Mbps, Full-Duplex");
+					break;
+				}
+			} else {
+				fprintf (out, " waiting...");
+			}
+		} else {
+			fprintf (out, "  Forced");
+			fprintf (out, " %sMbps, %s-Duplex", (bmcr
+			                & BMCR_SPEED100) ? "100" : "10", (bmcr
+			                & BMCR_FULLDPLX) ? "Full" : "Half");
+
+		}
+
+		if (phy_status & PHY_STAT_FAULT) {
+			fprintf (out, ", Remote Fault Detect!\n");
+		} else {
+			fprintf (out, "\n");
+		}
+
+		pgsr = lan_get_phy_reg (conf->name, MII_ADM7001_PGSR);
+		pssr = lan_get_phy_reg (conf->name, MII_ADM7001_PSSR);
+
+		if (pgsr & MII_ADM7001_PGSR_XOVER) {
+			fprintf (out, "  Cable MDIX");
+		} else {
+			fprintf (out, "  Cable MDI");
+		}
+		if (pssr & MII_ADM7001_PSSR_SPD) {
+			if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xab)
+				fprintf (out, ", length over 140m");
+			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xa2)
+				fprintf (out, ", length over 120m");
+			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x9a)
+				fprintf (out, ", length over 100m");
+			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x94)
+				fprintf (out, ", length over 80m");
+			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x22)
+				fprintf (out, ", length over 60m");
+			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x1a)
+				fprintf (out, ", length over 40m");
+			else
+				fprintf (out, ", length below 40m");
+#ifdef CONFIG_DEVELOPMENT
+			fprintf(out, " (cblen=%d)\n", pgsr & MII_ADM7001_PGSR_CBLEN);
+#else
+			fprintf (out, "\n");
+#endif
+		} else {
+			fprintf (out, "\n");
+		}
+	}
+}
+
+static void __dump_loopback_config(FILE *out, struct interface_conf *conf)
+{
+	char *osdev = conf->name; /* Interface name (linux name) */
+
+	cish_dbg("%s : %s\n", __FUNCTION__, osdev);
+
+	__dump_intf_iptables_config(out, conf);
+
+	__dump_intf_ipaddr(out, conf);
+
+	/* Search for aliases */
+	__dump_intf_secondary_ipaddr(out, conf);
+
+	fprintf (out, " %sshutdown\n", conf->up ? "no " : "");
+
+	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
+}
+
+static void __dump_loopback_status(FILE *out, struct interface_conf *conf)
+{
+
+}
+
+static void __dump_tunnel_config(FILE *out, struct interface_conf *conf)
+{
+	char *osdev = conf->name;
+
+	/* Dump iptables configuration */
+	__dump_intf_iptables_config(out, conf);
+
+	dump_rip_interface (out, osdev);
+	dump_ospf_interface (out, osdev);
+
+	__dump_intf_ipaddr(out,conf);
+
+	/* as */
+	__dump_intf_secondary_ipaddr(out, conf);
+
+	if (conf->mtu)
+		fprintf (out, " mtu %d\n", conf->mtu);
+
+	if (conf->txqueue)
+		fprintf (out, " txqueuelen %d\n", conf->txqueue);
+
+	dump_tunnel_interface (out, 1, osdev);
+
+	fprintf (out, " %sshutdown\n", conf->up ? "no " : "");
+}
+
+static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
+{
+
+}
+
+
+#ifdef OPTION_PPP
+static void __dump_ppp_config(FILE *out, struct interface_conf *conf)
+{
+	ppp_config cfg;
+	char *osdev = conf->name;
+	int serial_no;
+
+	/* Get interface index */
+	serial_no = atoi(osdev + strlen(PPPDEV));
+
+	fprintf (out, " encapsulation ppp\n");
+	ppp_get_config (serial_no, &cfg);
+
+	__dump_intf_iptables_config(out, conf);
+
+	dump_policy_interface (out, osdev);
+	dump_rip_interface (out, osdev);
+	dump_ospf_interface (out, osdev);
+
+	if ((cfg.ip_addr[0]) && (cfg.ip_mask[0]))
+		fprintf (out, " ip address %s %s\n", cfg.ip_addr, cfg.ip_mask);
+	else
+		fprintf (out, " no ip address\n");
+	if (cfg.ip_peer_addr[0])
+		fprintf (out, " ip peer-address %s\n", cfg.ip_peer_addr);
+	if (cfg.default_route)
+		fprintf (out, " ip default-route\n");
+	if (cfg.novj)
+		fprintf (out, " no ip vj\n");
+	else
+		fprintf (out, " ip vj\n");
+
+	if (cfg.echo_interval)
+		fprintf (out, " keepalive interval %d\n", cfg.echo_interval);
+	if (cfg.echo_failure)
+		fprintf (out, " keepalive timeout %d\n", cfg.echo_failure);
+	if (cfg.mtu)
+		fprintf (out, " mtu %d\n", cfg.mtu);
+	if (cfg.debug)
+		fprintf (out, " ppp debug\n");
+	if (cfg.multilink)
+		fprintf (out, " ppp multilink\n");
+	if (cfg.usepeerdns)
+		fprintf (out, " ppp usepeerdns\n");
+
+	if (cfg.speed)
+		fprintf (out, " speed %d\n", cfg.speed);
+
+	if (cfg.flow_control == FLOW_CONTROL_NONE)
+		fprintf (out, " no flow-control\n");
+	else
+		fprintf (out, " flow-control %s\n", cfg.flow_control
+		                == FLOW_CONTROL_RTSCTS ? "rts-cts" : "xon-xoff");
+
+	if (cfg.chat_script[0])
+		fprintf (out, " chat-script %s\n", cfg.chat_script);
+	else
+		fprintf (out, " no chat-script\n");
+	fprintf (out, " %sdial-on-demand\n", cfg.dial_on_demand ? "" : "no ");
+	if (cfg.holdoff)
+		fprintf (out, " holdoff %d\n", cfg.holdoff);
+	if (cfg.idle)
+		fprintf (out, " idle %d\n", cfg.idle);
+
+	if (cfg.auth_user[0])
+		fprintf (out, " authentication user %s\n", cfg.auth_user);
+	if (cfg.auth_pass[0])
+		fprintf (out, " authentication pass %s\n", cfg.auth_pass);
+	if ((!cfg.auth_user[0]) && (!cfg.auth_pass[0]))
+		fprintf (out, " no authentication\n");
+	if (cfg.server_flags & (SERVER_FLAGS_PAP | SERVER_FLAGS_CHAP))
+		fprintf (
+		                out,
+		                " server authentication local algorithm %s\n",
+		                cfg.server_flags & SERVER_FLAGS_PAP ? "pap" : cfg.server_flags
+		                                & SERVER_FLAGS_CHAP ? "chap" : "");
+	if (cfg.server_auth_user[0])
+		fprintf (out, " server authentication local user %s\n",
+		                cfg.server_auth_user);
+	if (cfg.server_auth_pass[0])
+		fprintf (out, " server authentication local pass %s\n",
+		                cfg.server_auth_pass);
+	// radius authentication
+	if (cfg.radius_authkey[0])
+		fprintf (out, " server authentication radius auth_key %s\n",
+		                cfg.radius_authkey);
+	if (cfg.radius_retries > 0)
+		fprintf (out, " server authentication radius retries %d\n",
+		                cfg.radius_retries);
+	if (cfg.radius_sameserver > 0)
+		fprintf (out, " server authentication radius same_server\n");
+	if (cfg.radius_servers[0])
+		fprintf (out, " server authentication radius servers %s\n",
+		                cfg.radius_servers);
+	if (cfg.radius_timeout > 0)
+		fprintf (out, " server authentication radius timeout %d\n",
+		                cfg.radius_timeout);
+	if (cfg.radius_trynextonreject > 0)
+		fprintf (out,
+		                " server authentication radius try_next_on_reject\n");
+	// tacacs authentication
+	if (cfg.tacacs_authkey[0])
+		fprintf (out, " server authentication tacacs auth_key %s\n",
+		                cfg.tacacs_authkey);
+	if (cfg.tacacs_sameserver > 0)
+		fprintf (out, " server authentication tacacs same_server\n");
+	if (cfg.tacacs_servers[0])
+		fprintf (out, " server authentication tacacs servers %s\n",
+		                cfg.tacacs_servers);
+	if (cfg.tacacs_trynextonreject > 0)
+		fprintf (out,
+		                " server authentication tacacs try_next_on_reject\n");
+	if ((cfg.server_ip_addr[0]) && (cfg.server_ip_mask[0]))
+		fprintf (out, " server ip address %s %s\n", cfg.server_ip_addr,
+		                cfg.server_ip_mask);
+	if (cfg.server_ip_peer_addr[0])
+		fprintf (out, " server ip peer-address %s\n",
+		                cfg.server_ip_peer_addr);
+	fprintf (out, " %sserver shutdown\n", (cfg.server_flags
+	                & SERVER_FLAGS_ENABLE) ? "no " : "");
+	fprintf (out, " %sshutdown\n", cfg.up ? "no " : "");
+}
+
+
+static void dump_ppp_status(FILE *out, struct interface_conf *conf)
+{
+	ppp_config cfg;
+
+	ppp_get_config(serial_no, &cfg);
+
+	fprintf(out, "  Encapsulation PPP");
+
+	if (cfg.echo_interval)
+		fprintf(out, ", echo interval %d", cfg.echo_interval);
+	if (cfg.echo_failure)
+		fprintf(out, ", echo failure %d", cfg.echo_failure);
+
+	fprintf(out, "\n");
+}
+#endif /* OPTION_PPP */
 
 void dump_interfaces(FILE *out, int conf_format, char *intf)
 {
-	int i, j, ret, n, up, mtu, txqueue, running;
-	int linktype, serial_no = 0;
-	int phy_status = 0, minor = 0;
+	int i, ret;
 	struct ip_t ip;
 	struct iptables_t ipt;
-	char *osdev, *pppdev=NULL, *osdev_ip, *cish_dev;
-	char mac_bin[6], mac[16], *description, devtmp[17];
+
+	char *cish_dev;
+	char mac_bin[6], *description, devtmp[17];
 	struct net_device_stats *st;
-	int intf_sort_indexes[MAX_NUM_LINKS];
+
+	struct interface_conf conf;
+	struct intf_info info;
 
 #if 0
 	int vlan_cos=NONE_TO_COS;
 #endif
 
+	memset(&info, 0, sizeof(struct intf_info));
+
 	/* Get all information */
-	ret = get_if_list();
+	ret = get_if_list(&info);
+
 	if (ret < 0) {
 		printf("%% ERROR : Could not get interfaces information\n");
 		return;
 	}
 
-	/* Sort list */
-	for (i=0; i < link_table_index; i++) 
-		intf_sort_indexes[i]=i;
 
-	qsort(&intf_sort_indexes[0], link_table_index, 
-		sizeof(int), qsort_dump_interfaces);
+	for (i = 0; i < MAX_NUM_LINKS; i++) {
 
-	for (j=0; j < link_table_index; j++) {
+		/* Test if it has a valid name */
+		if (info.link[i].ifname[0] == 0)
+			break;
 
-		i = intf_sort_indexes[j];
-		osdev = link_table[i].ifname;
-		up = link_table[i].flags & IFF_UP;
-		mtu = link_table[i].mtu;
-		st = &link_table[i].stats;
-		linktype=link_table[i].type;
-		mac[0]=0;
+		/* Fill in the configuration structure */
+		memset (&conf, 0, sizeof(struct interface_conf));
+		conf.name = info.link[i].ifname;
+		conf.flags = info.link[i].flags;
+		conf.up = (info.link[i].flags & IFF_UP) ? 1 : 0;
+		conf.mtu = info.link[i].mtu;
+		conf.stats = st = &info.link[i].stats;
+		conf.linktype = info.link[i].type;
+		conf.mac[0] = 0;
+		conf.info = &info;
 
-		if (get_mac(linktype == ARPHRD_ETHER ? 
-			osdev : "ethernet0", mac_bin) == 0)
-				sprintf(mac, "%02x%02x.%02x%02x.%02x%02x",
-					mac_bin[0], mac_bin[1], 
-					mac_bin[2], mac_bin[3], 
+		cish_dbg("%s\n", conf.name);
+
+		/* Get ethernet 0 MAC if not an ethernet interface */
+		if (get_mac(conf.linktype == ARPHRD_ETHER ?
+			conf.name : "ethernet0", mac_bin) == 0)
+				sprintf(conf.mac, "%02x%02x.%02x%02x.%02x%02x",
+					mac_bin[0], mac_bin[1],
+					mac_bin[2], mac_bin[3],
 					mac_bin[4], mac_bin[5]);
 
-
-		osdev_ip = pppdev ? pppdev : osdev;
-
+#if 0 /* FIXME  Find better place for this */
 		/* se for ethernet e estiver fazendo parte de uma bridge, le o ip da bridge */
 		if (strncmp(osdev_ip, "ethernet", 8) == 0)
 			osdev_ip = get_ethernet_dev(osdev_ip);
+#endif
 
-		for (n=0, ip.ipaddr[0]=0, ip.ippeer[0]=0; n < ip_addr_table_index; n++)
-		{
-			if (strcmp(osdev_ip, ip_addr_table[n].ifname) == 0)
-			{
-				strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[n].local));
-				ip_bitlen2mask(ip_addr_table[n].bitlen, ip.ipmask);
-				if (link_table[i].flags & IFF_POINTOPOINT)
-					strcpy(ip.ippeer, inet_ntoa(ip_addr_table[n].remote));
-				break;
-			}
-		}
-
-		cish_dev = convert_os_device(osdev, conf_format ? 0 : 1);
+		cish_dev = convert_os_device(conf.name, conf_format ? 0 : 1);
 
 		if (conf_format) {
 			if (intf && (
 #ifdef OPTION_IPSEC
-				strcasecmp(osdev+7, intf) && /* Crypto-serial0.16 */
+				strcasecmp(conf.name + 7, intf) && /* Crypto-serial0.16 */
 #endif
-				strcasecmp(osdev, intf)) )
+				strcasecmp(conf.name, intf)) )
 				continue; /* skip not matched interfaces */
 		}
 
 		if (cish_dev == NULL) continue; /* ignora dev nao usado pelo cish */
 
-		if (strncmp(osdev, "ipsec", 5) == 0)
-			linktype=ARPHRD_TUNNEL6; /* !!! change crypto-? linktype (temp!) */
+		if (strncmp(conf.name, "ipsec", 5) == 0)
+			conf.linktype = ARPHRD_TUNNEL6; /* !!! change crypto-? linktype (temp!) */
 #if 0
-		switch (linktype) {
+		switch (conf.linktype) {
 
 			case ARPHRD_ETHER:
-				phy_status=lan_get_status(osdev);
+				phy_status=lan_get_status(conf.name);
 				running=(up && (phy_status & PHY_STAT_LINK) ? 1 : 0); /* vlan: interface must be up */
-				if (!strncmp(osdev,"ethernet",8) && strstr(osdev,".")) /* VLAN */
-					vlan_cos = get_vlan_cos(osdev);
+				if (!strncmp(conf.name,"ethernet",8) && strstr(conf.name,".")) /* VLAN */
+					vlan_cos = get_vlan_cos(conf.name);
 				else
 					vlan_cos = NONE_TO_COS;
 				break;
@@ -801,271 +1268,62 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 				running=(link_table[i].flags & IFF_RUNNING) ? 1 : 0;
 				break;
 		}
+#else
+		conf.running = (info.link[i].flags & IFF_RUNNING) ? 1 : 0;
 #endif
 
-		if (linktype == ARPHRD_LOOPBACK && !running)
-			continue; /* !!! ignore loopback down interfaces !!! */
+		/* Ignore loopback that are down */
+		if (conf.linktype == ARPHRD_LOOPBACK && !conf.running)
+			continue;
 
-		if (conf_format)
-		{
-			memset(&ipt, 0, sizeof(struct iptables_t));
-			acl_get_iface_acls(osdev, ipt.in_acl, ipt.out_acl);
-			get_iface_mangle_rules(osdev, ipt.in_mangle, ipt.out_mangle);
-			get_iface_nat_rules(osdev, ipt.in_nat, ipt.out_nat);
+ 		/* Start dumping information */
+		if (conf_format) {
 
-			if (linktype == ARPHRD_TUNNEL6) continue; /* skip ipsec ones... */
+			/* Get iptables config */
+			memset (&ipt, 0, sizeof(struct iptables_t));
+			acl_get_iface_acls (conf.name, ipt.in_acl, ipt.out_acl);
+			get_iface_mangle_rules (conf.name, ipt.in_mangle, ipt.out_mangle);
+			get_iface_nat_rules (conf.name, ipt.in_nat, ipt.out_nat);
+
+			if (conf.linktype == ARPHRD_TUNNEL6)
+				continue; /* skip ipsec ones... */
+
 			fprintf (out, "interface %s\n", cish_dev);
-			description = dev_get_description(osdev);
-			if (description) fprintf(out, " description %s\n", description);
-			switch (linktype)
-			{
-				case ARPHRD_ASYNCPPP:
-				{
-					ppp_config cfg;
+			description = dev_get_description(conf.name);
 
-					fprintf(out, " encapsulation ppp\n");
-					ppp_get_config(serial_no, &cfg);
-					if (ipt.in_acl[0]) fprintf(out, " ip access-group %s in\n", ipt.in_acl);
-					if (ipt.out_acl[0]) fprintf(out, " ip access-group %s out\n", ipt.out_acl);
-					if (ipt.in_mangle[0]) fprintf(out, " ip mark %s in\n", ipt.in_mangle);
-					if (ipt.out_mangle[0]) fprintf(out, " ip mark %s out\n", ipt.out_mangle);
-					if (ipt.in_nat[0]) fprintf(out, " ip nat %s in\n", ipt.in_nat);
-					if (ipt.out_nat[0]) fprintf(out, " ip nat %s out\n", ipt.out_nat);
+			if (description)
+				fprintf(out, " description %s\n", description);
 
-					dump_policy_interface(out, osdev);
-					dump_rip_interface(out, osdev);
-					dump_ospf_interface(out, osdev);
-					if ((cfg.ip_addr[0])&&(cfg.ip_mask[0]))
-						fprintf(out, " ip address %s %s\n", cfg.ip_addr, cfg.ip_mask);
-					else
-						fprintf(out, " no ip address\n");
-					if (cfg.ip_peer_addr[0])
-						fprintf(out, " ip peer-address %s\n", cfg.ip_peer_addr);
-					if (cfg.default_route) fprintf(out, " ip default-route\n");
-					if (cfg.novj) fprintf(out, " no ip vj\n");
-					else fprintf(out, " ip vj\n");
-
-					if (cfg.echo_interval) fprintf(out, " keepalive interval %d\n", cfg.echo_interval);
-					if (cfg.echo_failure) fprintf(out, " keepalive timeout %d\n", cfg.echo_failure);
-					if (cfg.mtu) fprintf(out, " mtu %d\n", cfg.mtu);
-					if (cfg.debug) fprintf(out, " ppp debug\n");
-					if (cfg.multilink)
-						fprintf(out, " ppp multilink\n");
-					if (cfg.usepeerdns) fprintf(out, " ppp usepeerdns\n");
-
-					if (cfg.speed) fprintf(out, " speed %d\n", cfg.speed);
-
-					if (cfg.flow_control == FLOW_CONTROL_NONE)
-						fprintf(out, " no flow-control\n");
-					else
-						fprintf(out, " flow-control %s\n", 
-							cfg.flow_control==FLOW_CONTROL_RTSCTS ? 
-							"rts-cts" : "xon-xoff");
-
-					if (cfg.chat_script[0]) 
-						fprintf(out, " chat-script %s\n", cfg.chat_script);
-					else 
-						fprintf(out, " no chat-script\n");
-					fprintf(out, " %sdial-on-demand\n", cfg.dial_on_demand ? "" : "no ");
-					if (cfg.holdoff)
-						fprintf(out, " holdoff %d\n", cfg.holdoff);
-					if (cfg.idle)
-						fprintf(out, " idle %d\n", cfg.idle);
-
-					if (cfg.auth_user[0]) fprintf(out, " authentication user %s\n", cfg.auth_user);
-					if (cfg.auth_pass[0]) fprintf(out, " authentication pass %s\n", cfg.auth_pass);
-					if ((!cfg.auth_user[0]) && (!cfg.auth_pass[0])) fprintf(out, " no authentication\n");
-					if (cfg.server_flags & (SERVER_FLAGS_PAP|SERVER_FLAGS_CHAP)) fprintf(out, " server authentication local algorithm %s\n", cfg.server_flags&SERVER_FLAGS_PAP ? "pap" : \
-						cfg.server_flags&SERVER_FLAGS_CHAP ? "chap" : "");
-					if (cfg.server_auth_user[0]) fprintf(out, " server authentication local user %s\n", cfg.server_auth_user);
-					if (cfg.server_auth_pass[0]) fprintf(out, " server authentication local pass %s\n", cfg.server_auth_pass);
-					// radius authentication
-					if (cfg.radius_authkey[0]) fprintf(out, " server authentication radius auth_key %s\n", cfg.radius_authkey);
-					if (cfg.radius_retries > 0) fprintf(out, " server authentication radius retries %d\n", cfg.radius_retries);
-					if (cfg.radius_sameserver > 0) fprintf(out, " server authentication radius same_server\n");
-					if (cfg.radius_servers[0]) fprintf(out, " server authentication radius servers %s\n", cfg.radius_servers);
-					if (cfg.radius_timeout > 0) fprintf(out, " server authentication radius timeout %d\n", cfg.radius_timeout);
-					if (cfg.radius_trynextonreject > 0) fprintf(out, " server authentication radius try_next_on_reject\n");
-					// tacacs authentication
-					if (cfg.tacacs_authkey[0]) fprintf(out, " server authentication tacacs auth_key %s\n", cfg.tacacs_authkey);
-					if (cfg.tacacs_sameserver > 0) fprintf(out, " server authentication tacacs same_server\n");
-					if (cfg.tacacs_servers[0]) fprintf(out, " server authentication tacacs servers %s\n", cfg.tacacs_servers);
-					if (cfg.tacacs_trynextonreject > 0) fprintf(out, " server authentication tacacs try_next_on_reject\n");
-					if ((cfg.server_ip_addr[0])&&(cfg.server_ip_mask[0]))
-						fprintf(out, " server ip address %s %s\n", cfg.server_ip_addr, cfg.server_ip_mask);
-					if (cfg.server_ip_peer_addr[0])
-						fprintf(out, " server ip peer-address %s\n", cfg.server_ip_peer_addr);
-					fprintf(out, " %sserver shutdown\n", (cfg.server_flags & SERVER_FLAGS_ENABLE) ? "no " : "");
-					fprintf(out, " %sshutdown\n", cfg.up ? "no " : "");
-					break;
-				}
-
-				case ARPHRD_ETHER:
-				{
-					int k, ether_no, found;
-					char *p;
-					char daemon_dhcpc[32];
-
-					if (ipt.in_acl[0]) fprintf (out, " ip access-group %s in\n", ipt.in_acl);
-					if (ipt.out_acl[0]) fprintf (out, " ip access-group %s out\n", ipt.out_acl);
-					if (ipt.in_mangle[0]) fprintf (out, " ip mark %s in\n", ipt.in_mangle);
-					if (ipt.out_mangle[0]) fprintf (out, " ip mark %s out\n", ipt.out_mangle);
-					if (ipt.in_nat[0]) fprintf (out, " ip nat %s in\n", ipt.in_nat);
-					if (ipt.out_nat[0]) fprintf (out, " ip nat %s out\n", ipt.out_nat);
-#ifdef OPTION_PIMD
-					dump_pim_interface(out, osdev);
+			switch (conf.linktype) {
+#ifdef OPTION_PPP
+			case ARPHRD_ASYNCPPP:
+				__dump_ppp_config (out, &conf);
+				break;
 #endif
-					dump_policy_interface(out, osdev);
-					dump_rip_interface(out, osdev);
-					dump_ospf_interface(out, osdev);
-					ether_no=atoi(osdev+strlen(ETHERNETDEV));
-					if ((p=strchr(osdev, '.')) != NULL) minor=atoi(p+1); /* skip '.' */
-					if (minor) daemon_dhcpc[0]=0; /* dhcpc only on ethernet0 */
-						else sprintf(daemon_dhcpc, DHCPC_DAEMON, osdev);
-					if (strlen(daemon_dhcpc) && is_daemon_running(daemon_dhcpc)) fprintf(out, " ip address dhcp\n");
-						else if (ip.ipaddr[0]) fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
-								else  fprintf(out, " no ip address\n");
-					/* search for alias */
-					strncpy(devtmp, osdev, 14);
-					strcat(devtmp, ":0");
-					for (k=0, found=0; k < ip_addr_table_index; k++)
-					{
-						if (strcmp(devtmp, ip_addr_table[k].ifname) == 0)
-						{
-							strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[k].local));
-							ip_bitlen2mask(ip_addr_table[k].bitlen, ip.ipmask);
-							fprintf (out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
-							found=1;
-						}
-					}
+			case ARPHRD_ETHER:
+				__dump_ethernet_config (out, &conf);
+				break;
 
-					if (mtu) fprintf (out, " mtu %d\n", mtu);
-					if (txqueue) fprintf (out, " txqueuelen %d\n", txqueue);
-					/* search for vlan */
-					strncpy(devtmp, osdev, 14);
-					strcat(devtmp, ".");
-					for (k=0; k < link_table_index; k++)
-					{
-						if (strncmp(link_table[k].ifname, devtmp, strlen(devtmp)) == 0)
-						{
-							fprintf (out, " vlan %s\n", link_table[k].ifname+strlen(devtmp));
-						}
-					}
-
-					if (strchr(osdev, '.') == NULL)	{ /* Avoid vlans! */
-						int bmcr;
-
-						bmcr = lan_get_phy_reg(osdev, MII_BMCR);
-						if (bmcr & BMCR_ANENABLE)
-							fprintf(out, " speed auto\n");
-						else {
-							fprintf(out, " speed %s %s\n",
-								(bmcr & BMCR_SPEED100) ? "100" : "10",
-								(bmcr & BMCR_FULLDPLX) ? "full" : "half");
-						}
-					}
-#ifdef OPTION_VRRP
-					dump_vrrp_interface(out, osdev);
+			case ARPHRD_LOOPBACK:
+				__dump_loopback_config (out, &conf);
+				break;
+#ifdef OPTION_TUNNEL
+			case ARPHRD_TUNNEL:
+			case ARPHRD_IPGRE:
+				__dump_tunnel_config (out, &conf);
+				break;
 #endif
-					fprintf (out, " %sshutdown\n", up ? "no " : "");
-					break;
-				}
 
-				case ARPHRD_LOOPBACK:
-				{
-					int k;
-
-					if (ipt.in_acl[0]) fprintf (out, " ip access-group %s in\n", ipt.in_acl);
-					if (ipt.out_acl[0]) fprintf (out, " ip access-group %s out\n", ipt.out_acl);
-					if (ip.ipaddr[0]) fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
-						else  fprintf(out, " no ip address\n");
-					/* search for alias */
-					strncpy(devtmp, osdev, 14);
-					strcat(devtmp, ":0");
-					for (k=0; k < ip_addr_table_index; k++)
-					{
-						if (strcmp(devtmp, ip_addr_table[k].ifname) == 0)
-						{
-							strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[k].local));
-							ip_bitlen2mask(ip_addr_table[k].bitlen, ip.ipmask);
-							fprintf(out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
-						}
-					}
-					/* Doesnt need to search for backuped secondary addresses */
-					fprintf (out, " %sshutdown\n", up ? "no " : "");
-					break;
-				}
-
-				case ARPHRD_TUNNEL:
-				case ARPHRD_IPGRE:
-				{
-					int k, found;
-
-					if (ipt.in_acl[0]) fprintf (out, " ip access-group %s in\n", ipt.in_acl);
-					if (ipt.out_acl[0]) fprintf (out, " ip access-group %s out\n", ipt.out_acl);
-					if (ipt.in_mangle[0]) fprintf (out, " ip mark %s in\n", ipt.in_mangle);
-					if (ipt.out_mangle[0]) fprintf (out, " ip mark %s out\n", ipt.out_mangle);
-					if (ipt.in_nat[0]) fprintf (out, " ip nat %s in\n", ipt.in_nat);
-					if (ipt.out_nat[0]) fprintf (out, " ip nat %s out\n", ipt.out_nat);
-					dump_rip_interface(out, osdev);
-					dump_ospf_interface(out, osdev);
-					if (ip.ipaddr[0]) fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
-						else  fprintf(out, " no ip address\n");
-					/* search for alias */
-					strncpy(devtmp, osdev, 14);
-					strcat(devtmp, ":0");
-					for (k=0, found=0; k < ip_addr_table_index; k++)
-					{
-						if (strcmp(devtmp, ip_addr_table[k].ifname) == 0)
-						{
-							strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[k].local));
-							ip_bitlen2mask(ip_addr_table[k].bitlen, ip.ipmask);
-							fprintf (out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
-							found=1;
-						}
-					}
-
-					if (mtu) fprintf(out, " mtu %d\n", mtu);
-					if (txqueue) fprintf(out, " txqueuelen %d\n", txqueue);
-					dump_tunnel_interface(out, conf_format, osdev);
-					fprintf(out, " %sshutdown\n", up ? "no " : "");
-					break;
-				}
-
-				default:
-				{
-					printf("%% unknown link type: %d\n", linktype);
-					break;
-				}
+			default:
+				printf ("%% unknown link type: %d\n", conf.linktype);
+				break;
 			}
 
-			/*  Generates configuration about the send of traps for every interface:
-			 *    aux(0, 1 ,...)
-			 *    ethernet(0, 1, ...)
-			 *    serial(0, 1, ...)
-			 */
-			{
-				char *p, buf[100], idx[20]="";
-				strcpy(buf, cish_dev);
-				if((p = strchr(buf, ' ')))
-				{
-					*p = '\0';
-					for(p++; *p == ' '; p++);
-					if(strlen(p) < 20)
-					{
-						strcpy(idx, p);
-						strcat(buf, idx);
-					}
-					if(!strchr(buf, '.'))
-					{
-						if (itf_should_sendtrap(buf)) fprintf(out, " snmp trap link-status\n");
-#if 0
-							else fprintf(out, " no snmp trap link-status\n");
-#endif
-					}
-				}
-			}
+			/*  Generates configuration about the send of traps for every interface */
+			//if (itf_should_sendtrap(conf.name))
+			//	fprintf(out, " snmp trap link-status\n");
 
+			/* End of interface configuration */
 			fprintf (out, "!\n");
 		}
 		else
@@ -1079,10 +1337,10 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 			fprintf(out, "%s is %s, line protocol is %s%s\n",
 					cish_dev,
-					up ? (1 ? "up" : "down") : "administratively down", //FIXME
-					running & IF_STATE_UP ? "up" : "down", running & IF_STATE_LOOP ? " (looped)" : "");
+					conf.up ? (1 ? "up" : "down") : "administratively down", //FIXME
+					conf.running & IF_STATE_UP ? "up" : "down", conf.running & IF_STATE_LOOP ? " (looped)" : "");
 
-			description = dev_get_description(osdev);
+			description = dev_get_description(conf.name);
 			if (description) fprintf(out, "  Description: %s\n",description);
 
 			// Caso especial (mais um...) - no PPP temos as seguintes situacoes em relacao aos IPs:
@@ -1091,7 +1349,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			//    Se nao existir eh porque a negociacao IPCP ainda nao ocorreu - nesse caso nao
 			//    apresentamos nada.
 			// O teste abaixo eh para cobrir o caso 1.
-			if ((linktype==ARPHRD_PPP) || (linktype==ARPHRD_ASYNCPPP))
+#ifdef OPTION_PPP
+			if ((conf.linktype==ARPHRD_PPP) || (conf.linktype==ARPHRD_ASYNCPPP))
 			{
 				ppp_config cfg;
 
@@ -1108,119 +1367,55 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 				else
 					if (ip.ipaddr[0]) fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 			}
-				else if (ip.ipaddr[0]) fprintf (out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+			else
+#endif
+			if (ip.ipaddr[0]) fprintf (out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 				/* Secondary address search */		
-				strncpy(devtmp, osdev, 14);
+				strncpy(devtmp, conf.name, 14);
 				strcat(devtmp, ":0");
-				for (i=0; i < ip_addr_table_index; i++) {
-					if (strcmp(devtmp, ip_addr_table[i].ifname) == 0)  {
-						strcpy(ip.ipaddr, inet_ntoa(ip_addr_table[i].local));
-						ip_bitlen2mask(ip_addr_table[i].bitlen, ip.ipmask);
+				for (i=0; i < MAX_NUM_IPS; i++) {
+					if (strcmp(devtmp, info.ipaddr[i].ifname) == 0)  {
+						strcpy(ip.ipaddr, inet_ntoa(info.ipaddr[i].local));
+						ip_bitlen2mask(info.ipaddr[i].bitlen, ip.ipmask);
 						fprintf (out, "  Secondary internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 					}
 				}
 
-			if (ip.ippeer[0] && !(linktype == ARPHRD_TUNNEL || linktype == ARPHRD_IPGRE))
+			if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype == ARPHRD_IPGRE))
 				fprintf (out, "  Peer address is %s\n", ip.ippeer);
-			fprintf (out, "  MTU is %i bytes\n", mtu);
-			if (txqueue) fprintf (out, "  Output queue size: %i\n", txqueue);
+			fprintf (out, "  MTU is %i bytes\n", conf.mtu);
 
-			switch (linktype)
-			{
-				case ARPHRD_PPP:
-				case ARPHRD_ASYNCPPP:
-				{
-						ppp_config cfg;
+			if (conf.txqueue)
+				fprintf (out, "  Output queue size: %i\n", conf.txqueue);
 
-						ppp_get_config(serial_no, &cfg);
-						fprintf(out, "  Encapsulation PPP");
-						if (cfg.echo_interval) fprintf(out, ", echo interval %d", cfg.echo_interval);
-						if (cfg.echo_failure) fprintf(out, ", echo failure %d", cfg.echo_failure);
-						fprintf(out, "\n");
-				}
+			switch (conf.linktype) {
+#ifdef OPTION_PPP
+			case ARPHRD_PPP:
+			case ARPHRD_ASYNCPPP:
+				dump_ppp_status(out, &conf);
+				break;
+#endif
+			case ARPHRD_ETHER:
+				dump_ethernet_status (out, &conf);
 				break;
 
-				case ARPHRD_ETHER:
-				{
-					if (mac[0]) fprintf (out, "  Hardware address is %s\n", mac);
-					if (running)
-					{
-						int bmcr, pgsr, pssr;
-
-						bmcr = lan_get_phy_reg(osdev, MII_BMCR);
-						if (bmcr & BMCR_ANENABLE) {
-							fprintf(out, "  Auto-sense");
-							if (phy_status & PHY_STAT_ANC) {
-								switch (phy_status & PHY_STAT_SPMASK) {
-									case PHY_STAT_10HDX: fprintf(out, " 10Mbps, Half-Duplex"); break;
-									case PHY_STAT_10FDX: fprintf(out, " 10Mbps, Full-Duplex"); break;
-									case PHY_STAT_100HDX: fprintf(out, " 100Mbps, Half-Duplex"); break;
-									case PHY_STAT_100FDX: fprintf(out, " 100Mbps, Full-Duplex"); break;
-								}
-							} else {
-								fprintf(out, " waiting...");
-							}
-						} else {
-							fprintf(out, "  Forced");
-							fprintf(out, " %sMbps, %s-Duplex",
-								(bmcr & BMCR_SPEED100) ? "100" : "10",
-								(bmcr & BMCR_FULLDPLX) ? "Full" : "Half");
-
-						}
-						if (phy_status & PHY_STAT_FAULT) {
-							fprintf(out, ", Remote Fault Detect!\n");
-						} else {
-							fprintf(out, "\n");
-						}
-
-						pgsr = lan_get_phy_reg(osdev, MII_ADM7001_PGSR);
-						pssr = lan_get_phy_reg(osdev, MII_ADM7001_PSSR);
-						if (pgsr & MII_ADM7001_PGSR_XOVER) {
-							fprintf(out, "  Cable MDIX");
-						} else {
-							fprintf(out, "  Cable MDI");
-						}
-						if (pssr & MII_ADM7001_PSSR_SPD) {
-							if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xab)
-								fprintf(out, ", length over 140m");
-							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xa2)
-								fprintf(out, ", length over 120m");
-							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x9a)
-								fprintf(out, ", length over 100m");
-							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x94)
-								fprintf(out, ", length over 80m");
-							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x22)
-								fprintf(out, ", length over 60m");
-							else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x1a)
-								fprintf(out, ", length over 40m");
-							else fprintf(out, ", length below 40m");
-#ifdef CONFIG_DEVELOPMENT
-							fprintf(out, " (cblen=%d)\n", pgsr & MII_ADM7001_PGSR_CBLEN);
-#else
-							fprintf(out, "\n");
+			case ARPHRD_LOOPBACK:
+				break;
+#ifdef OPTION_TUNNEL
+			case ARPHRD_TUNNEL:
+			case ARPHRD_IPGRE:
+				dump_tunnel_interface(out, conf_format, conf.name);
+				break;
 #endif
-						} else {
-							fprintf(out, "\n");
-						}
-					}
-					break;
-				}
 
-				case ARPHRD_LOOPBACK:
-					break;
+			case ARPHRD_TUNNEL6: /* ipsec decoy! */
+				break;
 
-				case ARPHRD_TUNNEL:
-				case ARPHRD_IPGRE:
-					dump_tunnel_interface(out, conf_format, osdev);
-					break;
+			default:
+				fprintf (stderr, "%% unknown link type: %d\n", conf.linktype);
+				break;
+		}
 
-				case ARPHRD_TUNNEL6: /* ipsec decoy! */
-					break;
-
-				default:
-					fprintf(stderr, "%% unknown link type: %d\n", linktype);
-					break;
-			}
 			fprintf(out, "     %lu packets input, %lu bytes\n", st->rx_packets, st->rx_bytes);
 			fprintf(out, "     %lu input errors, %lu dropped, %lu overruns, %lu frame, %lu crc, %lu fifo\n", 
 				st->rx_errors, st->rx_dropped, st->rx_over_errors, st->rx_frame_errors, st->rx_crc_errors, st->rx_fifo_errors);
