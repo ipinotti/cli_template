@@ -25,7 +25,3 @@ clean:
 	$(MAKE) clean
 distclean:
 	$(MAKE) distclean
-
-#export CFLAGS="$(CFLAGS)"; \
-#export LDFLAGS="$(LDFLAGS)"; \
-#export LIBS="$(LIBS)"; \
