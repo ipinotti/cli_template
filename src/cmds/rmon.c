@@ -1,299 +1,131 @@
+#include <sys/types.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <signal.h>
-#include <ctype.h>
+#include <linux/config.h>
 
-#include <libconfig/defines.h>
-#include <libconfig/args.h>
-#include <libconfig/exec.h>
-#include <libconfig/snmp.h>
-#include <libconfig/mib.h>
+#include "commands.h"
+#include "commandtree.h"
 
-void rmon_agent(const char *cmd)
-{
-	if( is_daemon_running(RMON_DAEMON) == 0 )
-		exec_daemon(RMON_DAEMON);
-}
+#ifdef OPTION_RMON
+cish_command RMON_EVENT_TRAP_VALUE[] = {
+	{"<text>", "Community", NULL, rmon_event, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void rmon_event(const char *cmd)
-{
-	int i, log;
-	arglist *args;
-	char *descr, *owner, *community;
+cish_command RMON_EVENT_OWNERCHLD[] = {
+	{"trap", "Trap community", RMON_EVENT_TRAP_VALUE, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args = make_args(cmd);
-	if( args->argc > 3 ) {
-		for(i=3, log=0, community=NULL, descr=NULL, owner=NULL; i < args->argc; i++) {
-			if( strcmp(args->argv[i], "log") == 0 )
-				log = 1;
-			else if( strcmp(args->argv[i], "trap") == 0 ) {
-				if( (++i) < args->argc )
-					community = args->argv[i];
-			}
-			else if( strcmp(args->argv[i], "description") == 0 ) {
-				if( (++i) < args->argc )
-					descr = args->argv[i];
-			}
-			else if( strcmp(args->argv[i], "owner") == 0 ) {
-				if( (++i) < args->argc )
-					owner = args->argv[i];
-			}
-		}
-		if( do_rmon_add_event(atoi(args->argv[2]), log, community, 1, descr, owner) < 0 )
-			printf("%% Not possible to add event\n");
-		send_rmond_signal(SIGUSR1);
-	}
-	destroy_args(args);
-}
+cish_command RMON_EVENT_OWNER_VALUE[] = {
+	{"<text>", "Owner", RMON_EVENT_OWNERCHLD, rmon_event, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void rmon_alarm(const char *cmd)
-{
-	arglist *args;
-	char *owner = NULL;
-	oid name[MAX_OID_LEN];
-	size_t namelen = MAX_OID_LEN;
-	int i, var_type = 0, rising_th = 0, rising_event = 0, falling_th = 0, falling_event = 0;
+cish_command RMON_EVENT_LOGCHLD[] = {
+	{"owner", "Event owner", RMON_EVENT_OWNER_VALUE, NULL, 1, MSK_NORMAL},
+	{"trap", "Trap community", RMON_EVENT_TRAP_VALUE, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args = make_args(cmd);
-	if( args->argc < 10 ) {
-		printf("%% Invalid command\n");
-		return;
-	}
+cish_command RMON_EVENT_DESCRCHLD[] = {
+	{"log", "Log event when triggered", RMON_EVENT_LOGCHLD, rmon_event, 1, MSK_NORMAL},
+	{"owner", "Event owner", RMON_EVENT_OWNER_VALUE, NULL, 1, MSK_NORMAL},
+	{"trap", "Trap community", RMON_EVENT_TRAP_VALUE, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if( snmp_translate_oid(args->argv[3], name, &namelen) == 0 ) {
-		printf("%% Invalid object identifier\n");
-		return;
-	}
-	/* Verificacao da instancia */
-	{
-		int n, isstr;
-		char *p, *local;
-		arg_list argl=NULL;
+cish_command RMON_EVENT_DESCR_VALUE[] = {
+	{"<text>", "Description", RMON_EVENT_DESCRCHLD, rmon_event, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		if( (local = strdup(args->argv[3])) != NULL ) {
-			while( (p = strchr(local, '.')) != NULL )
-				*p = ' ';
-			if( (n = parse_args_din(local, &argl)) > 0 ) {
-				for( i=(n-1), isstr=-1; (i >= 0) && (isstr == -1); i-- ) {
-					for( p=argl[i]; *p != 0; p++ ) {
-						if( isdigit(*p) == 0 ) {
-							isstr = i;
-							break;
-						}
-					}
-				}
-				if( isstr == (n-1) )
-					printf("ALERT: Apparently no instance specified. Is this really what you want?\n\n");
-			}
-			free_args_din(&argl);
-			free(local);
-		}
-	}
+cish_command RMON_EVENT_CHILDS[] = {
+	{"description", "Event description", RMON_EVENT_DESCR_VALUE, NULL, 1, MSK_NORMAL},
+	{"log", "Log event when triggered", RMON_EVENT_LOGCHLD, rmon_event, 1, MSK_NORMAL},
+	{"owner", "Event owner", RMON_EVENT_OWNER_VALUE, NULL, 1, MSK_NORMAL},
+	{"trap", "Trap community", RMON_EVENT_TRAP_VALUE, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	for( i=5; i < args->argc; i++ ) {
-		if( strcmp(args->argv[i], "absolute") == 0 )
-			var_type = SAMPLE_ABSOLUTE;
-		else if( strcmp(args->argv[i], "delta") == 0 )
-			var_type = SAMPLE_DELTA;
-		else if( strcmp(args->argv[i], "rising-threshold") == 0 ) {
-			if( (++i) < args->argc ) {
-				rising_th = atoi(args->argv[i]);
-				if( (i + 1) < args->argc ) {
-					if( (strcmp(args->argv[i+1], "falling-threshold") != 0) && (strcmp(args->argv[i+1], "owner") != 0) )
-						rising_event = atoi(args->argv[++i]);
-				}
-			}
-		}
-		else if( strcmp(args->argv[i], "falling-threshold") == 0 ) {
-			if( (++i) < args->argc ) {
-				falling_th = atoi(args->argv[i]);
-				if( (i + 1) < args->argc ) {
-					if( (strcmp(args->argv[i+1], "rising-threshold") != 0) && (strcmp(args->argv[i+1], "owner") != 0) )
-						falling_event = atoi(args->argv[++i]);
-				}
-			}
-		}
-		else if( strcmp(args->argv[i], "owner") == 0 ) {
-			if( (++i) < args->argc )
-				owner = args->argv[i];
-		}
-	}
+cish_command RMON_EVENT[] = {
+	{"1-25", "Event number", RMON_EVENT_CHILDS, rmon_event, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if( do_rmon_add_alarm( atoi(args->argv[2]), 
-				args->argv[3], 
-				name, 
-				namelen, 
-				atoi(args->argv[4]), 
-				var_type, 
-				rising_th, 
-				rising_event, 
-				falling_th, 
-				falling_event, 
-				atoi(args->argv[4]) ? 1 : 0, owner) < 0 )
-		printf("%% Not possible to add alarm\n");
+cish_command RMON_ALARM_OWNER[] = {
+	{"<text>", "Owner", NULL, rmon_alarm, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	send_rmond_signal(SIGUSR1);
+cish_command RMON_ALARM_FALLINGTH_EVENT_VAL[] = {
+	{"owner", "Alarm owner", RMON_ALARM_OWNER, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	destroy_args(args);
-}
+cish_command RMON_ALARM_FALLINGTH_EVENT[] = {
+	{"1-25", "Event number", RMON_ALARM_FALLINGTH_EVENT_VAL, rmon_alarm, 1, MSK_NORMAL},
+	{"owner", "Alarm owner", RMON_ALARM_OWNER, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void no_rmon_agent(const char *cmd)
-{
-	if( is_daemon_running(RMON_DAEMON) )
-		kill_daemon(RMON_DAEMON);
-}
+cish_command RMON_ALARM_FALLINGTH[] = {
+	{"<text>", "Threshold value", RMON_ALARM_FALLINGTH_EVENT, rmon_alarm, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void no_rmon_event(const char *cmd)
-{
-	arglist *args = make_args(cmd);
+cish_command RMON_ALARM_RISINGTH_EVENT_VAL[] = {
+	{"falling-threshold", "Falling threshold", RMON_ALARM_FALLINGTH, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	switch( args->argc ) {
-		case 3:
-			if( do_remove_rmon_event(NULL) < 0 )
-				printf("%% Not possible to remove all events\n");
-			break;
+cish_command RMON_ALARM_RISINGTH_EVENT[] = {
+	{"1-25", "Event number", RMON_ALARM_RISINGTH_EVENT_VAL, NULL, 1, MSK_NORMAL},
+	{"falling-threshold", "Falling threshold", RMON_ALARM_FALLINGTH, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		case 4:
-			if( do_remove_rmon_event(args->argv[3]) < 0 )
-				printf("%% Not possible to remove all events\n");
-			break;
-	}
-	destroy_args(args);
-	send_rmond_signal(SIGUSR1);
-}
+cish_command RMON_ALARM_RISINGTH[] = {
+	{"<text>", "Threshold value", RMON_ALARM_RISINGTH_EVENT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void no_rmon_alarm(const char *cmd)
-{
-	arglist *args = make_args(cmd);
+cish_command RMON_ALARM_RIS[] = {
+	{"rising-threshold", "Rising threshold", RMON_ALARM_RISINGTH, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	switch( args->argc ) {
-		case 3:
-			if( do_remove_rmon_alarm(NULL) < 0 )
-				printf("%% Not possible to remove all alarms\n");
-			break;
+cish_command RMON_ALARM_DATATYPE[] = {
+	{"absolute", "Absolute data type", RMON_ALARM_RIS, NULL, 1, MSK_NORMAL},
+	{"delta", "Delta between the last get and the current", RMON_ALARM_RIS, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		case 4:
-			if( do_remove_rmon_alarm(args->argv[3]) < 0 )
-				printf("%% Not possible to remove all alarms\n");
-			break;
-	}
-	destroy_args(args);
-	send_rmond_signal(SIGUSR1);
-}
+cish_command RMON_ALARM_INTERVAL[] = {
+	{"10-2592000", "Interval in seconds", RMON_ALARM_DATATYPE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void show_rmon_events(const char *cmd)
-{
-	arglist *args = make_args(cmd);
+cish_command RMON_ALARM_VAROID[] = {
+	{"<text>", "Variable OID", RMON_ALARM_INTERVAL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	switch( args->argc ) {
-		case 3:
-			do_rmon_event_show(NULL);
-			break;
+cish_command RMON_ALARM[] = {
+	{"1-25", "Alarm number", RMON_ALARM_VAROID, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		case 4:
-			do_rmon_event_show(args->argv[3]);
-			break;
-	}
-	destroy_args(args);
-}
-
-void show_rmon_alarms(const char *cmd)
-{
-	arglist *args = make_args(cmd);
-
-	switch( args->argc ) {
-		case 3:
-			do_rmon_alarm_show(NULL);
-			break;
-
-		case 4:
-			do_rmon_alarm_show(args->argv[3]);
-			break;
-	}
-	destroy_args(args);
-}
-
-void show_rmon_agent(const char *cmd)
-{
-	int i, show;
-	struct rmon_config *shm_rmon_p;
-
-	if( is_daemon_running(RMON_DAEMON) ) {
-		if( send_rmond_signal(SIGUSR2) ) {
-			for(i=0, show=0; i < 10; i++) {
-				if( get_access_rmon_config(&shm_rmon_p) ) {
-					if( shm_rmon_p->valid_state ) {
-						printf("  %s\n", shm_rmon_p->state);
-						shm_rmon_p->valid_state = 0;
-						loose_access_rmon_config(&shm_rmon_p);
-						show++;
-						break;
-					}
-					else {
-						loose_access_rmon_config(&shm_rmon_p);
-						usleep(110000);
-					}
-				}
-				else
-					usleep(110000);
-			}
-			if( show == 0 )
-				printf("  Not possible to show RMON agent state\n");
-		}
-	}
-	else
-		printf("  RMON agent isn't running\n");
-}
-
-void show_rmon_mibs(const char *cmd)
-{
-	FILE *f;
-	char *p, buf[256];
-	int printed_full = 0, printed_part = 0;
-
-	/* MIBs completamente carregadas */
-	if( (f = fopen(MIB_FILES_LOAD_STATS, "r")) != NULL ) {
-		while( (feof(f) == 0) ) {
-			if( fgets(buf, 255, f) != buf )
-				break;
-			buf[255] = 0;
-			if( (p = strchr(buf, '.')) )
-				*p = 0;
-			if( printed_full == 0 ) {
-				printf("MIBs loaded:\n");
-				printed_full = 1;
-			}
-			printf("   %s\n", buf);
-		}
-		fclose(f);
-	}
-	/* MIBs parcialmente carregadas */
-	if( (f = fopen(MIB_FILES_PARTLOAD_STATS, "r")) != NULL ) {
-		while( (feof(f) == 0) ) {
-			if( fgets(buf, 255, f) != buf )
-				break;
-			buf[255] = 0;
-			if( (p = strchr(buf, '.')) )
-				*p = 0;
-			if( printed_part == 0 ) {
-				printf("%sMIBs partially loaded:\n", (printed_full == 1) ? "\n" : "");
-				printed_part = 1;
-			}
-			printf("   %s\n", buf);
-		}
-		fclose(f);
-	}
-	printf("%s\n", ((printed_full == 1) || (printed_part == 1)) ? "" : "No MIBs loaded\n");
-}
-
-void show_rmon_mibtree(const char *cmd)
-{
-	if( dump_snmp_mibtree() < 0 )
-		printf("Not possible to show MIB tree!\n");
-}
-
-void clear_rmon_events(const char *cmd)
-{
-	do_rmon_events_clear();
-}
-
+cish_command CMD_CONFIG_RMON[] = {
+	{"agent", "Start RMON agent", NULL, rmon_agent, 1, MSK_NORMAL},
+	{"event", "Configure event", RMON_EVENT, NULL, 1, MSK_NORMAL},
+	{"alarm", "Configure alarm", RMON_ALARM, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif

@@ -8,11 +8,19 @@
 #ifndef _COMMANDTREE_H
 #define _COMMANDTREE_H
 
+
+/* Global variables (We should really get rid of them!) */
 extern char EXTCMD[1024];
 extern char EXTSCRIPT[1024];
-
 extern int _cish_enable;
 extern int _cish_mask;
+extern int _cish_debug;
+extern int _cish_booting;
+extern const char *_cish_source;
+extern char buf[1024];
+extern device_family  *interface_edited;
+extern int interface_major;
+extern int interface_minor;
 
 typedef void cish_function(const char *);
 
@@ -48,14 +56,111 @@ enum cish_mask {
 };
 
 /* Global Commands */
+extern cish_command *command_root;
+
 extern cish_command CMD[];
 extern cish_command CMD_CONFIGURE[];
+
 extern cish_command CMD_KEYCHAIN[];
 extern cish_command CMD_KEY[];
-extern cish_command CMD_SHOW_LEVEL[];
+
+/* Interfaces */
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
 extern cish_command CMD_CONFIG_INTERFACE_LOOPBACK[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL[];
 
+/* Routing Protocols */
+extern cish_command CMD_CONFIG_ROUTER_RIP[];
+extern cish_command CMD_CONFIG_ROUTER_OSPF[];
+#ifdef OPTION_BGP
+extern cish_command CMD_CONFIG_ROUTER_BGP[];
 #endif
+
+/* IPSec */
+#ifdef OPTION_IPSEC
+extern cish_command CMD_CONFIG_CRYPTO[];
+extern cish_command CMD_IPSEC_CONNECTION_CHILDREN[];
+extern cish_command CMD_IPSEC_CONNECTION_ADD[];
+extern cish_command CMD_CRYPTO_IPSEC_NO_CONN[];
+#endif
+
+/* Show */
+extern cish_command CMD_SHOW_OSPF[];
+#ifdef OPTION_BGP
+extern cish_command CMD_SHOW_BGP[];
+#endif
+extern cish_command CMD_SHOW_LEVEL[];
+
+/* QoS */
+extern cish_command CMD_POLICYMAP[];
+extern cish_command CMD_POLICYMAP_MARKRULE[];
+
+
+extern cish_command CMD_CONFIG_NO[];
+extern cish_command CMD_CONFIG_ROUTER[];
+
+/* Interface */
+extern cish_command CMD_CONFIG_INTERFACE[];
+extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_IP[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP[];
+extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IP[];
+extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
+
+/* Show */
+extern cish_command CMD_SHOW[];
+extern cish_command CMD_SHOW_IP[];
+extern cish_command CMD_SHOW_INTERFACES[];
+
+/* IP */
+extern cish_command CMD_IP[];
+extern cish_command CMD_NO_IP[];
+
+extern cish_command CMD_CONFIG_NO_ROUTER[];
+extern cish_command CMD_IP_ROUTE3[];
+extern cish_command CMD_CLEAR_INTERFACE[];
+
+extern cish_command CMD_SHOW_LEVEL[];
+
+/* AAA */
+extern cish_command CMD_CONFIG_AAA[];
+extern cish_command CMD_CONFIG_NO_AAA[];
+extern cish_command CMD_CONFIG_NO_TACACSSERVER_HOST[];
+extern cish_command CMD_CONFIG_TACACSSERVER_HOST[];
+extern cish_command CMD_CONFIG_NO_RADIUSSERVER_HOST[];
+extern cish_command CMD_CONFIG_RADIUSSERVER_HOST[];
+extern cish_command CMD_CONFIG_KEY[];
+
+/* SNMP */
+extern cish_command CMD_CONFIG_SNMP[];
+extern cish_command CMD_CONFIG_NO_SNMP[];
+
+/* Debug */
+extern cish_command CMD_DEBUG[];
+
+extern cish_command CMD_CONFACL1[];
+extern cish_command CMD_CONFMANGLE[];
+extern cish_command CMD_CONFNAT1[];
+
+extern cish_command CMD_CONFIG_NTP[];
+
+extern cish_command CMD_CONFIG_RMON[];
+
+extern cish_command CMD_CONFIG_CLOCK[];
+extern cish_command CMD_TERMINAL[];
+
+/* Quagga */
+extern cish_command CMD_ROUTER_RIP_INTERFACE_ETHERNET[];
+extern cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET[];
+extern cish_command CMD_SHOW_OSPF_INTERFACE_ETHERNET[];
+extern cish_command CMD_BGP_INTERFACE_ETHERNET[];
+
+
+#endif /* _COMMANDTREE_H */

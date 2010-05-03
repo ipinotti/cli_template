@@ -15,19 +15,10 @@
 #include <linux/route.h>
 #include <linux/netdevice.h>
 
-#include <libconfig/options.h>
-
 #ifdef OPTION_BRIDGE
 #include "commands.h"
+#include "commandtree.h"
 #include "pprintf.h"
-
-#include <libconfig/typedefs.h>
-#include <libconfig/args.h>
-#include <libconfig/exec.h>
-#include <libconfig/bridge.h>
-#include <libconfig/defines.h>
-#include <libconfig/ip.h>
-#include <libconfig/dev.h>
 
 static int check_bridge(char *arg, char *brname)
 {

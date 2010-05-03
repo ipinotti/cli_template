@@ -25,20 +25,6 @@
 #include "cish_main.h"
 #include "pprintf.h"
 
-#include "cmds/mangle.h"
-
-#include "policymap.h"
-
-
-//#define PRINTF() printf("%s : %d\n", __FUNCTION__, __LINE__);
-
-
-extern cish_command CMD[];
-extern cish_command CMD_CONFIGURE[];
-extern cish_command CMD_POLICYMAP[];
-extern cish_command CMD_POLICYMAP_MARKRULE[];
-extern int _cish_booting;
-
 static char pname[32];
 static int mark;
 

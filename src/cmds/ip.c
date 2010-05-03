@@ -1,810 +1,629 @@
-/* ==============================================================================
- * cish - the cisco shell emulator for LRP
- *
- * (C) 2000 Mad Science Labs / Clue Consultancy
- * This program is licensed under the GNU General Public License
- * ============================================================================== */
-
+#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/socket.h>
 #include <linux/config.h>
-#include <linux/if_arp.h>
 
 #include "commands.h"
-#include "cmds/acl.h"
-#include "pprintf.h"
-#include "cish_main.h"
-#include "cish_config.h"
+#include "commandtree.h"
 
-int get_procip_val (const char *);
+cish_command CMD_NO_IP_ICMP_IGNORE[] = {
+	{"all", "Stop ignoring all traffic", NULL, no_ip_param, 1, MSK_NORMAL},
+	{"bogus", "Stop ignoring bogus error responses", NULL, no_ip_param, 1, MSK_NORMAL},
+	{"broadcasts", "Stop ignoring broadcast traffic", NULL, no_ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,0}
+};
 
-void ip_param (const char *cmd)
-{
-	const char	*dst_file;
-	int  		 dst_val;
-	FILE		*F;
-	
-	dst_file	= (const char *) NULL;
-	dst_val     = -1;
-	
-	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/ip_forward"; /* "/proc/sys/net/ipv4/conf/all/forwarding" */
-		dst_val  = 1;
-	}
-#ifdef OPTION_PIMD
-	else if (strncmp (cmd, "ip multicast-routing", 20) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
-		dst_val = 1;
-	}
-#endif
-	else if (strncmp (cmd, "ip pmtu-discovery", 17) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/ip_no_pmtu_disc";
-		dst_val = 0;
-	}
-	else if (strncmp (cmd, "ip default-ttl ", 15) == 0)
-	{
-		if ((dst_val = atoi (cmd+15))<=0)
-		{
-			printf ("%% Parameter error\n");
-			return;
-		}
-		dst_file = "/proc/sys/net/ipv4/ip_default_ttl";
-	}
-	else if (strncmp (cmd, "ip icmp ignore all", 18) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_all";
-		dst_val  = 1;
-	}
-	else if (strncmp (cmd, "ip icmp ignore broadcast", 24) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts";
-		dst_val  = 1;
-	}
-	else if (strncmp (cmd, "ip icmp ignore bogus", 20) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_ignore_bogus_error_responses";
-		dst_val  = 1;
-	}
-	else if (strncmp (cmd, "ip icmp rate dest-unreachable ", 30) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_destunreach_rate";
-		dst_val  = atoi (cmd+30);
-		
-		if ((!dst_val)&&(cmd[30]!='0')) return;
-	} 
-	else if (strncmp (cmd, "ip icmp rate echo-reply ", 24) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_echoreply_rate";
-		dst_val  = atoi (cmd+24);
-		
-		if ((!dst_val)&&(cmd[24]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip icmp rate param-prob ", 24) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_paramprob_rate";
-		dst_val  = atoi (cmd+24);
-		
-		if ((!dst_val)&&(cmd[24]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip icmp rate time-exceed ", 25) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_timeexceed_rate";
-		dst_val  = atoi (cmd+25);
-		
-		if ((!dst_val)&&(cmd[25]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip fragment high ", 17) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/ipfrag_high_thresh";
-		dst_val  = atoi (cmd+17);
-
-		if ((!dst_val)&&(cmd[17]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip fragment low ", 16) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/ipfrag_low_thresh";
-		dst_val  = atoi (cmd+16);
-
-		if ((!dst_val)&&(cmd[16]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip fragment time ", 17) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/ipfrag_time";
-		dst_val  = atoi (cmd+17);
-
-		if ((!dst_val)&&(cmd[17]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip tcp ecn", 10) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/tcp_ecn";
-		dst_val = 1;
-	}
-	else if (strncmp (cmd, "ip tcp syncookies", 17) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/tcp_syncookies";
-		dst_val = 1;
-	}
-	else if (strncmp (cmd, "ip rp-filter", 12) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/conf/all/rp_filter";
-		dst_val = 1;
-	}
-
-	if (!dst_file)
-	{
-		printf ("%% Error\n");
-		return;
-	}
-	
-	F = fopen (dst_file, "w");
-	if (!F)
-	{
-		printf ("%% Error opening %s\n", dst_file);
-		return;
-	}
-	fprintf (F, "%d", dst_val);
-	fclose (F);
-}
-
-void no_ip_param (const char *_cmd)
-{
-	const char	*cmd;
-	const char	*dst_file;
-	int  		 dst_val;
-	FILE		*F;
-	
-	cmd = _cmd + 3;
-	
-	dst_file	= (const char *) NULL;
-	dst_val     = -1;
-	
-	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/ip_forward"; /* "/proc/sys/net/ipv4/conf/all/forwarding" */
-		dst_val  = 0;
-	}
-#ifdef OPTION_PIMD
-	else if (strncmp (cmd, "ip multicast-routing", 20) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
-		dst_val = 0;
-	}
-#endif
-	else if (strncmp (cmd, "ip pmtu-discovery", 17) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/ip_no_pmtu_disc";
-		dst_val = 1;
-	}
-	else if (strncmp (cmd, "ip icmp ignore all", 18) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_all";
-		dst_val  = 0;
-	}
-	else if (strncmp (cmd, "ip icmp ignore broadcast", 24) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts";
-		dst_val  = 0;
-	}
-	else if (strncmp (cmd, "ip icmp ignore bogus", 20) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/icmp_ignore_bogus_error_responses";
-		dst_val  = 0;
-	}
-	else if (strncmp (cmd, "ip tcp ecn", 10) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/tcp_ecn";
-		dst_val = 0;
-	}
-	else if (strncmp (cmd, "ip tcp syncookies", 17) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/tcp_syncookies";
-		dst_val = 0;
-	}
-	else if (strncmp (cmd, "ip rp-filter", 12) == 0)
-	{
-		dst_file = "/proc/sys/net/ipv4/conf/all/rp_filter";
-		dst_val = 0;
-	}
-
-	if (!dst_file)
-	{
-		printf ("%% Error\n");
-		return;
-	}
-	
-	F = fopen (dst_file, "w");
-	if (!F)
-	{
-		printf ("%% Error opening %s\n", dst_file);
-		return;
-	}
-	fprintf (F, "%d", dst_val);
-	fclose (F);
-}
-
-int get_procip_val (const char *parm)
-{
-	int   fid;
-	
-	sprintf (buf, "/proc/sys/net/ipv4/%s", parm);
-	fid = open (buf, O_RDONLY);
-	if (fid < 0)
-	{
-		printf ("%% Error opening %s\n%% %s\n", buf, strerror (errno));
-		return -1;
-	}
-	read (fid, buf, 16);
-	close (fid);
-	return atoi (buf);
-}
-
-void dump_ip (FILE *out, int conf_format)
-{
-	int val;
-
-	val = get_procip_val ("ip_forward");
-#if 1
-	fprintf (out, val ? "ip routing\n" : "no ip routing\n");
-#else
-	fprintf (out, val ? "ip forwarding\n" : "no ip forwarding\n");
-#endif
-#ifdef OPTION_PIMD
-	val = get_procip_val ("conf/all/mc_forwarding");
-	fprintf (out, val ? "ip multicast-routing\n" : "no ip multicast-routing\n");
-#endif
-	val = get_procip_val ("ip_no_pmtu_disc");
-	fprintf (out, val ? "no ip pmtu-discovery\n" : "ip pmtu-discovery\n");
-
-	val = get_procip_val ("ip_default_ttl");
-	fprintf (out, "ip default-ttl %i\n", val);
-
-	val = get_procip_val ("conf/all/rp_filter");
-	fprintf (out, val ? "ip rp-filter\n" : "no ip rp-filter\n");
-
-	val = get_procip_val ("icmp_echo_ignore_all");
-	fprintf (out, val ? "ip icmp ignore all\n" : "no ip icmp ignore all\n");
-
-	val = get_procip_val ("icmp_echo_ignore_broadcasts");
-	fprintf (out, val ? "ip icmp ignore broadcasts\n" : "no ip icmp ignore broadcasts\n");
-
-	val = get_procip_val ("icmp_ignore_bogus_error_responses");
-	fprintf (out, val ? "ip icmp ignore bogus\n" : "no ip icmp ignore bogus\n");
-
-#if 0 /* This are not present in earlier kernel versions ... is this PD3 invention ? */
-	val = get_procip_val ("icmp_destunreach_rate");
-	fprintf (out, "ip icmp rate dest-unreachable %i\n", val);
-
-	val = get_procip_val ("icmp_echoreply_rate");
-	fprintf (out, "ip icmp rate echo-reply %i\n", val);
-
-	val = get_procip_val ("icmp_paramprob_rate");
-	fprintf (out, "ip icmp rate param-prob %i\n", val);
-
-	val = get_procip_val ("icmp_timeexceed_rate");
-	fprintf (out, "ip icmp rate time-exceed %i\n", val);
-#endif
-
-	val = get_procip_val ("ipfrag_high_thresh");
-	fprintf (out, "ip fragment high %i\n", val);
-
-	val = get_procip_val ("ipfrag_low_thresh");
-	fprintf (out, "ip fragment low %i\n", val);
-
-	val = get_procip_val ("ipfrag_time");
-	fprintf (out, "ip fragment time %i\n", val);
-
-	val = get_procip_val ("tcp_ecn");
-	fprintf (out, val ? "ip tcp ecn\n" : "no ip tcp ecn\n");
-
-	val = get_procip_val ("tcp_syncookies");
-	fprintf (out, val ? "ip tcp syncookies\n" : "no ip tcp syncookies\n");
-
-	fprintf (out, "!\n");
-}
-
-void dump_ip_nameservers(FILE *out, int conf_format)
-{
-	char addr[16];
-	unsigned int i;
-
-	/* Lista servidores DNS estaticos */
-	for (i=0; i < DNS_MAX_SERVERS; i++) {
-		if (get_nameserver_by_type_index(DNS_STATIC_NAMESERVER, i, addr) < 0)
-			break;
-		fprintf(out, "ip name-server %s\n", addr);
-	}
-}
-
-void dump_ip_servers(FILE *out, int conf_format)
-{
-	char buf[2048];
-	int dhcp;
-
-	dhcp=get_dhcp();
-	if (dhcp == DHCP_SERVER)
-	{
-		if (get_dhcp_server(buf) == 0)
-		{
-			fprintf(out, "%s\n", buf);
-			fprintf(out, "no ip dhcp relay\n");
-		}
-	}
-	else if (dhcp == DHCP_RELAY)
-	{
-		if (get_dhcp_relay(buf) == 0)
-		{
-			fprintf(out, "no ip dhcp server\n");
-			fprintf(out, "ip dhcp relay %s\n", buf);
-		}
-	}
-	else
-	{
-		fprintf(out, "no ip dhcp server\n");
-		fprintf(out, "no ip dhcp relay\n");
-	}
-
-	fprintf (out, "%sip dns relay\n", is_daemon_running(DNS_DAEMON) ? "" : "no ");
-	fprintf (out, "%sip domain lookup\n", is_domain_lookup_enabled() ? "" : "no ");
-	dump_ip_nameservers(out, conf_format);
+cish_command CMD_NO_IP_ICMP[] = {
+	{"ignore", "Set ignore parameters", CMD_NO_IP_ICMP_IGNORE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
 #ifdef OPTION_HTTP
-	fprintf (out, "%sip http server\n", is_daemon_running(HTTP_DAEMON) ? "" : "no ");
+cish_command CMD_NO_IP_HTTP[] = {
+	{"server", "Disable HTTP server", NULL, no_http_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 #endif
-#ifdef OPTION_PIMD
-#if 0
-	if (is_daemon_running(PIMD_DAEMON)) fprintf(out, "ip pim dense-mode\n");
-	if (is_daemon_running(PIMS_DAEMON)) fprintf(out, "ip pim sparse-mode\n");
+
+cish_command CMD_NO_IP_SSH[] = {
+	{"server", "Disable SSH server", NULL, no_ssh_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_NO_IP_TELNET[] = {
+	{"server", "Disable Telnet server", NULL, no_telnet_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_NO_IP_DHCP[] = {
+	{"relay", "Disable DHCP relay", NULL, no_dhcp_relay, 1, MSK_NORMAL},
+	{"server", "Disable DHCP server", NULL, no_dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_FRAG_HIGH[] = {
+	{"1-2000000000", "High IP fragment memory threshold (bytes)", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_FRAG_LOW[] = {
+	{"1-2000000000", "Low IP fragment threshold (bytes)", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_FRAG_TIME[] = {
+	{"1-2000000000", "Time to keep an IP fragment in memory (hundreths of a second)", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_FRAG[] = {
+	{"high", "Set high threshold", CMD_IP_FRAG_HIGH, NULL, 1, MSK_NORMAL},
+	{"low", "Set low threshold", CMD_IP_FRAG_LOW, NULL, 1, MSK_NORMAL},
+	{"time", "Set time to keep an IP fragment in memory.", CMD_IP_FRAG_TIME, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ICMP_IGNORE[] = {
+	{"all", "Ignore all icmp traffic", NULL, ip_param, 1, MSK_NORMAL},
+	{"bogus", "Ignore bogus error responses", NULL, ip_param, 1, MSK_NORMAL},
+	{"broadcasts", "Ignore broadcast traffic", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ICMP[] = {
+	{"ignore", "Set ignore parameters", CMD_IP_ICMP_IGNORE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+#ifdef OPTION_SMCROUTE
+cish_command CMD_IP_MROUTE8_ETHERNET[] = {
+	{"0-0", "Interface number", NULL, ip_mroute, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE8_SERIAL[] = {
+	{"0-0", "Interface number", NULL, ip_mroute, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE7[] = {
+	{"ethernet", "Ethernet interface", CMD_IP_MROUTE8_ETHERNET, NULL, 1, MSK_NORMAL},
+	{"serial", "Serial interface", CMD_IP_MROUTE8_SERIAL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE6[] = {
+	{"out", "Output interface", CMD_IP_MROUTE7, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE5_ETHERNET[] = {
+	{"0-0", "Interface number", CMD_IP_MROUTE6, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE5_SERIAL[] = {
+	{"0-0", "Interface number", CMD_IP_MROUTE6, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE4[] = {
+	{"ethernet", "Ethernet interface", CMD_IP_MROUTE5_ETHERNET, NULL, 1, MSK_NORMAL},
+	{"serial", "Serial interface", CMD_IP_MROUTE5_SERIAL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE3[] = {
+	{"in", "Input interface", CMD_IP_MROUTE4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE2[] = {
+	{"<ipaddress>", "Multicast group address", CMD_IP_MROUTE3, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_MROUTE1[] = {
+	{"<ipaddress>", "Origin IP address", CMD_IP_MROUTE2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 #endif
-	dump_pim(out, conf_format);
-#endif
-#ifdef OPTION_OPENSSH
-	fprintf (out, "%sip ssh server\n", is_daemon_running(SSH_DAEMON) ? "" : "no ");
-#else
-	fprintf (out, "%sip ssh server\n", get_inetd_program(SSH_DAEMON) ? "" : "no ");
-#endif
-	fprintf (out, "%sip telnet server\n", get_inetd_program(TELNET_DAEMON) ? "" : "no ");
-	fprintf (out, "!\n");
-}
+
+cish_command CMD_IP_ROUTE5[] = {
+	{"1-255", "Distance metric for this route", NULL, zebra_execute_cmd, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ROUTE4_ETHERNET[] = {
+	{"0-0", "Ethernet interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ROUTE4_LOOPBACK[] = {
+	{"0-4", "Loopback interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ROUTE4_TUNNEL[] = {
+	{"0-9", "Tunnel interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ROUTE3[] = {
+	{"ethernet", "Ethernet interface", CMD_IP_ROUTE4_ETHERNET, NULL, 1, MSK_NORMAL},
+	{"loopback", "Loopback interface", CMD_IP_ROUTE4_LOOPBACK, NULL, 1, MSK_NORMAL},
+	{"tunnel", "Tunnel interface", CMD_IP_ROUTE4_TUNNEL, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>", "Forwarding router's address", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ROUTE2[] = {
+	{"<netmask>", "Destination prefix mask", CMD_IP_ROUTE3, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ROUTE1[] = {
+	{"<ipaddress>", "Destination prefix", CMD_IP_ROUTE2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_DEFAULT_TTL[] = {
+	{"0-255", "Default TTL value", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
 #ifdef OPTION_HTTP
-void http_server (const char *cmd)
-{
-	exec_daemon(HTTP_DAEMON);
-}
-
-void no_http_server (const char *cmd)
-{
-	kill_daemon(HTTP_DAEMON);
-}
+cish_command CMD_IP_HTTP[] = {
+	{"server", "Enable HTTP server", NULL, http_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 #endif
 
-void telnet_server(const char *cmd)
-{
-	set_inetd_program(1, TELNET_DAEMON);
-}
+cish_command CMD_IP_SSH_KEY_RSA[] = {
+	{"512-2048", "Length in bits (multiple of 8)", NULL, ssh_generate_rsa_key, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void no_telnet_server(const char *cmd)
-{
-	set_inetd_program(0, TELNET_DAEMON);
-}
+cish_command CMD_IP_SSH_KEY[] = {
+	{"rsa", "RSA key for SSH server", CMD_IP_SSH_KEY_RSA, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void dhcp_server(const char *cmd)
-{
-	set_dhcp_server(1, (char*)cmd);
-}
+cish_command CMD_IP_SSH[] = {
+	{"key", "Generate new key", CMD_IP_SSH_KEY, NULL, 1, MSK_NORMAL},
+	{"server", "Enable SSH server", NULL, ssh_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void no_dhcp_server(const char *cmd)
-{
-	set_no_dhcp_server();
-}
+cish_command CMD_IP_TELNET[] = {
+	{"server", "Enable Telnet server", NULL, telnet_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void dhcp_relay(const char *cmd)
-{
-	char *p;
+extern cish_command CMD_IP_DHCP_SERVER5[]; /* Loop! */
+
+cish_command CMD_IP_DHCP_SERVER10[] = {
+	{"<ipaddress>", "IP address of a DNS server", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER20[] = {
+	{"<ipaddress>", "IP address of the default router", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER30[] = {
+	{"<text>", "Domain name for the client", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER43[] = {
+	{"0-59", "seconds", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER42[] = {
+	{"0-59", "minutes", CMD_IP_DHCP_SERVER43, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER41[] = {
+	{"0-23", "hours", CMD_IP_DHCP_SERVER42, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER40[] = {
+	{"0-20000", "days", CMD_IP_DHCP_SERVER41, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER50[] = {
+	{"<ipaddress>", "IP address of a NetBIOS name server WINS (NBNS)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER60[] = {
+	{"<ipaddress>", "IP address of a NetBIOS datagram distribution server (NBDD)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER70[] = {
+	{"B", "NetBIOS B-node (Broadcast - no WINS)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{"P", "NetBIOS P-node (Peer - WINS only)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{"M", "NetBIOS M-node (Mixed - broadcast, then WINS)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{"H", "NetBIOS H-node (Hybrid - WINS, then broadcast)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER5[] = {
+	{"default-lease-time", "Specify default lease time", CMD_IP_DHCP_SERVER40, NULL, 1, MSK_NORMAL},
+	{"domain-name", "Specify the domain name for the client", CMD_IP_DHCP_SERVER30, NULL, 1, MSK_NORMAL},
+	{"dns-server", "Specify the IP address of a DNS server", CMD_IP_DHCP_SERVER10, NULL, 1, MSK_NORMAL},
+	{"max-lease-time", "Specify maximum lease time", CMD_IP_DHCP_SERVER40, NULL, 1, MSK_NORMAL},
+	{"netbios-name-server", "Specify the IP address of the NetBIOS name server WINS (NBNS)", CMD_IP_DHCP_SERVER50, NULL, 1, MSK_NORMAL},
+	{"netbios-dd-server", "Specify the IP address of the NetBIOS datagram distribution server (NBDD)", CMD_IP_DHCP_SERVER60, NULL, 1, MSK_NORMAL},
+	{"netbios-node-type", "Specify the NetBIOS node type of the client", CMD_IP_DHCP_SERVER70, NULL, 1, MSK_NORMAL},
+	{"router", "Specify the IP address of the default router", CMD_IP_DHCP_SERVER20, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER4[] = {
+	{"<ipaddress>", "Pool end", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER3[] = {
+	{"<ipaddress>", "Pool begin", CMD_IP_DHCP_SERVER4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER2[] = {
+	{"<netmask>", "Network mask of the DHCP pool", CMD_IP_DHCP_SERVER3, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER[] = {
+	{"<ipaddress>", "Network number of the DHCP pool", CMD_IP_DHCP_SERVER2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_RELAY_SERVER2[] = {
+	{"<ipaddress>", "DHCP server address", NULL, dhcp_relay, 1, MSK_NORMAL},
+	{"<enter>", "Enable DHCP relay", NULL, dhcp_relay, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 	
-	p=strstr(cmd, "relay");
-	if (!p) return;
-	p += 5;
-	while (*p == ' ') p++;
-	set_dhcp_relay(p);
-}
+cish_command CMD_IP_DHCP_RELAY_SERVER1[] = {
+	{"<ipaddress>", "DHCP server address", CMD_IP_DHCP_RELAY_SERVER2, dhcp_relay, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void no_dhcp_relay(const char *cmd)
-{
-	set_no_dhcp_relay();
-}
+cish_command CMD_IP_DHCP[] = {
+	{"relay", "Enable DHCP relay", CMD_IP_DHCP_RELAY_SERVER1, NULL, 1, MSK_NORMAL},
+	{"server", "Enable DHCP server", CMD_IP_DHCP_SERVER, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void ip_dnsrelay(const char *cmd) /* [no] ip dns relay */
-{
-	arglist *args;
+cish_command CMD_IP_DNS[] = {
+	{"relay", "DNS relay service", NULL, ip_dnsrelay, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args=make_args(cmd);
-	if (args->argc == 4) kill_daemon(DNS_DAEMON);
-		else exec_daemon(DNS_DAEMON);
-	destroy_args(args);
-}
+cish_command CMD_IP_DOMAIN[] = {
+	{"lookup", "DNS lookup service", NULL, ip_domainlookup, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void ip_domainlookup(const char *cmd) /* [no] ip domain lookup */
-{
-	arglist *args;
+cish_command CMD_IP_NAMESERVER_3[] = {
+	{"<ipaddress>", "Domain server IP address", NULL, ip_nameserver, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args=make_args(cmd);
-	if (args->argc == 4) dns_lookup(0);
-		else dns_lookup(1);
-	destroy_args(args);
-}
+cish_command CMD_IP_NAMESERVER_2[] = {
+	{"<ipaddress>", "Domain server IP address", CMD_IP_NAMESERVER_3, ip_nameserver, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void ip_nameserver(const char *cmd) /* [no] ip name-server <ipaddress> */
-{
-	arglist *args;
+cish_command CMD_IP_NAMESERVER[] = {
+	{"<ipaddress>", "Domain server IP address (maximum of 3)", CMD_IP_NAMESERVER_2, ip_nameserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args = make_args(cmd);
-	switch (args->argc) {
-		case 3:
-			dns_nameserver(1, args->argv[2]);
-			break;
-		case 4:
-			dns_nameserver(0, args->argv[3]);
-			break;
-	}
-	destroy_args(args);
-}
+cish_command CMD_IP_NAT_HELPER_FTP_PORTS[] = {
+	{"<ports>", "comma-separated list of ports(max 8)", NULL, ip_nat_ftp, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-int delete_module(const char *name);
+cish_command CMD_IP_NAT_HELPER_FTP[] = {
+	{"ports", "comma-separated list of ports(max 8)", CMD_IP_NAT_HELPER_FTP_PORTS, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
-{
-	arglist *args;
-	char buf[128];
-	int no;
+cish_command CMD_IP_NAT_HELPER_IRC_PORTS[] = {
+	{"<ports>", "comma-separated list of ports(max 8)", NULL, ip_nat_irc, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args=make_args(cmd);
-	if (strcmp(args->argv[0], "no") == 0) no=1;
-		else no=0;
-	/* always remove modules first... */
-	sprintf(buf, "ip_nat_%s", args->argv[no ? 4 : 3]);
-	delete_module(buf);
-	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
-	delete_module(buf);
-	cish_cfg->nat_helper_ftp_ports[0]=0;
-	if (!no && args->argc == 6) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
-		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
-		system(buf);
-		strncpy(cish_cfg->nat_helper_ftp_ports, args->argv[5], 48);
-	} else if (!no && args->argc == 4) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s >/dev/null 2>/dev/null", args->argv[3]);
-		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
-		system(buf);
-		strcpy(cish_cfg->nat_helper_ftp_ports, "21"); /* netfilter_ipv4/ip_conntrack_ftp.h:#define FTP_PORT      21 */
-	}
-	destroy_args(args);
-}
+cish_command CMD_IP_NAT_HELPER_IRC[] = {
+	{"ports", "comma-separated list of ports(max 8)", CMD_IP_NAT_HELPER_IRC_PORTS, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
-{
-	arglist *args;
-	char buf[128];
-	int no;
+cish_command CMD_IP_NAT_HELPER_TFTP_PORTS[] = {
+	{"<ports>", "comma-separated list of ports(max 8)", NULL, ip_nat_tftp, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args=make_args(cmd);
-	if (strcmp(args->argv[0], "no") == 0) no=1;
-		else no=0;
-	/* always remove modules first... */
-	sprintf(buf, "ip_nat_%s", args->argv[no ? 4 : 3]);
-	delete_module(buf);
-	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
-	delete_module(buf);
-	cish_cfg->nat_helper_irc_ports[0]=0;
-	if (!no && args->argc == 6) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
-		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
-		system(buf);
-		strncpy(cish_cfg->nat_helper_irc_ports, args->argv[5], 48);
-	} else if (!no && args->argc == 4) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s >/dev/null 2>/dev/null", args->argv[3]);
-		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
-		system(buf);
-		strcpy(cish_cfg->nat_helper_irc_ports, "6667"); /* netfilter_ipv4/ip_conntrack_irc.h:#define IRC_PORT      6667 */
-	}
-	destroy_args(args);
-}
+cish_command CMD_IP_NAT_HELPER_TFTP[] = {
+	{"ports", "comma-separated list of ports(max 8)", CMD_IP_NAT_HELPER_TFTP_PORTS, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
-{
-	arglist *args;
-	char buf[128];
-	int no;
+cish_command CMD_IP_NAT_HELPER[] = {
+	{"ftp", "ftp NAT helper", CMD_IP_NAT_HELPER_FTP, ip_nat_ftp, 1, MSK_NORMAL},
+	{"irc", "irc NAT helper", CMD_IP_NAT_HELPER_IRC, ip_nat_irc, 1, MSK_NORMAL},
+	{"tftp", "tftp NAT helper", CMD_IP_NAT_HELPER_TFTP, ip_nat_tftp, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args=make_args(cmd);
-	if (strcmp(args->argv[0], "no") == 0) no=1;
-		else no=0;
-	/* always remove modules first... */
-	sprintf(buf, "ip_nat_%s", args->argv[no ? 4 : 3]);
-	delete_module(buf);
-	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
-	delete_module(buf);
-	cish_cfg->nat_helper_tftp_ports[0]=0;
-	if (!no && args->argc == 6) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
-		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
-		system(buf);
-		strncpy(cish_cfg->nat_helper_tftp_ports, args->argv[5], 48);
-	} else if (!no && args->argc == 4) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s >/dev/null 2>/dev/null", args->argv[3]);
-		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
-		system(buf);
-		strcpy(cish_cfg->nat_helper_tftp_ports, "69"); /* netfilter_ipv4/ip_conntrack_tftp.h:#define TFTP_PORT 69 */
-	}
-	destroy_args(args);
-}
-
-void dump_nat_helper(FILE *F)
-{
-	if (cish_cfg->nat_helper_ftp_ports[0]) {
-		fprintf(F, "ip nat helper ftp ports %s\n", cish_cfg->nat_helper_ftp_ports);
-	} else {
-		fprintf(F, "no ip nat helper ftp\n");
-	}
-	if (cish_cfg->nat_helper_irc_ports[0]) {
-		fprintf(F, "ip nat helper irc ports %s\n", cish_cfg->nat_helper_irc_ports);
-	} else {
-		fprintf(F, "no ip nat helper irc\n");
-	}
-	if (cish_cfg->nat_helper_tftp_ports[0]) {
-		fprintf(F, "ip nat helper tftp ports %s\n", cish_cfg->nat_helper_tftp_ports);
-	} else {
-		fprintf(F, "no ip nat helper tftp\n");
-	}
-	fprintf(F, "!\n");
-}
-
-void ssh_server(const char *cmd)
-{
-	if (load_ssh_secret(SSH_KEY_FILE) < 0) fprintf(stderr, "%% ERROR: You must create RSA keys first (ip ssh key rsa 1024).\n");
-		else
-#ifdef OPTION_OPENSSH
-				exec_daemon(SSH_DAEMON);
-#else
-				set_inetd_program(1, SSH_DAEMON);
-#endif
-}
-
-void no_ssh_server(const char *cmd)
-{
-#ifdef OPTION_OPENSSH
-	kill_daemon(SSH_DAEMON);
-#else
-	set_inetd_program(0, SSH_DAEMON);
-#endif
-}
-
-void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (args->argc == 5)
-	{
-		printf("%% Please wait... computation may take long time!\n");
-		if (ssh_create_rsakey(atoi(args->argv[4])) < 0)
-		{
-			printf("%% Not possible to generate RSA key!\n");
-		}
-	}
-	destroy_args(args);
-}
+cish_command CMD_IP_NAT[] = {
+	{"helper", "NAT protocol helper", CMD_IP_NAT_HELPER, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
 #ifdef OPTION_PIMD
+cish_command CMD_NO_IP_PIM[] = {
+	{"bsr-candidate", "Candidate bootstrap router (candidate BSR)", NULL, pim_bsr_candidate, 1, MSK_NORMAL},
 #if 0
-void pim_dense_server(const char *cmd) /* ip pim dense-mode */
-{
-	if (is_daemon_running(PIMS_DAEMON)) kill_daemon(PIMS_DAEMON);
-	exec_daemon(PIMD_DAEMON);
-}
-
-void no_pim_dense_server(const char *cmd)
-{
-	kill_daemon(PIMD_DAEMON);
-}
-
-void pim_sparse_server(const char *cmd) /* ip pim sparse-mode */
-{
-	if (is_daemon_running(PIMD_DAEMON)) kill_daemon(PIMD_DAEMON);
-	exec_daemon(PIMS_DAEMON);
-}
-
-void no_pim_sparse_server(const char *cmd)
-{
-	kill_daemon(PIMS_DAEMON);
-}
+	{"register-rate-limit", "Rate limit for PIM data registers", CMD_NO_IP_PIM_RRL, NULL, 1, MSK_NORMAL},
+#endif
+	{"rp-address", "PIM RP-address (Rendezvous Point)", NULL, pim_rp_address, 1, MSK_NORMAL},
+	{"rp-candidate", "To be a PIMv2 RP candidate", NULL, pim_rp_candidate, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 #endif
 
-extern device_family *interface_edited;
-extern int interface_major, interface_minor;
+cish_command CMD_NO_IP_TCP[] = {
+	{"ecn", "Disable Explicit Congestion Notification", NULL, no_ip_param, 1, MSK_NORMAL},
+	{"syncookies", "Disable syn cookies", NULL, no_ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
-{
-	int dense, sparse;
-	char *dev;
-	arglist *args;
-
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	args=make_args(cmd);
-
-	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
-		dense = pimdd_phyint(0, dev);
-	else {
+cish_command CMD_NO_IP[] = {
+	{"dhcp", "Disable DHCP server/relay", CMD_NO_IP_DHCP, NULL, 1, MSK_NORMAL},
+	{"dns", "Configure DNS relay", CMD_IP_DNS, NULL, 1, MSK_NORMAL},
+	{"domain", "Disable name lookup", CMD_IP_DOMAIN, NULL, 1, MSK_NORMAL},
+#ifdef CONFIG_NET_FASTROUTE
+	{"fastroute", "Enable interfaces fastroute (bypass firewall)", NULL, no_ip_param, 1, MSK_NORMAL},
+#endif
+#if 1 /* !!! */
+	{"forwarding", "Disable IP forwarding", NULL, no_ip_param, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_HTTP
+	{"http", "HTTP server configuration", CMD_NO_IP_HTTP, NULL, 1, MSK_NORMAL},
+#endif
+	{"icmp", "Unset icmp parameters", CMD_NO_IP_ICMP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_PIMD
+	{"multicast-routing", "Disable IP multicast forwarding", NULL, no_ip_param, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_SMCROUTE
-		if (is_daemon_running(SMC_DAEMON))
-		{
-			printf("%% Disable static multicast routing first\n");
-			goto clean;
-		}
+	{"mroute", "Establish multicast static routes", CMD_IP_MROUTE1, NULL, 1, MSK_NORMAL},
 #endif
-		sparse = pimsd_phyint(0, dev);
-		/* Kill pimsd if it is running */			
-		if (sparse < 2 && is_daemon_running(PIMS_DAEMON)) 
-			kill_daemon(PIMS_DAEMON);
+	{"name-server", "Specify address of name server to remove", CMD_IP_NAMESERVER, NULL, 1, MSK_NORMAL},
+	{"nat", "NAT helper configuration", CMD_IP_NAT, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_PIMD
+	{"pim", "PIM global commands", CMD_NO_IP_PIM, NULL, 1, MSK_NORMAL},
+#endif
+	{"pmtu-discovery", "Disable Path MTU discovery", NULL, no_ip_param, 1, MSK_NORMAL},
+	{"route", "Establish static routes", CMD_IP_ROUTE1, NULL, 1, MSK_NORMAL},
+	{"routing", "Disable IP routing", NULL, no_ip_param, 1, MSK_NORMAL},
+	{"rp-filter", "Disable reverse path filter", NULL, no_ip_param, 1, MSK_NORMAL},
+	{"ssh", "SSH server configuration", CMD_NO_IP_SSH, NULL, 1, MSK_NORMAL},
+	{"tcp", "Unset tcp parameters", CMD_NO_IP_TCP, NULL, 1, MSK_NORMAL},
+	{"telnet", "Telnet server configuration", CMD_NO_IP_TELNET, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		dense = pimdd_phyint(1, dev);
-	}
+#ifdef OPTION_PIMD
+cish_command CMD_IP_PIM_CAND_BSR_PRIORITY_VALUE[] = {
+	{"0-255", "Bigger value means higher priority", NULL, pim_bsr_candidate, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if (dense < 2)	{
-		if (is_daemon_running(PIMD_DAEMON)) 
-			kill_daemon(PIMD_DAEMON);
-	} else {
-		if (!is_daemon_running(PIMD_DAEMON)) 
-			exec_daemon(PIMD_DAEMON);
-	}
-clean:
-	destroy_args(args);
-	free(dev);
-}
+cish_command CMD_IP_PIM_CAND_BSR_PRIORITY[] = {
+	{"priority", "BSR candidate priority", CMD_IP_PIM_CAND_BSR_PRIORITY_VALUE, NULL, 0, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
-{
-	int dense, sparse;
-	char *dev;
-	arglist *args;
+cish_command CMD_IP_PIM_CAND_BSR_INTF_ETHERNET[] = {
+	{"0-0", "Ethernet interface number", CMD_IP_PIM_CAND_BSR_PRIORITY, pim_bsr_candidate, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	args=make_args(cmd);
+cish_command CMD_IP_PIM_CAND_BSR_INTF_SERIAL[] = {
+	{"0-0", "Serial interface number", CMD_IP_PIM_CAND_BSR_PRIORITY, pim_bsr_candidate, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
-		sparse=pimsd_phyint(0, dev);
-	else {
+cish_command CMD_IP_PIM_CAND_BSR_INTF[] = {
+	{"ethernet", "Ethernet interface", CMD_IP_PIM_CAND_BSR_INTF_ETHERNET, NULL, 0, MSK_NORMAL},
+	{"serial", "Serial interface", CMD_IP_PIM_CAND_BSR_INTF_SERIAL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM_RP_ADDRESS[] = {
+	{"<ipaddress>", "IP address of Rendezvous-point for group", NULL, pim_rp_address, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM_CAND_RP_INTERVAL_VALUE[] = {
+	{"5-16383", "Number of seconds", NULL, pim_rp_candidate, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM_CAND_RP_INTERVAL[] = {
+	{"interval", "RP candidate advertisement interval", CMD_IP_PIM_CAND_RP_INTERVAL_VALUE, NULL, 0, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM_CAND_RP_PRIORITY_VALUE[] = {
+	{"0-255", "Smaller value means higher priority", CMD_IP_PIM_CAND_RP_INTERVAL, pim_rp_candidate, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM_CAND_RP_PRIORITY[] = {
+	{"priority", "RP candidate priority", CMD_IP_PIM_CAND_RP_PRIORITY_VALUE, NULL, 0, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM_CAND_RP_INTF_ETHERNET[] = {
+	{"0-0", "Ethernet interface number", CMD_IP_PIM_CAND_RP_PRIORITY, pim_rp_candidate, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM_CAND_RP_INTF_SERIAL[] = {
+	{"0-0", "Serial interface number", CMD_IP_PIM_CAND_RP_PRIORITY, pim_rp_candidate, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM_CAND_RP_INTF[] = {
+	{"ethernet", "Ethernet interface", CMD_IP_PIM_CAND_RP_INTF_ETHERNET, NULL, 0, MSK_NORMAL},
+	{"serial", "Serial interface", CMD_IP_PIM_CAND_RP_INTF_SERIAL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_PIM[] = {
+	{"bsr-candidate", "Candidate bootstrap router (candidate BSR)", CMD_IP_PIM_CAND_BSR_INTF, NULL, 1, MSK_NORMAL},
+#if 0
+	{"register-rate-limit", "Rate limit for PIM data registers", CMD_IP_PIM_RRL, NULL, 1, MSK_NORMAL},
+#endif
+	{"rp-address", "PIM RP-address (Rendezvous Point)", CMD_IP_PIM_RP_ADDRESS, NULL, 1, MSK_NORMAL},
+	{"rp-candidate", "To be a PIMv2 RP candidate", CMD_IP_PIM_CAND_RP_INTF, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+#ifdef CONFIG_DEVELOPMENT
+cish_command CMD_IP_MAXBACKLOG[] = {
+	{"10-4096", "Max RX backlog size", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+#if defined(CONFIG_NET_SKB_RECYCLING) && defined(CONFIG_DEVELOPMENT)
+cish_command CMD_IP_RECYCLE_SIZE[] = {
+	{"0-4096", "Set recycle pool size", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_RECYCLE[] = {
+	{"max", "Recycle maximal pool size", CMD_IP_RECYCLE_SIZE, NULL, 1, MSK_NORMAL},
+	{"min", "Recycle minimal pool size", CMD_IP_RECYCLE_SIZE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+cish_command CMD_IP_TCP_KEEPALIVE_INTVL[] = {
+	{"1-32767", "Keepalive probe interval time (s)", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_TCP_KEEPALIVE_PROBES[] = {
+	{"1-127", "Keepalive probe retries", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_TCP_KEEPALIVE_IDLE[] = {
+	{"1-32767", "Keepalive idle timer (s)", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_TCP[] = {
+	{"ecn", "Enable Explicit Congestion Notification", NULL, ip_param, 1, MSK_NORMAL},
+	{"keepalive_intvl", "Keepalive probe interval time", CMD_IP_TCP_KEEPALIVE_INTVL, NULL, 1, MSK_NORMAL},
+	{"keepalive_probes", "Keepalive probe retries", CMD_IP_TCP_KEEPALIVE_PROBES, NULL, 1, MSK_NORMAL},
+	{"keepalive_time", "Keepalive idle timer", CMD_IP_TCP_KEEPALIVE_IDLE, NULL, 1, MSK_NORMAL},
+	{"syncookies", "Enable syn cookies", NULL, ip_param, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+#ifdef OPTION_BGP
+cish_command CMD_IP_AS_PATH3[] = {
+	{"<text>", "A regular-expression to match BGP AS paths."
+	"Use \"ctrl-v ?\" to enter \"?\"", NULL, bgp_execute_root_cmd, 1, MSK_BGP},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_AS_PATH2[] = {
+	{"deny", "Specify packets to reject", CMD_IP_AS_PATH3, NULL, 1, MSK_BGP},
+	{"permit", "Specify packets to forward", CMD_IP_AS_PATH3, NULL, 1, MSK_BGP},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_AS_PATH1[] = {
+	{"<text>", "Regular expression access list name", CMD_IP_AS_PATH2, NULL, 1, MSK_BGP},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_AS_PATH[] = {
+	{"access-list", "Specify an access list name", CMD_IP_AS_PATH1, NULL, 1, MSK_BGP},
+	{NULL,NULL,NULL,NULL,0}
+};
+#endif
+
+cish_command CMD_IP[] = {
+#ifdef OPTION_BGP
+	{"as-path", "BGP autonomous system path filter", CMD_IP_AS_PATH, NULL, 1, MSK_BGP},
+#endif
+	{"cache-flush", "Routing cache flush", NULL, ip_param, 1, MSK_NORMAL},
+	{"default-ttl", "Default TTL value", CMD_IP_DEFAULT_TTL, NULL, 1, MSK_NORMAL},
+	{"dhcp", "Enable DHCP server/relay", CMD_IP_DHCP, NULL, 1, MSK_NORMAL},
+	{"dns", "Configure DNS relay", CMD_IP_DNS, NULL, 1, MSK_NORMAL},
+	{"domain", "Enable name lookup", CMD_IP_DOMAIN, NULL, 1, MSK_NORMAL},
+#ifdef CONFIG_NET_FASTROUTE
+	{"fastroute", "Enable interfaces fastroute (bypass firewall)", NULL, ip_param, 1, MSK_NORMAL},
+#endif
+#if 1 /* Old compatibility! */
+	{"forwarding", "Enable IP forwarding", NULL, ip_param, 1, MSK_NORMAL},
+#endif
+	{"fragment", "Set fragmenting parameters", CMD_IP_FRAG, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_HTTP
+	{"http", "HTTP server configuration", CMD_IP_HTTP, NULL, 1, MSK_NORMAL},
+#endif
+	{"icmp", "Set icmp parameters", CMD_IP_ICMP, NULL, 1, MSK_NORMAL},
+#ifdef CONFIG_DEVELOPMENT
+	{"max_backlog", "Set maximum RX packets backlog", CMD_IP_MAXBACKLOG, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_PIMD
+	{"multicast-routing", "Enable IP multicast forwarding", NULL, ip_param, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_SMCROUTE
-		if (is_daemon_running(SMC_DAEMON))
-		{
-			printf("%% Disable static multicast routing first\n");
-			goto clean;
-		}
+	{"mroute", "Establish multicast static routes", CMD_IP_MROUTE1, NULL, 1, MSK_NORMAL},
 #endif
-		dense = pimdd_phyint(0, dev);
-		if (dense < 2 && is_daemon_running(PIMD_DAEMON)) 
-			kill_daemon(PIMD_DAEMON);
-		sparse = pimsd_phyint(1, dev);
-	}
-
-	if (sparse < 2)	{
-		if (is_daemon_running(PIMS_DAEMON)) 
-			kill_daemon(PIMS_DAEMON);
-	} else {
-		if (!is_daemon_running(PIMS_DAEMON)) 
-			exec_daemon(PIMS_DAEMON);
-	}
-clean:
-	destroy_args(args);
-	free(dev);
-}
-
-void pim_bsr_candidate(const char *cmd) /* [no] ip pim bsr-candidate <ethernet|serial> <0-x> [priority <0-255>] */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) pimsd_bsr_candidate(0, NULL, NULL, NULL);
-		else if (args->argc == 5) pimsd_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
-			else if (args->argc == 7) pimsd_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
-	destroy_args(args);
-}
-
-void pim_rp_address(const char *cmd) /* [no] ip pim rp-address <ipaddress> */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) pimsd_rp_address(0, NULL);
-		else if (args->argc == 4) pimsd_rp_address(1, args->argv[3]);
-	destroy_args(args);
-}
-
-void pim_rp_candidate(const char *cmd) /* [no] ip pim rp-candidate <ethernet|serial> <0-0> [priority <0-255>] [interval <5-16383>] */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) pimsd_rp_candidate(0, NULL, NULL, NULL, NULL);
-		else if (args->argc == 5) pimsd_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
-			else if (args->argc == 7) pimsd_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], NULL);
-				else if (args->argc == 9) pimsd_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], args->argv[8]);
-	destroy_args(args);
-}
+	{"name-server", "Specify address of name server to add", CMD_IP_NAMESERVER, NULL, 1, MSK_NORMAL},
+	{"nat", "NAT helper configuration", CMD_IP_NAT, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_PIMD
+	{"pim", "PIM global commands", CMD_IP_PIM, NULL, 1, MSK_NORMAL},
 #endif
-
-void arp_entry(const char *cmd) /* [no] arp <ipaddress> [<mac>] */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) arp_del(args->argv[2]);
-		else if (args->argc == 3) arp_add(args->argv[1], args->argv[2]);
-	destroy_args(args);
-}
-
-void dump_arp(FILE *out)
-{
-	FILE	*F;
-	char	*ipaddr;
-	char	*hwaddr;
-	char	*type;
-	char	*osdev;
-	long	flags;
-	arglist *args;
-	int print_something=0;
-	char tbuf[128];
-
-	F = fopen("/proc/net/arp", "r");
-	if (!F)
-	{
-		printf("%% Unable to read ARP table\n");
-		return;
-	}
-	fgets (tbuf, 127, F);
-	while (!feof (F))
-	{
-		tbuf[0] = 0;
-		fgets (tbuf, 127, F);
-		tbuf[127] = 0;
-		striplf (tbuf);
-		args=make_args(tbuf);
-		if (args->argc >= 6)
-		{
-			ipaddr = args->argv[0];
-			hwaddr = args->argv[3];
-			type   = args->argv[1];
-			osdev  = args->argv[5];
-			flags = strtoul(args->argv[2], 0, 16);
-			if (flags&ATF_PERM) // permanent entry
-			{
-				fprintf(out, "arp %s %s\n", ipaddr, hwaddr);
-				print_something=1;
-			}
-		}
-		destroy_args(args);
-	}
-	if (print_something) fprintf(out, "!\n");
-}
-
-void clear_ssh_hosts(const char *cmd)
-{
-	remove(FILE_SSH_KNOWN_HOSTS);
-}
+	{"pmtu-discovery", "Enable Path MTU discovery", NULL, ip_param, 1, MSK_NORMAL},
+#if defined(CONFIG_NET_SKB_RECYCLING) && defined(CONFIG_DEVELOPMENT)
+	{"recycle", "Packet recycle options", CMD_IP_RECYCLE, NULL, 1, MSK_NORMAL},
+#endif
+	{"route", "Establish static routes", CMD_IP_ROUTE1, NULL, 1, MSK_NORMAL},
+	{"routing", "Enable IP routing", NULL, ip_param, 1, MSK_NORMAL},
+	{"rp-filter", "Enable reverse path filter", NULL, ip_param, 1, MSK_NORMAL},
+	{"ssh", "SSH server configuration", CMD_IP_SSH, NULL, 1, MSK_NORMAL},
+	{"tcp", "Set tcp parameters", CMD_IP_TCP, NULL, 1, MSK_NORMAL},
+	{"telnet", "Telnet server configuration", CMD_IP_TELNET, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};

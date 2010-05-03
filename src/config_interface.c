@@ -19,14 +19,6 @@
 
 #include "commands.h"
 #include "commandtree.h"
-
-#include "cmds/nat.h"
-#include "cmds/acl.h"
-#include "cmds/mangle.h"
-
-#include <libconfig/options.h>
-
-#include "cmds/vrrp.h"
 #include "cish_main.h"
 #include "pprintf.h"
 
@@ -724,4 +716,53 @@ void interface_no_snmptrap(const char *cmd)
 		free(dev);
 	}
 }
+
+#if 0 //#ifdef CONFIG_DEVELOPMENT
+void interface_rxring(const char *cmdline) /* rxring <2-2048> */
+{
+	arglist *args;
+	int val;
+	char *dev;
+
+	args = make_args(cmdline);
+	val = atoi(args->argv[1]);
+	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev_set_rxring(dev, val);
+	destroy_args(args);
+	free(dev);
+}
+
+void interface_txring(const char *cmdline) /* txring <2-2048> */
+{
+	arglist *args;
+	int val;
+	char *dev;
+
+	args = make_args(cmdline);
+	val = atoi(args->argv[1]);
+	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev_set_txring(dev, val);
+	destroy_args(args);
+	free(dev);
+}
+
+void interface_weight(const char *cmdline) /* weight <2-1024> */
+{
+	arglist *args;
+	int val;
+	char *dev;
+
+	args = make_args(cmdline);
+	val = atoi(args->argv[1]);
+	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
+
+	if (wan_get_protocol(interface_major) == SCC_PROTO_MLPPP) {
+		dev = (char *)malloc(2+1+1);
+		sprintf(dev, "%s%d", SERIALDEV_PPP, interface_major); /* 'sx?' */
+	} else
+		dev_set_weight(dev, val);
+	destroy_args(args);
+	free(dev);
+}
+#endif
 

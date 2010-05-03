@@ -1,729 +1,277 @@
-#include <errno.h>
-#include <pwd.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <sys/stat.h> /* fstat */
+#include <stdio.h>
+#include <stdlib.h>
+#include <linux/config.h>
 
 #include "commands.h"
-#include "cish_config.h"
-#include "cish_main.h"
-#include "pprintf.h"
+#include "commandtree.h"
 
-#define FILE_PASSWD "/etc/passwd"
-#define FILE_RADDB_SERVER "/etc/raddb/server"
-#define FILE_TACDB_SERVER "/etc/tacdb/server"
+cish_command CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT[] = {
+	{"default", "The default authentication list", NULL, cmd_aaa_authen, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-/* [no] aaa authentication [login|ppp] [group|local|none] [radius|tacacs] [local] */
-void cmd_aaa_authen(const char *cmd)
-{
-	int exec_line_args_len;
-	arg_list exec_line_args = NULL;
-	FILE *server;
-	struct stat buf;
+cish_command CMD_CONFIG_NO_AAA_AUTHENTICATION[] = {
+	{"login", "Set authentication lists for logins.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if ((exec_line_args_len = parse_args_din((char *) cmd, &exec_line_args))) {
+cish_command CMD_CONFIG_NO_AAA_USERNAME[] = {
+	{"<text>", "User name", NULL, del_user, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		if (exec_line_args_len < 5) {
-			free_args_din(&exec_line_args);
-			return;
-		}
+cish_command CMD_CONFIG_NO_AAA_AUTHOR_DEFAULT[] = {
+	{"default", "The default authorization list", NULL, cmd_aaa_author, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		if (!strcmp(exec_line_args[0], "no") || !strcmp(
-		                exec_line_args[4], "none")) {
-			if (!strcmp(exec_line_args[3], "login") || !strcmp(
-			                exec_line_args[2], "login")) {
-				if (!conf_pam_mode(cish_cfg, AAA_AUTH_NONE, 1,
-				                FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			} else if (!strcmp(exec_line_args[3], "ppp")
-			                || !strcmp(exec_line_args[2], "ppp")) {
-				if (!conf_pam_mode(cish_cfg, AAA_AUTH_NONE, 1,
-				                FILE_PAM_PPP)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			}
-		} else if (!strcmp(exec_line_args[4], "local")) {
-			if (!strcmp(exec_line_args[2], "login")) {
-				if (!conf_pam_mode(cish_cfg, AAA_AUTH_LOCAL, 1,
-				                FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			} else if (!strcmp(exec_line_args[2], "ppp")) {
-				if (!conf_pam_mode(cish_cfg, AAA_AUTH_LOCAL, 1,
-				                FILE_PAM_PPP)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			}
-		} else if (!strcmp(exec_line_args[5], "radius")) {
-			if (!(server = fopen(FILE_RADDB_SERVER, "r"))) {
-				printf("%% Please configure server first\n");
-				return;
-			}
-			fstat(fileno(server), &buf);
-			if (!buf.st_size) { /* File exists but it is empty */
-				printf("%% Please configure server first\n");
-				return;
-			}
-			fclose(server);
+cish_command CMD_CONFIG_NO_AAA_AUTHOR[] = {
+	{"exec", "For starting an exec (shell)", CMD_CONFIG_NO_AAA_AUTHOR_DEFAULT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-			if (!strcmp(exec_line_args[2], "login")) {
-				if (!conf_pam_mode(
-				                cish_cfg,
-				                (exec_line_args_len == 7 ? AAA_AUTH_RADIUS_LOCAL : AAA_AUTH_RADIUS),
-				                1, FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			} else if (!strcmp(exec_line_args[2], "ppp")) {
-				if (!conf_pam_mode(
-				                cish_cfg,
-				                (exec_line_args_len == 7 ? AAA_AUTH_RADIUS_LOCAL : AAA_AUTH_RADIUS),
-				                1, FILE_PAM_PPP)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			}
-		} else if (!strcmp(exec_line_args[5], "tacacs+")) {
-			if (!(server = fopen(FILE_TACDB_SERVER, "r"))) {
-				printf("%% Please configure server first\n");
-				return;
-			}
-			fstat(fileno(server), &buf);
-			if (!buf.st_size) { /* File exists but it is empty */
-				printf("%% Please configure server first\n");
-				return;
-			}
-			fclose(server);
-			if (!strcmp(exec_line_args[2], "login")) {
-				if (!conf_pam_mode(
-				                cish_cfg,
-				                (exec_line_args_len == 7 ? AAA_AUTH_TACACS_LOCAL : AAA_AUTH_TACACS),
-				                1, FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			} else if (!strcmp(exec_line_args[2], "ppp")) {
-				if (!conf_pam_mode(
-				                cish_cfg,
-				                (exec_line_args_len == 7 ? AAA_AUTH_TACACS_LOCAL : AAA_AUTH_TACACS),
-				                1, FILE_PAM_PPP)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			}
-		}
+cish_command CMD_CONFIG_NO_AAA_ACCT_DEFAULT[] = {
+	{"default", "The default accounting list", NULL, cmd_aaa_acct, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	}
-}
+cish_command CMD_CONFIG_NO_AAA_ACCT1[] = {
+	{"0-15", "Enable Level", CMD_CONFIG_NO_AAA_ACCT_DEFAULT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-/* [no] aaa accounting exec default start-stop group tacacs+ */
-/* [no] aaa accounting commands [1-15] default start-stop group tacacs+ */
-void cmd_aaa_acct(const char *cmd)
-{
-	int exec_line_args_len;
-	arg_list exec_line_args = NULL;
-	FILE *server;
-	struct stat buf;
+cish_command CMD_CONFIG_NO_AAA_ACCT[] = {
+	{"commands", "For exec (shell) commands", CMD_CONFIG_NO_AAA_ACCT1, NULL, 1, MSK_NORMAL},
+	{"exec", "For starting an exec (shell)", CMD_CONFIG_NO_AAA_ACCT_DEFAULT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if ((exec_line_args_len = parse_args_din((char *) cmd, &exec_line_args))) {
-		/* [no] aaa accounting exec */
-		if (exec_line_args_len < 5) {
-			free_args_din(&exec_line_args);
-			return;
-		}
-		if (!strcmp(exec_line_args[0], "no") || !strcmp(
-		                exec_line_args[4], "none")) {
-			if (!conf_pam_mode(cish_cfg, AAA_ACCT_NONE, 1,
-			                FILE_PAM_GENERIC)) {
-				printf(
-				                "%% Not possible to execute command with success\n");
-				free_args_din(&exec_line_args);
-				return;
-			}
-		} else if (!strcmp(exec_line_args[2], "exec")) {
-			if (!(server = fopen(FILE_TACDB_SERVER, "r"))) {
-				printf("%% Please configure server first\n");
-				return;
-			}
-			fstat(fileno(server), &buf);
-			if (!buf.st_size) { /* File exists but it is empty */
-				printf("%% Please configure server first\n");
-				return;
-			}
-			fclose(server);
-			if (!conf_pam_mode(cish_cfg, AAA_ACCT_TACACS, 1,
-			                FILE_PAM_GENERIC)) {
-				printf(
-				                "%% Not possible to execute command with success\n");
-				free_args_din(&exec_line_args);
-				return;
-			}
-		}
+cish_command CMD_CONFIG_NO_AAA[] = {
+	{"authentication", "Authentication configurations parameters", CMD_CONFIG_NO_AAA_AUTHENTICATION, NULL, 1, MSK_NORMAL},
+	{"authorization", "Authorization configurations parameters", CMD_CONFIG_NO_AAA_AUTHOR, NULL, 1, MSK_NORMAL},
+	{"accounting", "Accounting configurations parameters", CMD_CONFIG_NO_AAA_ACCT, NULL, 1, MSK_NORMAL},
+	{"username", "Establish User Name Authentication", CMD_CONFIG_NO_AAA_USERNAME, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		/* [no] aaa accounting commands */
-		if (exec_line_args_len < 6) {
-			free_args_din(&exec_line_args);
-			return;
-		}
-		if (!strcmp(exec_line_args[0], "no")) {
-			if (!strcmp(exec_line_args[4], "1")) {
-				if (!conf_pam_mode(cish_cfg,
-				                AAA_ACCT_TACACS_NO_CMD_1, 1,
-				                FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			} else if (!strcmp(exec_line_args[4], "15")) {
-				if (!conf_pam_mode(cish_cfg,
-				                AAA_ACCT_TACACS_NO_CMD_15, 1,
-				                FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			}
-		} else if (!strcmp(exec_line_args[5], "none")) {
-			if (!strcmp(exec_line_args[3], "1")) {
-				if (!conf_pam_mode(cish_cfg,
-				                AAA_ACCT_TACACS_NO_CMD_1, 1,
-				                FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			} else if (!strcmp(exec_line_args[3], "15")) {
-				if (!conf_pam_mode(cish_cfg,
-				                AAA_ACCT_TACACS_NO_CMD_15, 1,
-				                FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			}
-		} else if (!strcmp(exec_line_args[2], "commands")) {
-			if (!(server = fopen(FILE_TACDB_SERVER, "r"))) {
-				printf("%% Please configure server first\n");
-				return;
-			}
-			fstat(fileno(server), &buf);
-			if (!buf.st_size) { /* File exists but it is empty */
-				printf("%% Please configure server first\n");
-				return;
-			}
-			fclose(server);
+cish_command CMD_CONFIG_AAA_AUTHENTICATION_LOGIN_GROUP_LOCAL[] = {
+	{"local", "Use local username authentication.", NULL, cmd_aaa_authen, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-			if (!strcmp(exec_line_args[3], "1")) {
-				if (!conf_pam_mode(cish_cfg,
-				                AAA_ACCT_TACACS_CMD_1, 1,
-				                FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			} else if (!strcmp(exec_line_args[3], "15")) {
-				if (!conf_pam_mode(cish_cfg,
-				                AAA_ACCT_TACACS_CMD_15, 1,
-				                FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			}
-		}
-	}
-}
+cish_command CMD_CONFIG_AAA_AUTHENTICATION_LOGIN_GROUP[] = {
+	{"radius", "Use list of all Radius hosts.", CMD_CONFIG_AAA_AUTHENTICATION_LOGIN_GROUP_LOCAL, cmd_aaa_authen, 1, MSK_NORMAL},
+	{"tacacs+", "Use list of all Tacacs+ hosts.", CMD_CONFIG_AAA_AUTHENTICATION_LOGIN_GROUP_LOCAL, cmd_aaa_authen, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void cmd_aaa_author(const char *cmd)
-{
-	int exec_line_args_len;
-	arg_list exec_line_args = NULL;
-	FILE *server;
-	struct stat buf;
+cish_command CMD_CONFIG_AAA_AUTHENTICATION_LOGIN[] = {
+	{"group", "Use Server-group", CMD_CONFIG_AAA_AUTHENTICATION_LOGIN_GROUP, NULL, 1, MSK_NORMAL},
+	{"local", "Use local username authentication.", NULL, cmd_aaa_authen, 1, MSK_NORMAL},
+	{"none", "NO authentication.", NULL, cmd_aaa_authen, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if ((exec_line_args_len = parse_args_din((char *) cmd, &exec_line_args))) {
-		if (exec_line_args_len < 5) {
-			free_args_din(&exec_line_args);
-			return;
-		}
+cish_command CMD_CONFIG_AAA_AUTHEN_DEFAULT[] = {
+	{"default", "The default accounting list", CMD_CONFIG_AAA_AUTHENTICATION_LOGIN, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		/* NO COMMAND */
-		if (!strcmp(exec_line_args[0], "no") || !strcmp(
-		                exec_line_args[4], "none")) {
-			if (!conf_pam_mode(cish_cfg, AAA_AUTHOR_NONE, 1,
-			                FILE_PAM_GENERIC)) {
-				printf(
-				                "%% Not possible to execute command with success\n");
-				free_args_din(&exec_line_args);
-				return;
-			}
-		} else if (!strcmp(exec_line_args[4], "group")) {
-			if (!strcmp(exec_line_args[5], "tacacs+")) {
-				if (!(server = fopen(FILE_TACDB_SERVER, "r"))) {
-					printf(
-					                "%% Please configure server first\n");
-					return;
-				}
-				fstat(fileno(server), &buf);
-				if (!buf.st_size) { /* File exists but it is empty */
-					printf(
-					                "%% Please configure server first\n");
-					return;
-				}
-				fclose(server);
-				if (!conf_pam_mode(
-				                cish_cfg,
-				                (exec_line_args_len == 7 ? AAA_AUTHOR_TACACS_LOCAL : AAA_AUTHOR_TACACS),
-				                1, FILE_PAM_GENERIC)) {
-					printf(
-					                "%% Not possible to execute command with success\n");
-					free_args_din(&exec_line_args);
-					return;
-				}
-			}
-		}
-		free_args_din(&exec_line_args);
-	}
-}
+// cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH[] = {
+// 	{"<string>", "Encrypted password", NULL, add_user, 1, MSK_NORMAL},
+// 	{NULL,NULL,NULL,NULL, 0}
+// };
 
-const char *users[7] = { "root", "admin", "ppp", "uucp", "upload", "nobody",
-                NULL };
+// cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD_DATA[] = {
+// 	{"<text>", "The UNENCRYPTED (cleartext) user password", NULL, add_user, 1, MSK_NORMAL},
+// 	{"hash", "Encrypted password", CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH, NULL, 2, MSK_NORMAL}, /* needs especial privilege! (2) */
+// 	{NULL,NULL,NULL,NULL, 0}
+// };
+//
+// cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD[] = {
+// 	{"password", "Specify the password for the user", CMD_CONFIG_AAA_USERNAME_PASSWORD_DATA, NULL, 1, MSK_NORMAL},
+// 	{NULL,NULL,NULL,NULL, 0}
+// };
 
-void add_user(const char *cmd) /* aaa username <user> password [hash] <pass> *//* tinylogin */
-{
-	arglist *args;
-	char buffer[256];
-	int i;
 
-	args = make_args(cmd);
-	for (i = 0; users[i]; i++) {
-		if (strcmp(users[i], args->argv[2]) == 0) {
-			destroy_args(args);
-			printf("%% Invalid user!\n");
-			return;
-		}
-	}
-	snprintf(buffer, 255, "/bin/deluser %s >/dev/null 2>/dev/null",
-	                args->argv[2]);
-	system(buffer);
-	if (args->argc == 6)
-		snprintf(
-		                buffer,
-		                255,
-		                "/bin/adduser %s -c '%s' >/dev/null 2>/dev/null",
-		                args->argv[2], args->argv[5]);
-	else
-		snprintf(
-		                buffer,
-		                255,
-		                "/bin/adduser %s -p '%s' >/dev/null 2>/dev/null",
-		                args->argv[2], args->argv[4]);
-	system(buffer);
-	destroy_args(args);
-}
 
-void del_user(const char *cmd) /* no aaa username <user> *//* tinylogin */
-{
-	int i;
-	arglist *args;
-	char buffer[256];
+cish_command CMD_CONFIG_AAA_AUTHENTICATION[] = {
+	{"login", "Set authentication lists for logins.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args = make_args(cmd);
-	for (i = 0; users[i]; i++) {
-		if (strcmp(users[i], args->argv[3]) == 0) {
-			destroy_args(args);
-			printf("%% Invalid user!\n");
-			return;
-		}
-	}
-	snprintf(buffer, 255, "/bin/deluser %s >/dev/null 2>/dev/null",
-	                args->argv[3]);
-	system(buffer);
-	destroy_args(args);
-}
+cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH[] = {
+	{"<string>", "Encrypted password", NULL, add_user, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void add_radiusserver(const char *cmd) /* radius-server host <ipaddr> [key <secret> [timeout <1-1000>]] */
-{
-	int i;
-	arglist *args;
-	FILE *server;
+cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD_DATA[] = {
+	{"<text>", "The UNENCRYPTED (cleartext) user password", NULL, add_user, 1, MSK_NORMAL},
+	{"hash", "Encrypted password", CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH,
+					NULL, 2, MSK_NORMAL}, /* needs especial priviledge! (2) */
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args = make_args(cmd);
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (cish_cfg->radius[i].ip_addr[0] == 0 || !strncmp(
-		                cish_cfg->radius[i].ip_addr, args->argv[2], 16)) {
-			strncpy(cish_cfg->radius[i].ip_addr, args->argv[2], 16);
-			if (args->argc >= 5)
-				strncpy(cish_cfg->radius[i].authkey,
-				                args->argv[4],
-				                MAX_SERVER_AUTH_KEY);
-			else
-				strcpy(cish_cfg->radius[i].authkey, "");
-			if (args->argc == 7)
-				cish_cfg->radius[i].timeout = atoi(
-				                args->argv[6]);
-			else
-				cish_cfg->radius[i].timeout = 0;
-			break;
-		}
-	}
-	if (i == MAX_SERVERS) {
-		printf("%% Maximum servers reached!\n");
-		destroy_args(args);
-		return;
-	}
-	if ((server = fopen(FILE_RADDB_SERVER, "w"))) {
-		for (i = 0; i < MAX_SERVERS; i++) {
-			if (cish_cfg->radius[i].ip_addr[0]) { /* server[:port] secret [timeout] */
-				if (cish_cfg->radius[i].authkey[0])
-					fprintf(
-					                server,
-					                "%s\t%s\t%d\n",
-					                cish_cfg->radius[i].ip_addr,
-					                cish_cfg->radius[i].authkey,
-					                cish_cfg->radius[i].timeout);
-				else
-					fprintf(
-					                server,
-					                "%s\n",
-					                cish_cfg->radius[i].ip_addr);
-			}
-		}
-		fclose(server);
-	}
-	destroy_args(args);
-}
+cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD[] = {
+	{"password", "Specify the password for the user", CMD_CONFIG_AAA_USERNAME_PASSWORD_DATA, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
-{
-	int i;
-	FILE *server;
-	arglist *args;
+cish_command CMD_CONFIG_AAA_USERNAME[] = {
+	{"<text>", "User name", CMD_CONFIG_AAA_USERNAME_PASSWORD, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args = make_args(cmd);
+cish_command CMD_CONFIG_AAA_ACCT_TACACS[] = {
+	{"tacacs+", "Use list of all Tacacs+ hosts.", NULL, cmd_aaa_acct, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if (discover_pam_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS
-	                || discover_pam_current_mode(FILE_PAM_GENERIC)
-	                                == AAA_AUTH_RADIUS_LOCAL
-	                || discover_pam_current_mode(FILE_PAM_PPP)
-	                                == AAA_AUTH_RADIUS
-	                || discover_pam_current_mode(FILE_PAM_PPP)
-	                                == AAA_AUTH_RADIUS_LOCAL) {
-		printf("%% please disable RADIUS authentication first\n");
-		destroy_args(args);
-		return;
-	}
+cish_command CMD_CONFIG_AAA_ACCT_GROUP[] = {
+	{"group", "Use Server-group", CMD_CONFIG_AAA_ACCT_TACACS, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (args->argc == 4) {
-			if (!strncmp(cish_cfg->radius[i].ip_addr,
-			                args->argv[3], 16)) {
-				cish_cfg->radius[i].ip_addr[0] = 0;
-				break;
-			}
-		} else
-			cish_cfg->radius[i].ip_addr[0] = 0;
-	}
-	if (i == MAX_SERVERS && args->argc == 4) {
-		printf("%% Server not found!\n");
-		destroy_args(args);
-		return;
-	}
-	if ((server = fopen(FILE_RADDB_SERVER, "w"))) {
-		for (i = 0; i < MAX_SERVERS; i++) {
-			if (cish_cfg->radius[i].ip_addr[0]) { /* server[:port] secret [timeout] */
-				if (cish_cfg->radius[i].authkey[0])
-					fprintf(
-					                server,
-					                "%s\t%s\t%d\n",
-					                cish_cfg->radius[i].ip_addr,
-					                cish_cfg->radius[i].authkey,
-					                cish_cfg->radius[i].timeout);
-				else
-					fprintf(
-					                server,
-					                "%s\n",
-					                cish_cfg->radius[i].ip_addr);
-			}
-		}
-		fclose(server);
-	}
-	destroy_args(args);
-}
+cish_command CMD_CONFIG_AAA_ACCT_STARTSTOP[] = {
+	{"start-stop", "Record start and stop without waiting", CMD_CONFIG_AAA_ACCT_GROUP, NULL, 1, MSK_NORMAL},
+	{"none", "no accounting", NULL, cmd_aaa_acct, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void add_tacacsserver(const char *cmd) /* tacacs-server host <ipaddr> key <secret> [timeout <1-1000>] */
-{
-	int i;
-	arglist *args;
-	FILE *server;
+cish_command CMD_CONFIG_AAA_ACCT_DEFAULT[] = {
+	{"default", "The default accounting list", CMD_CONFIG_AAA_ACCT_STARTSTOP, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args = make_args(cmd);
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (cish_cfg->tacacs[i].ip_addr[0] == 0 || !strncmp(
-		                cish_cfg->tacacs[i].ip_addr, args->argv[2], 16)) {
-			strncpy(cish_cfg->tacacs[i].ip_addr, args->argv[2], 16);
-			if (args->argc >= 5)
-				strncpy(cish_cfg->tacacs[i].authkey,
-				                args->argv[4],
-				                MAX_SERVER_AUTH_KEY);
-			else
-				strcpy(cish_cfg->tacacs[i].authkey, "");
-			if (args->argc == 7)
-				cish_cfg->tacacs[i].timeout = atoi(
-				                args->argv[6]);
-			else
-				cish_cfg->tacacs[i].timeout = 0;
-			break;
-		}
-	}
-	if (i == MAX_SERVERS) {
-		printf("%% Maximum servers reached!\n");
-		destroy_args(args);
-		return;
-	}
-	if ((server = fopen(FILE_TACDB_SERVER, "w"))) {
-		for (i = 0; i < MAX_SERVERS; i++) {
-			if (cish_cfg->tacacs[i].ip_addr[0]) { /* server[:port] secret [timeout] */
-				if (cish_cfg->tacacs[i].authkey[0])
-					fprintf(
-					                server,
-					                "%s\t%s\t%d\n",
-					                cish_cfg->tacacs[i].ip_addr,
-					                cish_cfg->tacacs[i].authkey,
-					                cish_cfg->tacacs[i].timeout);
-				else
-					fprintf(
-					                server,
-					                "%s\n",
-					                cish_cfg->tacacs[i].ip_addr);
-			}
-		}
-		fclose(server);
-	}
-	destroy_args(args);
-}
+cish_command CMD_CONFIG_AAA_ACCT1[] = {
+	{"0-15", "Enable Level", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
-{
-	int i;
-	FILE *server;
-	arglist *args;
+cish_command CMD_CONFIG_AAA_ACCT[] = {
+	{"commands", "For exec (shell) commands", CMD_CONFIG_AAA_ACCT1, NULL, 1, MSK_NORMAL},
+	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+cish_command CMD_CONFIG_AAA_AUTHOR_TACACS_LOCAL[] = {
+	{"local", "Use local database", NULL, cmd_aaa_author, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	args = make_args(cmd);
+cish_command CMD_CONFIG_AAA_AUTHOR_TACACS[] = {
+	{"tacacs+", "Use list of all Tacacs+ hosts.", CMD_CONFIG_AAA_AUTHOR_TACACS_LOCAL, cmd_aaa_author, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	if (discover_pam_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS
-	                || discover_pam_current_mode(FILE_PAM_GENERIC)
-	                                == AAA_AUTH_TACACS_LOCAL
-	                || discover_pam_current_mode(FILE_PAM_PPP)
-	                                == AAA_AUTH_TACACS
-	                || discover_pam_current_mode(FILE_PAM_PPP)
-	                                == AAA_AUTH_TACACS_LOCAL) {
-		printf("%% please disable TACACS+ authentication first\n");
-		destroy_args(args);
-		return;
-	}
-	if (discover_pam_current_author_mode(FILE_PAM_GENERIC)
-	                == AAA_AUTHOR_TACACS) {
-		printf("%% please disable TACACS+ authorization first\n");
-		destroy_args(args);
-		return;
-	}
-	if (discover_pam_current_acct_mode(FILE_PAM_GENERIC) == AAA_ACCT_TACACS) {
-		printf("%% please disable TACACS+ accounting first\n");
-		destroy_args(args);
-		return;
-	}
-	if (discover_pam_current_acct_command_mode(FILE_PAM_GENERIC)
-	                != AAA_ACCT_TACACS_CMD_NONE) {
-		printf("%% please disable TACACS+ accounting first\n");
-		destroy_args(args);
-		return;
-	}
+cish_command CMD_CONFIG_AAA_AUTHOR_GROUP[] = {
+	{"group", "Use Server-group", CMD_CONFIG_AAA_AUTHOR_TACACS, NULL, 1, MSK_NORMAL},
+	{"none", "No authorization (always succeeds)", NULL, cmd_aaa_author, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (args->argc == 4) {
-			if (!strncmp(cish_cfg->tacacs[i].ip_addr,
-			                args->argv[3], 16)) {
-				cish_cfg->tacacs[i].ip_addr[0] = 0;
-				break;
-			}
-		} else
-			cish_cfg->tacacs[i].ip_addr[0] = 0;
-	}
-	if (i == MAX_SERVERS && args->argc == 4) {
-		printf("%% Server not found!\n");
-		destroy_args(args);
-		return;
-	}
-	if ((server = fopen(FILE_TACDB_SERVER, "w"))) {
-		for (i = 0; i < MAX_SERVERS; i++) {
-			if (cish_cfg->tacacs[i].ip_addr[0]) { /* server[:port] secret [timeout] */
-				if (cish_cfg->tacacs[i].authkey[0])
-					fprintf(
-					                server,
-					                "%s\t%s\t%d\n",
-					                cish_cfg->tacacs[i].ip_addr,
-					                cish_cfg->tacacs[i].authkey,
-					                cish_cfg->tacacs[i].timeout);
-				else
-					fprintf(
-					                server,
-					                "%s\n",
-					                cish_cfg->tacacs[i].ip_addr);
-			}
-		}
-		fclose(server);
-	}
-	destroy_args(args);
-}
+cish_command CMD_CONFIG_AAA_AUTHOR_DEFAULT[] = {
+	{"default", "The default accounting list", CMD_CONFIG_AAA_AUTHOR_GROUP, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-void dump_aaa(FILE *out)
-{
-	int i;
-	FILE *passwd;
+cish_command CMD_CONFIG_AAA_AUTHOR[] = {
+	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_AUTHOR_DEFAULT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	/* Dump RADIUS & TACACS servers */
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (cish_cfg->radius[i].ip_addr[0]) {
-			fprintf(out, "radius-server host %s",
-			                cish_cfg->radius[i].ip_addr);
-			if (cish_cfg->radius[i].authkey[0])
-				fprintf(out, " key %s",
-				                cish_cfg->radius[i].authkey);
-			if (cish_cfg->radius[i].timeout)
-				fprintf(out, " timeout %d",
-				                cish_cfg->radius[i].timeout);
-			fprintf(out, "\n");
-		}
-	}
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (cish_cfg->tacacs[i].ip_addr[0]) {
-			fprintf(out, "tacacs-server host %s",
-			                cish_cfg->tacacs[i].ip_addr);
-			if (cish_cfg->tacacs[i].authkey[0])
-				fprintf(out, " key %s",
-				                cish_cfg->tacacs[i].authkey);
-			if (cish_cfg->tacacs[i].timeout)
-				fprintf(out, " timeout %d",
-				                cish_cfg->tacacs[i].timeout);
-			fprintf(out, "\n");
-		}
-	}
-	/* Dump aaa authentication login mode */
-	switch (discover_pam_current_mode(FILE_PAM_GENERIC)) {
-	case AAA_AUTH_NONE:
-		fprintf(out, "aaa authentication login default none\n");
-		break;
-	case AAA_AUTH_LOCAL:
-		fprintf(out, "aaa authentication login default local\n");
-		break;
-	case AAA_AUTH_RADIUS:
-		fprintf(out, "aaa authentication login group radius\n");
-		break;
-	case AAA_AUTH_RADIUS_LOCAL:
-		fprintf(out, "aaa authentication login group radius local\n");
-		break;
-	case AAA_AUTH_TACACS:
-		fprintf(out, "aaa authentication login default group tacacs+\n");
-		break;
-	case AAA_AUTH_TACACS_LOCAL:
-		fprintf(out,
-		                "aaa authentication login default group tacacs+ local\n");
-		break;
-	default:
-		fprintf(out, "aaa authentication login none\n");
-		break;
-	}
+cish_command CMD_CONFIG_AAA[] = {
+	{"accounting", "Accounting configurations parameters", CMD_CONFIG_AAA_ACCT, NULL, 1, MSK_NORMAL},
+	{"authentication", "Authentication configurations parameters", CMD_CONFIG_AAA_AUTHENTICATION, NULL, 1, MSK_NORMAL},
+	{"authorization", "Authorization configurations parameters", CMD_CONFIG_AAA_AUTHOR, NULL, 1, MSK_NORMAL},
+	{"username", "Establish User Name Authentication", CMD_CONFIG_AAA_USERNAME, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	/* Dump aaa authorization mode */
-	switch (discover_pam_current_author_mode(FILE_PAM_GENERIC)) {
-	case AAA_AUTHOR_NONE:
-		fprintf(out, "aaa authorization exec default none\n");
-		break;
-	case AAA_AUTHOR_TACACS:
-		fprintf(out, "aaa authorization exec default group tacacs+\n");
-		break;
-	case AAA_AUTHOR_TACACS_LOCAL:
-		fprintf(out,
-		                "aaa authorization exec default group tacacs+ local\n");
-		break;
-	}
-	/* Dump aaa accounting mode */
-	switch (discover_pam_current_acct_mode(FILE_PAM_GENERIC)) {
-	case AAA_ACCT_NONE:
-		fprintf(out, "aaa accounting exec default none\n");
-		break;
-	case AAA_ACCT_TACACS:
-		fprintf(out,
-		                "aaa accounting exec default start-stop group tacacs+\n");
-		break;
-	}
-	switch (discover_pam_current_acct_command_mode(FILE_PAM_GENERIC)) {
-	case AAA_ACCT_TACACS_CMD_NONE:
-		break;
-	case AAA_ACCT_TACACS_CMD_1:
-		fprintf(out,
-		                "aaa accounting commands 1 default start-stop group tacacs+\n");
-		break;
-	case AAA_ACCT_TACACS_CMD_15:
-		fprintf(out,
-		                "aaa accounting commands 15 default start-stop group tacacs+\n");
-		break;
-	case AAA_ACCT_TACACS_CMD_ALL:
-		fprintf(out,
-		                "aaa accounting commands 1 default start-stop group tacacs+\n");
-		fprintf(out,
-		                "aaa accounting commands 15 default start-stop group tacacs+\n");
-		break;
-	}
+cish_command CMD_CONFIG_RADIUSSERVER_TIMEOUTVALUE[] = {
+	{"1-1000", "Timeout value in seconds to wait for server to reply", NULL, add_radiusserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	/* Dump users */
-	if ((passwd = fopen(FILE_PASSWD, "r"))) {
-		struct passwd *pw;
+cish_command CMD_CONFIG_RADIUSSERVER_TIMEOUT[] = {
+	{"timeout", "Time to wait for this RADIUS server to reply", CMD_CONFIG_RADIUSSERVER_TIMEOUTVALUE, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-		while ((pw = fgetpwent(passwd))) {
-			if (pw->pw_uid > 500 && !strncmp(pw->pw_gecos, "Local",
-			                5)) {
-				fprintf(
-				                out,
-				                "aaa username %s password hash %s\n",
-				                pw->pw_name, pw->pw_passwd);
-			}
-		}
-		fclose(passwd);
-	}
+cish_command CMD_CONFIG_RADIUSSERVER_KEYDATA[] = {
+	{"<text>", "The UNENCRYPTED (cleartext) server key", CMD_CONFIG_RADIUSSERVER_TIMEOUT, add_radiusserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	fprintf(out, "!\n");
-}
+cish_command CMD_CONFIG_RADIUSSERVER_KEY[] = {
+	{"key", "per-server encryption key", CMD_CONFIG_RADIUSSERVER_KEYDATA, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
+cish_command CMD_CONFIG_RADIUSSERVER_HOSTIP[] = {
+	{"<ipaddress>", "IP address of RADIUS server", CMD_CONFIG_RADIUSSERVER_KEY, add_radiusserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_RADIUSSERVER_HOST[] = {
+	{"host", "Specify a RADIUS server", CMD_CONFIG_RADIUSSERVER_HOSTIP, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_NO_RADIUSSERVER_HOSTIP[] = {
+	{"<ipaddress>", "IP address of RADIUS server", NULL, del_radiusserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_NO_RADIUSSERVER_HOST[] = {
+	{"host", "Specify a RADIUS server", CMD_CONFIG_NO_RADIUSSERVER_HOSTIP, NULL, 1, MSK_NORMAL},
+	{"<enter>", "Clear RADIUS servers", NULL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_NO_TACACSSERVER_HOSTIP[] = {
+	{"<ipaddress>", "IP address of TACACS server", NULL, del_tacacsserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_NO_TACACSSERVER_HOST[] = {
+	{"host", "Specify a TACACS server", CMD_CONFIG_NO_TACACSSERVER_HOSTIP, NULL, 1, MSK_NORMAL},
+	{"<enter>", "Clear TACACS servers", NULL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_TACACSSERVER_TIMEOUTVALUE[] = {
+	{"1-1000", "Timeout value in seconds to wait for server to reply", NULL, add_tacacsserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_TACACSSERVER_TIMEOUT[] = {
+	{"timeout", "Time to wait for this TACACS server to reply", CMD_CONFIG_TACACSSERVER_TIMEOUTVALUE, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_TACACSSERVER_KEYDATA[] = {
+	{"<text>", "The UNENCRYPTED (cleartext) server key", CMD_CONFIG_TACACSSERVER_TIMEOUT, add_tacacsserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_TACACSSERVER_KEY[] = {
+	{"key", "per-server encryption key", CMD_CONFIG_TACACSSERVER_KEYDATA, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_TACACSSERVER_HOSTIP[] = {
+	{"<ipaddress>", "IP address of TACACS server", CMD_CONFIG_TACACSSERVER_KEY, add_tacacsserver, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_TACACSSERVER_HOST[] = {
+	{"host", "Specify a TACACS server", CMD_CONFIG_TACACSSERVER_HOSTIP, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};

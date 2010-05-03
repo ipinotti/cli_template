@@ -1,10 +1,3 @@
-/* ==============================================================================
- * cish - the cisco shell emulator for LRP
- *
- * (C) 2000 Mad Science Labs / Clue Consultancy
- * This program is licensed under the GNU General Public License
- * ============================================================================== */
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -14,6 +7,7 @@
 #include <linux/config.h>
 
 #include "commands.h"
+#include "commandtree.h"
 #include "cish_main.h"
 
 void ping (const char *cmdline)

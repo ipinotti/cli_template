@@ -1,5 +1,3 @@
-#include "commandtree.h"
-
 int user_getc (FILE *stream);
 char **cish_completion (char *, int, int);
 char *cish_command_generator (const char *, int);

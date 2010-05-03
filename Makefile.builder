@@ -20,8 +20,14 @@ configure:
 	autoreconf -i
 
 install:
-	$(MAKE) install
+	if [ -f Makefile ]; then \
+		$(MAKE) install; \
+	fi
 clean:
-	$(MAKE) clean
+	if [ -f Makefile ]; then \
+		$(MAKE) clean; \
+	fi
 distclean:
-	$(MAKE) distclean
+	if [ -f Makefile ]; then \
+		$(MAKE) distclean; \
+	fi

@@ -1,680 +1,410 @@
-/* ==============================================================================
- * cish - the cisco shell emulator for LRP
- *
- * (C) 2000 Mad Science Labs / Clue Consultancy
- * This program is licensed under the GNU General Public License
- * ============================================================================== */
-
+#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <linux/config.h>
 
-#include <libconfig/options.h>
+#include "commands.h"
+#include "commandtree.h"
 
-#include "cish_main.h" /* buf */
-#include "pprintf.h"
+cish_command CMD_CONFACL_LENGTH_1[] = {
+	{"<min:max>", "Length range", NULL, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-#include <libconfig/acl.h>
-#include <libconfig/args.h>
-#include <libconfig/exec.h>
-#include <libconfig/device.h>
-#include <libconfig/ip.h>
+#define CMD_CONFACL_TCP_101_LOOP CMD_CONFACL_TCP_101
+cish_command CMD_CONFACL_TCP_101[] = {
+	{"established","Match packets associated with established connections", CMD_CONFACL_TCP_101_LOOP, do_accesslist, 1, MSK_NORMAL},
+	{"new","Match packets starting new connections", CMD_CONFACL_TCP_101_LOOP, do_accesslist, 1, MSK_NORMAL},
+	{"related","Match packets starting new connections associated with existing connections", CMD_CONFACL_TCP_101_LOOP, do_accesslist, 1, MSK_NORMAL},
+	{"<enter>","Enter rule", NULL, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-extern device_family *interface_edited;
-extern int interface_major, interface_minor;
+cish_command CMD_CONFACL_TCP_100_FLAGS[] = {
+	{"<flags>", "mask/comp flags: FIN(0x01),SYN(0x02),RST(0x04),PSH(0x08),ACK(0x10),URG(0x20),ALL(0x3F)", CMD_CONFACL_TCP_101, do_accesslist, 1, MSK_NORMAL},
+	{"syn","Match only tcp packets with SYN bit set (SYN,RST,ACK/SYN)", CMD_CONFACL_TCP_101, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_TCP_100_TOS[] = {
+	{"16","Minimize-Delay", CMD_CONFACL_TCP_101, do_accesslist, 1, MSK_NORMAL},
+	{"8", "Maximize-Throughput", CMD_CONFACL_TCP_101, do_accesslist, 1, MSK_NORMAL},
+	{"4", "Maximize-Reliability", CMD_CONFACL_TCP_101, do_accesslist, 1, MSK_NORMAL},
+	{"2", "Minimize-Cost", CMD_CONFACL_TCP_101, do_accesslist, 1, MSK_NORMAL},
+	{"0", "Normal-Service", CMD_CONFACL_TCP_101, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_100_TOS[] = {
+	{"16","Minimize-Delay", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"8", "Maximize-Throughput", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"4", "Maximize-Reliability", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"2", "Minimize-Cost", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"0", "Normal-Service", NULL, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-//#define DEBUG_CMD(x) printf("cmd = %s\n", x)
-#define DEBUG_CMD(x)
+#define CMD_CONFACL_TCP_99_LOOP CMD_CONFACL_TCP_99
+cish_command CMD_CONFACL_TCP_99[] = {
+	{"established","Match packets associated with established connections", CMD_CONFACL_TCP_99_LOOP, do_accesslist, 1, MSK_NORMAL},
+	{"flags","Match only tcp packets when TCP flags & mask == comp", CMD_CONFACL_TCP_100_FLAGS, NULL, 1, MSK_NORMAL},
+	{"fragments", "Match packets with fragment bit set", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"length", "Match packets within a length range", CMD_CONFACL_LENGTH_1, NULL, 1, MSK_NORMAL},
+	{"new","Match packets starting new connections", CMD_CONFACL_TCP_99_LOOP, do_accesslist, 1, MSK_NORMAL},
+	{"related","Match packets starting new connections associated with existing connections", CMD_CONFACL_TCP_99_LOOP, do_accesslist, 1, MSK_NORMAL},
+	{"tos","Match packets with given TOS value", CMD_CONFACL_TCP_100_TOS, NULL, 1, MSK_NORMAL},
+	{"<enter>","Enter rule", NULL, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_99[] = {
+	{"fragments", "Match packets with fragment bit set", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"length", "Match packets within a length range", CMD_CONFACL_LENGTH_1, NULL, 1, MSK_NORMAL},
+	{"tos","Match packets with given TOS value", CMD_CONFACL_UDP_100_TOS, NULL, 1, MSK_NORMAL},
+	{"<enter>","Enter rule", NULL, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-void do_accesslist(const char *cmdline)
-{
-	arglist *args;
-	int crsr;
-	struct acl_config acl;
+cish_command CMD_CONFACL_TCP_41[] = {
+	{"<port>","Port number or service name", CMD_CONFACL_TCP_99, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	int i;
-	int found;
-	char *p;
+cish_command CMD_CONFACL_UDP_41[] = {
+	{"<port>","Port number or service name", CMD_CONFACL_UDP_99, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	/* Initialize configuration structure */
-	memset(&acl, 0, sizeof(struct acl_config));
+cish_command CMD_CONFACL_TCP_41B[] = {
+	{"<port>","Port number or service name", CMD_CONFACL_TCP_41, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	acl.mode = add_acl;
-	args = make_args(cmdline);
+cish_command CMD_CONFACL_UDP_41B[] = {
+	{"<port>","Port number or service name", CMD_CONFACL_UDP_41, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	if (args->argc > 6) {
-		if (strcmp(args->argv[2], "tcpmss") == 0) {
-			for (i = 7, found = 0; i < args->argc; i++) {
-				if (strcmp(args->argv[i], "flags") == 0) {
-					if (++i < args->argc) {
-						if (strcasecmp(args->argv[i],
-						                "syn") == 0) {
-							found = 1;
-							break;
-						} else if ((p = strchr(
-						                args->argv[i],
-						                '/')) != NULL) {
-							if (strstr(p, "SYN")
-							                != NULL) {
-								found = 1;
-								break;
-							}
-						}
-					}
-				}
-			}
+cish_command CMD_CONFACL_ANY_40[] = {
+	{"fragments", "Match packets with fragment bit set", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"length", "Match packets within a length range", CMD_CONFACL_LENGTH_1, NULL, 1, MSK_NORMAL},
+	{"tos","Match packets with given TOS value", CMD_CONFACL_UDP_100_TOS, NULL, 1, MSK_NORMAL},
+	{"<enter>","Enter rule", NULL, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-			if (found == 0) {
-				fprintf(stderr,
-				                "%% Invalid command, you should also "
-					                "include flags argument with bit SYN in test!\n");
-				destroy_args(args);
-				return;
-			}
-		}
-	}
+cish_command CMD_CONFACL_TCP_40[] = {
+	{"eq","Match only packets on a given port", CMD_CONFACL_TCP_41, NULL, 1, MSK_NORMAL},
+	{"established","Match packets associated with established connections", CMD_CONFACL_TCP_99, do_accesslist, 1, MSK_NORMAL},
+	{"flags","Match only tcp packets when TCP flags & mask == comp", CMD_CONFACL_TCP_100_FLAGS, NULL, 1, MSK_NORMAL},
+	{"fragments", "Match packets with fragment bit set", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"gt","Match only packets with a greater or equal port", CMD_CONFACL_TCP_41, NULL, 1, MSK_NORMAL},
+	{"length", "Match packets within a length range", CMD_CONFACL_LENGTH_1, NULL, 1, MSK_NORMAL},
+	{"lt","Match only packets with a lower or equal port", CMD_CONFACL_TCP_41, NULL, 1, MSK_NORMAL},
+	{"neq","Match only packets not on a given port", CMD_CONFACL_TCP_41, NULL, 1, MSK_NORMAL},
+	{"new","Match packets starting new connections", CMD_CONFACL_TCP_99, do_accesslist, 1, MSK_NORMAL},
+	{"range","Match only packets in the range of ports", CMD_CONFACL_TCP_41B, NULL, 1, MSK_NORMAL},
+	{"related","Match packets starting new connections associated with existing connections", CMD_CONFACL_TCP_99, do_accesslist, 1, MSK_NORMAL},
+	{"tos","Match packets with given TOS value", CMD_CONFACL_TCP_100_TOS, NULL, 1, MSK_NORMAL},
+	{"<enter>","Enter rule", NULL, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	acl.name = args->argv[1];
+cish_command CMD_CONFACL_UDP_40[] = {
+	{"eq","Match only packets on a given port", CMD_CONFACL_UDP_41, NULL, 1, MSK_NORMAL},
+	{"fragments", "Match packets with fragment bit set", NULL, do_accesslist, 1, MSK_NORMAL},
+	{"gt","Match only packets with a greater or equal port", CMD_CONFACL_UDP_41, NULL, 1, MSK_NORMAL},
+	{"length", "Match packets within a length range", CMD_CONFACL_LENGTH_1, NULL, 1, MSK_NORMAL},
+	{"lt","Match only packets with a lower or equal port", CMD_CONFACL_UDP_41, NULL, 1, MSK_NORMAL},
+	{"neq","Match only packets not on a given port", CMD_CONFACL_UDP_41, NULL, 1, MSK_NORMAL},
+	{"range","Match only packets in the range of ports", CMD_CONFACL_UDP_41B, NULL, 1, MSK_NORMAL},
+	{"tos","Match packets with given TOS value", CMD_CONFACL_UDP_100_TOS, NULL, 1, MSK_NORMAL},
+	{"<enter>","Enter rule", NULL, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	/* Create new ACL if one does not exist */
-	if (!acl_exists(acl.name))
-		acl_create_new(acl.name);
+cish_command CMD_CONFACL_ANY_27[] = {
+	{"<rnetmask>","Destination wildcard bits", CMD_CONFACL_ANY_40, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_TCP_27[] = {
+	{"<rnetmask>","Destination wildcard bits", CMD_CONFACL_TCP_40, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_27[] = {
+	{"<rnetmask>","Destination wildcard bits", CMD_CONFACL_UDP_40, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	crsr = 2;
+cish_command CMD_CONFACL_ANY_26[] = {
+	{"<ipaddress>","Destination address", CMD_CONFACL_ANY_40, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_TCP_26[] = {
+	{"<ipaddress>","Destination address", CMD_CONFACL_TCP_40, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_26[] = {
+	{"<ipaddress>","Destination address", CMD_CONFACL_UDP_40, do_accesslist, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	if (strcmp(args->argv[crsr], "insert") == 0) {
-		acl.mode = insert_acl;
-		++crsr;
-	} else if (strcmp(args->argv[crsr], "no") == 0) {
-		acl.mode = remove_acl;
-		++crsr;
-	}
+cish_command CMD_CONFACL_TCP_22[] = {
+	{"any","Any destination host", CMD_CONFACL_TCP_40, do_accesslist, 1, MSK_NORMAL},
+	{"host","A single destination host", CMD_CONFACL_TCP_26, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Destination address", CMD_CONFACL_TCP_27, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_22[] = {
+	{"any","Any destination host", CMD_CONFACL_UDP_40, do_accesslist, 1, MSK_NORMAL},
+	{"host","A single destination host", CMD_CONFACL_UDP_26, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Destination address", CMD_CONFACL_UDP_27, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	if (strcmp(args->argv[crsr], "accept") == 0)
-		acl.action = acl_accept;
-	else if (strcmp(args->argv[crsr], "drop") == 0)
-		acl.action = acl_drop;
-	else if (strcmp(args->argv[crsr], "reject") == 0)
-		acl.action = acl_reject;
-	else if (strcmp(args->argv[crsr], "log") == 0)
-		acl.action = acl_log;
-	else if (strcmp(args->argv[crsr], "tcpmss") == 0)
-		acl.action = acl_tcpmss;
-	else {
-		fprintf(stderr,
-		                "%% Illegal action type, use accept, drop, reject, log or tcpmss\n");
-		destroy_args(args);
-		return;
-	}
-	++crsr;
+cish_command CMD_CONFACL_TCP_21[] = {
+	{"<port>","Port number or service name", CMD_CONFACL_TCP_22, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_21[] = {
+	{"<port>","Port number or service name", CMD_CONFACL_UDP_22, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	if (acl.action == acl_tcpmss) {
-		if (crsr >= args->argc) {
-			fprintf(stderr, "%% Missing tcpmss action\n");
-			destroy_args(args);
-			return;
-		}
-		acl.tcpmss = args->argv[crsr];
-		++crsr;
-	}
+cish_command CMD_CONFACL_TCP_21B[] = {
+	{"<port>","Port number or service name", CMD_CONFACL_TCP_21, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_21B[] = {
+	{"<port>","Port number or service name", CMD_CONFACL_UDP_21, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	/* Check for protocol */
-	if (strcmp(args->argv[crsr], "tcp") == 0)
-		acl.protocol = tcp;
-	else if (strcmp(args->argv[crsr], "udp") == 0)
-		acl.protocol = udp;
-	else if (strcmp(args->argv[crsr], "icmp") == 0)
-		acl.protocol = icmp;
-	else if (strcmp(args->argv[crsr], "ip") == 0)
-		acl.protocol = ip;
-	else
-		acl.protocol = atoi(args->argv[crsr]);
-	++crsr;
+cish_command CMD_CONFACL_ANY_20[] = {
+	{"any","Any destination host", CMD_CONFACL_ANY_40, do_accesslist, 1, MSK_NORMAL},
+	{"host","A single destination host", CMD_CONFACL_ANY_26, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Destination address", CMD_CONFACL_ANY_27, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_TCP_20[] = {
+	{"any","Any destination host", CMD_CONFACL_TCP_40, do_accesslist, 1, MSK_NORMAL},
+	{"eq","Match only packets on a given port", CMD_CONFACL_TCP_21, NULL, 1, MSK_NORMAL},
+	{"gt","Match only packets with a greater or equal port", CMD_CONFACL_TCP_21, NULL, 1, MSK_NORMAL},
+	{"host","A single destination host", CMD_CONFACL_TCP_26, NULL, 1, MSK_NORMAL},
+	{"lt","Match only packets with a lower or equal port", CMD_CONFACL_TCP_21, NULL, 1, MSK_NORMAL},
+	{"neq","Match only packets not on a given port", CMD_CONFACL_TCP_21, NULL, 1, MSK_NORMAL},
+	{"range","Match only packets in the range of ports", CMD_CONFACL_TCP_21B, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Destination address", CMD_CONFACL_TCP_27, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_20[] = {
+	{"any","Any destination host", CMD_CONFACL_UDP_40, do_accesslist, 1, MSK_NORMAL},
+	{"eq","Match only packets on a given port", CMD_CONFACL_UDP_21, NULL, 1, MSK_NORMAL},
+	{"gt","Match only packets with a greater or equal port", CMD_CONFACL_UDP_21, NULL, 1, MSK_NORMAL},
+	{"host","A single destination host", CMD_CONFACL_UDP_26, NULL, 1, MSK_NORMAL},
+	{"lt","Match only packets with a lower or equal port", CMD_CONFACL_UDP_21, NULL, 1, MSK_NORMAL},
+	{"neq","Match only packets not on a given port", CMD_CONFACL_UDP_21, NULL, 1, MSK_NORMAL},
+	{"range","Match only packets in the range of ports", CMD_CONFACL_UDP_21B, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Destination address", CMD_CONFACL_UDP_27, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	if (acl.protocol == icmp) {
-		if (strcmp(args->argv[crsr], "type") == 0) {
-			++crsr;
-			if (crsr >= args->argc) {
-				fprintf(stderr, "%% Missing icmp type\n");
-				destroy_args(args);
-				return;
-			}
-			acl.icmp_type = args->argv[crsr];
-			++crsr;
-			if (strcmp(acl.icmp_type, "destination-unreachable")
-			                == 0 || strcmp(acl.icmp_type,
-			                "redirect") == 0 || strcmp(
-			                acl.icmp_type, "time-exceeded") == 0
-			                || strcmp(acl.icmp_type,
-			                                "parameter-problem")
-			                                == 0) {
-				if (crsr >= args->argc) {
-					fprintf(stderr,
-					                "%% Missing icmp type code\n");
-					destroy_args(args);
-					return;
-				}
+cish_command CMD_CONFACL_ANY_7[] = {
+	{"<rnetmask>","Source wildcard bits", CMD_CONFACL_ANY_20, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_TCP_7[] = {
+	{"<rnetmask>","Source wildcard bits", CMD_CONFACL_TCP_20, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_7[] = {
+	{"<rnetmask>","Source wildcard bits", CMD_CONFACL_UDP_20, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-				if (strcmp(args->argv[crsr], "any"))
-					acl.icmp_type_code = args->argv[crsr];
-				++crsr;
-			}
-		}
-	}
+cish_command CMD_CONFACL_ANY_6[] = {
+	{"<ipaddress>","Source address", CMD_CONFACL_ANY_20, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_TCP_6[] = {
+	{"<ipaddress>","Source address", CMD_CONFACL_TCP_20, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_6[] = {
+	{"<ipaddress>","Source address", CMD_CONFACL_UDP_20, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	if (strcmp(args->argv[crsr], "any") == 0) {
-		strcpy(acl.src_address, "0.0.0.0/0 ");
-		++crsr;
-	} else if (strcmp(args->argv[crsr], "host") == 0) {
-		if ((crsr + 1) > args->argc) {
-			fprintf(stderr, "%% Missing ip-address\n");
-			destroy_args(args);
-			return;
-		}
-		++crsr;
-		sprintf(acl.src_address, "%s/32 ", args->argv[crsr]);
-		++crsr;
-	} else {
-		if ((crsr + 2) > args->argc) {
-			fprintf(stderr, "%% Missing netmask\n");
-			destroy_args(args);
-			return;
-		}
-		acl.src_cidr = netmask2cidr(args->argv[crsr + 1]);
-		if (acl.src_cidr < 0) {
-			fprintf(stderr, "%% Invalid netmask\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.src_address, "%s/%i ", args->argv[crsr],
-		                acl.src_cidr);
-		crsr += 2;
-	}
-	if (crsr >= args->argc) {
-		fprintf(stderr, "%% Not enough arguments\n");
-		destroy_args(args);
-		return;
-	}
-	if (strcmp(args->argv[crsr], "eq") == 0) {
-		if ((crsr + 1) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.src_portrange, "%s ", args->argv[crsr + 1]);
-		crsr += 2;
-	} else if (strcmp(args->argv[crsr], "neq") == 0) {
-		if ((crsr + 1) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.src_portrange, "! %s ", args->argv[crsr + 1]);
-		crsr += 2;
-	} else if (strcmp(args->argv[crsr], "gt") == 0) {
-		if ((crsr + 1) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.src_portrange, "%s: ", args->argv[crsr + 1]);
-		crsr += 2;
-	} else if (strcmp(args->argv[crsr], "lt") == 0) {
-		if ((crsr + 1) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.src_portrange, ":%s ", args->argv[crsr + 1]);
-		crsr += 2;
-	} else if (strcmp(args->argv[crsr], "range") == 0) {
-		if ((crsr + 2) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (atoi(args->argv[crsr + 1]) > atoi(args->argv[crsr + 2])) {
-			fprintf(stderr, "%% Invalid port range (min > max)\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
-		                args->argv[crsr + 2])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.src_portrange, "%s:%s ", args->argv[crsr + 1],
-		                args->argv[crsr + 2]);
-		crsr += 3;
-	} else {
-		acl.src_portrange[0] = 0;
-	}
-	if (strcmp(args->argv[crsr], "any") == 0) {
-		strcpy(acl.dst_address, "0.0.0.0/0 ");
-		++crsr;
-	} else if (strcmp(args->argv[crsr], "host") == 0) {
-		++crsr;
-		sprintf(acl.dst_address, "%s/32 ", args->argv[crsr]);
-		++crsr;
-	} else {
-		if ((crsr + 2) > args->argc) {
-			fprintf(stderr, "%% Missing netmask\n");
-			destroy_args(args);
-			return;
-		}
-		acl.dst_cidr = netmask2cidr(args->argv[crsr + 1]);
-		if (acl.dst_cidr < 0) {
-			fprintf(stderr, "%% Invalid netmask\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.dst_address, "%s/%i ", args->argv[crsr],
-		                acl.dst_cidr);
-		crsr += 2;
-	}
-	if (crsr >= args->argc) {
-		acl.dst_portrange[0] = 0;
-	} else if (strcmp(args->argv[crsr], "eq") == 0) {
-		if ((crsr + 1) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.dst_portrange, "%s ", args->argv[crsr + 1]);
-		crsr += 2;
-	} else if (strcmp(args->argv[crsr], "neq") == 0) {
-		if ((crsr + 1) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.dst_portrange, "! %s ", args->argv[crsr + 1]);
-		crsr += 2;
-	} else if (strcmp(args->argv[crsr], "gt") == 0) {
-		if ((crsr + 1) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.dst_portrange, "%s: ", args->argv[crsr + 1]);
-		crsr += 2;
-	} else if (strcmp(args->argv[crsr], "lt") == 0) {
-		if ((crsr + 1) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.dst_portrange, ":%s ", args->argv[crsr + 1]);
-		crsr += 2;
-	} else if (strcmp(args->argv[crsr], "range") == 0) {
-		if ((crsr + 2) >= args->argc) {
-			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
-			return;
-		}
-		if (atoi(args->argv[crsr + 1]) > atoi(args->argv[crsr + 2])) {
-			fprintf(stderr, "%% Invalid port range (min > max)\n");
-			destroy_args(args);
-			return;
-		}
-		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
-		                args->argv[crsr + 2])) {
-			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
-			return;
-		}
-		sprintf(acl.dst_portrange, "%s:%s ", args->argv[crsr + 1],
-		                args->argv[crsr + 2]);
-		crsr += 3;
-	} else {
-		acl.dst_portrange[0] = 0;
-	}
-	acl.state = 0;
-	while (crsr < args->argc) {
-		if (strcmp(args->argv[crsr], "established") == 0)
-			acl.state |= st_established;
-		else if (strcmp(args->argv[crsr], "new") == 0)
-			acl.state |= st_new;
-		else if (strcmp(args->argv[crsr], "related") == 0)
-			acl.state |= st_related;
-		else if (strcmp(args->argv[crsr], "tos") == 0) {
-			crsr++;
-			if (crsr >= args->argc) {
-				fprintf(stderr, "%% Not enough arguments\n");
-				destroy_args(args);
-				return;
-			}
-			acl.tos = args->argv[crsr];
-		} else if (strcmp(args->argv[crsr], "flags") == 0) {
-			crsr++;
-			if (crsr >= args->argc) {
-				fprintf(stderr, "%% Not enough arguments\n");
-				destroy_args(args);
-				return;
-			}
-			acl.flags = args->argv[crsr];
-		}
-		crsr++;
-	};
+cish_command CMD_CONFACL_ANY_4[] = {
+	{"any","Any source host", CMD_CONFACL_ANY_20, NULL, 1, MSK_NORMAL},
+	{"host","A single source host", CMD_CONFACL_ANY_6, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Source address", CMD_CONFACL_ANY_7, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	/* Se a acao for TCPMSS, entao somos obrigados a ter na linha de comando o argumento 'flags' */
-	if (acl.action == acl_tcpmss) {
-		if (!acl.flags) {
-			fprintf(stderr,
-			                "%% For use 'tcpmss' you must define 'flags'\n");
-			destroy_args(args);
-			return;
-		}
-	}
+cish_command CMD_CONFACL_MAC_4[] = {
+	{"<mac>","MAC address (xx:xx:xx:xx:xx:xx)", NULL, do_accesslist_mac, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	/* Apply the access list */
-	acl_apply(&acl);
+cish_command CMD_CONFACL_ICMP_TYPE_3_CODE[] = {
+	{"any","Any ICMP type code", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"network-unreachable","network-unreachable ICMP type code (0)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"host-unreachable","host-unreachable ICMP type code (1)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"protocol-unreachable","protocol-unreachable ICMP type code (2)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"port-unreachable","port-unreachable ICMP type code (3)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"fragmentation-needed","fragmentation-needed ICMP type code (4)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"source-route-failed","source-route-failed ICMP type code (5)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"network-unknown","network-unknown ICMP type code (6)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"host-unknown","host-unknown ICMP type code (7)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"network-prohibited","network-prohibited ICMP type code (9)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"host-prohibited","host-prohibited ICMP type code (10)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"TOS-network-unreachable","TOS-network-unreachable ICMP type code (11)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"TOS-host-unreachable","TOS-host-unreachable ICMP type code (12)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"communication-prohibited","communication-prohibited ICMP type code (13)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"host-precedence-violation","host-precedence-violation ICMP type code (14)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"precedence-cutoff","precedence-cutoff ICMP type code (15)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"0-255","ICMP numeric type code", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_ICMP_TYPE_5_CODE[] = {
+	{"any","Any ICMP type code", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"network-redirect","network-redirect ICMP type code (0)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"host-redirect","host-redirect ICMP type code (1)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"TOS-network-redirect","TOS-network-redirect ICMP type code (2)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"TOS-host-redirect","TOS-host-redirect ICMP type code (3)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"0-255","ICMP numeric type code", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_ICMP_TYPE_11_CODE[] = {
+	{"any","Any ICMP type code", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"ttl-zero-during-transit","ttl-zero-during-transit ICMP type code (0)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"ttl-zero-during-reassembly","ttl-zero-during-reassembly ICMP type code (1)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"0-255","ICMP numeric type code", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_ICMP_TYPE_12_CODE[] = {
+	{"any","Any ICMP type code", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"ip-header-bad","ip-header-bad ICMP type code (0)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"required-option-missing","required-option-missing ICMP type code (1)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"0-255","ICMP numeric type code", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_ICMP_TYPE[] = {
+	{"any","Any ICMP type (255)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"echo-reply","echo-reply (pong) ICMP type (0)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"destination-unreachable","destination-unreachable ICMP type (3)", CMD_CONFACL_ICMP_TYPE_3_CODE, NULL, 1, MSK_NORMAL},
+	{"source-quench","source-quench ICMP type (4)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"redirect","redirect ICMP type (5)", CMD_CONFACL_ICMP_TYPE_5_CODE, NULL, 1, MSK_NORMAL},
+	{"echo-request","echo-request (ping) ICMP type (8)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"router-advertisement","router-advertisement ICMP type (9)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"router-solicitation","router-solicitation ICMP type (10)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"time-exceeded","time-exceeded (ttl-exceeded) ICMP type (11)", CMD_CONFACL_ICMP_TYPE_11_CODE, NULL, 1, MSK_NORMAL},
+	{"parameter-problem","parameter-problem ICMP type (12)", CMD_CONFACL_ICMP_TYPE_12_CODE, NULL, 1, MSK_NORMAL},
+	{"timestamp-request","timestamp-request ICMP type (13)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"timestamp-reply","timestamp-reply ICMP type (14)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"address-mask-request","address-mask-request ICMP type (17)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"address-mask-reply","address-mask-reply ICMP type (18)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"0-255","ICMP numeric type", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_ICMP_4[] = {
+	{"any","Any source host", CMD_CONFACL_ANY_20, NULL, 1, MSK_NORMAL},
+	{"host","A single source host", CMD_CONFACL_ANY_6, NULL, 1, MSK_NORMAL},
+	{"type","ICMP type", CMD_CONFACL_ICMP_TYPE, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Source address", CMD_CONFACL_ANY_7, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_TCP_4[] = {
+	{"any","Any source host", CMD_CONFACL_TCP_20, NULL, 1, MSK_NORMAL},
+	{"host","A single source host", CMD_CONFACL_TCP_6, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Source address", CMD_CONFACL_TCP_7, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL_UDP_4[] = {
+	{"any","Any source host", CMD_CONFACL_UDP_20, NULL, 1, MSK_NORMAL},
+	{"host","A single source host", CMD_CONFACL_UDP_6, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>","Source address", CMD_CONFACL_UDP_7, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	destroy_args(args);
-}
+cish_command CMD_CONFACL3_TCPMSS_TCP[] = {
+	{"tcp","Transmission Control Protocol", CMD_CONFACL_TCP_4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+cish_command CMD_CONFACL3_TCPMSS[] = {
+	{"64-1500","Explicitly set MSS option to specified value", CMD_CONFACL3_TCPMSS_TCP, NULL, 1, MSK_NORMAL},
+	{"pmtu", "Automatically clamp MSS value to (path_MTU - 40)", CMD_CONFACL3_TCPMSS_TCP, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-void do_accesslist_mac(const char *cmdline)
-{
-	int crsr;
-	arglist *args;
-	acl_mode mode;
-	acl_action action;
-	char *acl, cmd[256];
+/* Layer 7 support*/
+cish_command CMD_CONFACL_LAYER7_NEWENTRY[] = {
+	{"<text>","A regular expression for matching patterns", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	mode = add_acl;
-	args = make_args(cmdline);
-	acl = args->argv[1];
-	if (!acl_exists(acl)) {
-		sprintf(cmd, "/bin/iptables -N %s", acl);
-		system(cmd);
-	}
-	crsr = 2;
-	if (!strcmp(args->argv[crsr], "insert")) {
-		mode = insert_acl;
-		++crsr;
-	} else if (!strcmp(args->argv[crsr], "no")) {
-		mode = remove_acl;
-		++crsr;
-	}
-	if (!strcmp(args->argv[crsr], "accept"))
-		action = acl_accept;
-	else if (!strcmp(args->argv[crsr], "drop"))
-		action = acl_drop;
-	else if (!strcmp(args->argv[crsr], "reject"))
-		action = acl_reject;
-	else if (!strcmp(args->argv[crsr], "log"))
-		action = acl_log;
-	else {
-		fprintf(stderr,
-		                "%% Illegal action type, use accept, drop, reject, log or tcpmss\n");
-		destroy_args(args);
-		return;
-	}
-	crsr += 2;
-	sprintf(cmd, "/bin/iptables ");
-	switch (mode) {
-	case insert_acl:
-		strcat(cmd, "-I ");
-		break;
-	case remove_acl:
-		strcat(cmd, "-D ");
-		break;
-	default:
-		strcat(cmd, "-A ");
-		break;
-	}
-	strcat(cmd, acl);
-	strcat(cmd, " -m mac --mac-source ");
-	strcat(cmd, args->argv[crsr]);
-	switch (action) {
-	case acl_accept:
-		strcat(cmd, " -j ACCEPT");
-		break;
-	case acl_drop:
-		strcat(cmd, " -j DROP");
-		break;
-	case acl_reject:
-		strcat(cmd, " -j REJECT");
-		break;
-	case acl_log:
-		strcat(cmd, " -j LOG");
-		break;
-	case acl_tcpmss:
-		break;
-	} DEBUG_CMD(cmd);
-	system(cmd);
-	destroy_args(args);
-}
+cish_command CMD_CONFACL_LAYER7_1[] = {
+	{"bgp", "The Border Gateway Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"bittorrent", "The Bittorrent Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"cvs", "The Concurrent Versioning System", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"dhcp", "The Dynamic Host Configuration Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"dns", "The Domain Name Server Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"fasttrack", "The Fasttrack Protocol (P2P)", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"ftp", "The File Transfer Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"http", "The Hypertext Transfer Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"http-rtsp", "The Real Time Streaming Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"msnmessenger", "The MSN Messenger Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"netbios", "The netBIOS Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"ntp", "The Network Time Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"pop3", "The Post Office Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"rtp", "The Real-time Transfer Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"skypeout", "The Skypeout Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"skypetoskype", "The Skype Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"smb", "The Samba protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"smtp", "The Simple Mail Transfer Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"snmp", "The Simple Network Management Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"ssh", "The Secure Shell Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"ssl", "The Secure Sockets Layer Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"subversion", "The Subversion Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"telnet", "The Telecommunication Network Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"tftp", "The Trivial File Transfer Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"<text>", "Name of a new entry", CMD_CONFACL_LAYER7_NEWENTRY, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+/* End of Layer 7 support */
 
-void do_accesslist_policy(const char *cmdline)
-{
-	arglist *args;
-	char *target;
-	char cmd[256];
-	FILE *procfile;
 
-	procfile = fopen("/proc/net/ip_tables_names", "r");
+cish_command CMD_CONFACL3[] = {
+	{"0-255", "An IP protocol number", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"icmp","Internet Control Message Protocol", CMD_CONFACL_ICMP_4, NULL, 1, MSK_NORMAL},
+	{"ip","Any Internet Protocol", CMD_CONFACL_ANY_4, NULL, 1, MSK_NORMAL},
+	{"layer7","A layer 7 protocol", CMD_CONFACL_LAYER7_1, NULL, 1, MSK_NORMAL},
+	{"mac","Source MAC address", CMD_CONFACL_MAC_4, NULL, 1, MSK_NORMAL},
+	{"tcp","Transmission Control Protocol", CMD_CONFACL_TCP_4, NULL, 1, MSK_NORMAL},
+	{"udp","User Datagram Protocol", CMD_CONFACL_UDP_4, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-	args = make_args(cmdline);
-	if (strcmp(args->argv[1], "accept") == 0) {
-		target = "ACCEPT";
-		if (!procfile)
-			goto bailout;
-		/* doesnt need to load modules! */
-	} else {
-		if (strcmp(args->argv[1], "drop") == 0) {
-			target = "DROP";
-		} else
-			target = "REJECT";
-	}
-	if (procfile)
-		fclose(procfile);
+cish_command CMD_CONFACL2B[] = {
+	{"accept","Specify packets to accept", CMD_CONFACL3, NULL, 1, MSK_NORMAL},
+	{"drop","Specify packets to drop", CMD_CONFACL3, NULL, 1, MSK_NORMAL},
+	{"log","Specify packets to log", CMD_CONFACL3, NULL, 1, MSK_NORMAL},
+	{"reject","Specify packets to reject", CMD_CONFACL3, NULL, 1, MSK_NORMAL},
+	{"tcpmss","Specify packets to change mss", CMD_CONFACL3_TCPMSS, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	sprintf(cmd, "/bin/iptables -P INPUT %s", target);
-	DEBUG_CMD(cmd);
-	system(cmd);
+cish_command CMD_CONFACL2[] = {
+	{"accept","Specify packets to accept", CMD_CONFACL3, NULL, 1, MSK_NORMAL},
+	{"drop","Specify packets to drop", CMD_CONFACL3, NULL, 1, MSK_NORMAL},
+	{"insert","Insert a matching rule on top", CMD_CONFACL2B, NULL, 1, MSK_NORMAL},
+	{"log","Specify packets to log", CMD_CONFACL3, NULL, 1, MSK_NORMAL},
+	{"no","Remove a matching rule", CMD_CONFACL2B, NULL, 1, MSK_NORMAL},
+	{"reject","Specify packets to reject", CMD_CONFACL3, NULL, 1, MSK_NORMAL},
+	{"tcpmss","Specify packets to change mss", CMD_CONFACL3_TCPMSS, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-	sprintf(cmd, "/bin/iptables -P OUTPUT %s", target);
-	DEBUG_CMD(cmd);
-	system(cmd);
-
-	sprintf(cmd, "/bin/iptables -P FORWARD %s", target);
-	DEBUG_CMD(cmd);
-	system(cmd);
-
-	bailout: destroy_args(args);
-}
-
-void no_accesslist(const char *cmdline)
-{
-	arglist *args;
-	char *acl;
-	char cmd[256];
-
-	args = make_args(cmdline);
-	acl = args->argv[2];
-	if (!acl_exists(acl)) {
-		destroy_args(args);
-		return;
-	}
-	if (acl_get_refcount(acl)) {
-		printf("%% Access-list in use, can't delete\n");
-		destroy_args(args);
-		return;
-	}
-	sprintf(cmd, "/bin/iptables -F %s", acl); /* flush */
-
-	system(cmd);
-
-	sprintf(cmd, "/bin/iptables -X %s", acl); /* delete */
-
-	system(cmd);
-
-	destroy_args(args);
-}
-
-void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
-{
-	arglist *args;
-	char *dev;
-	acl_chain chain = chain_in;
-	char *listno;
-
-	dev = convert_device(interface_edited->cish_string, interface_major,
-	                interface_minor);
-	args = make_args(cmdline);
-	listno = args->argv[2];
-	if (strcasecmp(args->argv[3], "in") == 0)
-		chain = chain_in;
-	else if (strcasecmp(args->argv[3], "out") == 0)
-		chain = chain_out;
-	if (!acl_exists(listno)) {
-		printf("%% access-list %s undefined\n", listno);
-		free(dev);
-		destroy_args(args);
-		return;
-	}
-	if ((chain == chain_in) && (acl_matched_exists(0, dev, 0, "INPUT")
-	                || acl_matched_exists(0, dev, 0, "FORWARD"))) {
-		printf("%% inbound access-list already defined.\n");
-		free(dev);
-		destroy_args(args);
-		return;
-	}
-	if ((chain == chain_out) && (acl_matched_exists(0, 0, dev, "OUTPUT")
-	                || acl_matched_exists(0, 0, dev, "FORWARD"))) {
-		printf("%% outbound access-list already defined.\n");
-		free(dev);
-		destroy_args(args);
-		return;
-	}
-	if (chain == chain_in) {
-		sprintf(buf, "/bin/iptables -A INPUT -i %s -j %s", dev, listno);
-
-		DEBUG_CMD(buf);
-		system(buf);
-
-		sprintf(buf, "/bin/iptables -A FORWARD -i %s -j %s", dev,
-		                listno);
-
-		DEBUG_CMD(buf);
-		system(buf);
-
-	} else {
-		sprintf(buf, "/bin/iptables -A OUTPUT -o %s -j %s", dev, listno);
-
-		DEBUG_CMD(buf);
-		system(buf);
-
-		sprintf(buf, "/bin/iptables -A FORWARD -o %s -j %s", dev,
-		                listno);
-
-		DEBUG_CMD(buf);
-		system(buf);
-	}
-#ifdef OPTION_IPSEC
-	acl_interface_ipsec(1, chain, dev, listno);
-#endif
-	destroy_args(args);
-	free(dev);
-}
-
-void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] */
-{
-	arglist *args;
-	char *dev;
-	acl_chain chain = chain_in;
-	char *listno;
-
-	dev = convert_device(interface_edited->cish_string, interface_major,
-	                interface_minor);
-	args = make_args(cmdline);
-	listno = args->argv[3];
-	if (args->argc == 4)
-		chain = chain_both;
-	else {
-		if (strcasecmp(args->argv[4], "in") == 0)
-			chain = chain_in;
-		else if (strcasecmp(args->argv[4], "out") == 0)
-			chain = chain_out;
-	}
-	if ((chain == chain_in) || (chain == chain_both)) {
-		if (acl_matched_exists(listno, dev, 0, "INPUT")) {
-			sprintf(buf, "/bin/iptables -D INPUT -i %s -j %s", dev,
-			                listno);
-
-			DEBUG_CMD(buf);
-			system(buf);
-		}
-		if (acl_matched_exists(listno, dev, 0, "FORWARD")) {
-			sprintf(buf, "/bin/iptables -D FORWARD -i %s -j %s",
-			                dev, listno);
-
-			DEBUG_CMD(buf);
-			system(buf);
-		}
-	}
-	if ((chain == chain_out) || (chain == chain_both)) {
-		if (acl_matched_exists(listno, 0, dev, "OUTPUT")) {
-			sprintf(buf, "/bin/iptables -D OUTPUT -o %s -j %s",
-			                dev, listno);
-
-			DEBUG_CMD(buf);
-			system(buf);
-		}
-		if (acl_matched_exists(listno, 0, dev, "FORWARD")) {
-			sprintf(buf, "/bin/iptables -D FORWARD -o %s -j %s",
-			                dev, listno);
-
-			DEBUG_CMD(buf);
-			system(buf);
-		}
-	}
-#ifdef OPTION_IPSEC
-	acl_interface_ipsec(0, chain, dev, listno);
-#endif
-	destroy_args(args);
-	free(dev);
-}
-
+cish_command CMD_CONFACL1[] = {
+	{"<acl>","Access list name", CMD_CONFACL2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+/* END OF ACCESS-LIST CONFIGURATION */

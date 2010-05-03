@@ -22,8 +22,6 @@
 #include <security/pam_appl.h>
 #include <security/pam_misc.h>
 
-extern cish_command CMD[];
-
 extern unsigned int readString(int echo_on, char *store, unsigned int max_len);
 
 void enable(const char *cmdline)

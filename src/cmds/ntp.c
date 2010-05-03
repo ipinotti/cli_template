@@ -1,133 +1,80 @@
-#include <stdlib.h>
-
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <dirent.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <linux/config.h>
 
-#include <libconfig/options.h>
-#include <libconfig/args.h>
-#include <libconfig/ntp.h>
-#include <libconfig/nv.h>
-#include <libconfig/libtime.h>
-#include <libconfig/quagga.h>
+#include "commands.h"
+#include "commandtree.h"
 
 #ifdef OPTION_NTPD
+cish_command CMD_CONFIG_NTP_KEYS_VALUE[] = {
+	{"<string>","Authentication key", NULL, ntp_set_key_value, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP_KEYS_TYPE[] = {
+	{"md5","MD5 authentication", CMD_CONFIG_NTP_KEYS_VALUE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP_KEYS[] = {
+	{"1-16","Key number", CMD_CONFIG_NTP_KEYS_TYPE, NULL, 1, MSK_NORMAL},
+	{"generate","Generate new keys", NULL, ntp_generate_keys, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP_RESTRICT_MASK[] = {
+	{"<netmask>","Network mask to be restricted", NULL, ntp_restrict, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP_RESTRICT_IP[] = {
+	{"<ipaddress>","Address to be restricted", CMD_CONFIG_NTP_RESTRICT_MASK, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP_SERVER_IP_KEYNUM[] = {
+	{"1-16","Key number", NULL, ntp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP_SERVER_IP[] = {
+	{"key","Configure key to use with server", CMD_CONFIG_NTP_SERVER_IP_KEYNUM, NULL, 1, MSK_NORMAL},
+	{"<enter>", "Enter server", NULL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP_SERVER[] = {
+	{"<ipaddress>","Address of the server", CMD_CONFIG_NTP_SERVER_IP, ntp_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP_TRUSTEDKEY[] = {
+	{"1-16","Key number", NULL, ntp_trust_on_key, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP[] = {
 #ifdef OPTION_NTPD_authenticate
-void ntp_authenticate(const char *cmd)
-{
-	do_ntp_authenticate(1);
-}
+	{"authenticate","Authenticate time sources", NULL, ntp_authenticate, 1, MSK_NORMAL},
 #endif
+	{"authentication-key","Authentication key for trusted time sources", CMD_CONFIG_NTP_KEYS, NULL, 1, MSK_NORMAL},
+	{"restrict","NTP restriction rules", CMD_CONFIG_NTP_RESTRICT_IP, NULL, 1, MSK_NORMAL},
+	{"server","Add time synchronization server", CMD_CONFIG_NTP_SERVER, NULL, 1, MSK_NORMAL},
+	{"trusted-key","Configure trusted keys", CMD_CONFIG_NTP_TRUSTEDKEY, NULL, 1, MSK_NORMAL},
+	{"update-calendar","Sync RTC with system clock", NULL, ntp_update_calendar, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
-void ntp_generate_keys(const char *cmd)
-{
-#if 1 /* 4.2.0 */
-	system("/bin/ntp-keygen -M > /dev/null 2> /dev/null");
-#else /* 4.1.1 */
-	system("/bin/ntp-genkeys > /dev/null 2> /dev/null");
-#endif
-	ntp_hup();
-	save_ntp_secret(NTP_KEY_FILE); /* save keys on flash! */
-}
-
-void ntp_restrict(const char *cmd) /* ntp restrict <ipaddr> <netmask> */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (args->argc == 4) do_ntp_restrict(args->argv[2], args->argv[3]);
-	destroy_args(args);
-}
-
-void ntp_server(const char *cmd) /* ntp server <ipaddr> [key <1-16>] */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-#ifdef CONFIG_BERLIN_SATROUTER
-	if( is_network_up() > 0 ) {
-		if(args->argc == 3)
-			do_ntp_server(args->argv[2], NULL);
-		else if(args->argc == 5)
-			do_ntp_server(args->argv[2], args->argv[4]);
-	}
-	else
-		printf("** NTP is based on network access. Please configure and " 
-			"enable network first. Check also cables.\n** Command '%s' ignored!\n\n", cmd);
 #else
-	if (args->argc == 3) do_ntp_server(args->argv[2], NULL);
-		else if (args->argc == 5) do_ntp_server(args->argv[2], args->argv[4]);
+
+cish_command CMD_CONFIG_NTP_IP[] = {
+	{"<ipaddress>","IP Address of NTP server host", NULL, ntp_sync, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_NTP[] = {
+	{"300-86400", "Query interval (seconds)", CMD_CONFIG_NTP_IP, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 #endif
-	destroy_args(args);
-}
-
-void ntp_trust_on_key(const char *cmd) /* ntp trusted-key 1-16 */
-{
-	arglist *args;
-
-	args = make_args(cmd);
-	if(args->argc == 3)	do_ntp_trust_on_key(args->argv[2]);
-	destroy_args(args);
-}
-
-void ntp_set_key_value(const char *cmd) /* ntp authentication-key 1-16 md5 <hash> */
-{
-	arglist *args;
-
-	args = make_args(cmd);
-	if(args->argc == 5)	do_ntp_key_set(args->argv[2], args->argv[4]);
-	destroy_args(args);
-}
-
-#ifdef OPTION_NTPD_authenticate
-void no_ntp_authenticate(const char *cmd)
-{
-	do_ntp_authenticate(0);
-}
-#endif
-
-void no_ntp_restrict(const char *cmd) /* no ntp restrict [<ipaddr>] */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (args->argc == 4) do_exclude_ntp_restrict(args->argv[3]);
-		else do_exclude_ntp_restrict(NULL);
-	destroy_args(args);
-}
-
-void no_ntp_server(const char *cmd) /* no ntp server [<ipaddr>] */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (args->argc == 4) do_exclude_ntp_server(args->argv[3]);
-		else do_exclude_ntp_server(NULL);
-	destroy_args(args);
-}
-
-void no_ntp_trustedkeys(const char *cmd) /* no ntp trusted-key [<1-16>] */
-{
-	arglist *args;
-
-	args=make_args(cmd);
-	if (args->argc == 4) do_exclude_ntp_trustedkeys(args->argv[3]);
-		else do_exclude_ntp_trustedkeys(NULL);
-	destroy_args(args);
-}
-
-void ntp_update_calendar(const char *cmd)
-{
-	if (set_rtc_with_system_date() < 0)
-		printf("%% Could not execute command\n");
-}
-#endif
-

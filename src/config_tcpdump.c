@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "commands.h"
+#include "commandtree.h"
 #include "cish_main.h"
 
 void tcpdump(const char *cmdline)

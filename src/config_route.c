@@ -1,16 +1,10 @@
-/* ==============================================================================
- * cish - the cisco shell emulator for LRP
- *
- * (C) 2000 Mad Science Labs / Clue Consultancy
- * This program is licensed under the GNU General Public License
- * ============================================================================== */
-
-#include "commands.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <libconfig/options.h>
+
+#include "commands.h"
+#include "commandtree.h"
 
 #if 0
 void ip_route (const char *cmdline)

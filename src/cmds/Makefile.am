@@ -5,20 +5,18 @@ noinst_LTLIBRARIES = libcmds.la
 libcmds_la_SOURCES = \
 	aaa.c \
 	acl.c \
-	bridge.c \
+	configure.c \
 	crypto.c \
-	exit.c \
-	icmptools.c \
+	debug.c \
 	ip.c \
-	mangle.c \
+	interface.c \
+	keychain.c \
+	mark.c \
 	nat.c \
 	ntp.c \
-	ppp.c \
+	policy.c \
 	rmon.c \
-	route.c \
-	show.c \
-	tcpdump.c \
-	telnet.c \
-	vlan.c \
-	vrrp.c 
-
+	root.c \
+	router.c \
+	show.c
+	

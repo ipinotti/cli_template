@@ -32,10 +32,9 @@
 #include <readline/history.h>
 
 #include "commands.h"
+#include "commandtree.h"
 #include "cish_config.h"
 #include "cish_main.h"
-#include "commandtree.h"
-#include "debug.h"
 #include "pprintf.h"
 #include "terminal_echo.h"
 #include "cish_tacplus.h" /* TAC_PLUS_PRIV_LVL */

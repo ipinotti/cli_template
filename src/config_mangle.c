@@ -5,10 +5,8 @@
 #include <arpa/inet.h>
 
 #include "commands.h"
+#include "commandtree.h"
 #include "pprintf.h"
-
-#include "acl.h"
-#include "mangle.h"
 #include "cish_main.h"
 
 extern device_family *interface_edited;
@@ -63,11 +61,11 @@ static void print_mangle (const char *action,
 		if (dscp_class)
 			fprintf (out, "dscp class %s ", dscp_class);
 		else
-			fprintf (out, "dscp %d ", strtol (dscp, NULL, 16));
+			fprintf (out, "dscp %ld ", strtol (dscp, NULL, 16));
 	} else if (strcmp (action, "MARK") == 0) {
 		fprintf (out, "mark ");
 		if (mark)
-			fprintf (out, "%d ", strtol (mark, NULL, 16));
+			fprintf (out, "%ld ", strtol (mark, NULL, 16));
 	} else
 		fprintf (out, "???? ");
 	if (strcmp (proto, "all") == 0)
@@ -113,13 +111,13 @@ static void print_mangle (const char *action,
 			fprintf (out, "flags syn ");
 	}
 	if (tos)
-		fprintf (out, "tos %d ", strtol (tos, NULL, 16));
+		fprintf (out, "tos %ld ", strtol (tos, NULL, 16));
 	if (dscp_match) {
 		dscp_class = dscp_to_name (strtol (dscp_match, NULL, 16));
 		if (dscp_class)
 			fprintf (out, "dscp class %s ", dscp_class);
 		else
-			fprintf (out, "dscp %d ", strtol (dscp_match, NULL, 16));
+			fprintf (out, "dscp %ld ", strtol (dscp_match, NULL, 16));
 	}
 	if (state) {
 		if (strstr (state, "ESTABLISHED"))

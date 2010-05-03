@@ -11,8 +11,8 @@
 #include <stdarg.h>
 #include <curses.h>
 
-#include <libconfig/cish_defines.h>
-
+#include "commands.h"
+#include "commandtree.h"
 #include "terminal_echo.h"
 #include "cish_config.h"
 #include "cish_main.h"

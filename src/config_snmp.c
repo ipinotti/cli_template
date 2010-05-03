@@ -1,10 +1,3 @@
-/* ==============================================================================
- * cish - the cisco shell emulator for LRP
- *
- * (C) 2000 Mad Science Labs / Clue Consultancy
- * This program is licensed under the GNU General Public License
- * ============================================================================== */
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
