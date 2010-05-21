@@ -717,7 +717,10 @@ struct interface_conf {
 	 * Perhaps it would be nicer to have only one interface referenced here.
 	 */
 	struct intf_info *info;
-
+	enum dump_type {
+		DUMP_INTF_CONFIG,
+		DUMP_INTF_STATUS
+	} type;
 	int mtu;
 	int flags;
 	int up;
@@ -750,9 +753,11 @@ static void __dump_intf_secondary_ipaddr(FILE *out, struct interface_conf *conf)
 		if (strcmp(name, ipaddr->ifname) == 0) {
 			strcpy(ip.ipaddr, inet_ntoa(ipaddr->local));
 			ip_bitlen2mask(ipaddr->bitlen, ip.ipmask);
-
-			fprintf(out, " ip address %s %s secondary\n",
-			                ip.ipaddr, ip.ipmask);
+			if (conf->type == DUMP_INTF_CONFIG)
+				fprintf(out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
+			else
+				fprintf(out, "  Secondary internet address is %s %s\n",
+				                ip.ipaddr, ip.ipmask);
 		}
 	}
 
@@ -809,10 +814,17 @@ static void __dump_intf_ipaddr(FILE *out, struct interface_conf *conf)
 		}
 	}
 
-	if (ip.ipaddr[0])
-		fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
-	else
-		fprintf(out, " no ip address\n");
+	/* Test if configuration or status */
+	if (conf->type == DUMP_INTF_CONFIG) {
+		if (ip.ipaddr[0])
+			fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
+		else
+			fprintf(out, " no ip address\n");
+	} else {
+		if (ip.ipaddr[0])
+			fprintf(out, "  Internet address is %s %s\n",
+			                ip.ipaddr, ip.ipmask);
+	}
 
 	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
 	;
@@ -1167,6 +1179,20 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	ppp_get_config(serial_no, &cfg);
 
+	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); ip.ipaddr[15]=0;}
+	if (cfg.ip_mask[0]) {strncpy(ip.ipmask, cfg.ip_mask, 16); ip.ipmask[15]=0;}
+	if (cfg.ip_peer_addr[0]) {strncpy(ip.ippeer, cfg.ip_peer_addr, 16); ip.ippeer[15]=0;}
+	if (cfg.dial_on_demand && !running) { /* filtra enderecos aleatorios atribuidos pelo pppd */
+		ip.ipaddr[0]=0;
+		ip.ippeer[0]=0;
+	}
+
+	if (cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
+		fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", cfg.ip_unnumbered, ip.ipaddr);
+	else if (ip.ipaddr[0])
+		fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+
+
 	fprintf(out, "  Encapsulation PPP");
 
 	if (cfg.echo_interval)
@@ -1336,69 +1362,31 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		/* Start dumping information */
 
 		if (conf_format) {
+			conf.type = DUMP_INTF_CONFIG;
 			dump_interface_config(out, &conf);
 		} else {
-			fprintf(
-			                out,
-			                "%s is %s, line protocol is %s%s\n",
+			conf.type = DUMP_INTF_STATUS;
+
+			fprintf(out,    "%s is %s, line protocol is %s%s\n",
 			                cish_dev,
 			                conf.up ? (1 ? "up" : "down") : "administratively down", //FIXME
 			                conf.running & IF_STATE_UP ? "up" : "down",
 			                conf.running & IF_STATE_LOOP ? " (looped)" : "");
 
+
 			description = dev_get_description(conf.name);
 			if (description)
 				fprintf(out, "  Description: %s\n", description);
 
-			// Caso especial (mais um...) - no PPP temos as seguintes situacoes em relacao aos IPs:
-			// 1. IP local configurado - nesse caso devemos sempre apresentar o IP configurado
-			// 2. IP local nao configurado - nesse caso apresentamos o IP da interface, caso exista.
-			//    Se nao existir eh porque a negociacao IPCP ainda nao ocorreu - nesse caso nao
-			//    apresentamos nada.
-			// O teste abaixo eh para cobrir o caso 1.
-#ifdef OPTION_PPP
-			if ((conf.linktype==ARPHRD_PPP) || (conf.linktype==ARPHRD_ASYNCPPP))
-			{
-				ppp_config cfg;
-
-				ppp_get_config(serial_no, &cfg);
-				if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); ip.ipaddr[15]=0;}
-				if (cfg.ip_mask[0]) {strncpy(ip.ipmask, cfg.ip_mask, 16); ip.ipmask[15]=0;}
-				if (cfg.ip_peer_addr[0]) {strncpy(ip.ippeer, cfg.ip_peer_addr, 16); ip.ippeer[15]=0;}
-				if (cfg.dial_on_demand && !running) { /* filtra enderecos aleatorios atribuidos pelo pppd */
-					ip.ipaddr[0]=0;
-					ip.ippeer[0]=0;
-				}
-				if (cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
-				fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", cfg.ip_unnumbered, ip.ipaddr);
-				else
-				if (ip.ipaddr[0]) fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
-			}
-			else
-#endif
-			if (ip.ipaddr[0])
-				fprintf(out, "  Internet address is %s %s\n",
-				                ip.ipaddr, ip.ipmask);
-			/* Secondary address search */
-			strncpy(devtmp, conf.name, 14);
-			strcat(devtmp, ":0");
-			for (i = 0; i < MAX_NUM_IPS; i++) {
-				if (strcmp(devtmp, info.ipaddr[i].ifname) == 0) {
-					strcpy(ip.ipaddr, inet_ntoa(
-					                info.ipaddr[i].local));
-					ip_bitlen2mask(info.ipaddr[i].bitlen,
-					                ip.ipmask);
-					fprintf(
-					                out,
-					                "  Secondary internet address is %s %s\n",
-					                ip.ipaddr, ip.ipmask);
-				}
-			}
+			/* Dump IP address */
+			__dump_intf_ipaddr(out, &conf);
+			__dump_intf_secondary_ipaddr(out, &conf);
 
 			if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL
 			                || conf.linktype == ARPHRD_IPGRE))
 				fprintf(out, "  Peer address is %s\n",
 				                ip.ippeer);
+
 			fprintf(out, "  MTU is %i bytes\n", conf.mtu);
 
 			if (conf.txqueue)

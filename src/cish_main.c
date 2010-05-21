@@ -87,8 +87,8 @@ extern cish_command CMD_POLICYMAP_MARKRULE[];
 
 extern void write_config(FILE *f);
 
-void hup_handler(int);
-void alarm_handler(int);
+static void hup_handler(int);
+static void alarm_handler(int);
 
 const char *_cish_source;
 
@@ -584,13 +584,13 @@ void timed_out(void)
 	exit(0);
 }
 
-void hup_handler(int sig)
+static void hup_handler(int sig)
 {
 	/* systtyd can reload mgetty and spot us! notify_mgetty() */
 	timed_out();
 }
 
-void alarm_handler(int sig)
+static void alarm_handler(int sig)
 {
 	int l;
 	FILE *logfile;
