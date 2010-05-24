@@ -16,11 +16,12 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <net/if.h>
 #include <netinet/ip_icmp.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#include <libconfig/dev.h> /* get_dev_link */
 
 #include "backupd.h"
 
@@ -33,7 +34,8 @@ enum {
 	MAXPACKET = 65468,
 	MAX_DUP_CHK = (8 * 128),
 	MAXWAIT = 10,
-	PINGINTERVAL = 1, /* 1 second */
+	PINGINTERVAL = 1,
+/* 1 second */
 };
 
 static int in_cksum(unsigned short *buf, int sz)
@@ -59,20 +61,34 @@ static int in_cksum(unsigned short *buf, int sz)
 	return ans;
 }
 
-static int ping(char *ipaddr)
+static int ping(char *ipaddr, char *device)
 {
 	struct sockaddr_in pingaddr;
 	struct icmp *pkt;
 	int pingsock, c, i, ret = 0;
 	long arg;
 	char packet[DEFDATALEN + MAXIPLEN + MAXICMPLEN];
+	struct ifreq ifr;
 
 	bkpd_dbg("Pinging %s ... \n", ipaddr);
 
 	pingsock = socket(AF_INET, SOCK_RAW, 1); /* 1 == ICMP */
-
 	pingaddr.sin_family = AF_INET;
 	pingaddr.sin_addr.s_addr = inet_addr(ipaddr);
+
+	/* Force source address to be of the interface we want */
+	ifr.ifr_addr.sa_family = AF_INET;
+	strncpy(ifr.ifr_name, device, IFNAMSIZ - 1);
+	ioctl(pingsock, SIOCGIFADDR, &ifr);
+
+	bkpd_dbg("Ping interface %s. IP is %s\n", device,
+	         inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+
+	if (bind(pingsock, (struct sockaddr*) &ifr.ifr_addr,
+	                sizeof(struct sockaddr_in)) == -1) {
+		perror("bind");
+		exit(2);
+	}
 
 	pkt = (struct icmp *) packet;
 	memset(pkt, 0, sizeof(packet));
@@ -80,21 +96,25 @@ static int ping(char *ipaddr)
 	pkt->icmp_type = ICMP_ECHO;
 	pkt->icmp_cksum = in_cksum((unsigned short *) pkt, sizeof(packet));
 
-	c = sendto(pingsock, packet, DEFDATALEN + ICMP_MINLEN,
-			0, (struct sockaddr *) &pingaddr, sizeof(pingaddr));
+	c = sendto(pingsock, packet, DEFDATALEN + ICMP_MINLEN, 0,
+	                (struct sockaddr *) &pingaddr, sizeof(pingaddr));
 
 	/* Set non-blocking */
-	if( (arg = fcntl(pingsock, F_GETFL, NULL)) < 0) {
-		fprintf(stderr, "Error fcntl(..., F_GETFL) (%s)\n", strerror(errno));
+	if ((arg = fcntl(pingsock, F_GETFL, NULL)) < 0) {
+		fprintf(stderr, "Error fcntl(..., F_GETFL) (%s)\n", strerror(
+		                errno));
 		return -1;
 	}
 
 	arg |= O_NONBLOCK;
 
-	if( fcntl(pingsock, F_SETFL, arg) < 0) {
-		fprintf(stderr, "Error fcntl(..., F_SETFL) (%s)\n", strerror(errno));
+	if (fcntl(pingsock, F_SETFL, arg) < 0) {
+		fprintf(stderr, "Error fcntl(..., F_SETFL) (%s)\n", strerror(
+		                errno));
 		return -1;
 	}
+
+	sleep(1);
 
 	/* listen for replies */
 	i = 30; /* Number of attempts */
@@ -103,7 +123,7 @@ static int ping(char *ipaddr)
 		socklen_t fromlen = sizeof(from);
 
 		c = recvfrom(pingsock, packet, sizeof(packet), 0,
-				(struct sockaddr *) &from, &fromlen);
+		                (struct sockaddr *) &from, &fromlen);
 
 		bkpd_dbg("recvfrom returned %d bytes\n", c);
 
@@ -112,10 +132,10 @@ static int ping(char *ipaddr)
 			continue;
 		}
 
-		if (c >= 76) {			/* ip + icmp */
+		if (c >= 76) { /* ip + icmp */
 			struct iphdr *iphdr = (struct iphdr *) packet;
 
-			pkt = (struct icmp *) (packet + (iphdr->ihl << 2));	/* skip ip hdr */
+			pkt = (struct icmp *) (packet + (iphdr->ihl << 2)); /* skip ip hdr */
 			if (pkt->icmp_type == ICMP_ECHOREPLY) {
 				ret = 1;
 				break;
@@ -129,42 +149,43 @@ static int ping(char *ipaddr)
 
 static void daemonize(void)
 {
-    pid_t pid, sid;
+	pid_t pid, sid;
 
-    /* already a daemon */
-    if ( getppid() == 1 ) return;
+	/* already a daemon */
+	if (getppid() == 1)
+		return;
 
-    /* Fork off the parent process */
-    pid = fork();
-    if (pid < 0) {
-        exit(EXIT_FAILURE);
-    }
-    /* If we got a good PID, then we can exit the parent process. */
-    if (pid > 0) {
-        exit(EXIT_SUCCESS);
-    }
+	/* Fork off the parent process */
+	pid = fork();
+	if (pid < 0) {
+		exit(EXIT_FAILURE);
+	}
+	/* If we got a good PID, then we can exit the parent process. */
+	if (pid > 0) {
+		exit(EXIT_SUCCESS);
+	}
 
-    /* At this point we are executing as the child process */
+	/* At this point we are executing as the child process */
 
-    /* Change the file mode mask */
-    umask(0);
+	/* Change the file mode mask */
+	umask(0);
 
-    /* Create a new SID for the child process */
-    sid = setsid();
-    if (sid < 0) {
-        exit(EXIT_FAILURE);
-    }
+	/* Create a new SID for the child process */
+	sid = setsid();
+	if (sid < 0) {
+		exit(EXIT_FAILURE);
+	}
 
-    /* Change the current working directory.  This prevents the current
-       directory from being locked; hence not being able to remove it. */
-    if ((chdir("/")) < 0) {
-        exit(EXIT_FAILURE);
-    }
+	/* Change the current working directory.  This prevents the current
+	 directory from being locked; hence not being able to remove it. */
+	if ((chdir("/")) < 0) {
+		exit(EXIT_FAILURE);
+	}
 
-    /* Redirect standard files to /dev/null */
-    freopen( "/dev/null", "r", stdin);
-    freopen( "/dev/null", "w", stdout);
-    freopen( "/dev/null", "w", stderr);
+	/* Redirect standard files to /dev/null */
+	freopen("/dev/null", "r", stdin);
+	freopen("/dev/null", "w", stdout);
+	freopen("/dev/null", "w", stderr);
 }
 
 /**
@@ -179,7 +200,7 @@ static void clear_config(struct bckp_conf_t * bckp_conf)
 {
 	struct bckp_conf_t * conf = bckp_conf;
 
-	while(conf != NULL) {
+	while (conf != NULL) {
 		conf = bckp_conf->next;
 		free(bckp_conf);
 		bckp_conf = conf;
@@ -207,40 +228,53 @@ static struct bckp_conf_t * get_config(void)
 	FILE *fd;
 	char line[128];
 	enum bckp_config_field next_field = FIELD_INTF; /* For parser, begin at interface field */
-	struct bckp_conf_t *conf = NULL, *bckp_conf;
+	struct bckp_conf_t *conf = NULL, *bckp_conf = NULL;
 	int num_configs = 0; /* Number of configurations found */
+	char *p;
 
-	if ((fd = fopen(BACKUPD_CONF_FILE,"r")) == NULL) {
+	if ((fd = fopen(BACKUPD_CONF_FILE, "r")) == NULL) {
 		syslog(LOG_ERR, "Could not open configuration file\n");
 		unlink(BACKUPD_PID_FILE);
 		exit(-1);
 	}
 
-	bckp_conf = conf = malloc(sizeof(struct bckp_conf_t));
-	memset(conf, 0, sizeof(struct bckp_conf_t));
-
-	while(fgets(line,sizeof(line),fd) != NULL) {
-		switch(next_field) {
+	while (fgets(line, sizeof(line), fd) != NULL) {
+		switch (next_field) {
 		case FIELD_INTF:
 			/* Interface string */
 			if (!strncmp(line, INTF_STR, INTF_STR_LEN)) {
 
 				/* If first config, set pointer to be returned */
 				if (!num_configs++)
-					bckp_conf = conf = malloc(sizeof(struct bckp_conf_t));
+					bckp_conf
+					                = conf
+					                                = malloc(
+					                                                sizeof(struct bckp_conf_t));
 				else
-					conf = conf->next = malloc(sizeof(struct bckp_conf_t));
+					conf
+					                = conf->next
+					                                = malloc(
+					                                                sizeof(struct bckp_conf_t));
 
 				memset(conf, 0, sizeof(struct bckp_conf_t));
 				strcpy(conf->intf_name, line + INTF_STR_LEN);
+
+				/* Remove any line break */
+				for (p = conf->intf_name; *p != '\0'; p++) {
+					if (*p == '\n')
+						*p = '\0';
+				}
+
 				next_field = FIELD_BCK_UP;
+				conf->state = STATE_WAITING;
 			}
 			break;
 
 		case FIELD_BCK_UP:
 			/* Is backup field */
 			if (!strncmp(line, BCKUP_STR, BCKUP_STR_LEN)) {
-				if (strstr(line, "yes")) conf->is_backup = 1;
+				if (strstr(line, "yes"))
+					conf->is_backup = 1;
 				next_field = FIELD_MAIN_INTF;
 			}
 			break;
@@ -248,7 +282,13 @@ static struct bckp_conf_t * get_config(void)
 		case FIELD_MAIN_INTF:
 			/* Main interface field */
 			if (!strncmp(line, MAIN_INTF_STR, MAIN_INTF_STR_LEN)) {
-				strcpy(conf->main_intf_name, line + MAIN_INTF_STR_LEN);
+				strcpy(conf->main_intf_name, line
+				                + MAIN_INTF_STR_LEN);
+				/* Remove any line break */
+				for (p = conf->main_intf_name; *p != '\0'; p++) {
+					if (*p == '\n')
+						*p = '\0';
+				}
 				next_field = FIELD_METHOD;
 			}
 			break;
@@ -256,7 +296,7 @@ static struct bckp_conf_t * get_config(void)
 		case FIELD_METHOD:
 			/* Which method */
 			if (!strncmp(line, METHOD_STR, METHOD_STR_LEN)) {
-				if(strstr(line, "link"))
+				if (strstr(line, "link"))
 					conf->method = BCKP_METHOD_LINK;
 				else
 					conf->method = BCKP_METHOD_PING;
@@ -267,7 +307,13 @@ static struct bckp_conf_t * get_config(void)
 		case FIELD_PING_ADDR:
 			/* Is backup field */
 			if (!strncmp(line, PING_ADDR_STR, PING_ADDR_STR_LEN)) {
-				strcpy(conf->ping_address, line + PING_ADDR_STR_LEN);
+				strcpy(conf->ping_address, line
+				                + PING_ADDR_STR_LEN);
+				/* Remove any line break */
+				for (p = conf->ping_address; *p != '\0'; p++) {
+					if (*p == '\n')
+						*p = '\0';
+				}
 				next_field = FIELD_INTF;
 			}
 			break;
@@ -295,7 +341,7 @@ static void usr_handler(int sig)
 static void hup_handler(int sig)
 {
 	clear_config(bc);
-	unlink(BACKUPD_PID_FILE);
+	unlink(BACKUPD_PID_FILE); /* Remove PID file */
 	bkpd_dbg("Exiting...\n");
 	exit(0);
 }
@@ -318,20 +364,58 @@ static void do_backup(void)
 		bkpd_dbg("\tBackup is %s\n", bckp_conf->is_backup ? "Enabled" : "Disabled");
 		bkpd_dbg("\tNext is %p\n", bckp_conf->next);
 
+		/* Main state machine */
+		switch (bckp_conf->state) {
+		/* backup disabled */
+		case STATE_NOBACKUP:
+			break;
+			/* Waiting state: We must monitor the main interface status to check
+			 * if the backup interface must be enabled */
+		case STATE_WAITING:
+			/* Test if back up is enabled */
+			if (!bckp_conf->is_backup)
+				continue;
 
-		/* Test if back up is enabled */
-		if (!bckp_conf->is_backup)
-			continue;
+			if (bckp_conf->method == BCKP_METHOD_PING) {
+				/* Test if main interface is up */
+				if (ping(bckp_conf->ping_address,
+				                bckp_conf->main_intf_name)) {
+					bckp_conf->state = STATE_WAITING;
+					bkpd_dbg("PING OK\n")
+					;
+				} else {
+					//bckp_conf->state = STATE_CONNECTING;
+					bkpd_dbg("PING Fail\n")
+					;
+				}
 
-		/* Test if main interface is up */
-		if (ping(bckp_conf->ping_address))
-			printf("UP\n");
-		else
-			printf("DOWN\n");
+			} else if (bckp_conf->method == BCKP_METHOD_LINK) {
+				if (dev_get_link(bckp_conf->main_intf_name))
+					bckp_conf->state = STATE_WAITING;
+				else
+					bckp_conf->state = STATE_CONNECTING;
+			}
+
+			break;
+
+		case STATE_CONNECTING:
+			/* Must connect the backup interface */
+			//spawn_pppd(bckp_conf);
+			break;
+
+		case STATE_CONNECTED:
+			/* Must check whether the main interface link has been reestablished */
+			break;
+
+		default:
+			break;
+
+		}
 	}
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 
 	pid_t mypid;
 	FILE *pidfd;
@@ -340,29 +424,30 @@ int main(int argc, char **argv) {
 	int opt;
 
 	/* Parse opts */
-        while ((opt = getopt(argc, argv, "f")) != -1) {
-            switch (opt) {
-            case 'f':
-                nodaemon = 1;
-                break;
-            default: /* '?' */
-                fprintf(stderr, "Usage: %s [-f]\n", argv[0]);
-                exit(-1);
-            }
-        }
+	while ((opt = getopt(argc, argv, "f")) != -1) {
+		switch (opt) {
+		case 'f':
+			nodaemon = 1;
+			break;
+		default: /* '?' */
+			fprintf(stderr, "Usage: %s [-f]\n", argv[0]);
+			exit(-1);
+		}
+	}
 
 	/* Check if another instance is running */
 	if ((pidfd = fopen(BACKUPD_PID_FILE, "r")) != NULL) {
-		fprintf(stderr, "Another instance is already running. Exiting ...\n");
+		fprintf(stderr,
+		                "Another instance is already running. Exiting ...\n");
 		fclose(pidfd);
-		exit (-1);
+		exit(-1);
 	}
 
 	/* Save pid */
 	mypid = getpid();
 	if ((pidfd = fopen(BACKUPD_PID_FILE, "w+")) != NULL) {
 		sprintf(buf, "%d\n", (int) mypid);
-		fwrite((const void *)buf, strlen(buf), 1, pidfd);
+		fwrite((const void *) buf, strlen(buf), 1, pidfd);
 		fclose(pidfd);
 	} else {
 		fprintf(stderr, "Could not write to PID file\n");
@@ -384,7 +469,7 @@ int main(int argc, char **argv) {
 	bc = get_config();
 
 	/* Do the job */
-	while(1) {
+	while (1) {
 		sleep(2);
 		bkpd_dbg("Main loop ...\n");
 		do_backup();

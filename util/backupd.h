@@ -8,10 +8,10 @@
 #ifndef BACKUPD_H_
 #define BACKUPD_H_
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #define bkpd_dbg(x,...) \
-		printf("%s : %d =>", __FUNCTION__, __LINE__); \
+		printf("%s : %d => ", __FUNCTION__, __LINE__); \
 		printf(x, ##__VA_ARGS__)
 #else
 #define bkpd_dbg(x,...)
@@ -50,6 +50,13 @@ enum bckp_config_field {
 	FIELD_PING_ADDR,
 };
 
+enum bckp_state {
+	STATE_NOBACKUP,
+	STATE_WAITING,
+	STATE_CONNECTING,
+	STATE_CONNECTED
+};
+
 struct bckp_conf_t {
 	struct bckp_conf_t *next;
 	char intf_name[32];
@@ -57,6 +64,7 @@ struct bckp_conf_t {
 	char main_intf_name[32];
 	enum bckp_method method;
 	char ping_address[128];
+	enum bckp_state state;
 };
 
 #endif /* BACKUPD_H_ */
