@@ -34,6 +34,7 @@
 #include <libconfig/snmp.h>
 #include <libconfig/ppcio.h>
 #include <libconfig/md5.h>
+#include <libconfig/modem3G.h>
 
 #ifdef OPTION_SMCROUTE
 #include <libconfig/smcroute.h>
@@ -107,6 +108,12 @@ void show_recycle(const char *);
 void show_kmalloc(const char *);
 void show_softnet(const char *);
 void clear_ssh_hosts(const char *cmd);
+void show_modem3g_apn(const char *cmdline);
+void show_modem3g_username(const char *cmdline);
+void show_modem3g_password(const char *cmdline);
+
+
+
 
 void show_clock(const char *);
 void show_logging(const char *);
@@ -557,6 +564,12 @@ void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
 void config_interface_done(const char *);
+void interface_modem3g_set_apn(const char *cmdline);
+void interface_modem3g_set_username(const char *cmdline);
+void interface_modem3g_set_password(const char *cmdline);
+
+
+
 
 void do_bandwidth(const char *);
 void do_max_reserved_bw(const char *);
@@ -667,3 +680,6 @@ void policymap_done(const char *cmdline);
 /* Service Policy*/
 void no_service_policy(const char *cmdline);
 void do_service_policy(const char *cmdline);
+
+/* 3G Device */
+

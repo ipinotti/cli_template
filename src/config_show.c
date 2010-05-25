@@ -42,6 +42,8 @@
 #include "cish_config.h"
 #include "terminal_echo.h"
 
+#include <libconfig/modem3G.h>
+
 extern int _cish_aux;
 extern char *tzname[2];
 
@@ -2802,3 +2804,58 @@ void show_vrrp(const char *cmdline)
 	fclose(tf);
 }
 #endif
+
+void show_modem3g_apn(const char *cmdline)
+{
+	int i=0, check=0, length=0;
+	char buffer[100];
+	char apn[100];
+
+	check = modem3g_get_apn(buffer,interface_major);
+	if (check == -1){
+		printf("Error on show APN\n");
+		return;
+	}
+
+	length=strlen(buffer);
+
+	for (i=1;i<(length-2);i++)
+		apn[i-1]=buffer[i];
+	buffer[length-1] = "\n";
+
+	printf("\nAPN: %s  \n\n",apn);
+
+}
+
+void show_modem3g_username(const char *cmdline)
+{
+	int check=0;
+	char * username=malloc(100);
+
+	check = modem3g_get_username(username, interface_major);
+	if (check == -1){
+		printf("Error on show username\n");
+		return;
+	}
+
+	printf("\nUsername: %s \n\n",username);
+	free (username);
+
+}
+
+void show_modem3g_password(const char *cmdline)
+{
+	int check=0;
+	char * password=malloc(100);
+
+	check = modem3g_get_password(password, interface_major);
+	if (check == -1){
+		printf("Error on show password\n");
+		return;
+	}
+
+	printf("\nPassword: %s \n\n",password);
+	free (password);
+
+}
+

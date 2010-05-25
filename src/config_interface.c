@@ -101,6 +101,9 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 				}
 				free(dev);
 				break;
+			case m3G:
+				command_root=CMD_CONFIG_INTERFACE_M3G;
+				break;
 			default:
 				break;
 		}
@@ -766,3 +769,71 @@ void interface_weight(const char *cmdline) /* weight <2-1024> */
 }
 #endif
 
+void interface_modem3g_set_apn(const char *cmdline)
+{
+	arglist * args;
+	int check=0;
+	char * apn;
+	char buffer[100]="\"";
+	char plus[]="\"'";
+
+	args = make_args(cmdline);
+	apn=args->argv[2];
+
+	strcat(buffer,apn);
+	strcat(buffer,plus);
+
+	check = modem3g_set_apn(buffer, interface_major);
+	if (check == -1){
+		printf("Error on set APN\n");
+		return;
+	}
+
+	printf("\nAPN stored\n\n");
+	destroy_args(args);
+
+}
+
+void interface_modem3g_set_password(const char *cmdline)
+{
+	arglist * args;
+	char * password;
+	int check=0;
+
+	args = make_args(cmdline);
+
+	password = args->argv[2];
+
+	check = modem3g_set_password(password, interface_major);
+
+	if (check == -1){
+		printf("Error on set password\n");
+		return;
+	}
+
+	printf("\nPassword stored\n\n");
+	destroy_args(args);
+
+}
+
+void interface_modem3g_set_username(const char *cmdline)
+{
+	arglist * args;
+	char * username;
+	int check=0;
+
+	args = make_args(cmdline);
+
+	username = args->argv[2];
+
+	check = modem3g_set_username(username, interface_major);
+
+	if (check == -1){
+		printf("Error on set username\n");
+		return;
+	}
+
+	printf("\nUsername stored\n\n");
+	destroy_args(args);
+
+}
