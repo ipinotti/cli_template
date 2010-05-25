@@ -42,7 +42,6 @@
 #include "cish_config.h"
 #include "terminal_echo.h"
 
-#include <libconfig/modem3G.h>
 
 extern int _cish_aux;
 extern char *tzname[2];
@@ -2793,6 +2792,7 @@ void show_vrrp(const char *cmdline)
 }
 #endif
 
+#ifdef OPTION_MODEM3G
 void show_modem3g_apn(const char *cmdline)
 {
 	int i=0, check=0, length=0;
@@ -2846,4 +2846,4 @@ void show_modem3g_password(const char *cmdline)
 	free (password);
 
 }
-
+#endif

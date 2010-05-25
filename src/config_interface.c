@@ -101,9 +101,11 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 				}
 				free(dev);
 				break;
+#ifdef OPTION_MODEM3G
 			case m3G:
 				command_root=CMD_CONFIG_INTERFACE_M3G;
 				break;
+#endif
 			default:
 				break;
 		}
@@ -769,6 +771,7 @@ void interface_weight(const char *cmdline) /* weight <2-1024> */
 }
 #endif
 
+#ifdef OPTION_MODEM3G
 void interface_modem3g_set_apn(const char *cmdline)
 {
 	arglist * args;
@@ -837,3 +840,4 @@ void interface_modem3g_set_username(const char *cmdline)
 	destroy_args(args);
 
 }
+#endif

@@ -21,16 +21,20 @@ cish_command CMD_SHOW_INTERFACE_TUNNEL[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_MODEM3G
 cish_command CMD_SHOW_INTERFACE_M3G[] = {
 	{"0-2", "3G interface number -| 0 == Built-in | 1 == USB1 | 2 == USB2", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_SHOW_INTERFACES[] = {
 	{"ethernet", "Ethernet interface", CMD_SHOW_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_SHOW_INTERFACE_LOOPBACK, NULL, 0, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_SHOW_INTERFACE_TUNNEL, NULL, 0, MSK_NORMAL},
+#ifdef OPTION_MODEM3G
 	{"m3G", "3G interface", CMD_SHOW_INTERFACE_M3G, NULL, 0, MSK_NORMAL},
+#endif
 	{"<enter>", "", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };

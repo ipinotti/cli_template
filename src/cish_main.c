@@ -65,7 +65,9 @@ extern cish_command CMD_CONFIG_ROUTER_OSPF[];
 extern cish_command CMD_CONFIG_ROUTER_BGP[];
 #endif
 extern cish_command CMD_CONFIG_INTERFACE[];
+#ifdef OPTION_MODEM3G
 extern cish_command CMD_CONFIG_INTERFACE_M3G[];
+#endif
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
 extern cish_command CMD_CONFIG_INTERFACE_BRIDGE[];
@@ -404,10 +406,12 @@ int main(int argc, char *argv[])
 		{
 			sprintf(prompt+strlen(prompt), "(config-if-tunnel%d)", interface_major);
 		}
+#ifdef OPTION_MODEM3G
 		else if (command_root==CMD_CONFIG_INTERFACE_M3G)
 		{
 			sprintf(prompt+strlen(prompt), "(config-if-m3G%d)", interface_major);
 		}
+#endif
 #ifdef OPTION_IPSEC
 		else if (command_root == CMD_CONFIG_CRYPTO)
 		{

@@ -384,7 +384,7 @@ cish_command CMD_CONFIG_INTERFACE_TXQUEUELEN[] = {
 
 
 // interface m3G
-
+#ifdef OPTION_MODEM3G
 cish_command CMD_CONFIG_INTERFACE_M3G_PASS_SET[] = {
 	{"<text>", "Password for login on ISP", NULL, interface_modem3g_set_password, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -429,7 +429,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-
+#endif
 
 
 
