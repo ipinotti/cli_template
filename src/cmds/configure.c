@@ -316,10 +316,12 @@ cish_command CMD_CONFIGURE_CLOCK[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_SHOWLEVEL
 cish_command CMD_SHOW_LEVEL[] = {
 	{"running-config", "Current configuration", NULL, show_level_running_config, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_ARP_MAC[] = {
 	{"<mac>", "48-bit hardware address of ARP entry (xx:xx:xx:xx:xx:xx)", NULL, arp_entry, 1, MSK_NORMAL},
@@ -366,6 +368,8 @@ cish_command CMD_CONFIGURE[] = {
 	{"snmp-server","Set SNMP server configuration", CMD_CONFIG_SNMP, NULL, 1, MSK_NORMAL},
 	{"tacacs-server","Modify TACACS query parameters", CMD_CONFIG_TACACSSERVER_HOST, NULL, 1, MSK_NORMAL},
 	{"terminal","Set terminal line parameters", CMD_TERMINAL, NULL, 0, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };

@@ -215,7 +215,7 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 
 	free(dev);
 #ifdef OPTION_SMCROUTE
-	kick_smcroute();
+	lconfig_smcroute_hup();
 #endif
 }
 
