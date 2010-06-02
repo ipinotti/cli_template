@@ -19,9 +19,6 @@
 #include "terminal_echo.h"
 #include "cish_main.h"
 
-#include <security/pam_appl.h>
-#include <security/pam_misc.h>
-
 extern unsigned int readString(int echo_on, char *store, unsigned int max_len);
 
 void enable(const char *cmdline)
