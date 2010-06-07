@@ -17,83 +17,11 @@
 
 #undef DEBUG_ZEBRA
 
-#define ZEBRA_CONF "/etc/quagga/zebra.conf"
-#define RIPD_CONF "/etc/quagga/ripd.conf"
-#define OSPFD_CONF "/etc/quagga/ospfd.conf"
-#define BGPD_CONF "/etc/quagga/bgpd.conf"
-
-#define RIPD_RO_CONF "/etc.ro/quagga/ripd.conf"
-#define OSPFD_RO_CONF "/etc.ro/quagga/ospfd.conf"
-#define BGPD_RO_CONF "/etc.ro/quagga/bgpd.conf"
-
 /* deamon zebra */
 static char buf_daemon[1024];
 
 /*AS number for BGP*/
 int asn = 0;
-
-// Recebe uma linha de comando com redes no estilo zebra (ex.: '10.0.0.0/8')
-// e devolve a linha de comando com as redes traduzidas para estilo linux
-// (ex.: '10.0.0.0 255.0.0.0').
-char *zebra_to_linux_network_cmdline(char *cmdline)
-{
-	static char new_cmdline[2048];
-	arglist *args;
-	int i;
-	char addr_net[64];
-
-	new_cmdline[0]=0;
-	if (is_empty(cmdline)) return new_cmdline;
-
-	args=make_args(cmdline);
-
-	for (i=0; i < args->argc; i++)
-	{
-		if (cidr_to_classic(args->argv[i], addr_net)==0)
-			strcat(new_cmdline, addr_net);
-		else
-			strcat(new_cmdline, args->argv[i]);
-		strcat(new_cmdline, " ");
-	}
-
-	destroy_args(args);
-	return new_cmdline;
-}
-
-// Recebe uma linha de comando com redes no estilo linux
-// (ex.: '10.0.0.0 255.0.0.0') e devolve a linha de comando 
-// com as redes traduzidas para estilo zebra (ex.: '10.0.0.0/8')
-char *linux_to_zebra_network_cmdline(char *cmdline)
-{
-	static char new_cmdline[2048];
-	arglist *args;
-	int i;
-	char buf[64];
-
-	new_cmdline[0] = 0;
-	if (is_empty(cmdline)) return new_cmdline;
-
-	args=make_args(cmdline);
-
-	for (i=0; i<(args->argc-1); i++)
-	{
-		if ((validateip(args->argv[i])==0)&&
-		    (classic_to_cidr(args->argv[i], args->argv[i+1], buf)==0))
-		{
-			strcat(new_cmdline, buf);
-			i++;
-		}
-		else
-		{
-			strcat(new_cmdline, args->argv[i]);
-		}
-		strcat(new_cmdline, " ");
-	}
-	if (i<args->argc) strcat(new_cmdline, args->argv[i]);
-
-	destroy_args(args);
-	return new_cmdline;
-}
 
 void set_rip_interface_cmds(int enable)
 {
@@ -219,7 +147,7 @@ void config_router(const char *cmdline)
 		set_bgp_interface_cmds(1);
 		set_bgpd(1);
 		bgp_start_router_cmd(temp);	/* Initiates BGP with ASN = temp */
-		asn = get_bgp_asn();
+		asn = lconfig_bgp_get_asn();
 		if ( asn == 0 || temp == asn)	/* Do not enter if another AS is already running */
 		{
 			asn=temp; 
@@ -267,7 +195,7 @@ void config_no_router(const char *cmdline)
 	else if (strcasecmp (args->argv[2], "bgp") == 0)
 	{
 		int asn_temp=atoi(args->argv[3]);
-		asn = get_bgp_asn ();
+		asn = lconfig_bgp_get_asn ();
 		if (asn_temp == asn)	/* Make sure we're shutting down the correct AS...  otherwise, do nothing */
 		{
 			set_bgp_interface_cmds(0);
@@ -282,39 +210,6 @@ void config_no_router(const char *cmdline)
 #endif
 	destroy_args(args);
 }
-
-#ifdef OPTION_BGP
-/* Search the ASN in bgpd configuration file */
-int get_bgp_asn(void)
-{
-	FILE *bgp_conf;
-	const char router_bgp[] = "router bgp ";
-	char *buf, *asn_add;
-	int bgp_asn = 0;
-
-	if (!get_bgpd()) return 0;
-
-	bgp_conf = bgp_get_conf(1);
-	if (bgp_conf)
-	{
-		buf=malloc(1024);
-		asn_add=buf;
-		while(!feof(bgp_conf))
-		{
-			fgets(buf, 1024, bgp_conf);
-			if (!strncmp(buf,router_bgp,strlen(router_bgp)))
-			{
-				asn_add+=strlen(router_bgp); //move pointer to the AS number
-				bgp_asn = atoi(asn_add);
-				break;
-			}
-		}
-		fclose(bgp_conf);
-		free(buf);
-	}
-	return bgp_asn;
-}
-#endif
 
 void config_router_done(const char *cmdline)
 {
@@ -538,7 +433,7 @@ printf("rip = %s\n", new_cmdline);
 	fd_daemon_close();
 }
 
-#ifdef OPTION_BGP /* COMEÃO  - Suporte ao BGP | ThomÃ¡s Del Grande 25/09/07*/
+#ifdef OPTION_BGP
 void bgp_execute_root_cmd(const char *cmdline)
 {
 	char *new_cmdline;
@@ -600,77 +495,7 @@ printf("bgp = %s\n", new_cmdline);
 
 	fd_daemon_close();
 }
-#endif /* FIM - Suporte ao BGP | ThomÃ¡s Del Grande 25/09/07*/
-
-/*  Abre o arquivo de 'filename' e posiciona o file descriptor na linha:
- *  - igual a 'key'
- *  Retorna o file descriptor, ou NULL se nao for possivel abrir o arquivo
- *  ou encontrar a posicao desejada.
- */
-FILE *get_conf(char *filename, char *key)
-{
-	FILE *f;
-	int len, found=0;
-	char buf[1024];
-	
-	f = fopen(filename, "rt");
-	if (!f) return f;
-	while (!feof(f))
-	{
-		fgets(buf, 1024, f);
-		len=strlen(buf);
-		striplf(buf);
-		if (strncmp(buf, key, strlen(key))==0)
-		{
-			found = 1;
-			fseek(f, -len, SEEK_CUR);
-			break;
-		}
-	}
-	if (found) return f;
-	fclose(f);
-	return NULL;
-}
-
-/*  Abre o arquivo de configuracao do zebra e posiciona o file descriptor de
- *  acordo com o argumento:
- *  main_ninterf = 1 -> posiciona no inicio da configuracao geral (comandos
- 			'ip route'); nesse caso o argumento intf eh ignorado
- *  main_ninterf = 0 -> posiciona no inicio da configuracao da interface 'intf',
- *			sendo que 'intf' deve estar no formato linux (ex.: 'eth0')
- */
-FILE *zebra_get_conf(int main_ninterf, char *intf)
-{
-	char key[64];
-	
-	if (main_ninterf)
-		strcpy(key, "ip route");
-	else
-		sprintf(key, "interface %s", intf);
-	
-	return get_conf(ZEBRA_CONF, key);
-}
-
-void zebra_dump_static_routes_conf(FILE *out)
-{
-	FILE *f;
-	char buf[1024];
-	
-	f = zebra_get_conf(1, NULL);
-	
-	if (!f) return;
-	
-	while (!feof(f))
-	{
-		fgets(buf, 1024, f);
-		if (buf[0] == '!') break;
-		striplf(buf);
-		fprintf(out, "%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
-	}
-	fprintf(out, "!\n");
-	
-	fclose(f);
-}
+#endif
 
 void zebra_dump_routes(FILE *out)
 {
@@ -723,14 +548,14 @@ void show_ip_ospf(const char *cmdline)
 	FILE *f;
 	char buf[1024];
 
-	f=ospf_show_cmd(cmdline);
-	if (!f) return;
-	while (!feof(f))
-	{
-		if (fgets(buf, 1024, f))
-		{
+	f = ospf_show_cmd(cmdline);
+	if (!f)
+		return;
+	while (!feof(f)) {
+		if (fgets(buf, 1024, f)) {
 			striplf(buf);
-			pprintf("%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
+			pprintf("%s\n", linux_to_cish_dev_cmdline(
+			                zebra_to_linux_network_cmdline(buf)));
 		}
 	}
 	fclose(f);
@@ -741,26 +566,26 @@ void show_ip_rip(const char *cmdline)
 	FILE *f;
 	char buf[1024];
 
-	f=rip_show_cmd("show ip protocols");
-	if (!f) return;
-	while (!feof(f))
-	{
-		if (fgets(buf, 1024, f))
-		{
+	f = rip_show_cmd("show ip protocols");
+	if (!f)
+		return;
+	while (!feof(f)) {
+		if (fgets(buf, 1024, f)) {
 			striplf(buf);
-			pprintf("%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
+			pprintf("%s\n", linux_to_cish_dev_cmdline(
+			                zebra_to_linux_network_cmdline(buf)));
 		}
 	}
 	fclose(f);
 
-	f=rip_show_cmd(cmdline); /* show ip rip */
-	if (!f) return;
-	while (!feof(f))
-	{
-		if (fgets(buf, 1024, f))
-		{
+	f = rip_show_cmd(cmdline); /* show ip rip */
+	if (!f)
+		return;
+	while (!feof(f)) {
+		if (fgets(buf, 1024, f)) {
 			striplf(buf);
-			pprintf("%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
+			pprintf("%s\n", linux_to_cish_dev_cmdline(
+			                zebra_to_linux_network_cmdline(buf)));
 		}
 	}
 	fclose(f);
@@ -770,212 +595,22 @@ void show_ip_rip(const char *cmdline)
 void show_ip_bgp(const char *cmdline)
 {
 
-
 	FILE *f;
 	char buf[1024];
 
-	f=bgp_show_cmd(cmdline);
-	if (!f) return;
-	while (!feof(f))
-	{
-		if (fgets(buf, 1024, f))
-		{
+	f = bgp_show_cmd(cmdline);
+	if (!f)
+		return;
+	while (!feof(f)) {
+		if (fgets(buf, 1024, f)) {
 			striplf(buf);
-			pprintf("%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
+			pprintf("%s\n", linux_to_cish_dev_cmdline(
+			                zebra_to_linux_network_cmdline(buf)));
 
 		}
 	}
 	fclose(f);
 
-}
-
-/*  Abre o arquivo de configuracao do BGP e posiciona o file descriptor de
- *  acordo com o argumento:
- *  main_ninterf = 1 -> posiciona no inicio da configuracao geral ('router bgp "nÃºmero do as"');
- 			nesse caso o argumento intf eh ignorado
- *  main_ninterf = 0 -> posiciona no inicio da configuracao da interface 'intf',
- *			sendo que 'intf' deve estar no formato linux (ex.: 'eth0')
- */
-FILE *bgp_get_conf(int main_nip)
-{
-	char key[64];
-
-	if (main_nip)
-		strcpy(key, "router bgp");
-	else
-		sprintf(key, "ip as-path");
-
-	return get_conf(BGPD_CONF, key);
-}
-
-void dump_router_bgp(FILE *out, int main_nip)
-{
-	FILE *f;
-	char buf[1024];
-
-	if (!get_bgpd()) return;
-
-
-	/* dump router bgp info */
-
-	f=bgp_get_conf(main_nip);
-	if (f)
-	{
-		while(!feof(f))
-		{
-			fgets(buf, 1024, f);
-			if (buf[0] == '!') break;
-			striplf(buf);
-			fprintf(out, "%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
-		}
-		fclose(f);
-	}
-	fprintf(out, "!\n");
 }
 #endif
 
-/*  Abre o arquivo de configuracao do RIP e posiciona o file descriptor de
- *  acordo com o argumento:
- *  main_ninterf = 1 -> posiciona no inicio da configuracao geral ('router rip');
- 			nesse caso o argumento intf eh ignorado
- *  main_ninterf = 0 -> posiciona no inicio da configuracao da interface 'intf',
- *			sendo que 'intf' deve estar no formato linux (ex.: 'eth0')
- */
-FILE *rip_get_conf(int main_ninterf, char *intf)
-{
-	char key[64];
-
-	if (main_ninterf)
-		strcpy(key, "router rip");
-	else
-		sprintf(key, "interface %s", intf);
-
-	return get_conf(RIPD_CONF, key);
-}
-
-void dump_router_rip(FILE *out)
-{
-	FILE *f;
-	int end;
-	char buf[1024];
-	char keychain[]="key chain";
-
-	if (!get_ripd()) return;
-
-	/* dump router rip info */
-	fprintf(out, "router rip\n"); /* if config not written */
-	f=rip_get_conf(1, NULL);
-	if (f)
-	{
-		fgets(buf, 1024, f); /* skip line */
-		while(!feof(f))
-		{
-			fgets(buf, 1024, f);
-			if (buf[0] == '!') break;
-			striplf(buf);
-			fprintf(out, "%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
-		}
-		fclose(f);
-	}
-	fprintf(out, "!\n");
-
-	/* dump key info (after router rip!) */
-	f=get_conf(RIPD_CONF, keychain);
-	if (f)
-	{
-		end=0;
-		while(!feof(f))
-		{
-			fgets(buf, 1024, f);
-			if (end && (strncmp(buf, keychain, sizeof(keychain) != 0))) break;
-				else end=0;
-			if (buf[0] == '!') end=1;
-			striplf(buf);
-			fprintf(out, "%s\n", buf);
-		}
-		fclose(f);
-	}
-}
-
-void dump_rip_interface(FILE *out, char *intf)
-{
-	FILE *f;
-	char buf[1024];
-
-	if (!get_ripd()) return;
-
-	f=rip_get_conf(0, intf);
-	if (!f) return;
-	fgets(buf, 1024, f); /* skip line */
-	while (!feof(f))
-	{
-		fgets(buf, 1024, f);
-		if (buf[0] == '!') break;
-		striplf(buf);
-		fprintf(out, "%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
-	}
-	fclose(f);
-}
-
-/*  Abre o arquivo de configuracao do OSPF e posiciona o file descriptor de
- *  acordo com o argumento:
- *  main_ninterf = 1 -> posiciona no inicio da configuracao geral ('router ospf');
- 			nesse caso o argumento intf eh ignorado
- *  main_ninterf = 0 -> posiciona no inicio da configuracao da interface 'intf',
- *			sendo que 'intf' deve estar no formato linux (ex.: 'eth0')
- */
-FILE *ospf_get_conf(int main_ninterf, char *intf)
-{
-	char key[64];
-
-	if (main_ninterf)
-		strcpy(key, "router ospf");
-	else
-		sprintf(key, "interface %s", intf);
-
-	return get_conf(OSPFD_CONF, key);
-}
-
-void dump_router_ospf(FILE *out)
-{
-	FILE *f;
-	char buf[1024];
-
-	if (!get_ospfd()) return;
-
-	fprintf(out, "router ospf\n"); /* if config not written */
-	f=ospf_get_conf(1, NULL);
-	if (f)
-	{
-		fgets(buf, 1024, f); /* skip line */
-		while (!feof(f))
-		{
-			fgets(buf, 1024, f);
-			if (buf[0] == '!') break;
-			striplf(buf);
-			fprintf(out, "%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
-		}
-		fclose(f);
-	}
-	fprintf(out, "!\n");
-}
-
-void dump_ospf_interface(FILE *out, char *intf)
-{
-	FILE *f;
-	char buf[1024];
-
-	if (!get_ospfd()) return;
-
-	f = ospf_get_conf(0, intf);
-	if (!f) return;
-	fgets(buf, 1024, f); /* skip line */
-	while (!feof(f))
-	{
-		fgets(buf, 1024, f);
-		if (buf[0] == '!') break;
-		striplf(buf);
-		fprintf(out, "%s\n", linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf)));
-	}
-	fclose(f);
-}

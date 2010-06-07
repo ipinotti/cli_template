@@ -162,22 +162,20 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 	char *new_cmdline;
 	arglist *args;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	args=make_args(new_cmdline);
-	if (strcmp(args->argv[0], "no") == 0)
-	{
-		smc_route(0, args->argv[3], args->argv[4], args->argv[6], args->argv[8]);
-	}
-	else
-	{
+	new_cmdline = cish_to_linux_dev_cmdline((char*) cmdline);
+	args = make_args(new_cmdline);
+	if (strcmp(args->argv[0], "no") == 0) {
+		lconfig_smc_route(0, args->argv[3], args->argv[4], args->argv[6],
+		                args->argv[8]);
+	} else {
 #ifdef OPTION_PIMD
-		if (is_daemon_running(PIMS_DAEMON) || is_daemon_running(PIMD_DAEMON))
-		{
+		if (is_daemon_running(PIMS_DAEMON) || is_daemon_running(
+		                PIMD_DAEMON)) {
 			printf("%% Disable dynamic multicast routing first\n");
-		}
-		else
+		} else
 #endif
-			smc_route(1, args->argv[2], args->argv[3], args->argv[5], args->argv[7]);
+			lconfig_smc_route(1, args->argv[2], args->argv[3],
+			                args->argv[5], args->argv[7]);
 	}
 	destroy_args(args);
 }

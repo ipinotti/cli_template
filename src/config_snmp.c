@@ -165,57 +165,6 @@ cish_command CMD_CONFIG_NO_SNMP[] = { { "community", "Remove a community",
                 MSK_NORMAL }, { "<enter>", "Disable SNMP server", NULL, NULL,
                 1, MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
 
-void dump_snmp(FILE *out, int conf_format)
-{
-	int print = 0;
-	int len;
-	char **sinks;
-	char buf[512];
-
-	if (snmp_get_contact(buf, 511) == 0) {
-		print = 1;
-		fprintf(out, "snmp-server contact %s\n", buf);
-	}
-	if (snmp_get_location(buf, 511) == 0) {
-		print = 1;
-		fprintf(out, "snmp-server location %s\n", buf);
-	}
-	if ((len = snmp_get_trapsinks(&sinks)) > 0) {
-		if (sinks) {
-			int i;
-
-			for (i = 0; i < len; i++) {
-				if (sinks[i]) {
-					print = 1;
-					fprintf(
-					                out,
-					                "snmp-server trapsink %s\n",
-					                sinks[i]);
-					free(sinks[i]);
-				}
-			}
-			free(sinks);
-		}
-	}
-#ifdef CONFIG_BERLIN_SATROUTER
-	if (snmp_is_running())
-	{
-		print=1;
-		snmp_dump_communities(out);
-	}
-#else
-	if (snmp_dump_communities(out) > 0)
-		print = 1;
-	if (snmp_is_running()) {
-		print = 1;
-		snmp_dump_versions(out);
-	}
-#endif
-
-	if (print)
-		fprintf(out, "!\n");
-}
-
 void snmp_community(const char *cmd)
 {
 	int ro;

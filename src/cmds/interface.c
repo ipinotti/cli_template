@@ -557,7 +557,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
 	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{"vlan", "Add vlan", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER, NULL, 1, MSK_QOS},
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
@@ -681,7 +683,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[] = {
 #ifdef CONFIG_VLAN_COS
 	{"set", "Set QoS values", CMD_CONFIG_VLAN_COS, NULL, 0, MSK_NORMAL},
 #endif
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -744,7 +748,9 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK[] = {
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_LOOPBACK_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_LOOPBACK_NO, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
@@ -922,7 +928,9 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL[] = {
 #endif
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_TUNNEL_MTU, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_TUNNEL_NO, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"tunnel", "Protocol-over-protocol tunneling", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}

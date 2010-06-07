@@ -179,7 +179,9 @@ cish_command CMD_CONFIG_ROUTER_RIP[] = {
 	{"redistribute", "Redistribute information from another routing protocol", CMD_ROUTER_RIP_REDISTRIBUTE, NULL, 1},
 	{"version", "Set routing protocol version", CMD_ROUTER_RIP_VERSION, NULL, 1},
 	{"timers", "Adjust routing timers", CMD_ROUTER_RIP_TIMERS, rip_execute_router_cmd, 1},
-	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0},
+#ifdef OPTION_SHOWLEVEL
+	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1010,7 +1012,9 @@ cish_command CMD_CONFIG_ROUTER_OSPF[] = {
 	{"router-id", "router-id for the OSPF process", CMD_ROUTER_OSPF_ROUTER_ID, NULL, 1},
 	#endif
 	{"timers", "Adjust routing timers", CMD_ROUTER_OSPF_TIMERS, NULL, 1},
-	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0},
+#ifdef OPTION_SHOWLEVEL
+	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL, NULL, NULL, NULL}
 };
 
@@ -1812,7 +1816,9 @@ cish_command CMD_CONFIG_ROUTER_BGP[] = {
 	{"network", "Specify a network to announce via BGP", CMD_ROUTER_BGP_NETWORK, NULL, 1},
 	{"no", "Reverse settings", CMD_CONFIG_ROUTER_BGP_NO, NULL, 1},
 	{"redistribute", "Redistribute information from another routing protocol", CMD_ROUTER_BGP_REDISTRIBUTE, NULL, 1},
-	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0},
+#ifdef OPTION_SHOWLEVEL
+	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{"timers", "Adjust routing timers", CMD_ROUTER_BGP_TIMERS, NULL, 1},
 	{NULL, NULL, NULL, NULL}
 };

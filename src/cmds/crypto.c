@@ -473,7 +473,9 @@ cish_command CMD_CONFIG_CRYPTO[] = {
 	{"nat-traversal", "Manage NAT-Traversal", NULL, ipsec_nat_traversal, 1, MSK_NORMAL},
 	{"no", "Reverse settings", CMD_CRYPTO_NO, NULL, 1, MSK_NORMAL},
 	{"overridemtu", "Override interface crypto MTU setting", CMD_CONFIG_CRYPTO_OVERRIDEMTU, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif

@@ -8,6 +8,7 @@
 #include <libconfig/acl.h>
 #include <libconfig/args.h>
 #include <libconfig/cish_defines.h>
+#include <libconfig/config_fetcher.h>
 #include <libconfig/device.h>
 #include <libconfig/typedefs.h>
 #include <libconfig/ip.h>
@@ -19,6 +20,8 @@
 #include <libconfig/str.h>
 #include <libconfig/libtime.h>
 #include <libconfig/flashsave.h>
+#include <libconfig/mangle.h>
+#include <libconfig/nat.h>
 #include <libconfig/ntp.h>
 #include <libconfig/nv.h>
 #include <libconfig/pam.h>
@@ -48,7 +51,7 @@
 #include <libconfig/ssh.h>
 #include <libconfig/vlan.h>
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #define cish_dbg(x,...) \
 		printf("%s : %d =>", __FUNCTION__, __LINE__); \
@@ -56,24 +59,6 @@
 #else
 #define cish_dbg(x,...)
 #endif
-
-/* IP Tables variables */
-#define IPT_BUF_SIZE 100
-struct iptables_t {
-	char in_acl[IPT_BUF_SIZE];
-	char out_acl[IPT_BUF_SIZE];
-	char in_mangle[IPT_BUF_SIZE];
-	char out_mangle[IPT_BUF_SIZE];
-	char in_nat[IPT_BUF_SIZE];
-	char out_nat[IPT_BUF_SIZE];
-};
-
-/* Addresses and Masks */
-struct ip_t {
-	char ipaddr[16];
-	char ipmask[16];
-	char ippeer[16];
-};
 
 void show_cpu(const char *);
 void show_interfaces(const char *);
@@ -149,8 +134,7 @@ void bgp_execute_root_cmd(const char *);
 void bgp_execute_router_cmd(const char *);
 void bgp_execute_interface_cmd(const char *);
 int bgp_start_router_cmd(int temp_asn);
-int get_bgp_asn(void);
-FILE *bgp_get_conf(int main_nip);
+
 void rip_execute_root_cmd(const char *);
 void rip_execute_keychain_cmd(const char *);
 void rip_execute_key_cmd(const char *);
@@ -158,14 +142,9 @@ void rip_execute_router_cmd(const char *);
 void rip_execute_interface_cmd(const char *);
 void zebra_dump_static_routes_conf(FILE *out);
 void zebra_dump_routes(FILE *out);
-void show_ip_ospf(const char *);
-void show_ip_rip(const char *);
-void show_ip_bgp(const char *);
-void dump_router_rip(FILE *out);
-void dump_router_ospf(FILE *out);
-void dump_rip_interface(FILE *out, char *intf);
-void dump_ospf_interface(FILE *out, char *intf);
-void dump_router_bgp(FILE *out, int main_nip);
+void show_ip_ospf(const char *cmdline);
+void show_ip_rip(const char *cmdline);
+void show_ip_bgp(const char *cmdline);
 
 void config_interface(const char *);
 
@@ -239,7 +218,6 @@ void pim_rp_address(const char *cmd);
 void pim_rp_candidate(const char *cmd);
 
 void arp_entry(const char *cmd);
-void dump_arp(FILE *out);
 
 void ppp_ipaddr(const char *);
 void ppp_noipaddr(const char *);
@@ -650,7 +628,7 @@ void no_nat_rule(const char *);
 void interface_nat(const char *);
 void interface_no_nat(const char *);
 
-void dump_nat(char *xacl, FILE *F, int conf_format);
+
 int nat_rule_exists(char *acl);
 int matched_nat_rule_exists(char *acl, char *iface_in, char *iface_out, char *chain);
 int get_iface_nat_rules(char *iface, char *in_acl, char *out_acl);

@@ -351,6 +351,31 @@ static void alarm_handler(int sig)
 	/* TODO Think of something here */
 }
 
+#define PPPD_BIN_FILE 		"/bin/pppd"
+#define MODEM_3G_CONFIG_FILE 	"/etc/ppp/peers/%s"
+
+static int pppd_spawn(struct bckp_conf_t *conf) {
+
+	pid_t pid;
+	char config_file[64];
+
+	sprintf(config_file, MODEM_3G_CONFIG_FILE, conf->intf_name);
+
+	switch(pid = fork()) {
+	case -1:
+		syslog(LOG_ERR, "Could not spawn pppd\n");
+		break;
+	case 0: /* Child, spawn pppd */
+		execv(PPPD_BIN_FILE, config_file);
+		break;
+	default: /* Parent, save child pid */
+		conf->pppd_pid = pid;
+		break;
+	}
+
+	return;
+}
+
 static void do_backup(void)
 {
 	struct bckp_conf_t *bckp_conf;

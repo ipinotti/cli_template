@@ -88,8 +88,6 @@ extern cish_command CMD_KEY[];
 extern cish_command CMD_POLICYMAP[];
 extern cish_command CMD_POLICYMAP_MARKRULE[];
 
-extern void write_config(FILE *f);
-
 static void hup_handler(int);
 static void alarm_handler(int);
 
@@ -1109,7 +1107,7 @@ int cish_config_changed(void)
 	/* Writes running config */
 	f_running = fopen(TMP_CFG_FILE, "wt");
 	if (!f_running) return -1;
-	write_config (f_running);
+	lconfig_write_config (f_running, cish_cfg);
 	fclose(f_running);
 
 	/* Load configuration fron flash */
@@ -1909,12 +1907,7 @@ void config_clock_timezone (const char *cmd)
 	destroy_args (args);
 }
 
-void dump_terminal (FILE *O)
-{
-	fprintf(O, "terminal length %d\n", cish_cfg->terminal_lines);
-	fprintf(O, "terminal timeout %d\n", cish_cfg->terminal_timeout);
-	fprintf(O, "!\n");
-}
+
 
 void hostname (const char *cmd)
 {
@@ -2075,14 +2068,6 @@ void no_log_remote(const char *cmd)
 		init_program_change_option(0, PROG_SYSLOGD, option);
 		exec_daemon(PROG_SYSLOGD);
 	}
-}
-
-void dump_log(FILE *out, int cform)
-{
-	char buf[16];
-
-	if( init_program_get_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 )
-		fprintf(out, "logging remote %s\n!\n", buf);
 }
 
 int ctrlz (int count, int KEY)

@@ -65,6 +65,7 @@ struct bckp_conf_t {
 	enum bckp_method method;
 	char ping_address[128];
 	enum bckp_state state;
+	pid_t pppd_pid;
 };
 
 #endif /* BACKUPD_H_ */

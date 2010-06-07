@@ -1,10 +1,3 @@
-/* ==============================================================================
- * cish - the cisco shell emulator for LRP
- *
- * (C) 2000 Mad Science Labs / Clue Consultancy
- * This program is licensed under the GNU General Public License
- * ============================================================================== */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -75,8 +68,7 @@ void show_cpu(const char *cmdline)
 {
 	float cpu;
 	long long idle, user, nice, system, iowait, irq, softirq;
-	static long long idle_old = 0, nice_old = 0, user_old = 0, system_old =
-	                0;
+	static long long idle_old = 0, nice_old = 0, user_old = 0, system_old = 0;
 	static long long iowait_old = 0, irq_old = 0, softirq_old = 0;
 
 	float scale;
@@ -86,19 +78,15 @@ void show_cpu(const char *cmdline)
 	tf = fopen("/proc/stat", "r");
 	if (tf) {
 		fgets(buf, sizeof(buf), tf);
-		if (sscanf(buf, "cpu %Lu %Lu %Lu %Lu %Lu %Lu %Lu", &user,
-		                &nice, &system, &idle, &iowait, &irq, &softirq)
-		                == 7) {
-			scale = 100.0 / (float) ((user - user_old) + (nice
-			                - nice_old) + (system - system_old)
-			                + (idle - idle_old) + (iowait
-			                - iowait_old) + (irq - irq_old)
-			                + (softirq - softirq_old));
+		if (sscanf(buf, "cpu %Lu %Lu %Lu %Lu %Lu %Lu %Lu", &user, &nice, &system, &idle,
+		                &iowait, &irq, &softirq) == 7) {
+			scale = 100.0 / (float) ((user - user_old) + (nice - nice_old) + (system
+			                - system_old) + (idle - idle_old) + (iowait - iowait_old)
+			                + (irq - irq_old) + (softirq - softirq_old));
 
 			cpu = (float) ((user - user_old) + (nice - nice_old)
-			                + (system - system_old) + (iowait
-			                - iowait_old) + (irq - irq_old)
-			                + (softirq - softirq_old)) * scale;
+			                + (system - system_old) + (iowait - iowait_old) + (irq
+			                - irq_old) + (softirq - softirq_old)) * scale;
 #if 0
 			pprintf ("processor usage : %#5.1f%% user, %#5.1f%% system, %#5.1f%% nice, %#5.1f%% idle\n"
 					"\t%#5.1f%% iowait, %#5.1f%% irq, %#5.1f%% softirq\n",
@@ -108,9 +96,8 @@ void show_cpu(const char *cmdline)
 					(float)(softirq-softirq_old)*scale);
 
 #else
-			pprintf(
-			                "processor usage : %0.1f%% system, %0.1f%% idle\n",
-			                cpu, (float) (idle - idle_old) * scale);
+			pprintf("processor usage : %0.1f%% system, %0.1f%% idle\n", cpu,
+			                (float) (idle - idle_old) * scale);
 #endif
 
 			user_old = user;
@@ -195,10 +182,7 @@ static int show_logging_file(time_t tm_start)
 					last_one_was_printed = 1;
 					pprintf("%s %s%s", date, name, p);
 				} else {
-					if ((strncmp(
-					                info,
-					                "last message repeated",
-					                21) == 0)
+					if ((strncmp(info, "last message repeated", 21) == 0)
 					                && last_one_was_printed) {
 						pprintf("%s %s", date, info);
 					}
@@ -220,8 +204,7 @@ static int show_logging_file(time_t tm_start)
 	}
 	fclose(tf);
 	if (WIFSIGNALED(status))
-		if (
-		WTERMSIG(status) == SIGINT)
+		if (WTERMSIG(status) == SIGINT)
 			return -1;
 	return 0;
 }
@@ -320,63 +303,69 @@ void show_processes(const char *cmdline)
 	struct {
 		char *linux_name;
 		char *cish_name;
-	} proc_names[] = { { "syslogd", "System Logger" }, { "klogd",
-	                "Kernel Logger" }, { "cish", "Configuration Shell" }, {
-	                "pppd", "PPP Session" }, { "inetd",
-	                "Service Multiplexer" },
-	                { "systtyd", "Runtime System" }, { "thttpd",
-	                                "Web Server" },
+	} proc_names[] = {
+			{ "syslogd", "System Logger" },
+			{ "klogd", "Kernel Logger" },
+			{ "cish", "Configuration Shell" },
+			{ "pppd", "PPP Session" },
+			{ "inetd", "Service Multiplexer" },
+			{ "systtyd", "Runtime System" },
+			{ "backupd", "Conection Manager"},
+			{ "thttpd", "Web Server" },
 #ifdef OPTION_OPENSSH
 	                { "sshd", "SSH Server" },
 #else
-	                {	"dropbear", "SSH Server"},
+	                { "dropbear", "SSH Server"},
 #endif
 	                { "telnetd", "Telnet Server" },
-	                { "ftpd", "FTP Server" }, { "snmpd", "SNMP Agent" }, {
-	                                "ospfd", "OSPF Server" }, { "ripd",
-	                                "RIP Server" },
+	                { "ftpd", "FTP Server" },
+	                { "snmpd", "SNMP Agent" },
+	                { "ospfd", "OSPF Server" },
+	                { "ripd", "RIP Server" },
 #ifdef OPTION_BGP
 	                { "bgpd", "BGP Server" },
 #endif
 #ifdef UDHCPD
 	                { "udhcpd", "DHCP Server" },
 #else
-	                {	"dhcpd", "DHCP Server"},
+	                { "dhcpd", "DHCP Server"},
 #endif
-	                { "dhcrelay", "DHCP Relay" }, { "rfc1356",
-	                                "RFC1356 Tunnel" }, { "dnsmasq",
-	                                "DNS Relay" },
+	                { "dhcrelay", "DHCP Relay" },
+	                { "rfc1356", "RFC1356 Tunnel" },
+	                { "dnsmasq", "DNS Relay" },
 #ifdef OPTION_NTPD
 	                { "ntpd", "NTP Server" },
 #endif
 #ifdef OPTION_IPSEC
-	                { "/lib/ipsec/pluto", "VPN Server" }, { "l2tpd",
-	                                "L2TP Server" },
+	                { "/lib/ipsec/pluto", "VPN Server" }, { "l2tpd", "L2TP Server" },
 #endif
 #ifdef OPTION_PIMD
-	                { "pimdd", "PIM-DM Server" }, { "pimsd",
-	                                "PIM-SM Server" },
+	                { "pimdd", "PIM-DM Server" }, { "pimsd", "PIM-SM Server" },
 #endif
 #ifdef OPTION_RMON
 	                { "rmond", "RMON Server" },
 #endif
 #ifdef OPTION_VRRP
-	                {	"keepalived", "VRRP Server"},
+	                { "keepalived", "VRRP Server"},
 #endif
 #ifdef OPTION_X25MAP
-	                {	"x25mapd", "X25map Server"},
+	                { "x25mapd", "X25map Server"},
 #endif
 #ifdef OPTION_X25XOT
-	                {	"xotd", "XOT Server"},
+	                { "xotd", "XOT Server"},
 #endif
 	                { NULL, NULL } };
 
 	tf = popen("/bin/ps", "r"); /* axuw */
 	if (!tf)
 		return;
+
+	cish_dbg("ps just ran!\n");
+
 	while (!feof(tf)) {
 		tbuf[0] = 0;
 		fgets(tbuf, 255, tf);
+		cish_dbg("parsing file : %s\n ", tbuf);
 		stripws(tbuf);
 		tbuf[88] = 0; /* truncate */
 		if (strlen(tbuf)) {
@@ -402,17 +391,13 @@ void show_processes(const char *cmdline)
 					++t;
 					found = 0;
 					for (i = 0; proc_names[i].linux_name; i++) {
-						if (strstr(
-						                t,
-						                proc_names[i].linux_name)) {
+						if (strstr(t, proc_names[i].linux_name)) {
 							found = 1;
 							break;
 						}
 					}
 					if (found) {
-						strcpy(
-						                t,
-						                proc_names[i].cish_name);
+						strcpy(t, proc_names[i].cish_name);
 						pprintf("%s\n", tbuf + 9);
 					}
 				}
@@ -433,8 +418,8 @@ void show_uptime(const char *cmdline)
 
 const char *_WKDAY[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
-const char *_MONTH[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-                "Aug", "Sep", "Oct", "Nov", "Dec" };
+const char *_MONTH[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
+                "Nov", "Dec" };
 
 void show_clock(const char *cmdline)
 {
@@ -466,12 +451,6 @@ void show_version(const char *cmdline)
 #endif
 }
 
-void dump_version(FILE *out)
-{
-	fprintf(out, "version %s\n", get_system_version());
-	fprintf(out, "!\n");
-}
-
 const char SPAC32[] = "                                ";
 
 void show_arp(const char *cmdline)
@@ -491,8 +470,7 @@ void show_arp(const char *cmdline)
 		return;
 	}
 
-	printf(
-	                "Protocol  Address          Age (min)    Hardware Addr  Type   Interface\n");
+	printf("Protocol  Address          Age (min)    Hardware Addr  Type   Interface\n");
 
 	fgets(tbuf, 127, F);
 
@@ -512,22 +490,14 @@ void show_arp(const char *cmdline)
 
 			if (flags & ATF_COM) // Entrada valida (completed)
 			{
-				pprintf("Internet  %s%s", ipaddr, SPAC32 + 16
-				                + strlen(ipaddr));
-				pprintf(
-				                "        0     %c%c%c%c.%c%c%c%c.%c%c%c%c ",
-				                tolower(hwaddr[0]), tolower(
-				                                hwaddr[1]),
-				                tolower(hwaddr[3]), tolower(
-				                                hwaddr[4]),
-				                tolower(hwaddr[6]), tolower(
-				                                hwaddr[7]),
-				                tolower(hwaddr[9]), tolower(
-				                                hwaddr[10]),
-				                tolower(hwaddr[12]), tolower(
-				                                hwaddr[13]),
-				                tolower(hwaddr[15]), tolower(
-				                                hwaddr[16]));
+				pprintf("Internet  %s%s", ipaddr, SPAC32 + 16 + strlen(ipaddr));
+				pprintf("        0     %c%c%c%c.%c%c%c%c.%c%c%c%c ", tolower(
+				                hwaddr[0]), tolower(hwaddr[1]), tolower(hwaddr[3]),
+				                tolower(hwaddr[4]), tolower(hwaddr[6]), tolower(
+				                                hwaddr[7]), tolower(hwaddr[9]),
+				                tolower(hwaddr[10]), tolower(hwaddr[12]), tolower(
+				                                hwaddr[13]), tolower(hwaddr[15]),
+				                tolower(hwaddr[16]));
 
 				if (strcmp(type, "0x1") == 0)
 					printf("ARPA   ");
@@ -558,35 +528,29 @@ void show_ip_dns(const char *cmdline)
 	char addr[16];
 	unsigned int i;
 
-	printf("IP domain lookup is currently %sabled\n",
-	                is_domain_lookup_enabled() ? "en" : "dis");
-	printf("DNS relay is currently %sabled\n",
-	                is_daemon_running(DNS_DAEMON) ? "en" : "dis");
+	printf("IP domain lookup is currently %sabled\n", is_domain_lookup_enabled() ? "en" : "dis");
+	printf("DNS relay is currently %sabled\n", is_daemon_running(DNS_DAEMON) ? "en" : "dis");
 
 	/* Lista servidores DNS estaticos */
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1,
-		                i, addr) < 0)
+		if (get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i, addr) < 0)
 			break;
 		printf("Static ip name-server %s\n", addr);
 	}
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0,
-		                i, addr) < 0)
+		if (get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i, addr) < 0)
 			break;
 		printf("Static ip name-server %s (inactive)\n", addr);
 	}
 
 	/* Lista servidores DNS dinamicos */
 	for (i = 0;; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER,
-		                1, i, addr) < 0)
+		if (get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i, addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s\n", addr);
 	}
 	for (i = 0;; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER,
-		                0, i, addr) < 0)
+		if (get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i, addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s (inactive)\n", addr);
 	}
@@ -650,271 +614,37 @@ void dump_routing(FILE *out, int conf_format)
 	}
 }
 
-void dump_policy_interface(FILE *out, char *intf)
+static void __dump_intf_secondary_ipaddr_status(FILE *out, struct interface_conf *conf)
 {
-	intf_qos_cfg_t *cfg;
-
-	/* Skip sub-interfaces, except frame-relay dlci's */
-	if (strchr(intf, '.') && strncmp(intf, "serial", 6))
-		return;
-	/* If qos file does not exist, create one and show default values*/
-	if (get_interface_qos_config(intf, &cfg) <= 0) {
-		create_interface_qos_config(intf);
-		if (get_interface_qos_config(intf, &cfg) <= 0)
-			return;
-	}
-	if (cfg) {
-		fprintf(out, " bandwidth %dkbps\n", cfg->bw / 1024);
-		fprintf(out, " max-reserved-bandwidth %d\n",
-		                cfg->max_reserved_bw);
-		if (cfg->pname[0] != 0)
-			fprintf(out, " service-policy %s\n", cfg->pname);
-		release_qos_config(cfg);
-	}
-}
-
-#if 0
-int qsort_dump_interfaces(const void *a, const void *b)
-{
-	char idx;
-	char if_a[16], if_b[16];
-
-	strcpy(if_a, link_table[*(int *)a].ifname);
-	if (strncmp(if_a, AUXDEV_PPP, 2) == 0) { /* ax */
-		idx=if_a[2];
-		strcpy(if_a, AUXDEV);
-		if_a[3]=idx;
-		if_a[4]=0;
-	} else if (strncmp(if_a, SERIALDEV_PPP, 2) == 0) { /* sx */
-		idx=if_a[2];
-		strcpy(if_a, SERIALDEV);
-		if_a[6]=idx;
-		if_a[7]=0;
-	}
-	strcpy(if_b, link_table[*(int *)b].ifname);
-	if (strncmp(if_b, AUXDEV_PPP, 2) == 0) { /* ax */
-		idx=if_b[2];
-		strcpy(if_b, AUXDEV);
-		if_b[3]=idx;
-		if_b[4]=0;
-	} else if (strncmp(if_b, SERIALDEV_PPP, 2) == 0) { /* sx */
-		idx=if_b[2];
-		strcpy(if_b, SERIALDEV);
-		if_b[6]=idx;
-		if_b[7]=0;
-	}
-	return strcmp(if_a, if_b);
-}
-#endif
-
-/*
- * REFACTOR INIT!
- */
-
-struct interface_conf {
-	char *name;
-	struct iptables_t ipt;
-	/*
-	 * intf_info : This points to a generic structure with all interfaces.
-	 * Perhaps it would be nicer to have only one interface referenced here.
-	 */
-	struct intf_info *info;
-	enum dump_type {
-		DUMP_INTF_CONFIG,
-		DUMP_INTF_STATUS
-	} type;
-	int mtu;
-	int flags;
-	int up;
-	int running;
-	struct net_device_stats *stats;
-	unsigned short linktype;
-	int txqueue;
-	char mac[32];
-};
-
-static void __dump_intf_secondary_ipaddr(FILE *out, struct interface_conf *conf)
-{
-	struct ip_t ip;
 	int i;
-	char name[16] = "";
-	struct ipaddr_table *ipaddr = &(conf->info->ipaddr[0]);
+	struct ip_t *ip = &conf->sec_ip[0];
 
 	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
-
-	/* Search for aliases */
-	strncpy(name, conf->name, 14);
-	strcat(name, ":0");
 
 	/* Go through IP configuration */
-	for (i = 0; i < MAX_NUM_IPS; i++, ipaddr++) {
+	for (i = 0; i < MAX_NUM_IPS; i++, ip++) {
 
-		if (ipaddr->ifname[0] == 0)
-			break; /* Finished */
+		if (ip->ipaddr[0] == 0)
+			break;
 
-		if (strcmp(name, ipaddr->ifname) == 0) {
-			strcpy(ip.ipaddr, inet_ntoa(ipaddr->local));
-			ip_bitlen2mask(ipaddr->bitlen, ip.ipmask);
-			if (conf->type == DUMP_INTF_CONFIG)
-				fprintf(out, " ip address %s %s secondary\n", ip.ipaddr, ip.ipmask);
-			else
-				fprintf(out, "  Secondary internet address is %s %s\n",
-				                ip.ipaddr, ip.ipmask);
-		}
+		fprintf(out, "  Secondary internet address is %s %s\n", ip->ipaddr, ip->ipmask);
 	}
 
 	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
 	;
 }
 
-static void __dump_intf_iptables_config(FILE *out, struct interface_conf *conf)
+static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 {
-	struct iptables_t *ipt = &conf->ipt;
+	struct ip_t *ip = &conf->main_ip;
 
 	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
 
-	if (ipt->in_acl[0])
-		fprintf(out, " ip access-group %s in\n", ipt->in_acl);
-	if (ipt->out_acl[0])
-		fprintf(out, " ip access-group %s out\n", ipt->out_acl);
-	if (ipt->in_mangle[0])
-		fprintf(out, " ip mark %s in\n", ipt->in_mangle);
-	if (ipt->out_mangle[0])
-		fprintf(out, " ip mark %s out\n", ipt->out_mangle);
-	if (ipt->in_nat[0])
-		fprintf(out, " ip nat %s in\n", ipt->in_nat);
-	if (ipt->out_nat[0])
-		fprintf(out, " ip nat %s out\n", ipt->out_nat);
+	if (ip->ipaddr[0])
+		fprintf(out, "  Internet address is %s %s\n", ip->ipaddr, ip->ipmask);
 
 	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
 	;
-}
-
-static void __dump_intf_ipaddr(FILE *out, struct interface_conf *conf)
-{
-	int i;
-	struct ip_t ip;
-	char *ifname = conf->name;
-	struct ipaddr_table *ipaddr = &(conf->info->ipaddr[0]);
-
-	cish_dbg("%s : %s\n", __FUNCTION__, ifname);
-
-	memset(&ip, 0, sizeof(struct ip_t));
-
-	for (i = 0; i < MAX_NUM_IPS; i++, ipaddr++) {
-
-		if (ipaddr->ifname[0] == 0)
-			break; /* Finished */
-
-		if (!strcmp(ifname, ipaddr->ifname)) {
-			strcpy(ip.ipaddr, inet_ntoa(ipaddr->local));
-			ip_bitlen2mask(ipaddr->bitlen, ip.ipmask);
-			/* If point-to-point, there is a remote IP address */
-			if (conf->flags & IFF_POINTOPOINT)
-				strcpy(ip.ippeer, inet_ntoa(ipaddr->remote));
-			break;
-		}
-	}
-
-	/* Test if configuration or status */
-	if (conf->type == DUMP_INTF_CONFIG) {
-		if (ip.ipaddr[0])
-			fprintf(out, " ip address %s %s\n", ip.ipaddr, ip.ipmask);
-		else
-			fprintf(out, " no ip address\n");
-	} else {
-		if (ip.ipaddr[0])
-			fprintf(out, "  Internet address is %s %s\n",
-			                ip.ipaddr, ip.ipmask);
-	}
-
-	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
-	;
-}
-
-static void __dump_ethernet_config(FILE *out, struct interface_conf *conf)
-{
-	char *osdev = conf->name; /* Interface name (linux name) */
-	int ether_no; /* Ethernet index */
-	int minor; /* Sub-interface index */
-	char daemon_dhcpc[32];
-	char devtmp[32];
-	int i;
-	char *p;
-
-	ether_no = atoi(osdev + strlen(ETHERNETDEV));
-	if ((p = strchr(osdev, '.')) != NULL)
-		minor = atoi(p + 1); /* skip '.' */
-
-	/* Don't allow DHCP for sub-interfaces */
-	if (minor)
-		daemon_dhcpc[0] = 0;
-	else
-		sprintf(daemon_dhcpc, DHCPC_DAEMON, osdev);
-
-	/* Dump iptables configuration */
-	__dump_intf_iptables_config(out, conf);
-
-#ifdef OPTION_PIMD
-	dump_pim_interface(out, osdev);
-#endif
-	/* Dump QoS */
-	dump_policy_interface(out, osdev);
-
-	/* Dump Quagga */
-	dump_rip_interface(out, osdev);
-	dump_ospf_interface(out, osdev);
-
-	/* Print main IP address */
-	if (strlen(daemon_dhcpc) && is_daemon_running(daemon_dhcpc))
-		fprintf(out, " ip address dhcp\n");
-	else
-		__dump_intf_ipaddr(out, conf);
-
-	/* Print secondary IP addresses */
-	__dump_intf_secondary_ipaddr(out, conf);
-
-	if (conf->mtu)
-		fprintf(out, " mtu %d\n", conf->mtu);
-
-	if (conf->txqueue)
-		fprintf(out, " txqueuelen %d\n", conf->txqueue);
-
-	/* search for VLAN */
-	strncpy(devtmp, osdev, 14);
-	strcat(devtmp, ".");
-	for (i = 0; i < MAX_NUM_LINKS; i++) {
-		if (strncmp(conf->info->link[i].ifname, devtmp, strlen(devtmp))
-		                == 0) {
-			fprintf(out, " vlan %s\n", conf->info->link[i].ifname
-			                + strlen(devtmp));
-		}
-	}
-
-	/* Show line status if main interface. Avoid VLANs ... */
-	if (strchr(osdev, '.') == NULL) {
-		int bmcr;
-
-		bmcr = lan_get_phy_reg(osdev, MII_BMCR);
-		if (bmcr & BMCR_ANENABLE)
-			fprintf(out, " speed auto\n");
-		else {
-			fprintf(
-			                out,
-			                " speed %s %s\n",
-			                (bmcr & BMCR_SPEED100) ? "100" : "10",
-			                (bmcr & BMCR_FULLDPLX) ? "full" : "half");
-		}
-	}
-
-#ifdef OPTION_VRRP
-	dump_vrrp_interface(out, osdev);
-#endif
-
-	/* Finally, return if interface is on or off */
-	fprintf(out, " %sshutdown\n", conf->up ? "no " : "");
-
-	return;
 }
 
 static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
@@ -950,9 +680,8 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 			}
 		} else {
 			fprintf(out, "  Forced");
-			fprintf(out, " %sMbps, %s-Duplex", (bmcr
-			                & BMCR_SPEED100) ? "100" : "10", (bmcr
-			                & BMCR_FULLDPLX) ? "Full" : "Half");
+			fprintf(out, " %sMbps, %s-Duplex", (bmcr & BMCR_SPEED100) ? "100" : "10",
+			                (bmcr & BMCR_FULLDPLX) ? "Full" : "Half");
 
 		}
 
@@ -986,8 +715,7 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 			else
 				fprintf(out, ", length below 40m");
 #ifdef CONFIG_DEVELOPMENT
-			fprintf(out, " (cblen=%d)\n", pgsr
-			                & MII_ADM7001_PGSR_CBLEN);
+			fprintf(out, " (cblen=%d)\n", pgsr & MII_ADM7001_PGSR_CBLEN);
 #else
 			fprintf (out, "\n");
 #endif
@@ -997,56 +725,11 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 	}
 }
 
-static void __dump_loopback_config(FILE *out, struct interface_conf *conf)
-{
-	char *osdev = conf->name; /* Interface name (linux name) */
-
-	cish_dbg("%s : %s\n", __FUNCTION__, osdev);
-
-	__dump_intf_iptables_config(out, conf);
-
-	__dump_intf_ipaddr(out, conf);
-
-	/* Search for aliases */
-	__dump_intf_secondary_ipaddr(out, conf);
-
-	fprintf(out, " %sshutdown\n", conf->up ? "no " : "");
-
-	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
-	;
-}
-
 static void __dump_loopback_status(FILE *out, struct interface_conf *conf)
 {
 }
 
 #ifdef OPTION_TUNNEL
-static void __dump_tunnel_config(FILE *out, struct interface_conf *conf)
-{
-	char *osdev = conf->name;
-
-	/* Dump iptables configuration */
-	__dump_intf_iptables_config(out, conf);
-
-	dump_rip_interface(out, osdev);
-	dump_ospf_interface(out, osdev);
-
-	__dump_intf_ipaddr(out, conf);
-
-	/* as */
-	__dump_intf_secondary_ipaddr(out, conf);
-
-	if (conf->mtu)
-		fprintf(out, " mtu %d\n", conf->mtu);
-
-	if (conf->txqueue)
-		fprintf(out, " txqueuelen %d\n", conf->txqueue);
-
-	dump_tunnel_interface(out, 1, osdev);
-
-	fprintf(out, " %sshutdown\n", conf->up ? "no " : "");
-}
-
 static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
 {
 }
@@ -1103,9 +786,10 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	}
 
 	if (cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
-		fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", cfg.ip_unnumbered, ip.ipaddr);
+	fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", cfg.ip_unnumbered, ip.ipaddr);
 	else if (ip.ipaddr[0])
 		fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+
 
 	fprintf(out, "  Encapsulation PPP");
 	if (modem3g_get_apn (apn, serial_no)){
@@ -1124,139 +808,43 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 }
 #endif /* OPTION_PPP */
 
-/**
- * dump_interface_config : Show interface configuration
- * @param FILE *out : File descriptor to be writen
- * @param struct interface_conf *conf : Interface information
- * @return NONE
- */
-static void dump_interface_config(FILE *out, struct interface_conf *conf)
-{
-	struct iptables_t ipt;
-	char *description;
-	char *cish_dev;
-
-	/* Get iptables config */
-	memset(&ipt, 0, sizeof(struct iptables_t));
-	acl_get_iface_acls(conf->name, ipt.in_acl, ipt.out_acl);
-	get_iface_mangle_rules(conf->name, ipt.in_mangle, ipt.out_mangle);
-	get_iface_nat_rules(conf->name, ipt.in_nat, ipt.out_nat);
-
-	cish_dev = convert_os_device(conf->name, 0);
-
-	if (conf->linktype == ARPHRD_TUNNEL6)
-		return; /* skip ipsec ones... */
-
-	fprintf(out, "interface %s\n", cish_dev);
-	description = dev_get_description(conf->name);
-
-	if (description)
-		fprintf(out, " description %s\n", description);
-
-	switch (conf->linktype) {
-#ifdef OPTION_PPP
-	case ARPHRD_PPP:
-		__dump_ppp_config (out, conf);
-		break;
-
-	case ARPHRD_ASYNCPPP:
-		__dump_ppp_config (out, conf);
-		break;
-#endif
-	case ARPHRD_ETHER:
-		__dump_ethernet_config(out, conf);
-		break;
-
-	case ARPHRD_LOOPBACK:
-		__dump_loopback_config(out, conf);
-		break;
-#ifdef OPTION_TUNNEL
-	case ARPHRD_TUNNEL:
-	case ARPHRD_IPGRE:
-		__dump_tunnel_config (out, conf);
-		break;
-#endif
-
-	default:
-		printf("%% unknown link type: %d\n", conf->linktype);
-		break;
-	}
-
-	/*  Generates configuration about the send of traps for every interface */
-	if (itf_should_sendtrap(conf->name))
-		fprintf(out, " snmp trap link-status\n");
-
-	/* End of interface configuration */
-	fprintf(out, "!\n");
-}
-
 void dump_interfaces(FILE *out, int conf_format, char *intf)
 {
-	int i, ret;
+	int i;
 	struct ip_t ip;
 
 	char *cish_dev;
-	char mac_bin[6], *description, devtmp[17];
+	char *description;
 	struct net_device_stats *st;
 
 	struct interface_conf conf;
-	struct intf_info info;
+
+	char intf_list[32][16] = { "ethernet0", "ethernet1", "loopback0", "ppp0", "ppp1", "ppp2",
+	                "\0" };
 
 #if 0
 	int vlan_cos=NONE_TO_COS;
 #endif
 
-	memset(&info, 0, sizeof(struct intf_info));
+	cish_dbg("Fetching configuration ...\n");
 
-	/* Get all information */
-	ret = get_if_list(&info);
+	for (i = 0; intf_list[i][0] != '\0'; i++) {
 
-	if (ret < 0) {
-		printf("%% ERROR : Could not get interfaces information\n");
-		return;
-	}
+		cish_dbg("%s\n", intf_list[i]);
 
-	for (i = 0; i < MAX_NUM_LINKS; i++) {
+		if (lconfig_get_iface_config(intf_list[i], &conf) < 0) {
+			cish_dbg("%s not found\n", intf_list[i]);
+			continue;
+		}
 
-		/* Test if it has a valid name */
-		if (info.link[i].ifname[0] == 0)
-			break;
-
-		/* Fill in the configuration structure */
-		memset(&conf, 0, sizeof(struct interface_conf));
-		conf.name = info.link[i].ifname;
-		conf.flags = info.link[i].flags;
-		conf.up = (info.link[i].flags & IFF_UP) ? 1 : 0;
-		conf.mtu = info.link[i].mtu;
-		conf.stats = st = &info.link[i].stats;
-		conf.linktype = info.link[i].type;
-		conf.mac[0] = 0;
-		conf.info = &info;
-
-//		cish_dbg("%s\n", conf.name);
-
-		/* Get ethernet 0 MAC if not an ethernet interface */
-		if (get_mac(
-		                conf.linktype == ARPHRD_ETHER ? conf.name : "ethernet0",
-		                mac_bin) == 0)
-			sprintf(conf.mac, "%02x%02x.%02x%02x.%02x%02x",
-			                mac_bin[0], mac_bin[1], mac_bin[2],
-			                mac_bin[3], mac_bin[4], mac_bin[5]);
-
-#if 0 /* FIXME  Find better place for this */
-		/* se for ethernet e estiver fazendo parte de uma bridge, le o ip da bridge */
-		if (strncmp(osdev_ip, "ethernet", 8) == 0)
-		osdev_ip = get_ethernet_dev(osdev_ip);
-#endif
+		st = conf.stats;
 
 		cish_dev = convert_os_device(conf.name, conf_format ? 0 : 1);
-
 
 		/* Check if only one interface is needed */
 		if (intf && strcasecmp(conf.name, intf)){
 			continue;
 		}
-
 
 		if (cish_dev == NULL)
 			continue; /* ignora dev nao usado pelo cish */
@@ -1282,341 +870,118 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			break;
 		}
 #else
-		conf.running = (info.link[i].flags & IFF_RUNNING) ? 1 : 0;
+		conf.running = (conf.flags & IFF_RUNNING) ? 1 : 0;
 #endif
 
 		/* Ignore loopback that are down */
 		if (conf.linktype == ARPHRD_LOOPBACK && !conf.running)
 			continue;
 
-		/* Start dumping information */
-		if (conf_format) {
-			conf.type = DUMP_INTF_CONFIG;
-			dump_interface_config(out, &conf);
-		}
-		else {
-			conf.type = DUMP_INTF_STATUS;
+		conf.type = DUMP_INTF_STATUS;
 
-			fprintf(out,    "%s is %s, line protocol is %s%s\n",
-			                cish_dev,
-			                conf.up ? (1 ? "up" : "down") : "administratively down", //FIXME
-			                conf.running & IF_STATE_UP ? "up" : "down",
-			                conf.running & IF_STATE_LOOP ? " (looped)" : "");
+		fprintf(out, "%s is %s, line protocol is %s%s\n", cish_dev,
+		                conf.up ? (1 ? "up" : "down") : "administratively down", //FIXME
+		                conf.running & IF_STATE_UP ? "up" : "down", conf.running
+		                                & IF_STATE_LOOP ? " (looped)" : "");
 
+		description = dev_get_description(conf.name);
+		if (description)
+			fprintf(out, "  Description: %s\n", description);
 
-			description = dev_get_description(conf.name);
-			if (description)
-				fprintf(out, "  Description: %s\n", description);
-
-			/* Dump IP address */
-			__dump_intf_ipaddr(out, &conf);
-			__dump_intf_secondary_ipaddr(out, &conf);
+		/* Dump IP address */
+		__dump_intf_ipaddr_status(out, &conf);
+		__dump_intf_secondary_ipaddr_status(out, &conf);
 
 			if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype == ARPHRD_IPGRE || conf.linktype == ARPHRD_PPP))
 				fprintf(out, "  Peer address is %s\n", ip.ippeer);
 
-			fprintf(out, "  MTU is %i bytes\n", conf.mtu);
 
-			if (conf.txqueue)
-				fprintf(out, "  Output queue size: %i\n",
-				                conf.txqueue);
+		fprintf(out, "  MTU is %i bytes\n", conf.mtu);
 
-			switch (conf.linktype) {
+		if (conf.txqueue)
+			fprintf(out, "  Output queue size: %i\n", conf.txqueue);
+
+		switch (conf.linktype) {
 #ifdef OPTION_PPP
 			case ARPHRD_PPP:
 				__dump_ppp_status(out, &conf);
 			break;
 			case ARPHRD_ASYNCPPP:
 			break;
-#endif
-			case ARPHRD_ETHER:
-				__dump_ethernet_status(out, &conf);
-				break;
 
-			case ARPHRD_LOOPBACK:
-				__dump_loopback_status(out, &conf);
-				break;
+#endif
+		case ARPHRD_ETHER:
+			__dump_ethernet_status(out, &conf);
+			break;
+
+		case ARPHRD_LOOPBACK:
+			__dump_loopback_status(out, &conf);
+			break;
 #ifdef OPTION_TUNNEL
 			case ARPHRD_TUNNEL:
 			case ARPHRD_IPGRE:
-				dump_tunnel_interface(out, conf_format, conf.name);
-				break;
+			dump_tunnel_interface(out, conf_format, conf.name);
+			break;
 #endif
 
-			case ARPHRD_TUNNEL6: /* ipsec decoy! */
-				break;
+		case ARPHRD_TUNNEL6: /* ipsec decoy! */
+			break;
 
-			default:
-				fprintf(stderr, "%% unknown link type: %d\n",
-				                conf.linktype);
-				break;
-			}
+		default:
+			fprintf(stderr, "%% unknown link type: %d\n", conf.linktype);
+			break;
+		}
 
-			fprintf(out, "     %lu packets input, %lu bytes\n",
-			                st->rx_packets, st->rx_bytes);
-			fprintf(
-			                out,
-			                "     %lu input errors, %lu dropped, %lu overruns, %lu frame, %lu crc, %lu fifo\n",
-			                st->rx_errors, st->rx_dropped,
-			                st->rx_over_errors,
-			                st->rx_frame_errors, st->rx_crc_errors,
-			                st->rx_fifo_errors);
 
-//#ifdef CONFIG_DEVELOPMENT
-#if 0
-			fprintf(out, "     %lu length, %lu missed\n",
-			                st->rx_length_errors,
-			                st->rx_missed_errors);
-			fprintf(out, "     %lu enable int, %lu max worked\n",
-			                st->rx_enable_int, st->rx_max_worked);
+		fprintf(out, "     %lu packets input, %lu bytes\n", st->rx_packets, st->rx_bytes);
+		fprintf(
+		                out,
+		                "     %lu input errors, %lu dropped, %lu overruns, %lu frame, %lu crc, %lu fifo\n",
+		                st->rx_errors, st->rx_dropped, st->rx_over_errors,
+		                st->rx_frame_errors, st->rx_crc_errors, st->rx_fifo_errors);
+#ifdef CONFIG_DEVELOPMENT
+		fprintf(out, "     %lu length, %lu missed\n", st->rx_length_errors,
+		                st->rx_missed_errors);
+		fprintf(out, "     %lu enable int, %lu max worked\n", st->rx_enable_int,
+		                st->rx_max_worked);
 
 #endif
-			fprintf(out, "     %lu packets output, %lu bytes\n",
-			                st->tx_packets, st->tx_bytes);
-			fprintf(
-			                out,
-			                "     %lu output errors, %lu collisions, %lu dropped, %lu carrier, %lu fifo\n",
-			                st->tx_errors, st->collisions,
-			                st->tx_dropped, st->tx_carrier_errors,
-			                st->tx_fifo_errors);
-//#ifdef CONFIG_DEVELOPMENT
-#if 0
-			fprintf(
-			                out,
-			                "     %lu aborted, %lu heartbeat, %lu window\n",
-			                st->tx_aborted_errors,
-			                st->tx_heartbeat_errors,
-			                st->tx_window_errors);
-			fprintf(out, "     %lu enable int, %lu max worked\n",
-			                st->tx_enable_int, st->tx_max_worked);
-			fprintf(out, "     %lu stopped, %lu restarted\n",
-			                st->tx_stopped, st->tx_restarted);
+		fprintf(out, "     %lu packets output, %lu bytes\n", st->tx_packets, st->tx_bytes);
+		fprintf(
+		                out,
+		                "     %lu output errors, %lu collisions, %lu dropped, %lu carrier, %lu fifo\n",
+		                st->tx_errors, st->collisions, st->tx_dropped,
+		                st->tx_carrier_errors, st->tx_fifo_errors);
+#ifdef CONFIG_DEVELOPMENT
+		fprintf(out, "     %lu aborted, %lu heartbeat, %lu window\n",
+		                st->tx_aborted_errors, st->tx_heartbeat_errors,
+		                st->tx_window_errors);
+		fprintf(out, "     %lu enable int, %lu max worked\n", st->tx_enable_int,
+		                st->tx_max_worked);
+		fprintf(out, "     %lu stopped, %lu restarted\n", st->tx_stopped, st->tx_restarted);
 #endif
 
 #if 0
-			if (modem_info != -1) {
-				fprintf(out, "     ");
-				if (serial_no < MAX_WAN_INTF) /* serial[ 0-1 ] */
-				fprintf(out, "DCD=%s  ", modem_info & TIOCM_CD?"up":"down");
-				fprintf(out, "DSR=%s  DTR=%s  RTS=%s  CTS=%s\n",
-						modem_info & TIOCM_DSR ? "up" : "down",
-						modem_info & TIOCM_DTR ? "up" : "down",
-						modem_info & TIOCM_RTS ? "up" : "down",
-						modem_info & TIOCM_CTS ? "up" : "down");
-			}
+		if (modem_info != -1) {
+			fprintf(out, "     ");
+			if (serial_no < MAX_WAN_INTF) /* serial[ 0-1 ] */
+			fprintf(out, "DCD=%s  ", modem_info & TIOCM_CD?"up":"down");
+			fprintf(out, "DSR=%s  DTR=%s  RTS=%s  CTS=%s\n",
+					modem_info & TIOCM_DSR ? "up" : "down",
+					modem_info & TIOCM_DTR ? "up" : "down",
+					modem_info & TIOCM_RTS ? "up" : "down",
+					modem_info & TIOCM_CTS ? "up" : "down");
+		}
+
 #endif
-			fprintf(out, "\n");
-		}
+		fprintf(out, "\n");
+
 	}
-}
-
-void dump_chatscripts(FILE *out)
-{
-	FILE *f;
-	int printed_something = 0;
-	struct dirent **namelist;
-	int n;
-	char filename[64];
-
-	n = scandir(PPP_CHAT_DIR, &namelist, 0, alphasort);
-
-	if (n < 0) {
-		printf("%% cannot open dir \n",PPP_CHAT_DIR);
-		return;
-	}
-
-	while (n--) {
-		if (namelist[n]->d_name[0] != '.') {
-			sprintf(filename, "%s%s", PPP_CHAT_DIR,
-			                namelist[n]->d_name);
-			f = fopen(filename, "r");
-			if (f) {
-				fgets(buf, 1024, f);
-				buf[1023] = 0;
-				fprintf(out, "chatscript %s %s\n",
-				                namelist[n]->d_name, buf);
-				fclose(f);
-				printed_something = 1;
-			}
-		}
-		free(namelist[n]);
-	}
-	free(namelist);
-
-	if (printed_something)
-		fprintf(out, "!\n");
-}
-
-void dump_hostname(FILE *out)
-{
-	gethostname(buf, sizeof(buf) - 1);
-	buf[sizeof(buf) - 1] = 0;
-	fprintf(out, "hostname %s\n!\n", buf);
-}
-
-void dump_clock(FILE *out)
-{
-	int hours, mins;
-	char name[16];
-
-	if (get_timezone(name, &hours, &mins) == 0) {
-		fprintf(out, "clock timezone %s %d", name, hours);
-		if (mins > 0)
-			fprintf(out, " %d\n", mins);
-		else
-			fprintf(out, "\n");
-		fprintf(out, "!\n");
-	}
-}
-
-void dump_ntp(FILE *out)
-{
-#ifdef OPTION_NTPD
-	int i, printed_something = 0;
-	FILE *f;
-	arglist *args;
-	char *p, line[200];
-
-#ifdef OPTION_NTPD_authenticate
-	if (is_ntp_auth_used()) fprintf(out, "ntp authenticate\n");
-	else fprintf(out, "no ntp authenticate\n");
-#endif
-
-	if ((f = fopen(FILE_NTP_CONF, "r"))) {
-		while (fgets(line, 200, f)) {
-			if ((p = strchr(line, '\n')))
-				*p = '\0';
-			if (strlen(line)) {
-				args = make_args(line);
-				if (!strcmp(args->argv[0], "restrict")) /* restrict <ipaddr> mask <mask> */
-				{
-					if (args->argc >= 4) {
-						printed_something = 1;
-						fprintf(
-						                out,
-						                "ntp restrict %s %s\n",
-						                args->argv[1],
-						                args->argv[3]);
-					}
-				}
-				destroy_args(args);
-			}
-		}
-		fseek(f, 0, SEEK_SET);
-		while (fgets(line, 200, f)) {
-			if ((p = strchr(line, '\n')))
-				*p = '\0';
-			if (strlen(line)) {
-				args = make_args(line);
-				if (!strcmp(args->argv[0], "trustedkey")) {
-					printed_something = 1;
-					if (args->argc > 1) {
-						for (i = 1; i < args->argc; i++)
-							fprintf(
-							                out,
-							                "ntp trusted-key %s\n",
-							                args->argv[i]);
-					} else
-						fprintf(out,
-						                "no ntp trusted-key\n");
-				}
-				destroy_args(args);
-			}
-		}
-		fseek(f, 0, SEEK_SET);
-		while (fgets(line, 200, f)) {
-			if ((p = strchr(line, '\n')))
-				*p = '\0';
-			if (strlen(line)) {
-				args = make_args(line);
-				if (args->argc >= 2 && !strcmp(args->argv[0],
-				                "server")) /* server <ipaddr> iburst [key 1-16] */
-				{
-					printed_something = 1;
-					fprintf(out, "ntp server %s",
-					                args->argv[1]);
-					if (args->argc >= 5 && !strcmp(
-					                args->argv[3], "key"))
-						fprintf(out, " key %s\n",
-						                args->argv[4]);
-					else
-						fprintf(out, "\n");
-				}
-				destroy_args(args);
-			}
-		}
-		fclose(f);
-		if (printed_something)
-			fprintf(out, "!\n");
-	}
-#endif /* OPTION_NTPD */
-}
-
-void dump_secret(FILE *out)
-{
-	int printed_something = 0;
-
-	if (cish_cfg->enable_secret[0]) {
-		fprintf(out, "secret enable hash %s\n", cish_cfg->enable_secret);
-		printed_something = 1;
-	}
-
-	if (cish_cfg->login_secret[0]) {
-		fprintf(out, "secret login hash %s\n", cish_cfg->login_secret);
-		printed_something = 1;
-	}
-
-	if (printed_something)
-		fprintf(out, "!\n");
 }
 
 void show_routingtables(const char *cmdline)
 {
 	dump_routing(stdout, 0);
-}
-
-void write_config(FILE *f)
-{
-	fprintf(f, "!\n");
-	dump_version(f);
-	dump_terminal(f);
-	dump_secret(f);
-	dump_aaa(f);
-	dump_hostname(f);
-	dump_log(f, 1);
-#ifdef OPTION_BGP
-	dump_router_bgp(f, 0);
-#endif
-	dump_ip(f, 1);
-	dump_snmp(f, 1);
-#ifdef OPTION_RMON
-	dump_rmon(f);
-#endif
-
-	dump_chatscripts(f);
-	acl_dump_policy(f);
-	acl_dump(0, f, 1);
-	dump_nat(0, f, 1);
-	dump_mangle(0, f, 1);
-	dump_qos_config(f);
-	dump_nat_helper(f);
-	dump_router_rip(f);
-	dump_router_ospf(f);
-#ifdef OPTION_BGP
-	dump_router_bgp(f, 1);
-#endif
-	dump_routing(f, 1);
-#ifdef OPTION_SMCROUTE
-	dump_mroute(f);
-#endif
-	dump_interfaces(f, 1, NULL);
-	dump_clock(f);
-	dump_ntp(f);
-	dump_ip_servers(f, 1);
-	dump_arp(f);
-#ifdef OPTION_IPSEC
-	dump_crypto(f);
-#endif
 }
 
 void show_running_config(const char *cmdline)
@@ -1629,16 +994,24 @@ void show_running_config(const char *cmdline)
 		return;
 	}
 	printf("Building configuration...\n");
-	write_config(f);
+
+	/* Write config to f descriptor */
+	lconfig_write_config(f, cish_cfg);
+
 	fclose(f);
 
 	tf = fopen(TMP_CFG_FILE, "r");
+
+	/* Show the configuration */
 	show_output();
+
 	if (tf)
 		fclose(tf);
+
 	unlink(TMP_CFG_FILE);
 }
 
+#if 0
 void show_level_running_config(const char *cmdline)
 {
 	FILE *f;
@@ -1659,9 +1032,9 @@ void show_level_running_config(const char *cmdline)
 #endif
 		dump_chatscripts(f);
 		acl_dump_policy(f);
-		acl_dump(0, f, 1);
-		dump_nat(0, f, 1);
-		dump_mangle(0, f, 1);
+		lconfig_acl_dump(0, f, 1);
+		lconfig_nat_dump(0, f, 1);
+		lconfig_mangle_dump(0, f, 1);
 		dump_nat_helper(f);
 		dump_routing(f, 1);
 #ifdef OPTION_SMCROUTE
@@ -1677,34 +1050,41 @@ void show_level_running_config(const char *cmdline)
 		dump_crypto(f);
 #endif
 	} else if ((command_root == CMD_CONFIG_INTERFACE_ETHERNET)
+<<<<<<< HEAD:src/config_show.c
 	                || (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
 	                || (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
 	                || (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
 	                || (command_root == CMD_CONFIG_INTERFACE_M3G)) {
+=======
+			|| (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
+			|| (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
+			|| (command_root == CMD_CONFIG_INTERFACE_TUNNEL)) {
+>>>>>>> e9748a3c941ffbb9612ce75c062c2b7f80503fe5:src/config_show.c
 		char *intf = convert_device(interface_edited->cish_string,
-		                interface_major, interface_minor);
+				interface_major, interface_minor);
 
 		dump_interfaces(f, 1, intf);
 		free(intf);
 	} else if (command_root == CMD_CONFIG_ROUTER_RIP)
-		dump_router_rip(f);
+	dump_router_rip(f);
 	else if (command_root == CMD_CONFIG_ROUTER_OSPF)
-		dump_router_ospf(f);
+	dump_router_ospf(f);
 #ifdef OPTION_BGP
 	else if (command_root == CMD_CONFIG_ROUTER_BGP)
-		dump_router_bgp(f, 1);
+	dump_router_bgp(f, 1);
 #endif
 	else
-		write_config(f);
+	write_config(f);
 	fclose(f);
 
 	//exclude_last_line_from_file_if_excl(TMP_CFG_FILE);
 	tf = fopen(TMP_CFG_FILE, "r");
 	show_output();
 	if (tf)
-		fclose(tf);
+	fclose(tf);
 	unlink(TMP_CFG_FILE);
 }
+#endif
 
 void show_startup_config(const char *cmdline)
 {
@@ -1773,7 +1153,7 @@ void cmd_copy(const char *cmdline)
 			return;
 		}
 		printf("Building configuration...\n");
-		write_config(f);
+		lconfig_write_config(f, cish_cfg);
 		fclose(f);
 		in = TMP_CFG_FILE;
 	}
@@ -1793,7 +1173,10 @@ void cmd_copy(const char *cmdline)
 		char buf[128];
 		FILE *f;
 		char *s;
-		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> ", TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE, filename, host);
+
+		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,
+		                filename, host);
+
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
@@ -1838,7 +1221,9 @@ void cmd_copy(const char *cmdline)
 		char buf[128];
 		FILE *f;
 		char *s;
-		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> ", TMP_TFTP_OUTPUT_FILE, in, filename, host);
+
+		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename,
+		                host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
@@ -1904,7 +1289,7 @@ void show_accesslists(const char *cmdline)
 	arglist *args;
 
 	args = make_args(cmdline);
-	acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	lconfig_acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	destroy_args(args);
 }
 
@@ -1913,7 +1298,7 @@ void show_manglerules(const char *cmdline)
 	arglist *args;
 
 	args = make_args(cmdline);
-	dump_mangle((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	lconfig_mangle_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	destroy_args(args);
 }
 
@@ -1922,7 +1307,7 @@ void show_natrules(const char *cmdline)
 	arglist *args;
 
 	args = make_args(cmdline);
-	dump_nat((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	lconfig_nat_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	destroy_args(args);
 }
 
@@ -1949,7 +1334,7 @@ void show_performance(const char *cmdline)
 
 void show_qos(const char *cmdline)
 {
-	qos_dump_interfaces();
+	lconfig_qos_dump_interfaces();
 }
 
 #ifdef OPTION_IPSEC
@@ -1968,11 +1353,9 @@ static void print_ipsec_show_line(char *name,
                                   int *net_flag)
 {
 	if (!(*net_flag)) {
-		printf("\033[3C%s\033[%dC%s\033[%dC%s\033[%dC%s", name,
-		                total_name_len - strlen(name), local, len
-		                                - strlen(local) + (shift - len)
-		                                / 2, separator, second_shift,
-		                remote);
+		printf("\033[3C%s\033[%dC%s\033[%dC%s\033[%dC%s", name, total_name_len - strlen(
+		                name), local, len - strlen(local) + (shift - len) / 2, separator,
+		                second_shift, remote);
 		printf("\033[%dC", third_shift - strlen(remote));
 		if (strlen(authby))
 			printf("%s+", authby);
@@ -1996,21 +1379,17 @@ static void print_ipsec_show_line(char *name,
 			printf("waiting...");
 		*net_flag = 1;
 	} else
-		printf("\033[%dC%s\033[%dC%s", total_name_len + 3, local, shift
-		                - strlen(local), remote);
+		printf("\033[%dC%s\033[%dC%s", total_name_len + 3, local, shift - strlen(local),
+		                remote);
 	printf("\n");
 }
 
 static int show_conn_specific(char *name, int state)
 {
-	int ret, len, len2, net_flag = 0, shift = 0, second_shift = 0,
-	                third_shift = 0;
-	char *p, mask[20], authby[10], authproto[10], esp_c[20], pfs[5],
-	                tmp[300];
-	char addr_l[MAX_ADDR_SIZE], cidr_l[20], id_l[MAX_ADDR_SIZE],
-	                nexthop_l[20];
-	char addr_r[MAX_ADDR_SIZE], cidr_r[20], id_r[MAX_ADDR_SIZE],
-	                nexthop_r[20];
+	int ret, len, len2, net_flag = 0, shift = 0, second_shift = 0, third_shift = 0;
+	char *p, mask[20], authby[10], authproto[10], esp_c[20], pfs[5], tmp[300];
+	char addr_l[MAX_ADDR_SIZE], cidr_l[20], id_l[MAX_ADDR_SIZE], nexthop_l[20];
+	char addr_r[MAX_ADDR_SIZE], cidr_r[20], id_r[MAX_ADDR_SIZE], nexthop_r[20];
 
 	// Busca id local
 	tmp[0] = '\0';
@@ -2035,8 +1414,7 @@ static int show_conn_specific(char *name, int state)
 					;
 				if (strlen(p) > 0) {
 					strcpy(mask, p);
-					if (classic_to_cidr(addr_l, mask,
-					                cidr_l) != 0)
+					if (classic_to_cidr(addr_l, mask, cidr_l) != 0)
 						cidr_l[0] = '\0';
 				}
 			}
@@ -2091,8 +1469,7 @@ static int show_conn_specific(char *name, int state)
 					;
 				if (strlen(p) > 0) {
 					strcpy(mask, p);
-					if (classic_to_cidr(addr_r, mask,
-					                cidr_r) != 0)
+					if (classic_to_cidr(addr_r, mask, cidr_r) != 0)
 						cidr_r[0] = '\0';
 				}
 			}
@@ -2204,24 +1581,20 @@ static int show_conn_specific(char *name, int state)
 
 	// Comeca exibicao dos dados
 	if (strlen(id_l) || strlen(id_r)) {
-		print_ipsec_show_line(name, id_l, id_r, authby, authproto,
-		                esp_c, pfs, len, shift, second_shift,
-		                third_shift, state, &net_flag);
+		print_ipsec_show_line(name, id_l, id_r, authby, authproto, esp_c, pfs, len, shift,
+		                second_shift, third_shift, state, &net_flag);
 	}
 	if (strlen(addr_l) || strlen(addr_r)) {
-		print_ipsec_show_line(name, addr_l, addr_r, authby, authproto,
-		                esp_c, pfs, len, shift, second_shift,
-		                third_shift, state, &net_flag);
+		print_ipsec_show_line(name, addr_l, addr_r, authby, authproto, esp_c, pfs, len,
+		                shift, second_shift, third_shift, state, &net_flag);
 	}
 	if (strlen(cidr_l) || strlen(cidr_r)) {
-		print_ipsec_show_line(name, cidr_l, cidr_r, authby, authproto,
-		                esp_c, pfs, len, shift, second_shift,
-		                third_shift, state, &net_flag);
+		print_ipsec_show_line(name, cidr_l, cidr_r, authby, authproto, esp_c, pfs, len,
+		                shift, second_shift, third_shift, state, &net_flag);
 	}
 	if (strlen(nexthop_l) || strlen(nexthop_r)) {
-		print_ipsec_show_line(name, nexthop_l, nexthop_r, authby,
-		                authproto, esp_c, pfs, len, shift,
-		                second_shift, third_shift, state, &net_flag);
+		print_ipsec_show_line(name, nexthop_l, nexthop_r, authby, authproto, esp_c, pfs,
+		                len, shift, second_shift, third_shift, state, &net_flag);
 	}
 	if (!net_flag) {
 		printf("\033[3C%s\033[%dC", name, total_name_len - strlen(name));
@@ -2319,8 +1692,7 @@ void show_crypto(const char *cmdline)
 		if (get_ipsec()) /* Wait pluto start! */
 		{
 			if (!(output = popen("/lib/ipsec/whack --status", "r"))) {
-				printf(
-				                "%% Not possible to show ipsec connections\n");
+				printf("%% Not possible to show ipsec connections\n");
 				goto go_error;
 			}
 			/* 000 caca 192.168.2.0/24===10.0.0.1[@server]...10.0.0.2[@roadwarrior]===192.168.1.0/24 RSASIG+ENCRYPT+TUNNEL+PFS "erouted" */
@@ -2337,40 +1709,27 @@ void show_crypto(const char *cmdline)
 				if (args->argc == 7) {
 					if (!strstr(args->argv[2], "...%any")) /* skip roadwarrior master! */
 					{
-						for (i = 0, list = list_ini; i
-						                < MAX_CONN; i++, list++) {
+						for (i = 0, list = list_ini; i < MAX_CONN; i++, list++) {
 							if (*list) {
 								char name[64];
-								sprintf(
-								                name,
-								                "\"%s\"",
-								                *list);
-								if (strstr(
-								                args->argv[1],
-								                name)) {
-									if (strstr(
-									                args->argv[3],
+								sprintf(name, "\"%s\"", *list);
+								if (strstr(args->argv[1], name)) {
+									if (strstr(args->argv[3],
 									                "erouted"))
-										flag
-										                = CONN_UP;
+										flag = CONN_UP;
 									else if (strstr(
 									                args->argv[3],
 									                "unrouted"))
-										flag
-										                = CONN_DOWN;
+										flag = CONN_DOWN;
 
 									if (show_conn_specific(
-									                *list,
-									                flag)
+									                *list, flag)
 									                < 1)
 										goto go_error;
 
-									printf(
-									                "\n");
-									free(
-									                *list);
-									*list
-									                =NULL;
+									printf("\n");
+									free(*list);
+									*list = NULL;
 									break;
 								}
 							}
@@ -2385,18 +1744,15 @@ void show_crypto(const char *cmdline)
 			if (*list) {
 				switch (get_ipsec_auto(*list)) {
 				case AUTO_IGNORE:
-					if (show_conn_specific(*list,
-					                CONN_SHUTDOWN) < 1)
+					if (show_conn_specific(*list, CONN_SHUTDOWN) < 1)
 						goto go_error;
 					break;
 				case AUTO_START:
-					if (show_conn_specific(*list, CONN_DOWN)
-					                < 1)
+					if (show_conn_specific(*list, CONN_DOWN) < 1)
 						goto go_error;
 					break;
 				case AUTO_ADD:
-					if (show_conn_specific(*list, CONN_WAIT)
-					                < 1)
+					if (show_conn_specific(*list, CONN_WAIT) < 1)
 						goto go_error;
 					break;
 				}
@@ -2492,9 +1848,7 @@ void show_dumpleases(const char *cmdline)
 			if (!tf)
 				continue;
 			fclose(tf);
-			sprintf(filename,
-			                "/bin/dumpleases -f "FILE_DHCPDLEASES,
-			                i);
+			sprintf(filename, "/bin/dumpleases -f "FILE_DHCPDLEASES, i);
 			tf = popen(filename, "r");
 			if (tf) {
 				pprintf("interface ethernet%d\n", i);
@@ -2522,9 +1876,7 @@ void show_ntpkeys(const char *cmdline)
 				if (args->argc >= 3 && args->argv[0][0] != '#') /* 1 MD5 4+?PD7j5a$0jdy7@ # MD5 key */
 				{
 					if (!strcmp(args->argv[1], "MD5"))
-						printf("%2s   %s\n",
-						                args->argv[0],
-						                args->argv[2]);
+						printf("%2s   %s\n", args->argv[0], args->argv[2]);
 				}
 			}
 		}
@@ -2553,16 +1905,14 @@ void show_ntpassociations(const char *cmdline)
 			break;
 		if (parse_args_din(buf, &argl) == 10) {
 			if (inet_aton(argl[1], &inp) == 1) {
-				for (i = 0, used = 0; (i < n_local_addr) && (i
-				                < 16); i++) {
+				for (i = 0, used = 0; (i < n_local_addr) && (i < 16); i++) {
 					if (strcmp(argl[1], local_addr[i]) == 0) {
 						used = 1;
 						break;
 					}
 				}
 				if (used == 0)
-					strcpy(local_addr[n_local_addr++],
-					                argl[1]);
+					strcpy(local_addr[n_local_addr++], argl[1]);
 			}
 		}
 		free_args_din(&argl);
@@ -2610,103 +1960,6 @@ void show_mroute(const char *cmdline) /* !!! */
 }
 #endif
 
-#ifdef OPTION_RMON
-void dump_rmon(FILE *out)
-{
-	int i, k;
-	struct rmon_config *shm_rmon_p;
-	char tp[10], result[MAX_OID_LEN * 10];
-
-	if (get_access_rmon_config(&shm_rmon_p) == 1) {
-		for (i = 0; i < NUM_EVENTS; i++) {
-			if (shm_rmon_p->events[i].index > 0) {
-				fprintf(out, "rmon event %d",
-				                shm_rmon_p->events[i].index);
-				if (shm_rmon_p->events[i].do_log)
-					fprintf(out, " log");
-				if (shm_rmon_p->events[i].community[0] != 0)
-					fprintf(
-					                out,
-					                " trap %s",
-					                shm_rmon_p->events[i].community);
-				if (shm_rmon_p->events[i].description[0] != 0)
-					fprintf(
-					                out,
-					                " description %s",
-					                shm_rmon_p->events[i].description);
-				if (shm_rmon_p->events[i].owner[0] != 0)
-					fprintf(
-					                out,
-					                " owner %s",
-					                shm_rmon_p->events[i].owner);
-				fprintf(out, "\n");
-			}
-		}
-		for (i = 0; i < NUM_ALARMS; i++) {
-			if (shm_rmon_p->alarms[i].index > 0) {
-				result[0] = '\0';
-				for (k = 0; k < shm_rmon_p->alarms[i].oid_len; k++) {
-					sprintf(
-					                tp,
-					                "%lu.",
-					                shm_rmon_p->alarms[i].oid[k]);
-					strcat(result, tp);
-				}
-				*(result + strlen(result) - 1) = '\0';
-
-				fprintf(out, "rmon alarm %d %s %d",
-				                shm_rmon_p->alarms[i].index,
-				                result,
-				                shm_rmon_p->alarms[i].interval);
-				switch (shm_rmon_p->alarms[i].sample_type) {
-				case SAMPLE_ABSOLUTE:
-					fprintf(out, " absolute");
-					break;
-
-				case SAMPLE_DELTA:
-					fprintf(out, " delta");
-					break;
-				}
-				if (shm_rmon_p->alarms[i].rising_threshold) {
-					fprintf(
-					                out,
-					                " rising-threshold %d",
-					                shm_rmon_p->alarms[i].rising_threshold);
-					if (shm_rmon_p->alarms[i].rising_event_index)
-						fprintf(
-						                out,
-						                " %d",
-						                shm_rmon_p->alarms[i].rising_event_index);
-				}
-				if (shm_rmon_p->alarms[i].falling_threshold) {
-					fprintf(
-					                out,
-					                " falling-threshold %d",
-					                shm_rmon_p->alarms[i].falling_threshold);
-					if (shm_rmon_p->alarms[i].falling_event_index)
-						fprintf(
-						                out,
-						                " %d",
-						                shm_rmon_p->alarms[i].falling_event_index);
-				}
-				if (shm_rmon_p->alarms[i].owner[0] != 0)
-					fprintf(
-					                out,
-					                " owner %s",
-					                shm_rmon_p->alarms[i].owner);
-				fprintf(out, "\n");
-			}
-		}
-		loose_access_rmon_config(&shm_rmon_p);
-	}
-	if (is_daemon_running(RMON_DAEMON))
-		fprintf(out, "rmon agent\n");
-	else
-		fprintf(out, "no rmon agent\n");
-	fprintf(out, "!\n");
-}
-#endif
-
 #ifdef OPTION_VRRP
 void show_vrrp(const char *cmdline)
 {
@@ -2743,7 +1996,7 @@ void show_modem3g_username(const char *cmdline)
 	char * username=malloc(256);
 
 	check = modem3g_get_username(username, interface_major);
-	if (check == -1){
+	if (check == -1) {
 		printf("Error on show username\n");
 		return;
 	}
@@ -2761,7 +2014,7 @@ void show_modem3g_password(const char *cmdline)
 	char * password=malloc(256);
 
 	check = modem3g_get_password(password, interface_major);
-	if (check == -1){
+	if (check == -1) {
 		printf("Error on show password\n");
 		return;
 	}
