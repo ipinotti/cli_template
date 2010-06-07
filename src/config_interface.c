@@ -21,6 +21,7 @@
 #include "commandtree.h"
 #include "cish_main.h"
 #include "pprintf.h"
+#include "device.h"
 
 extern int _cish_booting;
 
@@ -37,7 +38,7 @@ void config_interface_done(const char *cmdline)
 int validate_interface_minor(void)
 {
 	switch(interface_edited->type) {
-		case ethernet:
+		case eth:
 			if(vlan_exists(interface_major, interface_minor))
 				return 0; // ok
 			break;
@@ -64,6 +65,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 	destroy_args(args);
 
 	if ((interface_edited=getfamily(device))) {
+
 		major=sub;
 		minor=strchr(major, '.');
 		if (minor) *minor++ = 0;
@@ -81,17 +83,17 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 		}
 
 		switch(interface_edited->type) {
-			case ethernet:
+			case eth:
 				if (interface_minor == -1) {
 					command_root=CMD_CONFIG_INTERFACE_ETHERNET;
 				} else {
 					command_root=CMD_CONFIG_INTERFACE_ETHERNET_VLAN;
 				}
 				break;
-			case loopback:
+			case lo:
 				command_root=CMD_CONFIG_INTERFACE_LOOPBACK;
 				break;
-			case tunnel:
+			case tun:
 				dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
 				if (no) {
 					del_tunnel(dev);
@@ -102,21 +104,18 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 				free(dev);
 				break;
 #ifdef OPTION_MODEM3G
-			case m3G:
+			case ppp:
 				command_root=CMD_CONFIG_INTERFACE_M3G;
 				break;
 #endif
 			default:
 				break;
 		}
-	} else {
+	}
+	else {
 		fprintf(stderr, "%% Unknown device type.\n");
 	}
 }
-
-
-
-
 
 
 
@@ -204,7 +203,7 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 
 	if (fam) {
 		switch(fam->type) {
-			case ethernet:
+			case eth:
 				reload_udhcpd(interface_major); /* dhcp integration! force reload ethernet address */
 				tc_insert_all(dev);
 				break;
@@ -776,8 +775,8 @@ void interface_modem3g_set_apn(const char *cmdline)
 {
 	arglist * args;
 	int check=0;
-	char * apn;
-	char buffer[100]="\"";
+	char * apn=NULL;
+	char buffer[256]="\"";
 	char plus[]="\"'";
 
 	args = make_args(cmdline);
@@ -795,12 +794,15 @@ void interface_modem3g_set_apn(const char *cmdline)
 	printf("\nAPN stored\n\n");
 	destroy_args(args);
 
+	apn=NULL;
+	free(apn);
+
 }
 
 void interface_modem3g_set_password(const char *cmdline)
 {
 	arglist * args;
-	char * password;
+	char * password=NULL;
 	int check=0;
 
 	args = make_args(cmdline);
@@ -815,14 +817,18 @@ void interface_modem3g_set_password(const char *cmdline)
 	}
 
 	printf("\nPassword stored\n\n");
+
 	destroy_args(args);
+
+	password=NULL;
+	free(password);
 
 }
 
 void interface_modem3g_set_username(const char *cmdline)
 {
 	arglist * args;
-	char * username;
+	char * username=NULL;
 	int check=0;
 
 	args = make_args(cmdline);
@@ -837,7 +843,11 @@ void interface_modem3g_set_username(const char *cmdline)
 	}
 
 	printf("\nUsername stored\n\n");
+
 	destroy_args(args);
+
+	username=NULL;
+	free (username);
 
 }
 #endif

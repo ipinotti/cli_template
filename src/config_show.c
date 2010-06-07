@@ -22,7 +22,7 @@
 #include <sys/uio.h>
 #include <sys/un.h>
 #include <dirent.h>
-#include <linux/config.h>
+#include <linux/autoconf.h>
 #include <linux/if.h>
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
@@ -42,6 +42,7 @@
 #include "cish_config.h"
 #include "terminal_echo.h"
 
+#define PPPDEV "ppp"
 
 extern int _cish_aux;
 extern char *tzname[2];
@@ -1061,127 +1062,40 @@ static void __dump_ppp_config(FILE *out, struct interface_conf *conf)
 	/* Get interface index */
 	serial_no = atoi(osdev + strlen(PPPDEV));
 
-	fprintf (out, " encapsulation ppp\n");
-	ppp_get_config (serial_no, &cfg);
+	ppp_get_config(serial_no, &cfg);
 
 	__dump_intf_iptables_config(out, conf);
 
-	dump_policy_interface (out, osdev);
-	dump_rip_interface (out, osdev);
-	dump_ospf_interface (out, osdev);
+	dump_policy_interface(out, osdev);
+	dump_rip_interface(out, osdev);
+	dump_ospf_interface(out, osdev);
 
-	if ((cfg.ip_addr[0]) && (cfg.ip_mask[0]))
-	fprintf (out, " ip address %s %s\n", cfg.ip_addr, cfg.ip_mask);
-	else
-	fprintf (out, " no ip address\n");
-	if (cfg.ip_peer_addr[0])
-	fprintf (out, " ip peer-address %s\n", cfg.ip_peer_addr);
-	if (cfg.default_route)
-	fprintf (out, " ip default-route\n");
-	if (cfg.novj)
-	fprintf (out, " no ip vj\n");
-	else
-	fprintf (out, " ip vj\n");
+	fprintf(out, " apn set %s\n", cfg.apn);
+	fprintf(out, " username set %s\n", cfg.auth_user);
+	fprintf(out, " password set %s\n", cfg.auth_pass);
+	fprintf(out, " %sshutdown\n", cfg.up ? "no " : "");
 
-	if (cfg.echo_interval)
-	fprintf (out, " keepalive interval %d\n", cfg.echo_interval);
-	if (cfg.echo_failure)
-	fprintf (out, " keepalive timeout %d\n", cfg.echo_failure);
-	if (cfg.mtu)
-	fprintf (out, " mtu %d\n", cfg.mtu);
-	if (cfg.debug)
-	fprintf (out, " ppp debug\n");
-	if (cfg.multilink)
-	fprintf (out, " ppp multilink\n");
-	if (cfg.usepeerdns)
-	fprintf (out, " ppp usepeerdns\n");
 
-	if (cfg.speed)
-	fprintf (out, " speed %d\n", cfg.speed);
 
-	if (cfg.flow_control == FLOW_CONTROL_NONE)
-	fprintf (out, " no flow-control\n");
-	else
-	fprintf (out, " flow-control %s\n", cfg.flow_control
-			== FLOW_CONTROL_RTSCTS ? "rts-cts" : "xon-xoff");
-
-	if (cfg.chat_script[0])
-	fprintf (out, " chat-script %s\n", cfg.chat_script);
-	else
-	fprintf (out, " no chat-script\n");
-	fprintf (out, " %sdial-on-demand\n", cfg.dial_on_demand ? "" : "no ");
-	if (cfg.holdoff)
-	fprintf (out, " holdoff %d\n", cfg.holdoff);
-	if (cfg.idle)
-	fprintf (out, " idle %d\n", cfg.idle);
-
-	if (cfg.auth_user[0])
-	fprintf (out, " authentication user %s\n", cfg.auth_user);
-	if (cfg.auth_pass[0])
-	fprintf (out, " authentication pass %s\n", cfg.auth_pass);
-	if ((!cfg.auth_user[0]) && (!cfg.auth_pass[0]))
-	fprintf (out, " no authentication\n");
-	if (cfg.server_flags & (SERVER_FLAGS_PAP | SERVER_FLAGS_CHAP))
-	fprintf (
-			out,
-			" server authentication local algorithm %s\n",
-			cfg.server_flags & SERVER_FLAGS_PAP ? "pap" : cfg.server_flags
-			& SERVER_FLAGS_CHAP ? "chap" : "");
-	if (cfg.server_auth_user[0])
-	fprintf (out, " server authentication local user %s\n",
-			cfg.server_auth_user);
-	if (cfg.server_auth_pass[0])
-	fprintf (out, " server authentication local pass %s\n",
-			cfg.server_auth_pass);
-	// radius authentication
-	if (cfg.radius_authkey[0])
-	fprintf (out, " server authentication radius auth_key %s\n",
-			cfg.radius_authkey);
-	if (cfg.radius_retries > 0)
-	fprintf (out, " server authentication radius retries %d\n",
-			cfg.radius_retries);
-	if (cfg.radius_sameserver > 0)
-	fprintf (out, " server authentication radius same_server\n");
-	if (cfg.radius_servers[0])
-	fprintf (out, " server authentication radius servers %s\n",
-			cfg.radius_servers);
-	if (cfg.radius_timeout > 0)
-	fprintf (out, " server authentication radius timeout %d\n",
-			cfg.radius_timeout);
-	if (cfg.radius_trynextonreject > 0)
-	fprintf (out,
-			" server authentication radius try_next_on_reject\n");
-	// tacacs authentication
-	if (cfg.tacacs_authkey[0])
-	fprintf (out, " server authentication tacacs auth_key %s\n",
-			cfg.tacacs_authkey);
-	if (cfg.tacacs_sameserver > 0)
-	fprintf (out, " server authentication tacacs same_server\n");
-	if (cfg.tacacs_servers[0])
-	fprintf (out, " server authentication tacacs servers %s\n",
-			cfg.tacacs_servers);
-	if (cfg.tacacs_trynextonreject > 0)
-	fprintf (out,
-			" server authentication tacacs try_next_on_reject\n");
-	if ((cfg.server_ip_addr[0]) && (cfg.server_ip_mask[0]))
-	fprintf (out, " server ip address %s %s\n", cfg.server_ip_addr,
-			cfg.server_ip_mask);
-	if (cfg.server_ip_peer_addr[0])
-	fprintf (out, " server ip peer-address %s\n",
-			cfg.server_ip_peer_addr);
-	fprintf (out, " %sserver shutdown\n", (cfg.server_flags
-					& SERVER_FLAGS_ENABLE) ? "no " : "");
-	fprintf (out, " %sshutdown\n", cfg.up ? "no " : "");
 }
 
 static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config cfg;
+	struct ip_t ip;
+	char *osdev = conf->name;
+	int serial_no;
+	char * apn = malloc (100);
+	int running = conf->running;
+
+	/* Get interface index */
+	serial_no = atoi(osdev + strlen(PPPDEV));
 
 	ppp_get_config(serial_no, &cfg);
 
-	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); ip.ipaddr[15]=0;}
-	if (cfg.ip_mask[0]) {strncpy(ip.ipmask, cfg.ip_mask, 16); ip.ipmask[15]=0;}
+
+	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
+	if (cfg.ip_mask[0]) {strncpy(ip.ipmask, cfg.ip_mask, 16); printf("TESTE CFG MASK\n\n"); ip.ipmask[15]=0;}
 	if (cfg.ip_peer_addr[0]) {strncpy(ip.ippeer, cfg.ip_peer_addr, 16); ip.ippeer[15]=0;}
 	if (cfg.dial_on_demand && !running) { /* filtra enderecos aleatorios atribuidos pelo pppd */
 		ip.ipaddr[0]=0;
@@ -1193,13 +1107,18 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	else if (ip.ipaddr[0])
 		fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 
-
 	fprintf(out, "  Encapsulation PPP");
+	if (modem3g_get_apn (apn, serial_no)){
+		fprintf(out, ", APN is \"%s\"", apn);
+		free (apn);
+	}
+	else
+		printf(" Error - reading APN\n");
 
-	if (cfg.echo_interval)
-	fprintf(out, ", echo interval %d", cfg.echo_interval);
-	if (cfg.echo_failure)
-	fprintf(out, ", echo failure %d", cfg.echo_failure);
+//	if (cfg.echo_interval)
+//	fprintf(out, ", echo interval %d", cfg.echo_interval);
+//	if (cfg.echo_failure)
+//	fprintf(out, ", echo failure %d", cfg.echo_failure);
 
 	fprintf(out, "\n");
 }
@@ -1236,6 +1155,10 @@ static void dump_interface_config(FILE *out, struct interface_conf *conf)
 
 	switch (conf->linktype) {
 #ifdef OPTION_PPP
+	case ARPHRD_PPP:
+		__dump_ppp_config (out, conf);
+		break;
+
 	case ARPHRD_ASYNCPPP:
 		__dump_ppp_config (out, conf);
 		break;
@@ -1310,7 +1233,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		conf.mac[0] = 0;
 		conf.info = &info;
 
-		cish_dbg("%s\n", conf.name);
+//		cish_dbg("%s\n", conf.name);
 
 		/* Get ethernet 0 MAC if not an ethernet interface */
 		if (get_mac(
@@ -1328,15 +1251,21 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		cish_dev = convert_os_device(conf.name, conf_format ? 0 : 1);
 
+
 		/* Check if only one interface is needed */
-		if (intf && strcasecmp(conf.name, intf))
+		if (intf && strcasecmp(conf.name, intf)){
 			continue;
+		}
+
 
 		if (cish_dev == NULL)
 			continue; /* ignora dev nao usado pelo cish */
 
+
 		if (strncmp(conf.name, "ipsec", 5) == 0)
 			conf.linktype = ARPHRD_TUNNEL6; /* !!! change crypto-? linktype (temp!) */
+
+
 #if 0
 		switch (conf.linktype) {
 
@@ -1361,11 +1290,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			continue;
 
 		/* Start dumping information */
-
 		if (conf_format) {
 			conf.type = DUMP_INTF_CONFIG;
 			dump_interface_config(out, &conf);
-		} else {
+		}
+		else {
 			conf.type = DUMP_INTF_STATUS;
 
 			fprintf(out,    "%s is %s, line protocol is %s%s\n",
@@ -1383,10 +1312,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			__dump_intf_ipaddr(out, &conf);
 			__dump_intf_secondary_ipaddr(out, &conf);
 
-			if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL
-			                || conf.linktype == ARPHRD_IPGRE))
-				fprintf(out, "  Peer address is %s\n",
-				                ip.ippeer);
+			if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype == ARPHRD_IPGRE || conf.linktype == ARPHRD_PPP))
+				fprintf(out, "  Peer address is %s\n", ip.ippeer);
 
 			fprintf(out, "  MTU is %i bytes\n", conf.mtu);
 
@@ -1397,8 +1324,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			switch (conf.linktype) {
 #ifdef OPTION_PPP
 			case ARPHRD_PPP:
-			case ARPHRD_ASYNCPPP:
 				__dump_ppp_status(out, &conf);
+			break;
+			case ARPHRD_ASYNCPPP:
 			break;
 #endif
 			case ARPHRD_ETHER:
@@ -1433,7 +1361,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			                st->rx_over_errors,
 			                st->rx_frame_errors, st->rx_crc_errors,
 			                st->rx_fifo_errors);
-#ifdef CONFIG_DEVELOPMENT
+
+//#ifdef CONFIG_DEVELOPMENT
+#if 0
 			fprintf(out, "     %lu length, %lu missed\n",
 			                st->rx_length_errors,
 			                st->rx_missed_errors);
@@ -1449,7 +1379,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			                st->tx_errors, st->collisions,
 			                st->tx_dropped, st->tx_carrier_errors,
 			                st->tx_fifo_errors);
-#ifdef CONFIG_DEVELOPMENT
+//#ifdef CONFIG_DEVELOPMENT
+#if 0
 			fprintf(
 			                out,
 			                "     %lu aborted, %lu heartbeat, %lu window\n",
@@ -1490,7 +1421,7 @@ void dump_chatscripts(FILE *out)
 	n = scandir(PPP_CHAT_DIR, &namelist, 0, alphasort);
 
 	if (n < 0) {
-		printf("%% cannot open dir "PPP_CHAT_DIR"\n");
+		printf("%% cannot open dir \n",PPP_CHAT_DIR);
 		return;
 	}
 
@@ -1740,6 +1671,7 @@ void show_level_running_config(const char *cmdline)
 		dump_ntp(f);
 		dump_ip_servers(f, 1);
 		dump_arp(f);
+
 	} else if (command_root == CMD_CONFIG_CRYPTO) {
 #ifdef OPTION_IPSEC
 		dump_crypto(f);
@@ -1747,7 +1679,8 @@ void show_level_running_config(const char *cmdline)
 	} else if ((command_root == CMD_CONFIG_INTERFACE_ETHERNET)
 	                || (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
 	                || (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
-	                || (command_root == CMD_CONFIG_INTERFACE_TUNNEL)) {
+	                || (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
+	                || (command_root == CMD_CONFIG_INTERFACE_M3G)) {
 		char *intf = convert_device(interface_edited->cish_string,
 		                interface_major, interface_minor);
 
@@ -1860,10 +1793,7 @@ void cmd_copy(const char *cmdline)
 		char buf[128];
 		FILE *f;
 		char *s;
-		sprintf(
-		                buf,
-		                "/bin/tftp -g -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE,
-		                TFTP_CFG_FILE, filename, host);
+		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> ", TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE, filename, host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
@@ -1908,10 +1838,7 @@ void cmd_copy(const char *cmdline)
 		char buf[128];
 		FILE *f;
 		char *s;
-		sprintf(
-		                buf,
-		                "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE,
-		                in, filename, host);
+		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> ", TMP_TFTP_OUTPUT_FILE, in, filename, host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
@@ -2795,30 +2722,25 @@ void show_vrrp(const char *cmdline)
 #ifdef OPTION_MODEM3G
 void show_modem3g_apn(const char *cmdline)
 {
-	int i=0, check=0, length=0;
-	char buffer[100];
-	char apn[100];
-
-	check = modem3g_get_apn(buffer,interface_major);
+	int check=0;
+	char * apn=malloc(256);
+	check = modem3g_get_apn(apn,interface_major);
 	if (check == -1){
 		printf("Error on show APN\n");
 		return;
 	}
 
-	length=strlen(buffer);
-
-	for (i=1;i<(length-2);i++)
-		apn[i-1]=buffer[i];
-	buffer[length-1] = "\n";
-
 	printf("\nAPN: %s  \n\n",apn);
+
+	apn=NULL;
+	free(apn);
 
 }
 
 void show_modem3g_username(const char *cmdline)
 {
 	int check=0;
-	char * username=malloc(100);
+	char * username=malloc(256);
 
 	check = modem3g_get_username(username, interface_major);
 	if (check == -1){
@@ -2827,6 +2749,8 @@ void show_modem3g_username(const char *cmdline)
 	}
 
 	printf("\nUsername: %s \n\n",username);
+
+	username=NULL;
 	free (username);
 
 }
@@ -2834,7 +2758,7 @@ void show_modem3g_username(const char *cmdline)
 void show_modem3g_password(const char *cmdline)
 {
 	int check=0;
-	char * password=malloc(100);
+	char * password=malloc(256);
 
 	check = modem3g_get_password(password, interface_major);
 	if (check == -1){
@@ -2843,6 +2767,8 @@ void show_modem3g_password(const char *cmdline)
 	}
 
 	printf("\nPassword: %s \n\n",password);
+
+	password=NULL;
 	free (password);
 
 }
