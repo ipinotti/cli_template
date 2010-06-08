@@ -814,6 +814,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		st = conf.stats;
 
 		cish_dev = convert_os_device(conf.name, conf_format ? 0 : 1);
+		cish_dbg("cish_dev : %s\n", cish_dev);
 
 		/* Check if only one interface is needed */
 		if (intf && strcasecmp(conf.name, intf)){
@@ -823,6 +824,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		if (cish_dev == NULL)
 			continue; /* ignora dev nao usado pelo cish */
 
+
+		cish_dbg("Device found : %s\n", cish_dev);
 
 		if (strncmp(conf.name, "ipsec", 5) == 0)
 			conf.linktype = ARPHRD_TUNNEL6; /* !!! change crypto-? linktype (temp!) */
@@ -880,9 +883,6 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			case ARPHRD_PPP:
 				__dump_ppp_status(out, &conf);
 			break;
-			case ARPHRD_ASYNCPPP:
-			break;
-
 #endif
 		case ARPHRD_ETHER:
 			__dump_ethernet_status(out, &conf);
