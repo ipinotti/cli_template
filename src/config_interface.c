@@ -23,6 +23,7 @@
 #include "pprintf.h"
 #include "device.h"
 
+
 extern int _cish_booting;
 
 device_family *interface_edited;
