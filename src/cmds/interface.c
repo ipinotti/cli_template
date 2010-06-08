@@ -423,7 +423,9 @@ cish_command CMD_CONFIG_INTERFACE_M3G[] = {
 	{"username", "Username for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USER, NULL, 1, MSK_NORMAL},
 	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_PASS, NULL, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 //	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_m3G_NO, NULL, 1, MSK_NORMAL},
 //	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
