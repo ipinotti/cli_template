@@ -736,32 +736,6 @@ static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
 #endif
 
 #ifdef OPTION_PPP
-static void __dump_ppp_config(FILE *out, struct interface_conf *conf)
-{
-	ppp_config cfg;
-	char *osdev = conf->name;
-	int serial_no;
-
-	/* Get interface index */
-	serial_no = atoi(osdev + strlen(PPPDEV));
-
-	ppp_get_config(serial_no, &cfg);
-
-	__dump_intf_iptables_config(out, conf);
-
-	dump_policy_interface(out, osdev);
-	dump_rip_interface(out, osdev);
-	dump_ospf_interface(out, osdev);
-
-	fprintf(out, " apn set %s\n", cfg.apn);
-	fprintf(out, " username set %s\n", cfg.auth_user);
-	fprintf(out, " password set %s\n", cfg.auth_pass);
-	fprintf(out, " %sshutdown\n", cfg.up ? "no " : "");
-
-
-
-}
-
 static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config cfg;
