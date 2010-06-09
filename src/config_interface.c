@@ -796,8 +796,6 @@ void interface_modem3g_set_apn(const char *cmdline)
 	destroy_args(args);
 
 	apn=NULL;
-	free(apn);
-
 }
 
 void interface_modem3g_set_password(const char *cmdline)
@@ -822,8 +820,6 @@ void interface_modem3g_set_password(const char *cmdline)
 	destroy_args(args);
 
 	password=NULL;
-	free(password);
-
 }
 
 void interface_modem3g_set_username(const char *cmdline)
@@ -848,7 +844,5 @@ void interface_modem3g_set_username(const char *cmdline)
 	destroy_args(args);
 
 	username=NULL;
-	free (username);
-
 }
 #endif

@@ -1961,7 +1961,6 @@ void show_modem3g_apn(const char *cmdline)
 
 	printf("\nAPN: %s  \n\n",apn);
 
-	apn=NULL;
 	free(apn);
 
 }
@@ -1979,7 +1978,6 @@ void show_modem3g_username(const char *cmdline)
 
 	printf("\nUsername: %s \n\n",username);
 
-	username=NULL;
 	free (username);
 
 }
@@ -1997,7 +1995,6 @@ void show_modem3g_password(const char *cmdline)
 
 	printf("\nPassword: %s \n\n",password);
 
-	password=NULL;
 	free (password);
 
 }
