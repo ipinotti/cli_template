@@ -34,6 +34,8 @@
 #include "pprintf.h"
 #include "cish_config.h"
 #include "terminal_echo.h"
+#include "usb.h"
+
 
 #define PPPDEV "ppp"
 
@@ -741,15 +743,18 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	ppp_config cfg;
 	struct ip_t ip;
 	char *osdev = conf->name;
-	int serial_no;
+	int serial_no=0, lusb_err=0;
 	char * apn = malloc (100);
 	int running = conf->running;
+	lusb_dev * usbdev=malloc(sizeof(lusb_dev));
+
 
 	/* Get interface index */
 	serial_no = atoi(osdev + strlen(PPPDEV));
+	usbdev->port = serial_no+1;
 
 	ppp_get_config(serial_no, &cfg);
-
+	lusb_err = lusb_get_descriptor(usbdev);
 
 	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
 	if (cfg.ip_mask[0]) {strncpy(ip.ipmask, cfg.ip_mask, 16); printf("TESTE CFG MASK\n\n"); ip.ipmask[15]=0;}
@@ -764,19 +769,22 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	else if (ip.ipaddr[0])
 		fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 
-
 	fprintf(out, "  Encapsulation PPP");
-	if (modem3g_get_apn (apn, serial_no)){
-		fprintf(out, ", APN is \"%s\"", apn);
-		free (apn);
-	}
+
+	if (modem3g_get_apn (apn, serial_no))
+		fprintf(out, ", APN is \"%s\"\n", apn);
 	else
 		printf(" Error - reading APN\n");
+	free (apn);
 
-//	if (cfg.echo_interval)
-//	fprintf(out, ", echo interval %d", cfg.echo_interval);
-//	if (cfg.echo_failure)
-//	fprintf(out, ", echo failure %d", cfg.echo_failure);
+	if (lusb_err)
+		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d",
+				usbdev->iProduct_string,
+				usbdev->iManufacture_string,
+				usbdev->port);
+	else
+		printf("Error - reading USB Device info.");
+	free(usbdev);
 
 	fprintf(out, "\n");
 }
@@ -1024,16 +1032,11 @@ void show_level_running_config(const char *cmdline)
 		dump_crypto(f);
 #endif
 	} else if ((command_root == CMD_CONFIG_INTERFACE_ETHERNET)
-<<<<<<< HEAD:src/config_show.c
 	                || (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
 	                || (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
 	                || (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
 	                || (command_root == CMD_CONFIG_INTERFACE_M3G)) {
-=======
-			|| (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
-			|| (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
-			|| (command_root == CMD_CONFIG_INTERFACE_TUNNEL)) {
->>>>>>> e9748a3c941ffbb9612ce75c062c2b7f80503fe5:src/config_show.c
+
 		char *intf = convert_device(interface_edited->cish_string,
 				interface_major, interface_minor);
 
