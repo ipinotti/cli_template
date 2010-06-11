@@ -13,6 +13,7 @@ cish_command CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT[] = {
 
 cish_command CMD_CONFIG_NO_AAA_AUTHENTICATION[] = {
 	{"login", "Set authentication lists for logins.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
+	{"web", "Set authentication lists for web.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -99,6 +100,7 @@ cish_command CMD_CONFIG_AAA_AUTHEN_DEFAULT[] = {
 
 cish_command CMD_CONFIG_AAA_AUTHENTICATION[] = {
 	{"login", "Set authentication lists for logins.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
+	{"web", "Set authentication lists for web.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
