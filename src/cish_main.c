@@ -52,42 +52,6 @@ int _cish_aux;
 int cish_timeout=0;
 int cish_reload=0;
 
-extern int interface_major, interface_minor;
-
-extern cish_command CMD[];
-extern cish_command CMD_RAM[];
-extern cish_command CMD_FIRMWARE[];
-extern cish_command CMD_CONFIGURE[];
-extern cish_command CMD_CONFIG_ROUTER[];
-extern cish_command CMD_CONFIG_ROUTER_RIP[];
-extern cish_command CMD_CONFIG_ROUTER_OSPF[];
-#ifdef OPTION_BGP
-extern cish_command CMD_CONFIG_ROUTER_BGP[];
-#endif
-extern cish_command CMD_CONFIG_INTERFACE[];
-#ifdef OPTION_MODEM3G
-extern cish_command CMD_CONFIG_INTERFACE_M3G[];
-#endif
-extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
-extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
-extern cish_command CMD_CONFIG_INTERFACE_BRIDGE[];
-extern cish_command CMD_CONFIG_INTERFACE_LOOPBACK[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC[];
-extern cish_command CMD_CONFIG_INTERFACE_AUX_PPP_ASYNC[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_CHDLC[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SPPP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_FR[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SUBFR[];
-extern cish_command CMD_CONFIG_INTERFACE_TUNNEL[];
-extern cish_command CMD_CONFIG_CRYPTO[];
-extern cish_command CMD_IPSEC_CONNECTION_CHILDREN[];
-extern cish_command CMD_KEYCHAIN[];
-extern cish_command CMD_KEY[];
-extern cish_command CMD_POLICYMAP[];
-extern cish_command CMD_POLICYMAP_MARKRULE[];
-
 static void hup_handler(int);
 static void alarm_handler(int);
 

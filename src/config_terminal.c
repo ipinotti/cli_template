@@ -28,9 +28,6 @@ extern int _cish_booting;
 char keychain_name[64];
 int key_number;
 
-device_family *interface_edited;
-int interface_major, interface_minor;
-
 void config_term(const char *cmdline)
 {
 	syslog(LOG_INFO, "entered configuration mode for session from %s",

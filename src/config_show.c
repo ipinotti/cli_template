@@ -47,9 +47,6 @@ static int total_name_len;
 char separator[] = "<--->";
 #endif
 
-extern device_family *interface_edited;
-extern int interface_major, interface_minor;
-
 void show_output(void)
 {
 	if (!tf)

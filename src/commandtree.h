@@ -170,5 +170,7 @@ extern cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET[];
 extern cish_command CMD_SHOW_OSPF_INTERFACE_ETHERNET[];
 extern cish_command CMD_BGP_INTERFACE_ETHERNET[];
 
+/* Firmware */
+extern cish_command CMD_FIRMWARE[];
 
 #endif /* _COMMANDTREE_H */

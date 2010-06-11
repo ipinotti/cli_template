@@ -473,9 +473,6 @@ void no_pim_sparse_server(const char *cmd)
 }
 #endif
 
-extern device_family *interface_edited;
-extern int interface_major, interface_minor;
-
 void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 {
 	int dense, sparse;
