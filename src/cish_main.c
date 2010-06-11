@@ -739,10 +739,8 @@ int cish_config_changed(void)
 	int ret=0;
 
 	/* Writes running config */
-	f_running = fopen(TMP_CFG_FILE, "wt");
-	if (!f_running) return -1;
-	lconfig_write_config (f_running, cish_cfg);
-	fclose(f_running);
+	if (lconfig_write_config (TMP_CFG_FILE, cish_cfg) < 0)
+		return -1;
 
 	/* Load configuration fron flash */
 	load_configuration(STARTUP_CFG_FILE);

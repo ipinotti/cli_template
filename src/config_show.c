@@ -957,19 +957,14 @@ void show_routingtables(const char *cmdline)
 
 void show_running_config(const char *cmdline)
 {
-	FILE *f;
 
-	f = fopen(TMP_CFG_FILE, "wt");
-	if (!f) {
-		fprintf(stderr, "%% Can't build configuration\n");
-		return;
-	}
 	printf("Building configuration...\n");
 
 	/* Write config to f descriptor */
-	lconfig_write_config(f, cish_cfg);
-
-	fclose(f);
+	if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
+		fprintf(stderr, "%% Can't build configuration\n");
+		return;
+	}
 
 	tf = fopen(TMP_CFG_FILE, "r");
 
@@ -1115,29 +1110,25 @@ void cmd_copy(const char *cmdline)
 	}
 		break;
 
-	case 'r': {
-		FILE *f;
-		f = fopen(TMP_CFG_FILE, "wt");
-		if (!f) {
+	case 'r':
+		printf("Building configuration...\n");
+
+		if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
 			fprintf(stderr, "%% Can't build configuration\n");
 			destroy_args(args);
 			return;
 		}
-		printf("Building configuration...\n");
-		lconfig_write_config(f, cish_cfg);
-		fclose(f);
+
 		in = TMP_CFG_FILE;
-	}
 		break;
 
-	case 's': {
+	case 's':
 		if (load_configuration(STARTUP_CFG_FILE) == 0) {
 			fprintf(stderr, "%% Configuration not saved\n");
 			destroy_args(args);
 			return;
 		}
 		in = STARTUP_CFG_FILE;
-	}
 		break;
 
 	case 't': {
