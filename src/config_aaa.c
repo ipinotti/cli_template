@@ -10,7 +10,7 @@
 
 #include "commands.h"
 #include "commandtree.h"
-#include "cish_config.h"
+
 #include "cish_main.h"
 #include "pprintf.h"
 

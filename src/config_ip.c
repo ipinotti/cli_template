@@ -22,7 +22,7 @@
 #include "commandtree.h"
 #include "pprintf.h"
 #include "cish_main.h"
-#include "cish_config.h"
+
 
 int get_procip_val (const char *);
 

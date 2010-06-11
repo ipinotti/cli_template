@@ -33,7 +33,6 @@
 
 #include "commands.h"
 #include "commandtree.h"
-#include "cish_config.h"
 #include "cish_main.h"
 #include "pprintf.h"
 #include "terminal_echo.h"
@@ -42,6 +41,7 @@
 /* local function prototypes */
 
 /* global variables */
+cish_config *cish_cfg;
 cish_command *completion_root;
 cish_command *command_root;
 int _cish_loggedin;
@@ -102,7 +102,7 @@ void process_cish_exit(void)
 {
 	syslog(LOG_INFO, "session closed from %s", _cish_source);
 	closelog();
-	munmap_cfg();
+	lconfig_munmap_cfg(cish_cfg);
 }
 
 /* ==============================================================================
@@ -125,7 +125,10 @@ int main(int argc, char *argv[])
 	openlog("config", LOG_CONS|LOG_PID, LOG_USER);
 
 	/* Map CISH configuration */
-	mmap_cfg();
+	cish_cfg = lconfig_mmap_cfg();
+	if (cish_cfg == NULL)
+		exit(-1);
+
 	save_termios();
 
 	/* Begin with NORMAL mask */
@@ -159,7 +162,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 	else if (strcmp(argv[0], "config") == 0)
@@ -171,7 +174,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}	
 	else if (strcmp(argv[0], "interface") == 0)
@@ -183,7 +186,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 	else if (strcmp(argv[0], "router") == 0)
@@ -195,7 +198,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 	else if (strcmp(argv[0], "ssi") == 0)
@@ -203,7 +206,7 @@ int main(int argc, char *argv[])
 #if 0
 		ssi_main();
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 	else if (strcmp(argv[0], "keychain") == 0)
@@ -215,7 +218,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 	else if (strcmp(argv[0], "key") == 0)
@@ -227,7 +230,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 #ifdef OPTION_NEW_QOS_CONFIG
@@ -240,7 +243,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	} 
 	else if (strcmp(argv[0], "policy-mark") == 0) 
@@ -252,7 +255,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 #endif
@@ -266,7 +269,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 	else if (strcmp(argv[0], "ipsec") == 0)
@@ -278,7 +281,7 @@ int main(int argc, char *argv[])
 #ifdef OPTION_CGI
 		cgi_main(argv[0]);
 #endif
-		munmap_cfg();
+		lconfig_munmap_cfg(cish_cfg);
 		return 0;
 	}
 #endif

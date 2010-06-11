@@ -32,7 +32,7 @@
 #include "commandtree.h"
 #include "cish_main.h"
 #include "pprintf.h"
-#include "cish_config.h"
+
 #include "terminal_echo.h"
 
 #define PPPDEV "ppp"

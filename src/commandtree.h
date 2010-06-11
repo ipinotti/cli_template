@@ -12,6 +12,7 @@
 /* Global variables (We should really get rid of them!) */
 extern char EXTCMD[1024];
 extern char EXTSCRIPT[1024];
+extern cish_config *cish_cfg;
 extern int _cish_enable;
 extern int _cish_mask;
 extern int _cish_debug;
