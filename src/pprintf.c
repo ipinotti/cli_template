@@ -14,7 +14,7 @@
 #include "commands.h"
 #include "commandtree.h"
 #include "terminal_echo.h"
-#include "cish_config.h"
+
 #include "cish_main.h"
 
 int terminal_lines;

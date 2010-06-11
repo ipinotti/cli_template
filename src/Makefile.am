@@ -6,7 +6,6 @@ bin_PROGRAMS = \
 
 cish_SOURCES = \
 	cish_main.c \
-	cish_config.c \
 	cish_tacplus.c \
 	match.c \
 	pprintf.c \

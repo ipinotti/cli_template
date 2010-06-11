@@ -9,9 +9,6 @@
 #include "pprintf.h"
 #include "cish_main.h"
 
-extern device_family *interface_edited;
-extern int interface_major, interface_minor;
-
 //#define DEBUG_CMD(x) printf("cmd = %s\n", x)
 #define DEBUG_CMD(x)
 

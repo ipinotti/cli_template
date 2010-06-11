@@ -1,6 +1,3 @@
-#include "commands.h"
-#include "commandtree.h"
-
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <linux/if.h>
@@ -11,15 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libconfig/typedefs.h>
-#include <libconfig/vlan.h>
-#include <libconfig/device.h>
-#include <libconfig/defines.h>
-#include <libconfig/args.h>
-#include <libconfig/dev.h>
+#include "commands.h"
+#include "commandtree.h"
 
-extern int interface_major;
-extern int interface_minor;
 
 void vlan_add(const char *cmd) /* vlan <id> */
 {

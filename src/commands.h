@@ -51,7 +51,7 @@
 #include <libconfig/ssh.h>
 #include <libconfig/vlan.h>
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #define cish_dbg(x,...) \
 		printf("%s : %d =>", __FUNCTION__, __LINE__); \

@@ -22,7 +22,7 @@
 #include "commandtree.h"
 #include "pprintf.h"
 #include "cish_main.h"
-#include "cish_config.h"
+
 
 int get_procip_val (const char *);
 
@@ -472,9 +472,6 @@ void no_pim_sparse_server(const char *cmd)
 	kill_daemon(PIMS_DAEMON);
 }
 #endif
-
-extern device_family *interface_edited;
-extern int interface_major, interface_minor;
 
 void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 {

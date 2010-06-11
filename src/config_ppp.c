@@ -9,9 +9,6 @@
 #include "pprintf.h"
 #include <libconfig/options.h>
 
-extern device_family *interface_edited;
-extern int interface_major, interface_minor;
-
 void ppp_shutdown (const char *cmd)
 {
 	int i;

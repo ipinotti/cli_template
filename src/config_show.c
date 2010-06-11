@@ -32,7 +32,7 @@
 #include "commandtree.h"
 #include "cish_main.h"
 #include "pprintf.h"
-#include "cish_config.h"
+
 #include "terminal_echo.h"
 #include "usb.h"
 
@@ -48,9 +48,6 @@ static FILE *tf;
 static int total_name_len;
 char separator[] = "<--->";
 #endif
-
-extern device_family *interface_edited;
-extern int interface_major, interface_minor;
 
 void show_output(void)
 {
@@ -822,6 +819,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		st = conf.stats;
 
 		cish_dev = convert_os_device(conf.name, conf_format ? 0 : 1);
+		cish_dbg("cish_dev : %s\n", cish_dev);
 
 		/* Check if only one interface is needed */
 		if (intf && strcasecmp(conf.name, intf)){
@@ -831,6 +829,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		if (cish_dev == NULL)
 			continue; /* ignora dev nao usado pelo cish */
 
+
+		cish_dbg("Device found : %s\n", cish_dev);
 
 		if (strncmp(conf.name, "ipsec", 5) == 0)
 			conf.linktype = ARPHRD_TUNNEL6; /* !!! change crypto-? linktype (temp!) */
@@ -888,9 +888,6 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			case ARPHRD_PPP:
 				__dump_ppp_status(out, &conf);
 			break;
-			case ARPHRD_ASYNCPPP:
-			break;
-
 #endif
 		case ARPHRD_ETHER:
 			__dump_ethernet_status(out, &conf);
@@ -968,19 +965,14 @@ void show_routingtables(const char *cmdline)
 
 void show_running_config(const char *cmdline)
 {
-	FILE *f;
 
-	f = fopen(TMP_CFG_FILE, "wt");
-	if (!f) {
-		fprintf(stderr, "%% Can't build configuration\n");
-		return;
-	}
 	printf("Building configuration...\n");
 
 	/* Write config to f descriptor */
-	lconfig_write_config(f, cish_cfg);
-
-	fclose(f);
+	if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
+		fprintf(stderr, "%% Can't build configuration\n");
+		return;
+	}
 
 	tf = fopen(TMP_CFG_FILE, "r");
 
@@ -1121,29 +1113,25 @@ void cmd_copy(const char *cmdline)
 	}
 		break;
 
-	case 'r': {
-		FILE *f;
-		f = fopen(TMP_CFG_FILE, "wt");
-		if (!f) {
+	case 'r':
+		printf("Building configuration...\n");
+
+		if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
 			fprintf(stderr, "%% Can't build configuration\n");
 			destroy_args(args);
 			return;
 		}
-		printf("Building configuration...\n");
-		lconfig_write_config(f, cish_cfg);
-		fclose(f);
+
 		in = TMP_CFG_FILE;
-	}
 		break;
 
-	case 's': {
+	case 's':
 		if (load_configuration(STARTUP_CFG_FILE) == 0) {
 			fprintf(stderr, "%% Configuration not saved\n");
 			destroy_args(args);
 			return;
 		}
 		in = STARTUP_CFG_FILE;
-	}
 		break;
 
 	case 't': {

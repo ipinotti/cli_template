@@ -33,7 +33,6 @@
 
 #include "commands.h"
 #include "commandtree.h"
-#include "cish_config.h"
 #include "cish_main.h"
 #include "pprintf.h"
 #include "terminal_echo.h"
@@ -42,6 +41,7 @@
 /* local function prototypes */
 
 /* global variables */
+cish_config *cish_cfg;
 cish_command *completion_root;
 cish_command *command_root;
 int _cish_loggedin;
@@ -51,42 +51,6 @@ int _cish_booting;
 int _cish_aux;
 int cish_timeout=0;
 int cish_reload=0;
-
-extern int interface_major, interface_minor;
-
-extern cish_command CMD[];
-extern cish_command CMD_RAM[];
-extern cish_command CMD_FIRMWARE[];
-extern cish_command CMD_CONFIGURE[];
-extern cish_command CMD_CONFIG_ROUTER[];
-extern cish_command CMD_CONFIG_ROUTER_RIP[];
-extern cish_command CMD_CONFIG_ROUTER_OSPF[];
-#ifdef OPTION_BGP
-extern cish_command CMD_CONFIG_ROUTER_BGP[];
-#endif
-extern cish_command CMD_CONFIG_INTERFACE[];
-#ifdef OPTION_MODEM3G
-extern cish_command CMD_CONFIG_INTERFACE_M3G[];
-#endif
-extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
-extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
-extern cish_command CMD_CONFIG_INTERFACE_BRIDGE[];
-extern cish_command CMD_CONFIG_INTERFACE_LOOPBACK[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_ASYNC[];
-extern cish_command CMD_CONFIG_INTERFACE_AUX_PPP_ASYNC[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_CHDLC[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SPPP[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_FR[];
-extern cish_command CMD_CONFIG_INTERFACE_SERIAL_SUBFR[];
-extern cish_command CMD_CONFIG_INTERFACE_TUNNEL[];
-extern cish_command CMD_CONFIG_CRYPTO[];
-extern cish_command CMD_IPSEC_CONNECTION_CHILDREN[];
-extern cish_command CMD_KEYCHAIN[];
-extern cish_command CMD_KEY[];
-extern cish_command CMD_POLICYMAP[];
-extern cish_command CMD_POLICYMAP_MARKRULE[];
 
 static void hup_handler(int);
 static void alarm_handler(int);
@@ -102,7 +66,7 @@ void process_cish_exit(void)
 {
 	syslog(LOG_INFO, "session closed from %s", _cish_source);
 	closelog();
-	munmap_cfg();
+	lconfig_munmap_cfg(cish_cfg);
 }
 
 /* ==============================================================================
@@ -125,7 +89,10 @@ int main(int argc, char *argv[])
 	openlog("config", LOG_CONS|LOG_PID, LOG_USER);
 
 	/* Map CISH configuration */
-	mmap_cfg();
+	cish_cfg = lconfig_mmap_cfg();
+	if (cish_cfg == NULL)
+		exit(-1);
+
 	save_termios();
 
 	/* Begin with NORMAL mask */
@@ -142,146 +109,6 @@ int main(int argc, char *argv[])
 	/* Begin at root */
 	command_root=CMD;
 
-	if (get_runlevel() == '4') /* firmware upload */
-	{
-		CMD_FIRMWARE[0].privilege=1; /* enable download */
-		CMD_FIRMWARE[1].privilege=1; /* enable save */
-		CMD_FIRMWARE[2].privilege=1000; /* disable upload */
-	}
-
-	/* thttpd/config.h CGI_PATTERN "config|exec|interface|router|ssi|keychain|key|crypto|ipsec" */
-	if (strcmp(argv[0], "exec") == 0)
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}
-	else if (strcmp(argv[0], "config") == 0)
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_CONFIGURE;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}	
-	else if (strcmp(argv[0], "interface") == 0)
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_CONFIG_INTERFACE;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}
-	else if (strcmp(argv[0], "router") == 0)
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_CONFIG_ROUTER;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}
-	else if (strcmp(argv[0], "ssi") == 0)
-	{
-#if 0
-		ssi_main();
-#endif
-		munmap_cfg();
-		return 0;
-	}
-	else if (strcmp(argv[0], "keychain") == 0)
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_KEYCHAIN;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}
-	else if (strcmp(argv[0], "key") == 0)
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_KEY;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}
-#ifdef OPTION_NEW_QOS_CONFIG
-	else if (strcmp(argv[0], "policy-map") == 0) 
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_POLICYMAP;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	} 
-	else if (strcmp(argv[0], "policy-mark") == 0) 
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_POLICYMAP_MARKRULE;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}
-#endif
-#ifdef OPTION_IPSEC
-	else if (strcmp(argv[0], "crypto") == 0)
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_CONFIG_CRYPTO;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}
-	else if (strcmp(argv[0], "ipsec") == 0)
-	{
-		_cish_loggedin = 1;
-		_cish_enable = 1;
-		terminal_lines = 0;
-		command_root = CMD_IPSEC_CONNECTION_CHILDREN;
-#ifdef OPTION_CGI
-		cgi_main(argv[0]);
-#endif
-		munmap_cfg();
-		return 0;
-	}
-#endif
 
 	if (argc == 2) {
 		if (strcmp (argv[1], "-b") == 0) { /* Board is booting up */
@@ -291,7 +118,7 @@ int main(int argc, char *argv[])
 			load_ntp_secret(NTP_KEY_FILE);
 
 			size = load_configuration(STARTUP_CFG_FILE);
-			
+
 			if (size <= 0) {
 				printf("%% using default configuration\n");
 				bootfile=DEFAULT_CFG_FILE;
@@ -463,18 +290,18 @@ int main(int argc, char *argv[])
 				retval = cish_execute(xline);
 				/* Command accounting */
 				acct_mode = discover_pam_current_acct_command_mode(FILE_PAM_GENERIC);
-				if (retval && acct_mode!=AAA_ACCT_TACACS_CMD_NONE) 
+				if (retval && acct_mode!=AAA_ACCT_TACACS_CMD_NONE)
 				{
 					/* logs anything but exit and enable commands*/
-					if ( strncmp(line,"exit", strlen("exit")) && 
+					if ( strncmp(line,"exit", strlen("exit")) &&
 						strncmp(line,"enable", strlen("enable")) )
-					{	
-						if ( (!_cish_enable) && 
-							(acct_mode == AAA_ACCT_TACACS_CMD_1 || 
+					{
+						if ( (!_cish_enable) &&
+							(acct_mode == AAA_ACCT_TACACS_CMD_1 ||
 							acct_mode == AAA_ACCT_TACACS_CMD_ALL) ) /* unprivileged user */
 							tacacs_log((unsigned char *)line,TAC_PLUS_PRIV_LVL_USR);
-						else if ((_cish_enable) && 
-							  (acct_mode == AAA_ACCT_TACACS_CMD_15 || 
+						else if ((_cish_enable) &&
+							  (acct_mode == AAA_ACCT_TACACS_CMD_15 ||
 							   acct_mode == AAA_ACCT_TACACS_CMD_ALL) )
 								tacacs_log((unsigned char *)line,TAC_PLUS_PRIV_LVL_MAX);
 					}
@@ -560,7 +387,7 @@ struct logwatch {
 void init_logwatch (void)
 {
 	int i;
-	
+
 	for (i=0; i < 16; ++i)
 	{
 		LOGS[i].offset = -1;
@@ -691,9 +518,9 @@ int user_getc (FILE *stream)
 {
 	int result;
 	unsigned char c;
-	
+
 	cish_timeout = cish_cfg->terminal_timeout;
-	
+
 	while (1)
 	{
 		result = read (fileno (stream), &c, sizeof (unsigned char));
@@ -729,13 +556,13 @@ char **cish_completion (char *text, int start, int end)
 	int rightedge;
 	int pos;
 	cish_command *xcmd;
-	
+
 	completion_root = command_root;
 	if (start>0)
 	{
 		pos = 0;
 		while ((rl_line_buffer[pos] == ' ') && (pos < start)) ++pos;
-		
+
 		while (pos < start)
 		{
 			rightedge = (strchr (rl_line_buffer+pos, ' ') - rl_line_buffer);
@@ -744,7 +571,7 @@ char **cish_completion (char *text, int start, int end)
 				/* command is now between pos and rightedge */
 				memcpy (tmp, rl_line_buffer+pos, rightedge-pos);
 				tmp[rightedge-pos] = 0;
-								
+
 				xcmd = completion_root ? expand_token (tmp, completion_root, -1) : NULL;
 				if (xcmd) completion_root = xcmd->children;
 				pos = rightedge+1;
@@ -753,8 +580,8 @@ char **cish_completion (char *text, int start, int end)
 		}
 	}
 	matches = (char **) NULL;
-	
-	if (!completion_root) 
+
+	if (!completion_root)
 	{
 		matches = (char **) malloc (2 * sizeof(char *));
 		printf ("\n<enter> no further known parameters\n\n");
@@ -765,9 +592,9 @@ char **cish_completion (char *text, int start, int end)
 		rl_pending_input = '\b';
 		return matches;
 	}
-	
+
 	matches = (char **)rl_completion_matches (text, cish_command_generator);
-	
+
 	if (! (*matches[0]))
 	{
 		rl_completion_append_character = '\0';
@@ -792,12 +619,12 @@ char *cish_command_generator (const char *text, int state)
 {
 	cish_command *result;
 	rl_completion_append_character = ' ';
-	
+
 	if (!state) _iteration = 0;
-	
+
 	result = expand_token (text, completion_root, _iteration);
 	++_iteration;
-	
+
 	if (result) return (char *) strdup(result->name);
 	if (!state)
 	{
@@ -823,13 +650,13 @@ int cish_questionmark (int count, int KEY)
 	int i;
 	int len;
 	char incomp[1024]="";
-	
+
 	completion_root = command_root;
 	if (start>0)
 	{
 		pos = 0;
 		while ((rl_line_buffer[pos] == ' ') && (pos < start)) ++pos;
-		
+
 		while (pos < start)
 		{
 			rightedge = (strchr (rl_line_buffer+pos, ' ') - rl_line_buffer);
@@ -856,7 +683,7 @@ int cish_questionmark (int count, int KEY)
 				}
 				pos = rightedge+1;
 			}
-			else 
+			else
 			{
 				strncpy(incomp, rl_line_buffer+pos, 1024); incomp[1023]=0;
 				pos=start;
@@ -879,7 +706,7 @@ int cish_questionmark (int count, int KEY)
 		pos = 0;
 		while (completion_root[pos].name)
 		{
-			if ((completion_root[pos].privilege <= _cish_enable) && 
+			if ((completion_root[pos].privilege <= _cish_enable) &&
 			    (completion_root[pos].mask & _cish_mask) &&
 			    ((incomp[0]==0)||(strncmp(completion_root[pos].name, incomp, strlen(incomp))==0)))
 			{
@@ -897,199 +724,6 @@ int cish_questionmark (int count, int KEY)
 	return 1;
 }
 
-#ifdef OPTION_CGI
-// Retorna 1 se o comando esta completo (ou se nao reconheceu o comando)
-
-int cish_completion_http (char *cmdline, char *base_url)
-{
-	char tmp[1024];
-	int rightedge;
-	int pos;
-	int start=strlen(cmdline);
-	cish_command *xcmd;
-	char incomp[1024]="";
-	
-	// caso particular: comando 'configure', 'interface ...', etc
-	if (strcmp(cmdline, "configure ")==0)
-	{
-		printf("<a href=/config>http</a><dd>Configure from http<dt>\n");
-		return 0;		
-	}
-	
-	completion_root = command_root;
-	if (start>0)
-	{
-		pos = 0;
-		while ((cmdline[pos] == ' ') && (pos < start)) ++pos;
-		
-		while (pos < start)
-		{
-			rightedge = (strchr (cmdline+pos, ' ') - cmdline);
-			if ((rightedge>=0) && (rightedge < start))
-			{
-				/* command is now between pos and rightedge */
-				memcpy (tmp, cmdline+pos, rightedge-pos);
-				tmp[rightedge-pos] = 0;
-				xcmd = expand_token (tmp, completion_root,-1);
-				if (!xcmd)
-					return 1;
-				if (xcmd->children) completion_root = xcmd->children;
-				else return 1;
-				pos = rightedge+1;
-			}
-			else 
-			{
-				strncpy(incomp, cmdline+pos, 1024); incomp[1023]=0;
-				pos=start;
-			}
-			while ((cmdline[pos] == ' ') && (pos < start)) ++pos;
-		}
-	}
-	
-	if (completion_root)
-	{
-		const char *name, *help;
-		
-		pos = 0;
-		while (completion_root[pos].name)
-		{
-			if ((completion_root[pos].privilege <= _cish_enable) && 
-			    (completion_root[pos].mask & _cish_mask) &&
-			    ((incomp[0]==0)||(strncmp(completion_root[pos].name, incomp, strlen(incomp))==0)))
-			{
-				cmdline2url(cmdline, buf);
-				name = completion_root[pos].name;
-				help = completion_root[pos].help;
-				
-				if (strcmp(name, "<enter>")==0)
-				{
-					strcat(buf, "CR");
-					printf("<a href=%s%s>CR</a><dd>%s<dt>\n",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "hh:mm:ss")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=HH:MM:SS> <input type=text name=arg size=8></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if ((isdigit(*name)) && (strchr (name, '-')))
-				{
-					int size1, size2, size;
-					
-					size1 = strchr(name, '-')-name;
-					size2 = strlen(name)-size1-1;
-					if (size1>size2) size=size1; else size=size2;
-					if (size<1) size=1;
-					
-					if (strncmp(cmdline, "interface", 9)==0)
-					{
-					}
-					
-					printf("<form method=post action=%s%sARG><input type=submit value=Number> %s <input type=text name=arg size=%d></form><dd>%s<dt>",
-						base_url, buf, name, size, help);
-				}
-				else if (strcmp(name, "-23 - 23")==0)
-				{
-					int size=3;
-					
-					printf("<form method=post action=%s%sARG><input type=submit value=Number> %s <input type=text name=arg size=%d></form><dd>%s<dt>",
-						base_url, buf, name, size, help);
-				}
-				else if (strcmp(name, "<ipaddress>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=IP_Address> <input type=text name=arg size=15></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<netmask>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=IP_Mask> <input type=text name=arg size=15></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<rnetmask>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Wildcard_bits> <input type=text name=arg size=15></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<ipx network>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=IPX_Network> <input type=text name=arg size=8></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<ipx node>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=IPX_Network> <input type=text name=arg size=12></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<x121>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=X121> <input type=text name=arg size=18></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<cudhexstring>") == 0) 
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=CUD> <input type=text name=arg size=32></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<bandwidth>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Bandwidth> <input type=text name=arg size=13></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<burst>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Burst> <input type=text name=arg size=13></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<port>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Port> <input type=text name=arg size=15></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<acl>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=ACL> <input type=text name=arg size=60></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<flags>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Flags> <input type=text name=arg size=60></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<url>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Url> <input type=text name=arg size=128></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<string>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Hash> <input type=text name=arg size=60></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<text>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Word> <input type=text name=arg size=60></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else if (strcmp(name, "<mac>")==0)
-				{
-					printf("<form method=post action=%s%sARG><input type=submit value=Mac> <input type=text name=arg size=20></form><dd>%s<dt>",
-						base_url, buf, help);
-				}
-				else
-				{
-					strcat(buf, name);
-					printf("<a href=%s%s>%s</a><dd>%s<dt>\n",
-						base_url, buf, name, help);
-				}
-			}
-			++pos;
-		}
-		printf ("\n");
-	}
-	return 0;
-}
-#endif
-
 /* ==============================================================================
  * cish_config_changed
  *
@@ -1103,16 +737,14 @@ int cish_config_changed(void)
 	struct stat run_stat, flash_stat;
 	char in;
 	int ret=0;
-		
+
 	/* Writes running config */
-	f_running = fopen(TMP_CFG_FILE, "wt");
-	if (!f_running) return -1;
-	lconfig_write_config (f_running, cish_cfg);
-	fclose(f_running);
+	if (lconfig_write_config (TMP_CFG_FILE, cish_cfg) < 0)
+		return -1;
 
 	/* Load configuration fron flash */
 	load_configuration(STARTUP_CFG_FILE);
-	
+
 	/* Check size */
 	stat(TMP_CFG_FILE,&run_stat);
 	stat(STARTUP_CFG_FILE,&flash_stat);
@@ -1131,13 +763,13 @@ int cish_config_changed(void)
 		/* malloc the same ammount of memory for both */
 		run_buffer = (unsigned char *) malloc(run_stat.st_size);
 		flash_buffer = (unsigned char *) malloc(run_stat.st_size);
-		
+
 		fread (run_buffer, 1, run_stat.st_size, f_running);
 		fread (flash_buffer, 1, run_stat.st_size, f_flash);
 
 		fclose(f_running);
 		fclose(f_flash);
-	
+
 		md5_buffer((char *)run_buffer, run_stat.st_size, run_hash);
 		md5_buffer((char *)flash_buffer, run_stat.st_size, flash_hash);
 
@@ -1154,10 +786,10 @@ int cish_config_changed(void)
 		if ((in=='y')||(in=='Y')) {
 			const char flash_save_cmd[]="copy running-config startup-config";
 			cmd_copy(flash_save_cmd);
-		} 
+		}
 	}
-	
-	unlink(TMP_CFG_FILE);	
+
+	unlink(TMP_CFG_FILE);
 	return 0;
 }
 
@@ -1270,14 +902,14 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 	int latest_match = -1;
 	int octets;
 	int itcnt = 0;
-	
+
 	char tmp[1024];
 	char *t;
 	char *tt;
-	
+
 	while (queue[idx_inqueue].name)
 	{
-		if ((queue[idx_inqueue].privilege <= _cish_enable) && 
+		if ((queue[idx_inqueue].privilege <= _cish_enable) &&
 		    (completion_root[idx_inqueue].mask & _cish_mask) )
 		{
 			/* match */
@@ -1314,7 +946,7 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 						return &CEXT;
 					}
 				}
-			
+
 			}
 			else if (strcmp (queue[idx_inqueue].name, "hh:mm:ss") == 0)
 			{
@@ -1343,7 +975,7 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 					// 'ip' sera considerado ambiguo.
 					if (strncmp (queue[idx_inqueue].name, unexpanded, strlen(queue[idx_inqueue].name)) == 0)
 						return &(queue[idx_inqueue]);
-					
+
 					if (latest_match >=0) return NULL;
 					latest_match = idx_inqueue;
 				}
@@ -1355,24 +987,6 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 			}
 			else if (strcmp (queue[idx_inqueue].name, "<ipaddress>") == 0)
 			{
-#if 0
-				strncpy(tmp, unexpanded, 1023);
-				t=tmp;
-				octets=0;
-				while ((octets < 4) && (t != NULL))
-				{
-					tt=strchr(t, '.');
-					if (tt != NULL) *tt=0;
-					if (isdigit(*t) && (atoi(t) < 256))
-					{
-						if (tt != NULL) *tt = '.';
-						octets++;
-						t = tt != NULL ? tt+1 : tt;
-					}
-						else t=NULL;
-				}
-				if (octets == 4)
-#else
 				struct in_addr address;
 				struct hostent* he;
 				int address_ok;
@@ -1391,15 +1005,10 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 					}
 				}
 				if (address_ok)
-#endif
 				{
 					if (iteration < 1)
 					{
-#if 0
-						strncpy(EXTCMD, unexpanded, 1023);
-#else
 						strncpy(EXTCMD, inet_ntoa(address), 1023);
-#endif
 						EXTCMD[1023]=0;
 						CEXT.func = queue[idx_inqueue].func;
 						CEXT.children = queue[idx_inqueue].children;
@@ -1448,14 +1057,14 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 				t = tmp;
 				while (*t)
 				{
-					if (isxdigit(*t)) 
+					if (isxdigit(*t))
 					{
 						nibbles++;
 					}
-					else 
+					else
 					{
-						if (!isspace(*t)) nibbles = 0; 
-						break; 
+						if (!isspace(*t)) nibbles = 0;
+						break;
 					}
 					t++;
 				}
@@ -1478,14 +1087,14 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 				t = tmp;
 				while (*t)
 				{
-					if (isxdigit(*t)) 
+					if (isxdigit(*t))
 					{
 						nibbles++;
 					}
-					else 
+					else
 					{
-						if (!isspace(*t)) nibbles = 0; 
-						break; 
+						if (!isspace(*t)) nibbles = 0;
+						break;
 					}
 					t++;
 				}
@@ -1720,7 +1329,7 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 						t=strtok(tmp, ",/");
 						while (t != NULL)
 						{
-							if (strcmp(t, "FIN") && strcmp(t, "SYN") && strcmp(t, "RST") && strcmp(t, "PSH") && 
+							if (strcmp(t, "FIN") && strcmp(t, "SYN") && strcmp(t, "RST") && strcmp(t, "PSH") &&
 								strcmp(t, "ACK") && strcmp(t, "URG") && strcmp(t, "ALL")) { flags_ok=0; break; }
 							if (t < tt) flags_ok |= 0x01; else flags_ok |= 0x02;
 							t=strtok(NULL, ",/");
@@ -1835,22 +1444,22 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 void term_length (const char *cmd)
 {
 	arglist *args;
-	
+
 	args = make_args (cmd);
-	
+
 	terminal_lines = cish_cfg->terminal_lines = atoi (args->argv[2]);
-	
+
 	destroy_args (args);
 }
 
 void term_timeout (const char *cmd)
 {
 	arglist *args;
-	
+
 	args = make_args (cmd);
-	
+
 	cish_timeout = cish_cfg->terminal_timeout = atoi (args->argv[2]);
-	
+
 	destroy_args (args);
 }
 
@@ -1894,7 +1503,7 @@ void config_clock_timezone (const char *cmd)
 	arglist *args;
 	char *name;
 	int hours, mins;
-	
+
 	args = make_args (cmd);
 	name = args->argv[2];
 	hours = atoi(args->argv[3]);
@@ -1902,8 +1511,8 @@ void config_clock_timezone (const char *cmd)
 		mins = atoi(args->argv[4]);
 	else
 		mins = 0;
-		
-	set_timezone(name, hours, mins);	
+
+	set_timezone(name, hours, mins);
 	destroy_args (args);
 }
 
@@ -1912,7 +1521,7 @@ void config_clock_timezone (const char *cmd)
 void hostname (const char *cmd)
 {
 	arglist *args;
-	
+
 	args = make_args (cmd);
 	sethostname(args->argv[1], strlen(args->argv[1]));
 	destroy_args (args);
@@ -1955,10 +1564,10 @@ void reload(const char *cmd)
 
 	/* Check if configuration has changed and should be saved */
 	cish_config_changed();
-	
+
 	/* Question for saving configuration? */
 	printf("Proceed with reload? [confirm]");
-	
+
 	/* Wait for input in non-canonical mode */
 	canon_off();
 	in=fgetc(stdin);
@@ -2160,7 +1769,7 @@ static void clear_ipsec_counters(char *conn_name)
 
 		/* The connection name will appear with inverted comas */
 		sprintf(name_buf, "\"%s\"", conn_name);
-		
+
 		/* Find the right connection */
 		for( found=0; (found == 0) && fgets(line, 1024, output); ) {
 			if( parse_args_din(line, &argl) > 3 ) {
