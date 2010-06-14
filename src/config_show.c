@@ -773,6 +773,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	else
 		printf(" Error - reading APN\n");
 	free (apn);
+
 	if (lusb_err == 1)
 		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d",
 				usbdev->iProduct_string,
@@ -781,6 +782,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	else
 		printf("  No USB device connected.");
 	free(usbdev);
+
 
 	fprintf(out, "\n");
 
@@ -856,8 +858,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 #endif
 
 		/* Ignore loopback that are down */
-		if ( (conf.linktype == ARPHRD_LOOPBACK && !conf.running) && (conf.linktype == ARPHRD_PPP && !conf.running))
+		if ( (conf.linktype == ARPHRD_LOOPBACK && !conf.running) ){
 			continue;
+		}
 
 		conf.type = DUMP_INTF_STATUS;
 
@@ -877,8 +880,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype == ARPHRD_IPGRE || conf.linktype == ARPHRD_PPP))
 				fprintf(out, "  Peer address is %s\n", ip.ippeer);
 
+		if (conf.linktype == ARPHRD_PPP && conf.running)
+			fprintf(out, "  MTU is %i bytes\n", conf.mtu);
 
-		fprintf(out, "  MTU is %i bytes\n", conf.mtu);
+		if (conf.linktype != ARPHRD_PPP)
+			fprintf(out, "  MTU is %i bytes\n", conf.mtu);
 
 		if (conf.txqueue)
 			fprintf(out, "  Output queue size: %i\n", conf.txqueue);
@@ -910,6 +916,16 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			fprintf(stderr, "%% unknown link type: %d\n", conf.linktype);
 			break;
 		}
+
+
+		/* Se dispositivo 3G USB não estiver presente no sistema, ou sem ppp ativo,
+		 * Description não será apresentado
+		 */
+		if (conf.linktype == ARPHRD_PPP && !conf.running)
+			continue;
+
+
+
 
 		fprintf(out, "     %lu packets input, %lu bytes\n", st->rx_packets, st->rx_bytes);
 		fprintf(
