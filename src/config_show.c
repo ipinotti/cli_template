@@ -773,17 +773,17 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	else
 		printf(" Error - reading APN\n");
 	free (apn);
-
-	if (lusb_err)
+	if (lusb_err == 1)
 		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d",
 				usbdev->iProduct_string,
 				usbdev->iManufacture_string,
 				usbdev->port);
 	else
-		printf("Error - reading USB Device info.");
+		printf("  No USB device connected.");
 	free(usbdev);
 
 	fprintf(out, "\n");
+
 }
 #endif /* OPTION_PPP */
 
@@ -856,7 +856,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 #endif
 
 		/* Ignore loopback that are down */
-		if (conf.linktype == ARPHRD_LOOPBACK && !conf.running)
+		if ( (conf.linktype == ARPHRD_LOOPBACK && !conf.running) && (conf.linktype == ARPHRD_PPP && !conf.running))
 			continue;
 
 		conf.type = DUMP_INTF_STATUS;
@@ -911,13 +911,14 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			break;
 		}
 
-
 		fprintf(out, "     %lu packets input, %lu bytes\n", st->rx_packets, st->rx_bytes);
 		fprintf(
 		                out,
 		                "     %lu input errors, %lu dropped, %lu overruns, %lu frame, %lu crc, %lu fifo\n",
 		                st->rx_errors, st->rx_dropped, st->rx_over_errors,
 		                st->rx_frame_errors, st->rx_crc_errors, st->rx_fifo_errors);
+
+
 #ifdef CONFIG_DEVELOPMENT
 		fprintf(out, "     %lu length, %lu missed\n", st->rx_length_errors,
 		                st->rx_missed_errors);
