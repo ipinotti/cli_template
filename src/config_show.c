@@ -311,7 +311,8 @@ void show_processes(const char *cmdline)
 			{ "inetd", "Service Multiplexer" },
 			{ "systtyd", "Runtime System" },
 			{ "backupd", "Conection Manager"},
-			{ "thttpd", "Web Server" },
+			{ "wnsd", "HTTP Server" },
+			{ "wnsslsd", "HTTPS Server" },
 #ifdef OPTION_OPENSSH
 	                { "sshd", "SSH Server" },
 #else

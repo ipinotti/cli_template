@@ -184,6 +184,8 @@ void dump_bridge(FILE *);
 void dump_version(FILE *);
 void http_server(const char *cmd);
 void no_http_server(const char *cmd);
+void https_server(const char *cmd);
+void no_https_server(const char *cmd);
 void telnet_server(const char *cmd);
 void no_telnet_server(const char *cmd);
 void firmware_download(const char *cmd);

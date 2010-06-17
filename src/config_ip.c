@@ -245,6 +245,18 @@ void no_http_server (const char *cmd)
 }
 #endif
 
+#ifdef OPTION_HTTPS
+void https_server (const char *cmd)
+{
+	exec_daemon(HTTPS_DAEMON);
+}
+
+void no_https_server (const char *cmd)
+{
+	kill_daemon(HTTPS_DAEMON);
+}
+#endif
+
 void telnet_server(const char *cmd)
 {
 	set_inetd_program(1, TELNET_DAEMON);

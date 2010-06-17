@@ -25,6 +25,13 @@ cish_command CMD_NO_IP_HTTP[] = {
 };
 #endif
 
+#ifdef OPTION_HTTPS
+cish_command CMD_NO_IP_HTTPS[] = {
+	{"server", "Disable HTTPS server", NULL, no_https_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 cish_command CMD_NO_IP_SSH[] = {
 	{"server", "Disable SSH server", NULL, no_ssh_server, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -176,6 +183,13 @@ cish_command CMD_IP_DEFAULT_TTL[] = {
 #ifdef OPTION_HTTP
 cish_command CMD_IP_HTTP[] = {
 	{"server", "Enable HTTP server", NULL, http_server, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+#ifdef OPTION_HTTPS
+cish_command CMD_IP_HTTPS[] = {
+	{"server", "Enable HTTPS server", NULL, https_server, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
@@ -409,6 +423,9 @@ cish_command CMD_NO_IP[] = {
 #ifdef OPTION_HTTP
 	{"http", "HTTP server configuration", CMD_NO_IP_HTTP, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_HTTPS
+	{"https", "HTTPS server configuration", CMD_NO_IP_HTTPS, NULL, 1, MSK_NORMAL},
+#endif
 	{"icmp", "Unset icmp parameters", CMD_NO_IP_ICMP, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_PIMD
 	{"multicast-routing", "Disable IP multicast forwarding", NULL, no_ip_param, 1, MSK_NORMAL},
@@ -599,6 +616,9 @@ cish_command CMD_IP[] = {
 	{"fragment", "Set fragmenting parameters", CMD_IP_FRAG, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_HTTP
 	{"http", "HTTP server configuration", CMD_IP_HTTP, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_HTTPS
+	{"https", "HTTPS server configuration", CMD_IP_HTTPS, NULL, 1, MSK_NORMAL},
 #endif
 	{"icmp", "Set icmp parameters", CMD_IP_ICMP, NULL, 1, MSK_NORMAL},
 #ifdef CONFIG_DEVELOPMENT
