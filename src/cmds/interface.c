@@ -385,6 +385,7 @@ cish_command CMD_CONFIG_INTERFACE_TXQUEUELEN[] = {
 
 
 // interface m3G
+
 #ifdef OPTION_MODEM3G
 cish_command CMD_CONFIG_INTERFACE_M3G_PASS_SET[] = {
 	{"<text>", "Password for login on ISP", NULL, interface_modem3g_set_password, 1, MSK_NORMAL},
@@ -393,7 +394,9 @@ cish_command CMD_CONFIG_INTERFACE_M3G_PASS_SET[] = {
 
 cish_command CMD_CONFIG_INTERFACE_M3G_PASS[] = {
 	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_PASS_SET, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show password of ISP (address of ISP)", NULL, show_modem3g_password, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -404,7 +407,9 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USER_SET[] = {
 
 cish_command CMD_CONFIG_INTERFACE_M3G_USER[] = {
 	{"set", "Set username for login on ISP", CMD_CONFIG_INTERFACE_M3G_USER_SET, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show username of login on ISP", NULL, show_modem3g_username, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -415,7 +420,9 @@ cish_command CMD_CONFIG_INTERFACE_M3G_APN_SET[] = {
 
 cish_command CMD_CONFIG_INTERFACE_M3G_APN[] = {
 	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_APN_SET, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
 	{"show", "Show acess point name (address of ISP)", NULL, show_modem3g_apn, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 

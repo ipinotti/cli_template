@@ -17,6 +17,7 @@
 #include <linux/if_arp.h>
 #include <linux/mii.h>
 
+#include "options.h"
 #include "commands.h"
 #include "commandtree.h"
 #include "cish_main.h"
@@ -787,10 +788,15 @@ void interface_modem3g_set_apn(const char *cmdline)
 	check = modem3g_set_apn(buffer, interface_major);
 	if (check == -1){
 		printf("Error on set APN\n");
+		destroy_args(args);
+		apn=NULL;
 		return;
 	}
 
+#ifdef DEBUG
 	printf("\nAPN stored\n\n");
+#endif
+
 	destroy_args(args);
 
 	apn=NULL;
@@ -810,10 +816,14 @@ void interface_modem3g_set_password(const char *cmdline)
 
 	if (check == -1){
 		printf("Error on set password\n");
+		destroy_args(args);
+		password=NULL;
 		return;
 	}
 
+#ifdef DEBUG
 	printf("\nPassword stored\n\n");
+#endif
 
 	destroy_args(args);
 
@@ -834,10 +844,14 @@ void interface_modem3g_set_username(const char *cmdline)
 
 	if (check == -1){
 		printf("Error on set username\n");
+		destroy_args(args);
+		username=NULL;
 		return;
 	}
 
+#ifdef DEBUG
 	printf("\nUsername stored\n\n");
+#endif
 
 	destroy_args(args);
 
