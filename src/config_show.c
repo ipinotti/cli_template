@@ -747,9 +747,14 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	int running = conf->running;
 	lusb_dev * usbdev=malloc(sizeof(lusb_dev));
 
+
 	/* Get interface index */
 	serial_no = atoi(osdev + strlen(PPPDEV));
 	usbdev->port = serial_no+1;
+
+	/* Retrieve info about up/down */
+	cfg.up = conf->up; //FIXME
+
 
 	/* Get config PPP ;
 	 * Get USB description ;
@@ -757,6 +762,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	ppp_get_config(serial_no, &cfg);
 	lusb_descriptor = lusb_get_descriptor(usbdev);
 	lusb_tty_verify = lusb_check_usb_ttyUSB(usbdev->port);
+
 
 
 	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
