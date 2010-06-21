@@ -28,6 +28,7 @@
 #include <time.h>
 #include <linux/if_vlan.h>	/* 802.1p mappings */
 
+#include "options.h"
 #include "commands.h"
 #include "commandtree.h"
 #include "cish_main.h"
@@ -638,7 +639,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	ppp_config cfg;
 	struct ip_t ip;
 	char *osdev = conf->name;
-	int serial_no=0, lusb_err=0;
+	int serial_no=0, lusb_descriptor=0, lusb_tty_verify=0;
 	char * apn = malloc (100);
 	int running = conf->running;
 	lusb_dev * usbdev=malloc(sizeof(lusb_dev));
@@ -648,8 +649,18 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	serial_no = atoi(osdev + strlen(PPPDEV));
 	usbdev->port = serial_no+1;
 
+	/* Retrieve info about up/down */
+	cfg.up = conf->up; //FIXME
+
+
+	/* Get config PPP ;
+	 * Get USB description ;
+	 * Verify existence of TTY, means USB device is a modem 3g ; */
 	ppp_get_config(serial_no, &cfg);
-	lusb_err = lusb_get_descriptor(usbdev);
+	lusb_descriptor = lusb_get_descriptor(usbdev);
+	lusb_tty_verify = lusb_check_usb_ttyUSB(usbdev->port);
+
+
 
 	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
 	if (cfg.ip_mask[0]) {strncpy(ip.ipmask, cfg.ip_mask, 16); printf("TESTE CFG MASK\n\n"); ip.ipmask[15]=0;}
@@ -659,10 +670,12 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 		ip.ippeer[0]=0;
 	}
 
+
 	if (cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
 	fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", cfg.ip_unnumbered, ip.ipaddr);
 	else if (ip.ipaddr[0])
 		fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+
 
 	fprintf(out, "  Encapsulation PPP");
 
@@ -670,17 +683,22 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 		fprintf(out, ", APN is \"%s\"\n", apn);
 	else
 		printf(" Error - reading APN\n");
+
 	free (apn);
 
-	if (lusb_err == 1)
-		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d",
+	if (lusb_descriptor == 1 && lusb_tty_verify == 1)
+		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d\n",
 				usbdev->iProduct_string,
 				usbdev->iManufacture_string,
 				usbdev->port);
 	else
-		printf("  No USB device connected.");
-	free(usbdev);
+		if (lusb_descriptor == 1 && lusb_tty_verify == -1)
+			fprintf(out, "  USB device connected, but not a modem.\n");
+		else
+			fprintf(out, "  No USB device connected.\n");
 
+
+	free(usbdev);
 
 	fprintf(out, "\n");
 
@@ -1862,10 +1880,13 @@ void show_modem3g_apn(const char *cmdline)
 	check = modem3g_get_apn(apn,interface_major);
 	if (check == -1){
 		printf("Error on show APN\n");
+		free(apn);
 		return;
 	}
 
+#ifdef DEBUG
 	printf("\nAPN: %s  \n\n",apn);
+#endif
 
 	free(apn);
 
@@ -1879,10 +1900,13 @@ void show_modem3g_username(const char *cmdline)
 	check = modem3g_get_username(username, interface_major);
 	if (check == -1) {
 		printf("Error on show username\n");
+		free (username);
 		return;
 	}
 
+#ifdef DEBUG
 	printf("\nUsername: %s \n\n",username);
+#endif
 
 	free (username);
 
@@ -1896,10 +1920,13 @@ void show_modem3g_password(const char *cmdline)
 	check = modem3g_get_password(password, interface_major);
 	if (check == -1) {
 		printf("Error on show password\n");
+		free (password);
 		return;
 	}
 
+#ifdef DEBUG
 	printf("\nPassword: %s \n\n",password);
+#endif
 
 	free (password);
 
