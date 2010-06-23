@@ -220,13 +220,13 @@ void show_logging(const char *cmdline) /* show logging [tail] */
 	time_t tm = 0;
 	struct tm tm_time;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc > 2) {
 		if (strcmp(args->argv[2], "tail") == 0) {
 			tail = 1;
 		} else {
 			if (parse_time(args->argv[2], &hour, &min, &sec) < 0) {
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				return;
 			}
 			time(&tm);
@@ -264,7 +264,7 @@ void show_logging(const char *cmdline) /* show logging [tail] */
 		if (show_logging_file(tm))
 			pprintf("%s", "\n");
 	}
-	skip: destroy_args(args);
+	skip: libconfig_destroy_args(args);
 }
 
 void clear_logging(const char *cmdline) /* clear logging */
@@ -378,7 +378,7 @@ void show_arp(const char *cmdline)
 		tbuf[127] = 0;
 		striplf(tbuf);
 
-		args = make_args(tbuf);
+		args = libconfig_make_args(tbuf);
 		if (args->argc >= 6) {
 			ipaddr = args->argv[0];
 			hwaddr = args->argv[3];
@@ -407,7 +407,7 @@ void show_arp(const char *cmdline)
 				pprintf("\n");
 			}
 		}
-		destroy_args(args);
+		libconfig_destroy_args(args);
 	}
 }
 
@@ -1028,7 +1028,7 @@ void cmd_copy(const char *cmdline)
 	char from, to;
 	char *host = NULL, *filename = NULL;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	from = args->argv[1][0];
 	to = args->argv[2][0];
 	if ((from == 't') || (to == 't')) {
@@ -1039,7 +1039,7 @@ void cmd_copy(const char *cmdline)
 	case 'p': {
 		if (load_previous_configuration(TMP_CFG_FILE) == 0) {
 			fprintf(stderr, "%% No previous configuration\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		in = TMP_CFG_FILE;
@@ -1051,7 +1051,7 @@ void cmd_copy(const char *cmdline)
 
 		if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
 			fprintf(stderr, "%% Can't build configuration\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 
@@ -1061,7 +1061,7 @@ void cmd_copy(const char *cmdline)
 	case 's':
 		if (load_configuration(STARTUP_CFG_FILE) == 0) {
 			fprintf(stderr, "%% Configuration not saved\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		in = STARTUP_CFG_FILE;
@@ -1079,7 +1079,7 @@ void cmd_copy(const char *cmdline)
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
 			fprintf(stderr, "%% Can't read output\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		fgets(buf, 127, f);
@@ -1087,7 +1087,7 @@ void cmd_copy(const char *cmdline)
 		s = strstr(buf, "tftp: ");
 		if (s) {
 			fprintf(stderr, "%% TFTP:%s", s + 5);
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		in = TFTP_CFG_FILE;
@@ -1109,7 +1109,7 @@ void cmd_copy(const char *cmdline)
 	case 's': {
 		if (save_configuration(in) < 0) {
 			fprintf(stderr, "%% Error writing configuration\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 	}
@@ -1126,7 +1126,7 @@ void cmd_copy(const char *cmdline)
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
 			fprintf(stderr, "%% Can't read output\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		fgets(buf, 127, f);
@@ -1134,7 +1134,7 @@ void cmd_copy(const char *cmdline)
 		s = strstr(buf, "tftp: ");
 		if (s) {
 			fprintf(stderr, "%% TFTP:%s", s + 5);
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 	}
@@ -1143,7 +1143,7 @@ void cmd_copy(const char *cmdline)
 	printf("[OK]\n");
 	unlink(TMP_CFG_FILE);
 	unlink(TFTP_CFG_FILE);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_memory(const char *cmdline)
@@ -1171,7 +1171,7 @@ void show_interfaces(const char *cmdline) /* show interfaces [aux|ethernet|loopb
 	char intf[100];
 
 	// Melhorar esta parte - nao perdi tempo agora porque a parte de interfaces vai mudar !!!
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc > 2) {
 		strncpy(intf, args->argv[2], 99);
 		if (args->argc > 3)
@@ -1179,34 +1179,34 @@ void show_interfaces(const char *cmdline) /* show interfaces [aux|ethernet|loopb
 		dump_interfaces(stdout, 0, intf);
 	} else
 		dump_interfaces(stdout, 0, NULL);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_accesslists(const char *cmdline)
 {
 	arglist *args;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	libconfig_acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_manglerules(const char *cmdline)
 {
 	arglist *args;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	lconfig_mangle_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_natrules(const char *cmdline)
 {
 	arglist *args;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	lconfig_nat_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_performance(const char *cmdline)
@@ -1214,7 +1214,7 @@ void show_performance(const char *cmdline)
 	pid_t pid;
 	arglist *args;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	switch ((pid = fork())) {
 	case -1:
 		fprintf(stderr, "%% No processes left\n");
@@ -1227,7 +1227,7 @@ void show_performance(const char *cmdline)
 		waitpid(pid, NULL, 0);
 		break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_qos(const char *cmdline)
@@ -1518,7 +1518,7 @@ void show_crypto(const char *cmdline)
 	char *p, *rsa, **list = NULL, **list_ini = NULL, line[1024];
 	FILE *output;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc == 3) {
 		if (get_ipsec()) /* Wait pluto start! */
 		{
@@ -1534,10 +1534,10 @@ void show_crypto(const char *cmdline)
 			}
 			pclose(output);
 		}
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 
 	total_name_len = 0;
 #if 0
@@ -1602,7 +1602,7 @@ void show_crypto(const char *cmdline)
 					continue;
 				if (strlen(line) == 0)
 					break;
-				args = make_args(line);
+				args = libconfig_make_args(line);
 
 				if (args->argc == 7) {
 					if (!strstr(args->argv[2], "...%any")) /* skip roadwarrior master! */
@@ -1634,7 +1634,7 @@ void show_crypto(const char *cmdline)
 						}
 					}
 				}
-				destroy_args(args);
+				libconfig_destroy_args(args);
 			}
 			pclose(output);
 		}
@@ -1770,7 +1770,7 @@ void show_ntpkeys(const char *cmdline)
 			if ((p = strchr(line, '\n')))
 				*p = '\0';
 			if (strlen(line)) {
-				args = make_args(line);
+				args = libconfig_make_args(line);
 				if (args->argc >= 3 && args->argv[0][0] != '#') /* 1 MD5 4+?PD7j5a$0jdy7@ # MD5 key */
 				{
 					if (!strcmp(args->argv[1], "MD5"))
@@ -1801,7 +1801,7 @@ void show_ntpassociations(const char *cmdline)
 		buf[255] = 0;
 		if (feof(f))
 			break;
-		if (parse_args_din(buf, &argl) == 10) {
+		if (libconfig_parse_args_din(buf, &argl) == 10) {
 			if (inet_aton(argl[1], &inp) == 1) {
 				for (i = 0, used = 0; (i < n_local_addr) && (i < 16); i++) {
 					if (strcmp(argl[1], local_addr[i]) == 0) {
@@ -1813,7 +1813,7 @@ void show_ntpassociations(const char *cmdline)
 					strcpy(local_addr[n_local_addr++], argl[1]);
 			}
 		}
-		free_args_din(&argl);
+		libconfig_destroy_args_din(&argl);
 	}
 	pclose(f);
 

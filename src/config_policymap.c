@@ -34,16 +34,16 @@ void do_policy_description(const char *cmdline) /* [no] description [<text>]*/
 	
 	arglist *args;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	
 	if (args->argc < 2) {
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 
 	if (!strcmp(args->argv[0],"no")) {
 		destroy_policymap_desc(pname);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 	} else {
 		pmap_cfg_t *pmap;
 		char *description;
@@ -51,19 +51,19 @@ void do_policy_description(const char *cmdline) /* [no] description [<text>]*/
 		while (*description == ' ') ++description;
 		description = strchr (description, ' ');
 		if (!description) {
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		while (*description == ' ') ++description;
 		if (get_policymap(pname,&pmap) <= 0) {
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		} 
 		strncpy(pmap->description, description,255);
 		save_policymap_desc(pname, pmap);
 	
 	free_policymap(pmap);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	}
 }
 
@@ -74,14 +74,14 @@ void do_policy_mark(const char *cmdline) /* [no] mark [1-200000000]*/
 	arglist *args;
 	pmap_cfg_t *pmap;
 	
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc < 2) { 
-		destroy_args(args); 
+		libconfig_destroy_args(args); 
 		return; 
 	}
 
 	if (get_policymap(pname,&pmap) < 0) {
-		destroy_args(args); 
+		libconfig_destroy_args(args); 
 		return; 
 	}
 
@@ -95,7 +95,7 @@ void do_policy_mark(const char *cmdline) /* [no] mark [1-200000000]*/
 		command_root = CMD_POLICYMAP_MARKRULE;
 	}
 	free_policymap(pmap);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_policy_bw(const char *cmdline) /* [no] bandwidth */
@@ -105,14 +105,14 @@ void config_policy_bw(const char *cmdline) /* [no] bandwidth */
 	pmark_cfg_t *pmark;
 	int i;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc < 2) {
 		printf("%% Not enough arguments");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if (get_policymap(pname,&pmap) <= 0) {
-		destroy_args(args); 
+		libconfig_destroy_args(args); 
 		return; 
 	}
 	
@@ -141,7 +141,7 @@ void config_policy_bw(const char *cmdline) /* [no] bandwidth */
 		pmark->bw_remain_perc = atoi(args->argv[3]);
 	}
 	free_policymap(pmap);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_policy_ceil(const char *cmdline) /* [no] ceil */
@@ -151,14 +151,14 @@ void config_policy_ceil(const char *cmdline) /* [no] ceil */
 	pmark_cfg_t *pmark;
 	int i;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc < 2) {
 		printf("%% Not enough arguments");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if (get_policymap(pname,&pmap) <= 0) {
-		destroy_args(args); 
+		libconfig_destroy_args(args); 
 		return; 
 	}
 	i = get_mark_index(mark, pmap);
@@ -185,7 +185,7 @@ void config_policy_ceil(const char *cmdline) /* [no] ceil */
 		pmark->ceil_remain_perc = atoi(args->argv[3]);
 	}
 	free_policymap(pmap);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_policy_queue(const char *cmdline) /* [no] queue [fifo|red|sfq|wfq] */
@@ -195,7 +195,7 @@ void config_policy_queue(const char *cmdline) /* [no] queue [fifo|red|sfq|wfq] *
 	int i=0;
 	pmark_cfg_t *pmark = NULL;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc < 2) {
 		printf("%% Not enough arguments");
 		return;
@@ -203,7 +203,7 @@ void config_policy_queue(const char *cmdline) /* [no] queue [fifo|red|sfq|wfq] *
 
 	/* Import policy map*/
 	if (get_policymap(pname,&pmap) <= 0) {
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	i = get_mark_index(mark, pmap);
@@ -244,7 +244,7 @@ void config_policy_queue(const char *cmdline) /* [no] queue [fifo|red|sfq|wfq] *
 		else pmark->red_ecn=0;
 	}
 	free_policymap(pmap);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_policy_realtime(const char *cmdline) /* [no] realtime <64-1500> <50-5000> <bandwidth> */
@@ -254,14 +254,14 @@ void config_policy_realtime(const char *cmdline) /* [no] realtime <64-1500> <50-
 	pmark_cfg_t *pmark;
 	int i;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc < 2) {
 		printf("%% Not enough arguments");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if (get_policymap(pname,&pmap) <= 0) {
-		destroy_args(args); 
+		libconfig_destroy_args(args); 
 		return; 
 	}
 	i = get_mark_index(mark, pmap);
@@ -281,7 +281,7 @@ void config_policy_realtime(const char *cmdline) /* [no] realtime <64-1500> <50-
 	}
 
 	free_policymap(pmap);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void do_policymap(const char *cmdline) /* [no] policy-map <text> */
@@ -291,10 +291,10 @@ void do_policymap(const char *cmdline) /* [no] policy-map <text> */
 	char *dev;
 	int idx;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc < 2) {
 		printf("%% Not enough arguments\n");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 
@@ -302,14 +302,14 @@ void do_policymap(const char *cmdline) /* [no] policy-map <text> */
 	if ((dev = check_active_qos(args->argv[idx]))) {
 		printf("Policy-map %s is active on interface %s. Please disable it before configuring.\n",
 		args->argv[idx], dev);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		free(dev);
 		return;
 	}
 
 	if (args->argc == 3 && !strcmp(args->argv[0],"no")) {
 		destroy_policymap(args->argv[2]);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 
@@ -328,7 +328,7 @@ void do_policymap(const char *cmdline) /* [no] policy-map <text> */
 		}
 	}
 	free_policymap(pmap);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void quit_mark_config(const char *cmdline) 

@@ -26,7 +26,7 @@ void ip_route (const char *cmdline)
 	string[0] = 0;
 	metric = 0;
 	
-	args = make_args (cmdline);
+	args = libconfig_make_args (cmdline);
 	
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
@@ -74,7 +74,7 @@ void ip_route (const char *cmdline)
 		sprintf(cmd, "/bin/route add %s 2>&1 >/dev/null", string);
 		system(cmd);
 	}
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void no_ip_route (const char *cmdline)
@@ -104,7 +104,7 @@ void no_ip_route (const char *cmdline)
 	if (tmp) ++tmp;
 	else tmp = (char *)cmdline;
 	
-	args = make_args (tmp);
+	args = libconfig_make_args (tmp);
 	
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
@@ -152,7 +152,7 @@ void no_ip_route (const char *cmdline)
 		sprintf(cmd, "/bin/route delete %s >/dev/null", string);
 		system(cmd);
 	}
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 #endif
 
@@ -163,7 +163,7 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 	arglist *args;
 
 	new_cmdline = cish_to_linux_dev_cmdline((char*) cmdline);
-	args = make_args(new_cmdline);
+	args = libconfig_make_args(new_cmdline);
 	if (strcmp(args->argv[0], "no") == 0) {
 		lconfig_smc_route(0, args->argv[3], args->argv[4], args->argv[6],
 		                args->argv[8]);
@@ -177,7 +177,7 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 			lconfig_smc_route(1, args->argv[2], args->argv[3],
 			                args->argv[5], args->argv[7]);
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 #endif
 

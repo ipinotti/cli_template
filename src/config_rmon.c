@@ -21,7 +21,7 @@ void rmon_event(const char *cmd)
 	arglist *args;
 	char *descr, *owner, *community;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if( args->argc > 3 ) {
 		for(i=3, log=0, community=NULL, descr=NULL, owner=NULL; i < args->argc; i++) {
 			if( strcmp(args->argv[i], "log") == 0 )
@@ -43,7 +43,7 @@ void rmon_event(const char *cmd)
 			printf("%% Not possible to add event\n");
 		send_rmond_signal(SIGUSR1);
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void rmon_alarm(const char *cmd)
@@ -54,7 +54,7 @@ void rmon_alarm(const char *cmd)
 	size_t namelen = MAX_OID_LEN;
 	int i, var_type = 0, rising_th = 0, rising_event = 0, falling_th = 0, falling_event = 0;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if( args->argc < 10 ) {
 		printf("%% Invalid command\n");
 		return;
@@ -73,7 +73,7 @@ void rmon_alarm(const char *cmd)
 		if( (local = strdup(args->argv[3])) != NULL ) {
 			while( (p = strchr(local, '.')) != NULL )
 				*p = ' ';
-			if( (n = parse_args_din(local, &argl)) > 0 ) {
+			if( (n = libconfig_parse_args_din(local, &argl)) > 0 ) {
 				for( i=(n-1), isstr=-1; (i >= 0) && (isstr == -1); i-- ) {
 					for( p=argl[i]; *p != 0; p++ ) {
 						if( isdigit(*p) == 0 ) {
@@ -85,7 +85,7 @@ void rmon_alarm(const char *cmd)
 				if( isstr == (n-1) )
 					printf("ALERT: Apparently no instance specified. Is this really what you want?\n\n");
 			}
-			free_args_din(&argl);
+			libconfig_destroy_args_din(&argl);
 			free(local);
 		}
 	}
@@ -134,7 +134,7 @@ void rmon_alarm(const char *cmd)
 
 	send_rmond_signal(SIGUSR1);
 
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void no_rmon_agent(const char *cmd)
@@ -145,7 +145,7 @@ void no_rmon_agent(const char *cmd)
 
 void no_rmon_event(const char *cmd)
 {
-	arglist *args = make_args(cmd);
+	arglist *args = libconfig_make_args(cmd);
 
 	switch( args->argc ) {
 		case 3:
@@ -158,13 +158,13 @@ void no_rmon_event(const char *cmd)
 				printf("%% Not possible to remove all events\n");
 			break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	send_rmond_signal(SIGUSR1);
 }
 
 void no_rmon_alarm(const char *cmd)
 {
-	arglist *args = make_args(cmd);
+	arglist *args = libconfig_make_args(cmd);
 
 	switch( args->argc ) {
 		case 3:
@@ -177,13 +177,13 @@ void no_rmon_alarm(const char *cmd)
 				printf("%% Not possible to remove all alarms\n");
 			break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	send_rmond_signal(SIGUSR1);
 }
 
 void show_rmon_events(const char *cmd)
 {
-	arglist *args = make_args(cmd);
+	arglist *args = libconfig_make_args(cmd);
 
 	switch( args->argc ) {
 		case 3:
@@ -194,12 +194,12 @@ void show_rmon_events(const char *cmd)
 			do_rmon_event_show(args->argv[3]);
 			break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_rmon_alarms(const char *cmd)
 {
-	arglist *args = make_args(cmd);
+	arglist *args = libconfig_make_args(cmd);
 
 	switch( args->argc ) {
 		case 3:
@@ -210,7 +210,7 @@ void show_rmon_alarms(const char *cmd)
 			do_rmon_alarm_show(args->argv[3]);
 			break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_rmon_agent(const char *cmd)

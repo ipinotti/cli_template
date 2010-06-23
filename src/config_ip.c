@@ -297,27 +297,27 @@ void ip_dnsrelay(const char *cmd) /* [no] ip dns relay */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (args->argc == 4) kill_daemon(DNS_DAEMON);
 		else exec_daemon(DNS_DAEMON);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ip_domainlookup(const char *cmd) /* [no] ip domain lookup */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (args->argc == 4) dns_lookup(0);
 		else dns_lookup(1);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ip_nameserver(const char *cmd) /* [no] ip name-server <ipaddress> */
 {
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	switch (args->argc) {
 		case 3:
 			dns_nameserver(1, args->argv[2]);
@@ -326,7 +326,7 @@ void ip_nameserver(const char *cmd) /* [no] ip name-server <ipaddress> */
 			dns_nameserver(0, args->argv[3]);
 			break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 int delete_module(const char *name);
@@ -337,7 +337,7 @@ void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) no=1;
 		else no=0;
 	/* always remove modules first... */
@@ -359,7 +359,7 @@ void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
 		system(buf);
 		strcpy(cish_cfg->nat_helper_ftp_ports, "21"); /* netfilter_ipv4/ip_conntrack_ftp.h:#define FTP_PORT      21 */
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
@@ -368,7 +368,7 @@ void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) no=1;
 		else no=0;
 	/* always remove modules first... */
@@ -390,7 +390,7 @@ void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
 		system(buf);
 		strcpy(cish_cfg->nat_helper_irc_ports, "6667"); /* netfilter_ipv4/ip_conntrack_irc.h:#define IRC_PORT      6667 */
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
@@ -399,7 +399,7 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) no=1;
 		else no=0;
 	/* always remove modules first... */
@@ -421,7 +421,7 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 		system(buf);
 		strcpy(cish_cfg->nat_helper_tftp_ports, "69"); /* netfilter_ipv4/ip_conntrack_tftp.h:#define TFTP_PORT 69 */
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ssh_server(const char *cmd)
@@ -448,7 +448,7 @@ void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (args->argc == 5)
 	{
 		printf("%% Please wait... computation may take long time!\n");
@@ -457,7 +457,7 @@ void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
 			printf("%% Not possible to generate RSA key!\n");
 		}
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 #ifdef OPTION_PIMD
@@ -492,7 +492,7 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 	arglist *args;
 
 	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
 		dense = pimdd_phyint(0, dev);
@@ -520,7 +520,7 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 			exec_daemon(PIMD_DAEMON);
 	}
 clean:
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	free(dev);
 }
 
@@ -531,7 +531,7 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 	arglist *args;
 
 	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
 		sparse=pimsd_phyint(0, dev);
@@ -557,7 +557,7 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 			exec_daemon(PIMS_DAEMON);
 	}
 clean:
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	free(dev);
 }
 
@@ -565,33 +565,33 @@ void pim_bsr_candidate(const char *cmd) /* [no] ip pim bsr-candidate <ethernet|s
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (!strcmp(args->argv[0], "no")) pimsd_bsr_candidate(0, NULL, NULL, NULL);
 		else if (args->argc == 5) pimsd_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
 			else if (args->argc == 7) pimsd_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void pim_rp_address(const char *cmd) /* [no] ip pim rp-address <ipaddress> */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (!strcmp(args->argv[0], "no")) pimsd_rp_address(0, NULL);
 		else if (args->argc == 4) pimsd_rp_address(1, args->argv[3]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void pim_rp_candidate(const char *cmd) /* [no] ip pim rp-candidate <ethernet|serial> <0-0> [priority <0-255>] [interval <5-16383>] */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (!strcmp(args->argv[0], "no")) pimsd_rp_candidate(0, NULL, NULL, NULL, NULL);
 		else if (args->argc == 5) pimsd_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
 			else if (args->argc == 7) pimsd_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], NULL);
 				else if (args->argc == 9) pimsd_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], args->argv[8]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 #endif
 
@@ -599,10 +599,10 @@ void arp_entry(const char *cmd) /* [no] arp <ipaddress> [<mac>] */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (!strcmp(args->argv[0], "no")) arp_del(args->argv[2]);
 		else if (args->argc == 3) arp_add(args->argv[1], args->argv[2]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void clear_ssh_hosts(const char *cmd)

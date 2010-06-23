@@ -17,11 +17,11 @@ void tcpdump(const char *cmdline)
 	arg_list argl = NULL;
 	char *new_line, f_option[] = "-vv";
 
-	if ((n_args = parse_args_din((char *)cmdline, &argl)) <= 0)
+	if ((n_args = libconfig_parse_args_din((char *)cmdline, &argl)) <= 0)
 		return;
 	if ((new_line = malloc(strlen(cmdline) + strlen(f_option) + 2)) == NULL) {
 		fprintf(stderr, "%% tcpdump exec error!\n");
-		free_args_din(&argl);
+		libconfig_destroy_args_din(&argl);
 		return;
 	}
 	sprintf(new_line, "%s %s ", argl[0], f_option);
@@ -30,8 +30,8 @@ void tcpdump(const char *cmdline)
 		strcat(new_line, " ");
 	}
 	new_line[strlen(new_line)-1] = 0;
-	free_args_din(&argl);
-	args = make_args(new_line);
+	libconfig_destroy_args_din(&argl);
+	args = libconfig_make_args(new_line);
 	switch (pid = fork()) {
 		case -1:
 			fprintf(stderr, "%% No processes left\n");
@@ -46,7 +46,7 @@ void tcpdump(const char *cmdline)
 			waitpid(pid, NULL, 0);
 			break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	free(new_line);
 }
 

@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 			fatal("popen() failed  in %s", __FUNCTION__);
 		if (fgets(buffer, 255, f) && fgets(buffer, 255, f)) {
 			buffer[255] = 0;
-			if ((parse_args_din(buffer, &argl) > 7) && (strcmp(
+			if ((libconfig_parse_args_din(buffer, &argl) > 7) && (strcmp(
 			                argl[0], "cpu0") == 0)) {
 				user = atoll(argl[1]);
 				nice = atoll(argl[2]);
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 				irq_old = irq;
 				softirq_old = softirq;
 			}
-			free_args_din(&argl);
+			libconfig_destroy_args_din(&argl);
 		}
 		pclose(f);
 
@@ -119,23 +119,23 @@ int main(int argc, char **argv)
 		j = 0;
 		if (fgets(buffer, 255, f)) {
 			buffer[255] = 0;
-			if (parse_args_din(buffer, &argl) > 1) {
+			if (libconfig_parse_args_din(buffer, &argl) > 1) {
 				if (strcmp(argl[0], "MemTotal:") == 0) {
 					mem_total = atoll(argl[1]);
 					j++;
 				}
 			}
-			free_args_din(&argl);
+			libconfig_destroy_args_din(&argl);
 		}
 		if (fgets(buffer, 255, f)) {
 			buffer[255] = 0;
-			if (parse_args_din(buffer, &argl) > 1) {
+			if (libconfig_parse_args_din(buffer, &argl) > 1) {
 				if (strcmp(argl[0], "MemFree:") == 0) {
 					mem_free = atoll(argl[1]);
 					j++;
 				}
 			}
-			free_args_din(&argl);
+			libconfig_destroy_args_din(&argl);
 		}
 		if (j == 2)
 			mem = (float) (mem_total - mem_free) * 100.0

@@ -67,9 +67,9 @@ void ppp_speed (const char *cmd)
 	ppp_config cfg;
 	int speed;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	speed = atoi (args->argv[1]);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 	
 	ppp_get_config(interface_major, &cfg);
 	if (cfg.speed!=speed)
@@ -95,7 +95,7 @@ void ppp_ipaddr (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 	strncpy(cfg.ip_addr, args->argv[2], 16);
 	cfg.ip_addr[15] = 0;
@@ -103,7 +103,7 @@ void ppp_ipaddr (const char *cmd)
 	cfg.ip_mask[15] = 0;
 	cfg.ip_unnumbered = -1; /* Desativando a flag do IP UNNUMBERED */
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_noipaddr (const char *cmd)
@@ -120,11 +120,11 @@ void ppp_peeraddr (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	strncpy(cfg.ip_peer_addr, args->argv[2], 16); cfg.ip_peer_addr[15] = 0;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_nopeeraddr (const char *cmd)
@@ -141,9 +141,9 @@ void ppp_mtu (const char *cmd)
 	int mtu;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	mtu = atoi (args->argv[1]);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 	
 	ppp_get_config(interface_major, &cfg);
 	if (cfg.mtu!=mtu)
@@ -169,7 +169,7 @@ void ppp_chat (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (!ppp_chat_exists(args->argv[1]))
 	{
@@ -181,7 +181,7 @@ void ppp_chat (const char *cmd)
 	strncpy(cfg.chat_script, args->argv[1], MAX_CHAT_SCRIPT);
 	cfg.chat_script[MAX_CHAT_SCRIPT-1] = 0;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_nochat (const char *cmd)
@@ -229,7 +229,7 @@ void ppp_idle(const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args (cmd);	
+	args = libconfig_make_args (cmd);	
 	ppp_get_config(interface_major, &cfg);
 	if (cfg.chat_script[0]==0)
 	{
@@ -238,7 +238,7 @@ void ppp_idle(const char *cmd)
 	}
 	cfg.idle = atoi(args->argv[1]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_no_idle(const char *cmd)
@@ -258,7 +258,7 @@ void ppp_holdoff(const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args (cmd);	
+	args = libconfig_make_args (cmd);	
 	ppp_get_config(interface_major, &cfg);
 	if (cfg.chat_script[0]==0)
 	{
@@ -267,7 +267,7 @@ void ppp_holdoff(const char *cmd)
 	}
 	cfg.holdoff = atoi(args->argv[1]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_no_holdoff(const char *cmd)
@@ -287,12 +287,12 @@ void ppp_auth_user (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	strncpy(cfg.auth_user, args->argv[2], MAX_PPP_USER);
 	cfg.auth_user[MAX_PPP_USER-1] = 0;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_auth_pass (const char *cmd)
@@ -300,12 +300,12 @@ void ppp_auth_pass (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	strncpy(cfg.auth_pass, args->argv[2], MAX_PPP_PASS);
 	cfg.auth_pass[MAX_PPP_PASS-1] = 0;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_noauth (const char *cmd)
@@ -428,12 +428,12 @@ void ppp_nochatscript(const char *cmd) /* no chatscript <name> */
 {
 	arglist *args;
 	
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (ppp_del_chat(args->argv[2]) == -1)
 	{
 		printf("%% Chat script %s not defined!\n", args->argv[2]);
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ppp_ipxnet (const char *cmd)
@@ -442,9 +442,9 @@ void ppp_ipxnet (const char *cmd)
 	u32 net;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	net = strtoul(args->argv[2], NULL, 16);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 	
 	ppp_get_config(interface_major, &cfg);
 	if ((cfg.ipx_network!=net)||(cfg.ipx_enabled==0))
@@ -476,7 +476,7 @@ void ppp_unnumbered (const char *cmd) /* ip unnumbered ethernet 0-x */
 	ppp_config cfg;
 	char *dev;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	dev=convert_device(args->argv[2], atoi(args->argv[3]), -1);
 	get_ethernet_ip_addr(dev, addr, mask); // Captura o endere�o e mascara da interface Ethernet
 	ppp_get_config(interface_major, &cfg); // Armazena em cfg a configuracao da serial
@@ -487,7 +487,7 @@ void ppp_unnumbered (const char *cmd) /* ip unnumbered ethernet 0-x */
 	cfg.ip_unnumbered=atoi(args->argv[3]); //Atualiza a flag do unnumbered no cfg
 	ppp_set_config(interface_major, &cfg); //Atualiza as configuracoes da serial
 	free(dev);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ppp_no_unnumbered (const char *cmd)
@@ -505,12 +505,12 @@ void ppp_server_ipaddr(const char *cmd) /* server ip address */
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	strncpy(cfg.server_ip_addr, args->argv[3], 16); cfg.server_ip_addr[15] = 0;
 	strncpy(cfg.server_ip_mask, args->argv[4], 16); cfg.server_ip_mask[15] = 0;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_noipaddr(const char *cmd)
@@ -526,11 +526,11 @@ void ppp_server_peeraddr(const char *cmd) /* server ip peer-address */
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	strncpy(cfg.server_ip_peer_addr, args->argv[3], 16); cfg.server_ip_peer_addr[15] = 0;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_nopeeraddr(const char *cmd)
@@ -546,7 +546,7 @@ void ppp_server_auth_local_algo(const char *cmd) /* ppp authentication algorithm
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 	cfg.server_flags &= ~(SERVER_FLAGS_PAP|SERVER_FLAGS_CHAP);
 	if(!strcmp("chap", args->argv[3]))
@@ -554,7 +554,7 @@ void ppp_server_auth_local_algo(const char *cmd) /* ppp authentication algorithm
 	else if(!strcmp("pap", args->argv[3]))
 		cfg.server_flags |= SERVER_FLAGS_PAP;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_auth_local_user(const char *cmd) /* ppp authentication hostname <name> */
@@ -562,7 +562,7 @@ void ppp_server_auth_local_user(const char *cmd) /* ppp authentication hostname 
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	if (!strcmp(args->argv[0],"no"))
 		cfg.server_auth_user[0]=0;
@@ -570,7 +570,7 @@ void ppp_server_auth_local_user(const char *cmd) /* ppp authentication hostname 
 		strncpy(cfg.server_auth_user, args->argv[3], MAX_PPP_USER);
 	cfg.server_auth_user[MAX_PPP_USER-1] = 0;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_auth_local_pass(const char *cmd) /* ppp authentication password <passwd> */
@@ -578,7 +578,7 @@ void ppp_server_auth_local_pass(const char *cmd) /* ppp authentication password 
 	arglist *args;
 	ppp_config cfg;
 	
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 	if (!strcmp(args->argv[0],"no"))
 		cfg.server_auth_pass[0]=0;
@@ -586,7 +586,7 @@ void ppp_server_auth_local_pass(const char *cmd) /* ppp authentication password 
 		strncpy(cfg.server_auth_pass, args->argv[3], MAX_PPP_PASS);
 	cfg.server_auth_pass[MAX_PPP_PASS-1] = 0;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_noauth_local(const char *cmd)
@@ -611,11 +611,11 @@ void ppp_server_auth_radius_authkey (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	strcpy(cfg.radius_authkey, args->argv[4]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_auth_radius_retries (const char *cmd)
@@ -623,11 +623,11 @@ void ppp_server_auth_radius_retries (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	cfg.radius_retries = atoi(args->argv[4]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_auth_radius_servers (const char *cmd)
@@ -636,7 +636,7 @@ void ppp_server_auth_radius_servers (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	cfg.radius_servers[0] = '\0';
 	for(i=4; args->argv[i]; i++)
@@ -646,7 +646,7 @@ void ppp_server_auth_radius_servers (const char *cmd)
 		else	break;
 	}
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_auth_radius_timeout (const char *cmd)
@@ -654,11 +654,11 @@ void ppp_server_auth_radius_timeout (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	cfg.radius_timeout = atoi(args->argv[4]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_auth_radius_sameserver (const char *cmd)
@@ -684,11 +684,11 @@ void ppp_server_auth_tacacs_authkey (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	strcpy(cfg.tacacs_authkey, args->argv[4]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_auth_tacacs_servers (const char *cmd)
@@ -697,7 +697,7 @@ void ppp_server_auth_tacacs_servers (const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	ppp_get_config(interface_major, &cfg);
 	cfg.tacacs_servers[0] = '\0';
 	for(i=4; args->argv[i]; i++)
@@ -707,7 +707,7 @@ void ppp_server_auth_tacacs_servers (const char *cmd)
 		else	break;
 	}
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void ppp_server_auth_tacacs_sameserver (const char *cmd)
@@ -906,9 +906,9 @@ void ntp_sync(const char *cmd) /* ntp-sync [300-86400] <ipaddress> */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (args->argc == 3) ntp_set(atoi(args->argv[1]), args->argv[2]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void no_ntp_sync(const char *cmd)
@@ -922,14 +922,14 @@ void serial_backup(const char *cmd) /* backup <aux?> activate_delay deactivate_d
 	arglist *args;
 	ppp_config cfg;
 	
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 	if (args->argv[1][3] == '0') cfg.backup=1;
 	else if (args->argv[1][3] == '1') cfg.backup=2;
 	cfg.activate_delay = atoi(args->argv[2]);
 	cfg.deactivate_delay = atoi(args->argv[3]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void serial_no_backup(const char *cmd)
@@ -946,11 +946,11 @@ void ppp_keepalive_interval(const char *cmd) /* keepalive interval [seconds] */
 	arglist *args;
 	ppp_config cfg;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 	cfg.echo_interval=atoi(args->argv[2]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ppp_keepalive_timeout(const char *cmd) /* keepalive timeout [seconds] */
@@ -958,11 +958,11 @@ void ppp_keepalive_timeout(const char *cmd) /* keepalive timeout [seconds] */
 	arglist *args;
 	ppp_config cfg;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 	cfg.echo_failure=atoi(args->argv[2]);
 	ppp_set_config(interface_major, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ppp_debug(const char *cmd) /* [no] ppp debug */
@@ -970,14 +970,14 @@ void ppp_debug(const char *cmd) /* [no] ppp debug */
 	arglist *args;
 	ppp_config cfg;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 	if (args->argc == 3)
 		cfg.debug=0;
 	else
 		cfg.debug=1;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 /* Sem suporte a LFI:
@@ -997,7 +997,7 @@ void ppp_multilink(const char *cmd)
 	arglist *args;
 	ppp_config cfg;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 #ifdef CONFIG_HDLC_SPPP_LFI
 	{
@@ -1010,7 +1010,7 @@ void ppp_multilink(const char *cmd)
 				case 5:
 					break;
 				default:
-					destroy_args(args);
+					libconfig_destroy_args(args);
 					return;
 			}
 			switch( args->argc ) {
@@ -1028,7 +1028,7 @@ void ppp_multilink(const char *cmd)
 					for(i=0, free=-1, marknum=atoi(args->argv[4]); i < CONFIG_MAX_LFI_PRIORITY_MARKS; i++) {
 						if( cfg.priomarks[i] == marknum ) {
 							printf("%% Mark %d already used as priority\n", marknum);
-							destroy_args(args);
+							libconfig_destroy_args(args);
 							return;
 						}
 						else {
@@ -1040,7 +1040,7 @@ void ppp_multilink(const char *cmd)
 					}
 					if( free == -1 ) {
 						printf("%% Not possible to configure priority. Max number of priority marks exceeded.\n");
-						destroy_args(args);
+						libconfig_destroy_args(args);
 						return;
 					}
 					cfg.priomarks[free] = marknum;
@@ -1077,7 +1077,7 @@ void ppp_multilink(const char *cmd)
 					break;
 
 				default:
-					destroy_args(args);
+					libconfig_destroy_args(args);
 					return;
 			}
 		}
@@ -1087,7 +1087,7 @@ void ppp_multilink(const char *cmd)
 		else cfg.multilink=1;
 #endif
 	ppp_set_config(interface_major, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ppp_usepeerdns(const char *cmd) /* [no] ppp usepeerdns */
@@ -1095,13 +1095,13 @@ void ppp_usepeerdns(const char *cmd) /* [no] ppp usepeerdns */
 	arglist *args;
 	ppp_config cfg;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	ppp_get_config(interface_major, &cfg);
 	if (args->argc == 3)
 		cfg.usepeerdns=0;
 	else
 		cfg.usepeerdns=1;
 	ppp_set_config(interface_major, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 

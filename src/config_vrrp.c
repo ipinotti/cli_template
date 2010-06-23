@@ -139,7 +139,7 @@ void interface_no_vrrp(const char *cmd) /* no vrrp <1-255> <option> <...> */
 	int group;
 	char *dev;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
 	group=atoi(args->argv[2]);
 	if (args->argc == 3) {
@@ -160,7 +160,7 @@ void interface_no_vrrp(const char *cmd) /* no vrrp <1-255> <option> <...> */
 		}
 	}
 	free(dev);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void interface_vrrp(const char *cmd) /* vrrp <1-255> <option> <...> */
@@ -169,7 +169,7 @@ void interface_vrrp(const char *cmd) /* vrrp <1-255> <option> <...> */
 	int group;
 	char *dev;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
 	group=atoi(args->argv[1]);
 	if (strcmp(args->argv[2], "authentication") == 0) { /* authentication ah|text <string> */
@@ -193,7 +193,7 @@ void interface_vrrp(const char *cmd) /* vrrp <1-255> <option> <...> */
 		vrrp_option_advertise_delay(dev, group, atoi(args->argv[4]));
 	}
 	free(dev);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 #endif
 

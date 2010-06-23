@@ -38,16 +38,16 @@ void ntp_restrict(const char *cmd) /* ntp restrict <ipaddr> <netmask> */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (args->argc == 4) do_ntp_restrict(args->argv[2], args->argv[3]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ntp_server(const char *cmd) /* ntp server <ipaddr> [key <1-16>] */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 #ifdef CONFIG_BERLIN_SATROUTER
 	if( is_network_up() > 0 ) {
 		if(args->argc == 3)
@@ -62,25 +62,25 @@ void ntp_server(const char *cmd) /* ntp server <ipaddr> [key <1-16>] */
 	if (args->argc == 3) do_ntp_server(args->argv[2], NULL);
 		else if (args->argc == 5) do_ntp_server(args->argv[2], args->argv[4]);
 #endif
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ntp_trust_on_key(const char *cmd) /* ntp trusted-key 1-16 */
 {
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if(args->argc == 3)	do_ntp_trust_on_key(args->argv[2]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ntp_set_key_value(const char *cmd) /* ntp authentication-key 1-16 md5 <hash> */
 {
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if(args->argc == 5)	do_ntp_key_set(args->argv[2], args->argv[4]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 #ifdef OPTION_NTPD_authenticate
@@ -94,30 +94,30 @@ void no_ntp_restrict(const char *cmd) /* no ntp restrict [<ipaddr>] */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (args->argc == 4) do_exclude_ntp_restrict(args->argv[3]);
 		else do_exclude_ntp_restrict(NULL);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void no_ntp_server(const char *cmd) /* no ntp server [<ipaddr>] */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (args->argc == 4) do_exclude_ntp_server(args->argv[3]);
 		else do_exclude_ntp_server(NULL);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void no_ntp_trustedkeys(const char *cmd) /* no ntp trusted-key [<1-16>] */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (args->argc == 4) do_exclude_ntp_trustedkeys(args->argv[3]);
 		else do_exclude_ntp_trustedkeys(NULL);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ntp_update_calendar(const char *cmd)

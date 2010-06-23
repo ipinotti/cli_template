@@ -115,7 +115,7 @@ void config_router(const char *cmdline)
 #endif
 
 	syslog(LOG_INFO, "entered router configuration mode for session from %s", _cish_source);
-	args=make_args(cmdline);
+	args=libconfig_make_args(cmdline);
 	if (strcasecmp(args->argv[1], "rip") == 0)
 	{
 		command_root = CMD_CONFIG_ROUTER_RIP;
@@ -161,7 +161,7 @@ void config_router(const char *cmdline)
 		}
 	}
 #endif
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_no_router(const char *cmdline)
@@ -169,7 +169,7 @@ void config_no_router(const char *cmdline)
 	arglist *args;
 	char tmp[64];
 
-	args=make_args(cmdline);
+	args=libconfig_make_args(cmdline);
 
 	if (strcasecmp (args->argv[2], "rip") == 0)
 	{
@@ -208,7 +208,7 @@ void config_no_router(const char *cmdline)
 		}
 	}
 #endif
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_router_done(const char *cmdline)
@@ -529,9 +529,9 @@ void zebra_dump_routes(FILE *out)
 					if (new_buf) {
 						print = 1;
 						if (strchr(buf, '>') == NULL) {
-							if (((n = parse_args_din(new_buf, &argl)) > 0) && (strcmp(argl[n-1], "inactive") == 0))
+							if (((n = libconfig_parse_args_din(new_buf, &argl)) > 0) && (strcmp(argl[n-1], "inactive") == 0))
 								print = 0;
-							free_args_din(&argl);
+							libconfig_destroy_args_din(&argl);
 						}
 						if (print)
 							fprintf(out, "%s %s\n", buf, new_buf);

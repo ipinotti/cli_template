@@ -141,7 +141,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 	time_t ti;
 	int count;
 
-	arglist	*args = make_args(cmdline);
+	arglist	*args = libconfig_make_args(cmdline);
 
 	if (args->argc == 4) { /* store hash! */
 		if (strcmp(args->argv[1], "enable") == 0) {
@@ -181,7 +181,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 		}
 		if( count >= 3 ) {
 			printf("\n%% Excess failures - aborted\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 
@@ -224,12 +224,12 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 				printf("%% Unknown failure\n");
 		}
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void set_nosecret(const char *cmdline) /* no secret enable|login */
 {
-	arglist	*args = make_args(cmdline);
+	arglist	*args = libconfig_make_args(cmdline);
 
 	if (strcmp(args->argv[2], "enable") == 0) {
 		cish_cfg->enable_secret[0] = 0;
@@ -239,7 +239,7 @@ void set_nosecret(const char *cmdline) /* no secret enable|login */
 		cish_cfg->login_secret[0] = 0;
 		set_admin_secret(NULL);
 	}
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void disable(const char *cmdline)

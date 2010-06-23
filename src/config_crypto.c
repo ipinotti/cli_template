@@ -127,12 +127,12 @@ void cd_connection_dir(const char *cmd) /* ipsec connection [name] */
 	arglist *args;
 
 	dynamic_ipsec_menu_name[0] = '\0';
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		strcpy(dynamic_ipsec_menu_name, args->argv[2]);
 		command_root = CMD_IPSEC_CONNECTION_CHILDREN;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void cd_crypto_dir(const char *cmd)
@@ -247,42 +247,42 @@ void ipsec_autoreload(const char *cmd) /* [no] auto-reload [60-3600] */
 {
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0)
 		replace_string_in_file_nl(FILE_IPSEC_CONF,
 		                STRING_IPSEC_AUTORELOAD, "0");
 	else
 		replace_string_in_file_nl(FILE_IPSEC_CONF,
 		                STRING_IPSEC_AUTORELOAD, args->argv[1]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ipsec_nat_traversal(const char *cmd) /* [no] nat-traversal */
 {
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 2)
 		replace_string_in_file_nl(FILE_IPSEC_CONF, STRING_IPSEC_NAT,
 		                "no");
 	else
 		replace_string_in_file_nl(FILE_IPSEC_CONF, STRING_IPSEC_NAT,
 		                "yes");
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void ipsec_overridemtu(const char *cmd) /* [no] overridemtu [64-1460] */
 {
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0)
 		replace_string_in_file_nl(FILE_IPSEC_CONF, STRING_IPSEC_OMTU,
 		                "0");
 	else
 		replace_string_in_file_nl(FILE_IPSEC_CONF, STRING_IPSEC_OMTU,
 		                args->argv[1]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 extern int _cish_booting;
@@ -293,7 +293,7 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 	char **list = NULL, **list_ini = NULL;
 	int i, go_out, count;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 4) {
 		if (strlen(args->argv[3]) >= MAX_CONN_NAME) {
 			printf("%% Connection name to long\n");
@@ -349,7 +349,7 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 			goto free_args;
 		}
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
@@ -358,7 +358,7 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 	int i, restart = 0;
 	char **list = NULL, **list_ini = NULL;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 4) {
 		if (set_ipsec_link(args->argv[3], 0) < 0) {
 			printf("%% Not possible to del ipsec connection!\n");
@@ -390,7 +390,7 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 		else
 			set_ipsec(STOP);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void generate_rsa_key(const char *cmd)
@@ -399,7 +399,7 @@ void generate_rsa_key(const char *cmd)
 	arglist *args;
 	char **list = NULL, **list_ini = NULL, buf[100];
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 4) {
 		printf("%% Please wait... computation may take long time!\n");
 		if (create_rsakey(atoi(args->argv[3])) < 0) {
@@ -424,7 +424,7 @@ void generate_rsa_key(const char *cmd)
 		}
 		set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void config_crypto_done(const char *cmd)
@@ -480,7 +480,7 @@ void ipsec_set_secret_key(const char *cmd) /* authby secret password */
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (create_secrets_conn_file(dynamic_ipsec_menu_name, 0,
 		                args->argv[2]) < 0) {
@@ -503,7 +503,7 @@ void ipsec_set_secret_key(const char *cmd) /* authby secret password */
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void ipsec_authby_rsa(const char *cmd)
@@ -511,7 +511,7 @@ void ipsec_authby_rsa(const char *cmd)
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 2) {
 		if (create_secrets_conn_file(dynamic_ipsec_menu_name, 1, NULL)
 		                < 0) {
@@ -534,7 +534,7 @@ void ipsec_authby_rsa(const char *cmd)
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void ipsec_authproto_esp(const char *cmd)
@@ -542,7 +542,7 @@ void ipsec_authproto_esp(const char *cmd)
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 2) {
 		if (set_ipsec_ike_authproto(dynamic_ipsec_menu_name, ESP) < 0) {
 			printf("%% Not possible to set authproto to esp\n");
@@ -557,7 +557,7 @@ void ipsec_authproto_esp(const char *cmd)
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void set_esp_hash(const char *cmd)
@@ -565,7 +565,7 @@ void set_esp_hash(const char *cmd)
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	switch (args->argc) {
 	case 1:
 		if (set_ipsec_esp(dynamic_ipsec_menu_name, NULL, NULL) < 0) {
@@ -600,7 +600,7 @@ void set_esp_hash(const char *cmd)
 	}
 	if (ret > 0)
 		set_ipsec(RESTART);
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void set_ipsec_id(const char *cmd)
@@ -609,7 +609,7 @@ void set_ipsec_id(const char *cmd)
 	arglist *args;
 	char tp[MAX_ID_LEN];
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (strlen(args->argv[2]) < MAX_ID_LEN)
 			strcpy(tp, args->argv[2]);
@@ -634,7 +634,7 @@ void set_ipsec_id(const char *cmd)
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void clear_ipsec_id(const char *cmd) /* no local/remote id */
@@ -642,7 +642,7 @@ void clear_ipsec_id(const char *cmd) /* no local/remote id */
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (strncmp(args->argv[1], "local", 5) == 0)
 			ret = set_ipsec_local_id(dynamic_ipsec_menu_name, "");
@@ -663,7 +663,7 @@ void clear_ipsec_id(const char *cmd) /* no local/remote id */
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void set_ipsec_addr(const char *cmd) /* local/remote address default-route/interface/ip/fqdn serial/x.x.x.x/www */
@@ -672,7 +672,7 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 	char tp[200];
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc >= 3) {
 		if (!strncmp(args->argv[0], "local", 5))
 			local = 1;
@@ -742,7 +742,7 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void set_ipsec_nexthop(const char *cmd)
@@ -750,7 +750,7 @@ void set_ipsec_nexthop(const char *cmd)
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[0], "local", 5))
 			ret = set_ipsec_nexthop_inf(LOCAL,
@@ -773,7 +773,7 @@ void set_ipsec_nexthop(const char *cmd)
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void clear_ipsec_nexthop(const char *cmd) /* no local/remote nexthop */
@@ -781,7 +781,7 @@ void clear_ipsec_nexthop(const char *cmd) /* no local/remote nexthop */
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[1], "local", 5))
 			ret = set_ipsec_nexthop_inf(LOCAL,
@@ -804,7 +804,7 @@ void clear_ipsec_nexthop(const char *cmd) /* no local/remote nexthop */
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void set_ipsec_remote_rsakey(const char *cmd) /* remote rsakey [publickey] */
@@ -812,7 +812,7 @@ void set_ipsec_remote_rsakey(const char *cmd) /* remote rsakey [publickey] */
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (set_ipsec_rsakey(dynamic_ipsec_menu_name,
 		                STRING_IPSEC_R_RSAKEY, args->argv[2]) < 0) {
@@ -830,7 +830,7 @@ void set_ipsec_remote_rsakey(const char *cmd) /* remote rsakey [publickey] */
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void clear_ipsec_remote_rsakey(const char *cmd) /* no local/remote rsakey */
@@ -838,7 +838,7 @@ void clear_ipsec_remote_rsakey(const char *cmd) /* no local/remote rsakey */
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (set_ipsec_rsakey(dynamic_ipsec_menu_name,
 		                STRING_IPSEC_R_RSAKEY, "") < 0) {
@@ -856,7 +856,7 @@ void clear_ipsec_remote_rsakey(const char *cmd) /* no local/remote rsakey */
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void set_ipsec_subnet(const char *cmd)
@@ -864,7 +864,7 @@ void set_ipsec_subnet(const char *cmd)
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 4) {
 		if (!strncmp(args->argv[0], "local", 5))
 			ret = set_ipsec_subnet_inf(LOCAL,
@@ -889,7 +889,7 @@ void set_ipsec_subnet(const char *cmd)
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void clear_ipsec_subnet(const char *cmd) /* no local/remote subnet */
@@ -897,7 +897,7 @@ void clear_ipsec_subnet(const char *cmd) /* no local/remote subnet */
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[1], "local", 5))
 			ret = set_ipsec_subnet_inf(LOCAL,
@@ -920,7 +920,7 @@ void clear_ipsec_subnet(const char *cmd) /* no local/remote subnet */
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void ipsec_link_up(const char *cmd)
@@ -968,7 +968,7 @@ void set_ipsec_l2tp_protoport(const char *cmd) /* [no] l2tp protoport [SP1|SP2] 
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strcmp(args->argv[0], "no"))
 			set_ipsec_protoport(dynamic_ipsec_menu_name, NULL);
@@ -984,7 +984,7 @@ void set_ipsec_l2tp_protoport(const char *cmd) /* [no] l2tp protoport [SP1|SP2] 
 		if (ret > 0)
 			set_ipsec(RESTART);
 	}
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void ipsec_pfs(const char *cmd)
@@ -992,7 +992,7 @@ void ipsec_pfs(const char *cmd)
 	int ret;
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	switch (args->argc) {
 	case 1:
 		if (set_ipsec_pfs(dynamic_ipsec_menu_name, 1) < 0) {
@@ -1017,7 +1017,7 @@ void ipsec_pfs(const char *cmd)
 	}
 	if (ret > 0)
 		set_ipsec(RESTART);
-	free_args: destroy_args(args);
+	free_args: libconfig_destroy_args(args);
 }
 
 void l2tp_dhcp_server(const char *cmd) /* l2tp <local|ethernet 0-1> pool s.s.s.s e.e.e.e ... */
@@ -1029,12 +1029,12 @@ void l2tp_server(const char *cmd) /* [no] l2tp server */
 {
 	arglist *args;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if (args->argc == 3 && !strcmp(args->argv[0], "no"))
 		set_l2tp(STOP);
 	else
 		set_l2tp(START);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void check_initial_conn(void)
@@ -1100,7 +1100,7 @@ void l2tp_peer(const char *cmd) /* [no] l2tp peer <ipaddress> <netmask> */
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (strcmp(args->argv[0], "no") == 0) {
 		cfg.peer_mask = -1; /* Disable peer! */
@@ -1110,7 +1110,7 @@ void l2tp_peer(const char *cmd) /* [no] l2tp peer <ipaddress> <netmask> */
 		cfg.peer_mask = netmask_to_cidr(args->argv[3]);
 	}
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void l2tp_ppp_auth_pass(const char *cmd) /* l2tp ppp authentication pass [password] */
@@ -1118,12 +1118,12 @@ void l2tp_ppp_auth_pass(const char *cmd) /* l2tp ppp authentication pass [passwo
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	strncpy(cfg.auth_pass, args->argv[4], MAX_PPP_PASS);
 	cfg.auth_pass[MAX_PPP_PASS - 1] = 0;
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void l2tp_ppp_auth_user(const char *cmd) /* l2tp ppp authentication user [username] */
@@ -1131,12 +1131,12 @@ void l2tp_ppp_auth_user(const char *cmd) /* l2tp ppp authentication user [userna
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	strncpy(cfg.auth_user, args->argv[4], MAX_PPP_USER);
 	cfg.auth_user[MAX_PPP_USER - 1] = 0;
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void l2tp_ppp_noauth(const char *cmd) /* no l2tp ppp authentication */
@@ -1153,13 +1153,13 @@ void l2tp_ppp_ipaddr(const char *cmd) /* l2tp ppp ip address <ipaddress> */
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	strncpy(cfg.ip_addr, args->argv[4], 16);
 	cfg.ip_addr[15] = 0;
 	cfg.ip_unnumbered = -1; /* Desativando a flag do IP UNNUMBERED */
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void l2tp_ppp_noipaddr(const char *cmd) /* no l2tp ppp ip address */
@@ -1198,7 +1198,7 @@ void l2tp_ppp_peeraddr(const char *cmd) /* l2tp ppp ip peer-address [pool|<ipadd
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (strcmp(args->argv[4], "pool") == 0)
 		cfg.ip_peer_addr[0] = 0;
@@ -1207,7 +1207,7 @@ void l2tp_ppp_peeraddr(const char *cmd) /* l2tp ppp ip peer-address [pool|<ipadd
 		cfg.ip_peer_addr[15] = 0;
 	}
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void l2tp_ppp_nopeeraddr(const char *cmd) /* no l2tp ppp ip peer-address */
@@ -1226,7 +1226,7 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 	ppp_config cfg;
 	char *dev;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	dev = convert_device(args->argv[4], atoi(args->argv[5]), -1);
 	if (!strncmp(dev, "loopback", strlen("loopback")))
 		get_interface_ip_addr(dev, addr, mask);
@@ -1244,7 +1244,7 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
 	free(dev);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void l2tp_ppp_no_unnumbered(const char *cmd) /* no l2tp ppp ip unnumbered */
@@ -1284,11 +1284,11 @@ void l2tp_ppp_keepalive_interval(const char *cmd) /* l2tp ppp keepalive interval
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.echo_interval = atoi(args->argv[4]);
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void l2tp_ppp_keepalive_timeout(const char *cmd) /* l2tp ppp keepalive timeout [seconds] */
@@ -1296,11 +1296,11 @@ void l2tp_ppp_keepalive_timeout(const char *cmd) /* l2tp ppp keepalive timeout [
 	arglist *args;
 	ppp_config cfg;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.echo_failure = atoi(args->argv[4]);
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void l2tp_ppp_mtu(const char *cmd) /* l2tp ppp mtu [mtu] */
@@ -1309,9 +1309,9 @@ void l2tp_ppp_mtu(const char *cmd) /* l2tp ppp mtu [mtu] */
 	int mtu;
 	ppp_config cfg;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	mtu = atoi(args->argv[3]);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (cfg.mtu != mtu) {
 		cfg.mtu = mtu;

@@ -20,7 +20,7 @@ void debug_all(const char *cmd) /* [no] debug all */
 	char no_debug_bgp[]="no debug bgp events";
 #endif
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) {
 		set_debug_all(0);
 		_cish_debug = 0;
@@ -44,7 +44,7 @@ void debug_all(const char *cmd) /* [no] debug all */
 			bgp_execute_root_cmd(&no_debug_bgp[3]); /* debug bgp events */
 #endif
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void debug_one(const char *cmd) /* [no] debug <token> */
@@ -59,7 +59,7 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 	int vc = 0; /* x25 */
 #endif
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) {
 #ifdef CONFIG_BERLIN_SATROUTER
 		if (set_debug_token(0, args->argv[2]) >= 0) _cish_debug = 0;
@@ -98,7 +98,7 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 		}
 #endif
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_debug(const char *cmd)
@@ -116,23 +116,23 @@ void debug_console(const char *cmd)
 	arglist *args;
 	unsigned int debug;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	debug = (strcmp(args->argv[0], "no")==0 ? 0 : 1);
 	if( (pf = open(TTS_AUX1, O_RDWR | O_NDELAY)) < 0 )
 	{
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		printf("Not possible to enable/disable debug\n");
 		return;
 	}
 	if( ioctl(pf, TIOSERDEBUG, &debug) != 0 )
 	{
 		close(pf);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		printf("Not possible to enable/disable debug\n");
 		return;
 	}
 	close(pf);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 #endif

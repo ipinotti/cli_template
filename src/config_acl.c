@@ -37,7 +37,7 @@ void do_accesslist(const char *cmdline)
 	memset(&acl, 0, sizeof(struct acl_config));
 
 	acl.mode = add_acl;
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 
 	if (args->argc > 6) {
 		if (strcmp(args->argv[2], "tcpmss") == 0) {
@@ -65,7 +65,7 @@ void do_accesslist(const char *cmdline)
 				fprintf(stderr,
 				                "%% Invalid command, you should also "
 					                "include flags argument with bit SYN in test!\n");
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				return;
 			}
 		}
@@ -100,7 +100,7 @@ void do_accesslist(const char *cmdline)
 	else {
 		fprintf(stderr,
 		                "%% Illegal action type, use accept, drop, reject, log or tcpmss\n");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	++crsr;
@@ -108,7 +108,7 @@ void do_accesslist(const char *cmdline)
 	if (acl.action == acl_tcpmss) {
 		if (crsr >= args->argc) {
 			fprintf(stderr, "%% Missing tcpmss action\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		acl.tcpmss = args->argv[crsr];
@@ -133,7 +133,7 @@ void do_accesslist(const char *cmdline)
 			++crsr;
 			if (crsr >= args->argc) {
 				fprintf(stderr, "%% Missing icmp type\n");
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				return;
 			}
 			acl.icmp_type = args->argv[crsr];
@@ -148,7 +148,7 @@ void do_accesslist(const char *cmdline)
 				if (crsr >= args->argc) {
 					fprintf(stderr,
 					                "%% Missing icmp type code\n");
-					destroy_args(args);
+					libconfig_destroy_args(args);
 					return;
 				}
 
@@ -165,7 +165,7 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "host") == 0) {
 		if ((crsr + 1) > args->argc) {
 			fprintf(stderr, "%% Missing ip-address\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		++crsr;
@@ -174,13 +174,13 @@ void do_accesslist(const char *cmdline)
 	} else {
 		if ((crsr + 2) > args->argc) {
 			fprintf(stderr, "%% Missing netmask\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		acl.src_cidr = netmask2cidr(args->argv[crsr + 1]);
 		if (acl.src_cidr < 0) {
 			fprintf(stderr, "%% Invalid netmask\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.src_address, "%s/%i ", args->argv[crsr],
@@ -189,18 +189,18 @@ void do_accesslist(const char *cmdline)
 	}
 	if (crsr >= args->argc) {
 		fprintf(stderr, "%% Not enough arguments\n");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if (strcmp(args->argv[crsr], "eq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.src_portrange, "%s ", args->argv[crsr + 1]);
@@ -208,12 +208,12 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "neq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.src_portrange, "! %s ", args->argv[crsr + 1]);
@@ -221,12 +221,12 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "gt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.src_portrange, "%s: ", args->argv[crsr + 1]);
@@ -234,12 +234,12 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "lt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.src_portrange, ":%s ", args->argv[crsr + 1]);
@@ -247,18 +247,18 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "range") == 0) {
 		if ((crsr + 2) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (atoi(args->argv[crsr + 1]) > atoi(args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Invalid port range (min > max)\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
 		                args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.src_portrange, "%s:%s ", args->argv[crsr + 1],
@@ -277,13 +277,13 @@ void do_accesslist(const char *cmdline)
 	} else {
 		if ((crsr + 2) > args->argc) {
 			fprintf(stderr, "%% Missing netmask\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		acl.dst_cidr = netmask2cidr(args->argv[crsr + 1]);
 		if (acl.dst_cidr < 0) {
 			fprintf(stderr, "%% Invalid netmask\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.dst_address, "%s/%i ", args->argv[crsr],
@@ -295,12 +295,12 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "eq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.dst_portrange, "%s ", args->argv[crsr + 1]);
@@ -308,12 +308,12 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "neq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.dst_portrange, "! %s ", args->argv[crsr + 1]);
@@ -321,12 +321,12 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "gt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.dst_portrange, "%s: ", args->argv[crsr + 1]);
@@ -334,12 +334,12 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "lt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.dst_portrange, ":%s ", args->argv[crsr + 1]);
@@ -347,18 +347,18 @@ void do_accesslist(const char *cmdline)
 	} else if (strcmp(args->argv[crsr], "range") == 0) {
 		if ((crsr + 2) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (atoi(args->argv[crsr + 1]) > atoi(args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Invalid port range (min > max)\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
 		                args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Ivalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(acl.dst_portrange, "%s:%s ", args->argv[crsr + 1],
@@ -379,7 +379,7 @@ void do_accesslist(const char *cmdline)
 			crsr++;
 			if (crsr >= args->argc) {
 				fprintf(stderr, "%% Not enough arguments\n");
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				return;
 			}
 			acl.tos = args->argv[crsr];
@@ -387,7 +387,7 @@ void do_accesslist(const char *cmdline)
 			crsr++;
 			if (crsr >= args->argc) {
 				fprintf(stderr, "%% Not enough arguments\n");
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				return;
 			}
 			acl.flags = args->argv[crsr];
@@ -400,7 +400,7 @@ void do_accesslist(const char *cmdline)
 		if (!acl.flags) {
 			fprintf(stderr,
 			                "%% For use 'tcpmss' you must define 'flags'\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 	}
@@ -408,7 +408,7 @@ void do_accesslist(const char *cmdline)
 	/* Apply the access list */
 	libconfig_acl_apply(&acl);
 
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void do_accesslist_mac(const char *cmdline)
@@ -420,7 +420,7 @@ void do_accesslist_mac(const char *cmdline)
 	char *acl, cmd[256];
 
 	mode = add_acl;
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	acl = args->argv[1];
 	if (!libconfig_acl_exists(acl)) {
 		sprintf(cmd, "/bin/iptables -N %s", acl);
@@ -445,7 +445,7 @@ void do_accesslist_mac(const char *cmdline)
 	else {
 		fprintf(stderr,
 		                "%% Illegal action type, use accept, drop, reject, log or tcpmss\n");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	crsr += 2;
@@ -481,7 +481,7 @@ void do_accesslist_mac(const char *cmdline)
 		break;
 	} DEBUG_CMD(cmd);
 	system(cmd);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void do_accesslist_policy(const char *cmdline)
@@ -493,7 +493,7 @@ void do_accesslist_policy(const char *cmdline)
 
 	procfile = fopen("/proc/net/ip_tables_names", "r");
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (strcmp(args->argv[1], "accept") == 0) {
 		target = "ACCEPT";
 		if (!procfile)
@@ -520,7 +520,7 @@ void do_accesslist_policy(const char *cmdline)
 	DEBUG_CMD(cmd);
 	system(cmd);
 
-	bailout: destroy_args(args);
+	bailout: libconfig_destroy_args(args);
 }
 
 void no_accesslist(const char *cmdline)
@@ -529,15 +529,15 @@ void no_accesslist(const char *cmdline)
 	char *acl;
 	char cmd[256];
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	acl = args->argv[2];
 	if (!libconfig_acl_exists(acl)) {
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if (libconfig_acl_get_refcount(acl)) {
 		printf("%% Access-list in use, can't delete\n");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	sprintf(cmd, "/bin/iptables -F %s", acl); /* flush */
@@ -548,7 +548,7 @@ void no_accesslist(const char *cmdline)
 
 	system(cmd);
 
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
@@ -560,7 +560,7 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 
 	dev = convert_device(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	listno = args->argv[2];
 	if (strcasecmp(args->argv[3], "in") == 0)
 		chain = chain_in;
@@ -569,21 +569,21 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 	if (!libconfig_acl_exists(listno)) {
 		printf("%% access-list %s undefined\n", listno);
 		free(dev);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if ((chain == chain_in) && (libconfig_acl_matched_exists(0, dev, 0, "INPUT")
 	                || libconfig_acl_matched_exists(0, dev, 0, "FORWARD"))) {
 		printf("%% inbound access-list already defined.\n");
 		free(dev);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if ((chain == chain_out) && (libconfig_acl_matched_exists(0, 0, dev, "OUTPUT")
 	                || libconfig_acl_matched_exists(0, 0, dev, "FORWARD"))) {
 		printf("%% outbound access-list already defined.\n");
 		free(dev);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if (chain == chain_in) {
@@ -613,7 +613,7 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 #ifdef OPTION_IPSEC
 	libconfig_acl_interface_ipsec(1, chain, dev, listno);
 #endif
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	free(dev);
 }
 
@@ -626,7 +626,7 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 
 	dev = convert_device(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	listno = args->argv[3];
 	if (args->argc == 4)
 		chain = chain_both;
@@ -671,7 +671,7 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 #ifdef OPTION_IPSEC
 	libconfig_acl_interface_ipsec(0, chain, dev, listno);
 #endif
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	free(dev);
 }
 
