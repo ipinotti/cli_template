@@ -452,7 +452,7 @@ void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
 	if (args->argc == 5)
 	{
 		printf("%% Please wait... computation may take long time!\n");
-		if (ssh_create_rsakey(atoi(args->argv[4])) < 0)
+		if (libconfig_ssh_create_rsakey(atoi(args->argv[4])) < 0)
 		{
 			printf("%% Not possible to generate RSA key!\n");
 		}
