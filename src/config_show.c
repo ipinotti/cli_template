@@ -642,7 +642,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	int serial_no=0, lusb_descriptor=0, lusb_tty_verify=0;
 	char * apn = malloc (100);
 	int running = conf->running;
-	lusb_dev * usbdev=malloc(sizeof(lusb_dev));
+	libconfig_usb_dev * usbdev=malloc(sizeof(libconfig_usb_dev));
 
 
 	/* Get interface index */
@@ -657,8 +657,8 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	 * Get USB description ;
 	 * Verify existence of TTY, means USB device is a modem 3g ; */
 	ppp_get_config(serial_no, &cfg);
-	lusb_descriptor = lusb_get_descriptor(usbdev);
-	lusb_tty_verify = lusb_check_usb_ttyUSB(usbdev->port);
+	lusb_descriptor = libconfig_usb_get_descriptor(usbdev);
+	lusb_tty_verify = libconfig_usb_device_is_modem(usbdev->port);
 
 
 
@@ -688,11 +688,11 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	if (lusb_descriptor == 1 && lusb_tty_verify == 1)
 		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d\n",
-				usbdev->iProduct_string,
-				usbdev->iManufacture_string,
+				usbdev->product_str,
+				usbdev->manufacture_str,
 				usbdev->port);
 	else
-		if (lusb_descriptor == 1 && lusb_tty_verify == -1)
+		if (lusb_descriptor == 1 && lusb_tty_verify == 0)
 			fprintf(out, "  USB device connected, but not a modem.\n");
 		else
 			fprintf(out, "  No USB device connected.\n");
