@@ -489,7 +489,7 @@ static void alarm_handler(int sig)
 							}
 							else {
 								LOGS[l].last_message_printed = 0;
-								p = find_debug_token(crsr, name, 0);
+								p = libconfig_debug_find_token(crsr, name, 0);
 								if (p != NULL) {
 									if (prompt_printed) {
 										printf("\n");

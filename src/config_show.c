@@ -177,7 +177,7 @@ static int show_logging_file(time_t tm_start)
 					if (tm < tm_start)
 						continue; /* skip! */
 				}
-				p = find_debug_token(info, name, 1);
+				p = libconfig_debug_find_token(info, name, 1);
 				if (p != NULL) {
 					last_one_was_printed = 1;
 					pprintf("%s %s%s", date, name, p);

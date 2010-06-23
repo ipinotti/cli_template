@@ -122,7 +122,7 @@ void config_router(const char *cmdline)
 		set_rip_interface_cmds(1);
 		set_ripd(1);
 		/* sync debug! */
-		if (get_debug_state(args->argv[1])) {
+		if (libconfig_debug_get_state(args->argv[1])) {
 			rip_execute_root_cmd(&no_debug_rip[3]);
 		} else {
 			rip_execute_root_cmd(no_debug_rip);
@@ -134,7 +134,7 @@ void config_router(const char *cmdline)
 		set_ospf_interface_cmds(1);
 		set_ospfd(1);
 		/* sync debug! */
-		if (get_debug_state(args->argv[1])) {
+		if (libconfig_debug_get_state(args->argv[1])) {
 			ospf_execute_root_cmd(&no_debug_ospf[3]);
 		} else {
 			ospf_execute_root_cmd(no_debug_ospf);
@@ -153,7 +153,7 @@ void config_router(const char *cmdline)
 			asn=temp; 
 			command_root = CMD_CONFIG_ROUTER_BGP;
 			/* sync debug! */
-			if (get_debug_state(args->argv[1])) {
+			if (libconfig_debug_get_state(args->argv[1])) {
 				bgp_execute_root_cmd(&no_debug_bgp[3]);
 			} else {
 				bgp_execute_root_cmd(no_debug_bgp);

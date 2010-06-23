@@ -22,7 +22,7 @@ void debug_all(const char *cmd) /* [no] debug all */
 
 	args=libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) {
-		set_debug_all(0);
+		libconfig_debug_set_all(0);
 		_cish_debug = 0;
 		if (get_ospfd())
 			ospf_execute_root_cmd(no_debug_ospf);
@@ -33,7 +33,7 @@ void debug_all(const char *cmd) /* [no] debug all */
 			bgp_execute_root_cmd(no_debug_bgp);
 #endif
 	} else {
-		set_debug_all(1);
+		libconfig_debug_set_all(1);
 		_cish_debug = 1;
 		if (get_ospfd())
 			ospf_execute_root_cmd(&no_debug_ospf[3]);
@@ -62,9 +62,9 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 	args=libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) {
 #ifdef CONFIG_BERLIN_SATROUTER
-		if (set_debug_token(0, args->argv[2]) >= 0) _cish_debug = 0;
+		if (libconfig_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
 #else
-		if (set_debug_token(0, args->argv[2]) >= 0) _cish_debug = 0;
+		if (libconfig_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
 #endif
 		if (strcmp(args->argv[2], "ospf") == 0) {
 			if (get_ospfd())
@@ -84,7 +84,7 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 		if (args->argc > 2) /* x25 */
 			vc = atoi(args->argv[2]);
 #endif
-		if (set_debug_token(1, args->argv[1]) >= 0)
+		if (libconfig_debug_set_token(1, args->argv[1]) >= 0)
 			_cish_debug = 1;
 		if (strcmp(args->argv[1], "ospf") == 0) {
 			if (get_ospfd()) ospf_execute_root_cmd(&no_debug_ospf[3]);
@@ -103,7 +103,7 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 
 void show_debug(const char *cmd)
 {
-	dump_debug();
+	libconfig_debug_dump();
 }
 
 #if defined(CONFIG_BERLIN_SATROUTER) && defined(CONFIG_LOG_CONSOLE)
