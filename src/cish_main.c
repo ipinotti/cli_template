@@ -821,8 +821,9 @@ int cish_execute (const char *cmd)
 	if (start > 0)
 	{
 		pos=0;
-		while ((cmd[pos] == ' ') && (pos < start)) ++pos;	/* "    exemplo   arg1 arg2 " */
-															/*      ^pos   ^rightedge     */
+		while ((cmd[pos] == ' ') && (pos < start)) ++pos;
+		/* "    exemplo   arg1 arg2 " */
+		/*      ^pos   ^rightedge     */
 		while (pos < start)
 		{
 			rightedge=(strchr(cmd+pos, ' ') - cmd);
@@ -864,10 +865,8 @@ int cish_execute (const char *cmd)
 			while ((cmd[pos] == ' ') && (pos < start)) ++pos;
 		}
 	}
-	if (xcmd)
-	{
-		if (xcmd->func)
-		{
+	if (xcmd) {
+		if (xcmd->func) {
 #if 0 /* Debug */
 			printf("Execute line: %s\n", realcmd);
 #endif
