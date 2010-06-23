@@ -339,8 +339,8 @@ void show_version(const char *cmdline)
 #ifdef CONFIG_DEVELOPMENT
 	printf("Engineering prototype\n");
 #endif
-	printf("Bootloader version: %s\n", get_boot_version());
-	printf("System version: %s\n", get_system_version());
+	printf("Bootloader version: %s\n", libconfig_get_boot_version());
+	printf("System version: %s\n", libconfig_get_system_version());
 #if 0
 	printf("Owner: %s\n", get_product_owner());
 	printf("Licensed: %s\n", get_product_licensed());

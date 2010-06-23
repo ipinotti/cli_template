@@ -343,7 +343,7 @@ void config_file(const char *f)
 				strncpy(cfg_version, line+8, 32);
 				cfg_version[31]=0;
 				striplf(cfg_version);
-				if (strcmp(cfg_version, get_system_version()))
+				if (strcmp(cfg_version, libconfig_get_system_version()))
 				{
 					fprintf(stderr, "%% Configurations from version %s may not be correctly understood!\n", cfg_version);
 				}
