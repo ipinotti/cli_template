@@ -20,7 +20,7 @@
 #include <libconfig/dev.h>
 #include <libconfig/vrrp.h>
 
-extern device_family *interface_edited;
+extern dev_family *interface_edited;
 extern int interface_major;
 extern int interface_minor;
 
@@ -140,7 +140,7 @@ void interface_no_vrrp(const char *cmd) /* no vrrp <1-255> <option> <...> */
 	char *dev;
 
 	args=libconfig_make_args(cmd);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	group=atoi(args->argv[2]);
 	if (args->argc == 3) {
 		vrrp_no_group(dev, group);
@@ -170,7 +170,7 @@ void interface_vrrp(const char *cmd) /* vrrp <1-255> <option> <...> */
 	char *dev;
 
 	args=libconfig_make_args(cmd);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	group=atoi(args->argv[1]);
 	if (strcmp(args->argv[2], "authentication") == 0) { /* authentication ah|text <string> */
 		if (strcmp(args->argv[3], "ah") == 0) {

@@ -401,7 +401,7 @@ void show_arp(const char *cmdline)
 					printf("ARPA   ");
 				else
 					pprintf("other  ");
-				cdev = convert_os_device(osdev, 1);
+				cdev = libconfig_device_convert_os(osdev, 1);
 				if (cdev)
 					pprintf("%s", cdev);
 				pprintf("\n");
@@ -736,7 +736,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		st = conf.stats;
 
-		cish_dev = convert_os_device(conf.name, conf_format ? 0 : 1);
+		cish_dev = libconfig_device_convert_os(conf.name, conf_format ? 0 : 1);
 		cish_dbg("cish_dev : %s\n", cish_dev);
 
 		/* Check if only one interface is needed */
@@ -962,7 +962,7 @@ void show_level_running_config(const char *cmdline)
 	                || (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
 	                || (command_root == CMD_CONFIG_INTERFACE_M3G)) {
 
-		char *intf = convert_device(interface_edited->cish_string,
+		char *intf = libconfig_device_convert(interface_edited->cish_string,
 				interface_major, interface_minor);
 
 		dump_interfaces(f, 1, intf);

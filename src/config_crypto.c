@@ -1227,7 +1227,7 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 	char *dev;
 
 	args = libconfig_make_args(cmd);
-	dev = convert_device(args->argv[4], atoi(args->argv[5]), -1);
+	dev = libconfig_device_convert(args->argv[4], atoi(args->argv[5]), -1);
 	if (!strncmp(dev, "loopback", strlen("loopback")))
 		get_interface_ip_addr(dev, addr, mask);
 	else

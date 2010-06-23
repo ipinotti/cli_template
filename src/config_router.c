@@ -223,7 +223,7 @@ void zebra_execute_cmd(const char *cmdline)
 
 	if (daemon_connect(ZEBRA_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
@@ -243,11 +243,11 @@ void zebra_execute_interface_cmd(const char *cmdline)
 
 	if (daemon_connect(ZEBRA_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);
 #ifdef DEBUG_ZEBRA
@@ -267,8 +267,8 @@ void ospf_execute_root_cmd(const char *cmdline)
 
 	if (daemon_connect(OSPF_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
@@ -286,8 +286,8 @@ void ospf_execute_router_cmd(const char *cmdline)
 
 	if (daemon_connect(OSPF_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 	daemon_client_execute("router ospf", stdout, buf_daemon, 0);
@@ -307,10 +307,10 @@ void ospf_execute_interface_cmd(const char *cmdline)
 
 	if (daemon_connect(OSPF_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
-	dev=convert_device (interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert (interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);
 #ifdef DEBUG_ZEBRA
@@ -330,8 +330,8 @@ void rip_execute_root_cmd(const char *cmdline)
 
 	if (daemon_connect(RIP_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
@@ -352,8 +352,8 @@ void rip_execute_keychain_cmd(const char *cmdline)
 
 	if (daemon_connect(RIP_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 	sprintf(buf, "key chain %s", keychain_name);
@@ -373,8 +373,8 @@ void rip_execute_key_cmd(const char *cmdline)
 
 	if (daemon_connect(RIP_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 	sprintf(buf, "key chain %s", keychain_name);
@@ -396,8 +396,8 @@ void rip_execute_router_cmd(const char *cmdline)
 
 	if (daemon_connect(RIP_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 	daemon_client_execute("router rip", stdout, buf_daemon, 0);
@@ -416,10 +416,10 @@ void rip_execute_interface_cmd(const char *cmdline)
 
 	if (daemon_connect(RIP_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);
 #ifdef DEBUG_ZEBRA
@@ -440,8 +440,8 @@ void bgp_execute_root_cmd(const char *cmdline)
 
 	if (daemon_connect(BGP_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
@@ -480,8 +480,8 @@ void bgp_execute_router_cmd(const char *cmdline)
 
 	if (daemon_connect(BGP_PATH) < 0) return;
 
-	new_cmdline=cish_to_linux_dev_cmdline((char*)cmdline);
-	new_cmdline=linux_to_zebra_network_cmdline((char*)new_cmdline);
+	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
+	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
 	daemon_client_execute("enable", stdout, buf_daemon, 0);
 	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
 	
@@ -524,7 +524,7 @@ void zebra_dump_routes(FILE *out)
 						continue;
 #endif
 
-					new_buf = linux_to_cish_dev_cmdline(zebra_to_linux_network_cmdline(buf + 4));
+					new_buf = libconfig_device_from_linux_cmdline(libconfig_zebra_to_linux_cmdline(buf + 4));
 					buf[3] = 0;
 					if (new_buf) {
 						print = 1;
@@ -554,8 +554,8 @@ void show_ip_ospf(const char *cmdline)
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
 			striplf(buf);
-			pprintf("%s\n", linux_to_cish_dev_cmdline(
-			                zebra_to_linux_network_cmdline(buf)));
+			pprintf("%s\n", libconfig_device_from_linux_cmdline(
+			                libconfig_zebra_to_linux_cmdline(buf)));
 		}
 	}
 	fclose(f);
@@ -572,8 +572,8 @@ void show_ip_rip(const char *cmdline)
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
 			striplf(buf);
-			pprintf("%s\n", linux_to_cish_dev_cmdline(
-			                zebra_to_linux_network_cmdline(buf)));
+			pprintf("%s\n", libconfig_device_from_linux_cmdline(
+			                libconfig_zebra_to_linux_cmdline(buf)));
 		}
 	}
 	fclose(f);
@@ -584,8 +584,8 @@ void show_ip_rip(const char *cmdline)
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
 			striplf(buf);
-			pprintf("%s\n", linux_to_cish_dev_cmdline(
-			                zebra_to_linux_network_cmdline(buf)));
+			pprintf("%s\n", libconfig_device_from_linux_cmdline(
+			                libconfig_zebra_to_linux_cmdline(buf)));
 		}
 	}
 	fclose(f);
@@ -604,8 +604,8 @@ void show_ip_bgp(const char *cmdline)
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
 			striplf(buf);
-			pprintf("%s\n", linux_to_cish_dev_cmdline(
-			                zebra_to_linux_network_cmdline(buf)));
+			pprintf("%s\n", libconfig_device_from_linux_cmdline(
+			                libconfig_zebra_to_linux_cmdline(buf)));
 
 		}
 	}

@@ -491,7 +491,7 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 	char *dev;
 	arglist *args;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	args=libconfig_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
@@ -530,7 +530,7 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 	char *dev;
 	arglist *args;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	args=libconfig_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 

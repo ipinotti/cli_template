@@ -31,7 +31,7 @@ void ip_route (const char *cmdline)
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-	if (getfamily(destination)) /* route to a device */
+	if (libconfig_device_get_family(destination)) /* route to a device */
 	{
 		if (args->argc < 6)
 		{
@@ -50,7 +50,7 @@ void ip_route (const char *cmdline)
 		}
 		if (args->argc == 7) metric=atoi(args->argv[6]);
 		
-		dev = convert_device (destination, major, minor);
+		dev = libconfig_device_convert (destination, major, minor);
 		sprintf (string, "-net %s netmask %s dev %s", source_net, source_mask, dev);
 		if (metric) sprintf (string+strlen(string), " %i", metric);
 		free(dev);
@@ -109,7 +109,7 @@ void no_ip_route (const char *cmdline)
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-	if (getfamily(destination)) /* route to a device */
+	if (libconfig_device_get_family(destination)) /* route to a device */
 	{
 		if (args->argc < 6)
 		{
@@ -128,7 +128,7 @@ void no_ip_route (const char *cmdline)
 		}
 		if (args->argc == 7) metric=atoi(args->argv[6]);
 		
-		dev = convert_device (destination, major, minor);
+		dev = libconfig_device_convert (destination, major, minor);
 		sprintf (string, "-net %s netmask %s dev %s", source_net, source_mask, dev);
 		if (metric) sprintf (string+strlen(string), " %i", metric);
 		free(dev);
@@ -162,7 +162,7 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 	char *new_cmdline;
 	arglist *args;
 
-	new_cmdline = cish_to_linux_dev_cmdline((char*) cmdline);
+	new_cmdline = libconfig_device_to_linux_cmdline((char*) cmdline);
 	args = libconfig_make_args(new_cmdline);
 	if (strcmp(args->argv[0], "no") == 0) {
 		lconfig_smc_route(0, args->argv[3], args->argv[4], args->argv[6],

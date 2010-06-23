@@ -1806,7 +1806,7 @@ void clear_counters(const char *cmdline)
 	char sub[16];
 	char *interface;
 	int clear;
-	device_family *if_edited;
+	dev_family *if_edited;
 	int if_major;
 	int if_minor;
 
@@ -1839,7 +1839,7 @@ void clear_counters(const char *cmdline)
 #endif
 	strncpy(device, args->argv[2], 31); device[31]=0;
 	strncpy(sub, args->argv[3], 15); sub[15]=0;
-	if ((if_edited=getfamily(device))) {
+	if ((if_edited=libconfig_device_get_family(device))) {
 		major=sub;
 		minor=strchr(major, '.');
 		if (minor) *minor++ = 0;
@@ -1848,7 +1848,7 @@ void clear_counters(const char *cmdline)
 		if (minor) if_minor = atoi(minor);
 			else if_minor=-1;
 
-		interface=convert_device(if_edited->cish_string, if_major, if_minor);
+		interface=libconfig_device_convert(if_edited->cish_string, if_major, if_minor);
 		if (libconfig_dev_exists(interface)) {
 			clear=libconfig_clear_interface_counters(interface);
 		} else {
@@ -1869,7 +1869,7 @@ void clear_iphc(const char *cmdline) /* clear ip header-compression [interface] 
 	arglist *args;
 	long protocol;
 	int if_major, if_minor;
-	device_family *if_edited;
+	dev_family *if_edited;
 	char *major, *minor, *interface, sub[16], device[32];
 
 	args = libconfig_make_args(cmdline);
@@ -1877,7 +1877,7 @@ void clear_iphc(const char *cmdline) /* clear ip header-compression [interface] 
 	device[31] = 0;
 	strncpy(sub, args->argv[4], 15);
 	sub[15] = 0;
-	if( (if_edited = getfamily(device)) ) {
+	if( (if_edited = libconfig_device_get_family(device)) ) {
 		major = sub;
 		minor = strchr(major, '.');
 		if( minor )
@@ -1904,7 +1904,7 @@ void clear_iphc(const char *cmdline) /* clear ip header-compression [interface] 
 				default:
 					break;
 			}
-			interface = convert_device(if_edited->cish_string, if_major, if_minor);
+			interface = libconfig_device_convert(if_edited->cish_string, if_major, if_minor);
 			if( libconfig_dev_exists(interface) ) {
 				switch( protocol ) {
 #ifdef CONFIG_FR_IPHC

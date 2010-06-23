@@ -27,7 +27,7 @@
 
 extern int _cish_booting;
 
-device_family *interface_edited;
+dev_family *interface_edited;
 int interface_major, interface_minor;
 
 void config_interface_done(const char *cmdline)
@@ -64,7 +64,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 	sub[15]=0;
 	libconfig_destroy_args(args);
 
-	if ((interface_edited=getfamily(device))) {
+	if ((interface_edited=libconfig_device_get_family(device))) {
 
 		major=sub;
 		minor=strchr(major, '.');
@@ -94,7 +94,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 				command_root=CMD_CONFIG_INTERFACE_LOOPBACK;
 				break;
 			case tun:
-				dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+				dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 				if (no) {
 					del_tunnel(dev);
 				} else {
@@ -135,7 +135,7 @@ void interface_txqueue(const char *cmdline)
 		return;
 	}
 #endif
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	libconfig_dev_set_qlen(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
@@ -145,7 +145,7 @@ void interface_description(const char *cmd)
 {
 	char *description, *dev;
 
-	dev=convert_device (interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert (interface_edited->cish_string, interface_major, interface_minor);
 	description = (char *) cmd;
 	while (*description == ' ') ++description;
 	description = strchr (description, ' ');
@@ -159,7 +159,7 @@ void interface_no_description(const char *cmd)
 {
 	char *dev;
 
-	dev=convert_device (interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert (interface_edited->cish_string, interface_major, interface_minor);
 	libconfig_dev_del_description(dev);
 	free(dev);
 }
@@ -172,7 +172,7 @@ void interface_mtu(const char *cmdline)
 
 	args = libconfig_make_args(cmdline);
 	val = atoi(args->argv[1]);
-	dev = convert_device (interface_edited->cish_string, interface_major, interface_minor);
+	dev = libconfig_device_convert (interface_edited->cish_string, interface_major, interface_minor);
 	libconfig_dev_set_mtu(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
@@ -182,7 +182,7 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 {
 	char *dev;
 
-	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 
 	tc_remove_all(dev);
 
@@ -194,10 +194,10 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 void interface_no_shutdown(const char *cmdline) /* no shutdown */
 {
 	char *dev;
-	device_family *fam;
+	dev_family *fam;
 
-	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	fam = getfamily(interface_edited->cish_string);
+	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	fam = libconfig_device_get_family(interface_edited->cish_string);
 
 	libconfig_dev_set_link_up(dev); /* UP */
 
@@ -226,7 +226,7 @@ void interface_ipaddr(const char *cmdline) /* ip address <address> <mask> */
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[2];
 	mask=args->argv[3];
@@ -240,7 +240,7 @@ void interface_ipaddr_secondary(const char *cmdline) /* ip address <address> <ma
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[2];
 	mask=args->argv[3];
@@ -254,7 +254,7 @@ void interface_no_ipaddr_secondary(const char *cmdline) /* no ip address <addres
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[3];
 	mask=args->argv[4];
@@ -267,7 +267,7 @@ void interface_no_ipaddr(const char *cmdline) /* no ip address */
 {
 	char *dev;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	set_interface_no_ip_addr(dev);
 	free(dev);
 }
@@ -276,7 +276,7 @@ void interface_ethernet_ipaddr_dhcp (const char *cmdline) /* ip address dhcp */
 {
 	char *dev, daemon_dhcpc[32];
 
-	dev = convert_device (interface_edited->cish_string, interface_major,
+	dev = libconfig_device_convert (interface_edited->cish_string, interface_major,
 	                interface_minor);
 	sprintf (daemon_dhcpc, DHCPC_DAEMON, dev);
 	exec_daemon (daemon_dhcpc); /* inittab: #i:34:respawn:/bin/udhcpc -i ethernet0 >/dev/null 2>/dev/null */
@@ -290,7 +290,7 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 	ppp_config cfg;
 	char daemon_dhcpc[32];
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
 	if (is_daemon_running(daemon_dhcpc))
 		kill_daemon(daemon_dhcpc); /* !!! dhcp x ppp unumbered */
@@ -319,7 +319,7 @@ void interface_ethernet_ipaddr_secondary(const char *cmdline) /* ip address <add
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[2];
 	mask=args->argv[3];
@@ -333,7 +333,7 @@ void interface_ethernet_no_ipaddr_secondary(const char *cmdline) /* no ip addres
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[3];
 	mask=args->argv[4];
@@ -347,7 +347,7 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 	char *dev;
 	char daemon_dhcpc[32];
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
 	if (is_daemon_running(daemon_dhcpc))
 		kill_daemon(daemon_dhcpc);
@@ -363,7 +363,7 @@ void interface_fec_cfg(const char *cmdline) /* speed 10|100 half|full */
 
 	args = libconfig_make_args(cmdline);
 	if(args->argc == 3) {
-		if ((dev = convert_device(interface_edited->cish_string, interface_major, interface_minor))) {
+		if ((dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor))) {
 			if (strncmp(dev, "ethernet", 8) == 0) {
 				/* Speed */
 				if(strcmp(args->argv[1], "10") == 0)
@@ -396,7 +396,7 @@ void interface_fec_autonegotiation(const char *cmdline) /* speed auto */
 	if (_cish_booting)
 		return;
 #endif
-	if ((dev = convert_device(interface_edited->cish_string, interface_major, interface_minor))) {
+	if ((dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor))) {
 		if (strncmp(dev, "ethernet", 8) == 0) {
 			if(fec_autonegotiate_link(dev) < 0)
 				printf("%% Not possible to set PHY parameters\n");
@@ -417,7 +417,7 @@ void interface_sppp_ipaddr(const char *cmdline) /* ip address [local] [remote] [
 	if (args->argc > 4) mask=args->argv[4];
 		else mask=NULL;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	ip_addr_flush(dev);
 	ip_addr_add(dev, local, remote, mask ? mask : "255.255.255.255");
 	libconfig_destroy_args(args);
@@ -433,7 +433,7 @@ void interface_traffic_rate_no(const char *cmdline) /* no frame-relay traffic-ra
 {
 	char *dev;
 
-	dev=convert_device (interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert (interface_edited->cish_string, interface_major, interface_minor);
 	del_frts_cfg(dev);
 	tc_insert_all(dev);
 	free(dev);
@@ -449,7 +449,7 @@ void tunnel_destination(const char *cmdline) /* [no] tunnel destination <ipaddre
 	char *dev;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		change_tunnel(dev, destination, NULL);
 	} else {
@@ -465,7 +465,7 @@ void tunnel_key(const char *cmdline) /* [no] tunnel key <key> */
 	char *dev;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		change_tunnel(dev, key, NULL);
 	} else {
@@ -481,7 +481,7 @@ void tunnel_mode(const char *cmdline) /* tunnel mode gre|ipip */
 	char *dev;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[2], "gre") == 0) {
 		mode_tunnel(dev, IPPROTO_GRE);
 	} else if (strcmp(args->argv[2], "ipip") == 0) {
@@ -498,7 +498,7 @@ void tunnel_source_interface(const char *cmdline) /* tunnel source <intf> <sub> 
 	char *dev, source[32];
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	strncpy(source, args->argv[2], 31);
 	strncat(source, args->argv[3], 31);
 	if (strcmp(dev, source) == 0) {
@@ -516,7 +516,7 @@ void tunnel_source(const char *cmdline) /* [no] tunnel source <ipaddress> */
 	char *dev;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		change_tunnel(dev, source, NULL);
 	} else {
@@ -533,7 +533,7 @@ void tunnel_checksum(const char *cmdline) /* [no] tunnel checksum */
 	int i;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		change_tunnel(dev, checksum, NULL);
 	} else {
@@ -550,7 +550,7 @@ void tunnel_pmtu(const char *cmdline) /* [no] tunnel path-mtu-discovery */
 	int i;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		change_tunnel(dev, pmtu, NULL);
 	} else {
@@ -567,7 +567,7 @@ void tunnel_sequence(const char *cmdline) /* [no] tunnel sequence-datagrams */
 	int i;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		change_tunnel(dev, sequence, NULL);
 	} else {
@@ -583,7 +583,7 @@ void tunnel_ttl(const char *cmdline) /* [no] tunnel ttl <0-255> */
 	char *dev;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		change_tunnel(dev, ttl, NULL);
 	} else {
@@ -600,7 +600,7 @@ void tunnel_keepalive(const char *cmdline) /* [no] keepalive <0-255> <0-255> */
 	char *dev;
 
 	args=libconfig_make_args(cmdline);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		change_tunnel_kp(dev, 0, 0);
 	} else {
@@ -634,7 +634,7 @@ void do_bandwidth(const char *cmdline)
 	if (strcasestr(args->argv[1],"kbps")) bw *= 1024;
 	else if (strcasestr(args->argv[1],"mbps")) bw *= 1048576;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	cfg_interface_bw(dev, bw);
 	free(dev);
 	libconfig_destroy_args(args);
@@ -656,7 +656,7 @@ void do_max_reserved_bw(const char *cmdline)
 	}
 
 	reserved_bw = atoi(args->argv[1]);
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	cfg_interface_reserved_bw(dev, reserved_bw);
 	free(dev);
 	return;
@@ -673,7 +673,7 @@ void do_service_policy(const char *cmdline)
 		libconfig_destroy_args(args);
 		return;
 	}
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	apply_policy(dev,args->argv[1]);
 	free(dev);
 	return;
@@ -684,7 +684,7 @@ void no_service_policy(const char *cmdline)
 	char *dev;
 	intf_qos_cfg_t *intf_cfg;
 
-	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	get_interface_qos_config (dev, &intf_cfg);
 	if (intf_cfg)
 		intf_cfg->pname[0] = 0; /* clean policy-map */
@@ -701,7 +701,7 @@ void interface_snmptrap(const char *cmd)
 {
 	char *dev;
 
-	if ((dev = convert_device(interface_edited->cish_string, interface_major, interface_minor)))
+	if ((dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor)))
 	{
 		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev, "serial", 6))
 			dev_add_snmptrap(dev);
@@ -713,7 +713,7 @@ void interface_no_snmptrap(const char *cmd)
 {
 	char *dev;
 
-	if ((dev = convert_device(interface_edited->cish_string, interface_major, interface_minor)))
+	if ((dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor)))
 	{
 		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev, "serial", 6))
 			dev_del_snmptrap(dev);
@@ -730,7 +730,7 @@ void interface_rxring(const char *cmdline) /* rxring <2-2048> */
 
 	args = libconfig_make_args(cmdline);
 	val = atoi(args->argv[1]);
-	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	libconfig_dev_set_rxring(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
@@ -744,7 +744,7 @@ void interface_txring(const char *cmdline) /* txring <2-2048> */
 
 	args = libconfig_make_args(cmdline);
 	val = atoi(args->argv[1]);
-	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	libconfig_dev_set_txring(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
@@ -758,7 +758,7 @@ void interface_weight(const char *cmdline) /* weight <2-1024> */
 
 	args = libconfig_make_args(cmdline);
 	val = atoi(args->argv[1]);
-	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
+	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 
 	if (wan_get_protocol(interface_major) == SCC_PROTO_MLPPP) {
 		dev = (char *)malloc(2+1+1);
