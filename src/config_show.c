@@ -427,7 +427,7 @@ void show_ip_dns(const char *cmdline)
 	unsigned int i;
 
 	printf("IP domain lookup is currently %sabled\n", libconfig_dns_domain_lookup_enabled() ? "en" : "dis");
-	printf("DNS relay is currently %sabled\n", is_daemon_running(DNS_DAEMON) ? "en" : "dis");
+	printf("DNS relay is currently %sabled\n", libconfig_exec_check_daemon(DNS_DAEMON) ? "en" : "dis");
 
 	/* Lista servidores DNS estaticos */
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
@@ -1790,7 +1790,7 @@ void show_ntpassociations(const char *cmdline)
 	int i, used, n_local_addr = 0;
 	char buf[256], local_addr[16][16];
 
-	if (!is_daemon_running(NTP_DAEMON))
+	if (!libconfig_exec_check_daemon(NTP_DAEMON))
 		return;
 
 	/* Inicialmente temos que descobrir quais enderecos das interfaces locais estao operando com NTP */

@@ -488,7 +488,7 @@ void snmp_version(const char *cmd)
 			strcat(tp, "3");
 	}
 	if (strlen(tp) > 0)
-		control_inittab_lineoptions(PROG_SNMPD, "-J", tp);
+		libconfig_exec_control_inittab_lineoptions(PROG_SNMPD, "-J", tp);
 	libconfig_destroy_args(args);
 
 	/* De qualquer forma colocamos o agente SNMP em execucao */

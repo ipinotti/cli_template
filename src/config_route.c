@@ -169,7 +169,7 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 		                args->argv[8]);
 	} else {
 #ifdef OPTION_PIMD
-		if (is_daemon_running(PIMS_DAEMON) || is_daemon_running(
+		if (libconfig_exec_check_daemon(PIMS_DAEMON) || libconfig_exec_check_daemon(
 		                PIMD_DAEMON)) {
 			printf("%% Disable dynamic multicast routing first\n");
 		} else

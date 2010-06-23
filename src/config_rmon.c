@@ -11,7 +11,7 @@
 
 void rmon_agent(const char *cmd)
 {
-	if( is_daemon_running(RMON_DAEMON) == 0 )
+	if( libconfig_exec_check_daemon(RMON_DAEMON) == 0 )
 		exec_daemon(RMON_DAEMON);
 }
 
@@ -139,7 +139,7 @@ void rmon_alarm(const char *cmd)
 
 void no_rmon_agent(const char *cmd)
 {
-	if( is_daemon_running(RMON_DAEMON) )
+	if( libconfig_exec_check_daemon(RMON_DAEMON) )
 		kill_daemon(RMON_DAEMON);
 }
 
@@ -218,7 +218,7 @@ void show_rmon_agent(const char *cmd)
 	int i, show;
 	struct rmon_config *shm_rmon_p;
 
-	if( is_daemon_running(RMON_DAEMON) ) {
+	if( libconfig_exec_check_daemon(RMON_DAEMON) ) {
 		if( send_rmond_signal(SIGUSR2) ) {
 			for(i=0, show=0; i < 10; i++) {
 				if( get_access_rmon_config(&shm_rmon_p) ) {

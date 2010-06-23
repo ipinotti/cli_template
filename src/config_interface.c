@@ -292,7 +292,7 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
-	if (is_daemon_running(daemon_dhcpc))
+	if (libconfig_exec_check_daemon(daemon_dhcpc))
 		kill_daemon(daemon_dhcpc); /* !!! dhcp x ppp unumbered */
 
 	args=libconfig_make_args(cmdline);
@@ -349,7 +349,7 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
-	if (is_daemon_running(daemon_dhcpc))
+	if (libconfig_exec_check_daemon(daemon_dhcpc))
 		kill_daemon(daemon_dhcpc);
 	set_ethernet_no_ip_addr(dev);
 	free(dev);

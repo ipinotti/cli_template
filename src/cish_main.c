@@ -1469,7 +1469,7 @@ void config_clock(const char *cmd) /* clock set [hh:mm:ss] dia mes ano */
 	time_t tm;
 	struct tm tm_time;
 
-	if( is_daemon_running(NTP_DAEMON) ) {
+	if( libconfig_exec_check_daemon(NTP_DAEMON) ) {
 		printf("NTP service is running. Stop this service first.\n");
 		return;
 	}
@@ -1651,16 +1651,16 @@ void log_remote(const char *cmd) /* logging remote <address> */
 	kill_daemon(PROG_SYSLOGD);
 	stop_syslogd();
 	args = libconfig_make_args(cmd);
-	if( init_program_get_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
+	if( libconfig_exec_get_init_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
 		if( strcmp(buf, args->argv[2]) == 0 ) {
 			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(option, "-L -R %s", buf);
-		init_program_change_option(0, PROG_SYSLOGD, option);
+		libconfig_exec_change_init_option(0, PROG_SYSLOGD, option);
 	}
 	sprintf(option, "-L -R %s", args->argv[2]);
-	init_program_change_option(1, PROG_SYSLOGD, option);
+	libconfig_exec_change_init_option(1, PROG_SYSLOGD, option);
 	libconfig_destroy_args(args);
 	exec_daemon(PROG_SYSLOGD);
 }
@@ -1669,11 +1669,11 @@ void no_log_remote(const char *cmd)
 {
 	char buf[16], option[24];
 
-	if( init_program_get_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
+	if( libconfig_exec_get_init_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
 		kill_daemon(PROG_SYSLOGD);
 		stop_syslogd();
 		sprintf(option, "-L -R %s", buf);
-		init_program_change_option(0, PROG_SYSLOGD, option);
+		libconfig_exec_change_init_option(0, PROG_SYSLOGD, option);
 		exec_daemon(PROG_SYSLOGD);
 	}
 }
@@ -1690,7 +1690,7 @@ void firmware_download(const char *cmd) /* firmware download <url> */
 
 	args=libconfig_make_args(cmd);
 
-	exec_prog(0, "/bin/wget", "-P", "/mnt/image", args->argv[2], NULL);
+	libconfig_exec_prog(0, "/bin/wget", "-P", "/mnt/image", args->argv[2], NULL);
 	libconfig_destroy_args(args);
 }
 
@@ -1702,7 +1702,7 @@ void firmware_save(const char *cmd)
 void firmware_upload(const char *cmd)
 {
 	/* Enable upload service */
-	if( set_inetd_program(1, FTP_DAEMON) < 0 ) {
+	if( libconfig_exec_set_inetd_program(1, FTP_DAEMON) < 0 ) {
 		printf("%% Not possible to enable FTP server\n");
 		return;
 	}
@@ -1711,7 +1711,7 @@ void firmware_upload(const char *cmd)
 void no_firmware_upload(const char *cmd)
 {
 	/* Disable upload service */
-	if( set_inetd_program(0, FTP_DAEMON) < 0 ) {
+	if( libconfig_exec_set_inetd_program(0, FTP_DAEMON) < 0 ) {
 		printf("%% Not possible to disable FTP server\n");
 		return;
 	}

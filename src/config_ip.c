@@ -259,12 +259,12 @@ void no_https_server (const char *cmd)
 
 void telnet_server(const char *cmd)
 {
-	set_inetd_program(1, TELNET_DAEMON);
+	libconfig_exec_set_inetd_program(1, TELNET_DAEMON);
 }
 
 void no_telnet_server(const char *cmd)
 {
-	set_inetd_program(0, TELNET_DAEMON);
+	libconfig_exec_set_inetd_program(0, TELNET_DAEMON);
 }
 
 void dhcp_server(const char *cmd)
@@ -431,7 +431,7 @@ void ssh_server(const char *cmd)
 #ifdef OPTION_OPENSSH
 				exec_daemon(SSH_DAEMON);
 #else
-				set_inetd_program(1, SSH_DAEMON);
+				libconfig_exec_set_inetd_program(1, SSH_DAEMON);
 #endif
 }
 
@@ -440,7 +440,7 @@ void no_ssh_server(const char *cmd)
 #ifdef OPTION_OPENSSH
 	kill_daemon(SSH_DAEMON);
 #else
-	set_inetd_program(0, SSH_DAEMON);
+	libconfig_exec_set_inetd_program(0, SSH_DAEMON);
 #endif
 }
 
@@ -464,7 +464,7 @@ void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
 #if 0
 void pim_dense_server(const char *cmd) /* ip pim dense-mode */
 {
-	if (is_daemon_running(PIMS_DAEMON)) kill_daemon(PIMS_DAEMON);
+	if (libconfig_exec_check_daemon(PIMS_DAEMON)) kill_daemon(PIMS_DAEMON);
 	exec_daemon(PIMD_DAEMON);
 }
 
@@ -475,7 +475,7 @@ void no_pim_dense_server(const char *cmd)
 
 void pim_sparse_server(const char *cmd) /* ip pim sparse-mode */
 {
-	if (is_daemon_running(PIMD_DAEMON)) kill_daemon(PIMD_DAEMON);
+	if (libconfig_exec_check_daemon(PIMD_DAEMON)) kill_daemon(PIMD_DAEMON);
 	exec_daemon(PIMS_DAEMON);
 }
 
@@ -498,7 +498,7 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 		dense = pimdd_phyint(0, dev);
 	else {
 #ifdef OPTION_SMCROUTE
-		if (is_daemon_running(SMC_DAEMON))
+		if (libconfig_exec_check_daemon(SMC_DAEMON))
 		{
 			printf("%% Disable static multicast routing first\n");
 			goto clean;
@@ -506,17 +506,17 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 #endif
 		sparse = pimsd_phyint(0, dev);
 		/* Kill pimsd if it is running */			
-		if (sparse < 2 && is_daemon_running(PIMS_DAEMON)) 
+		if (sparse < 2 && libconfig_exec_check_daemon(PIMS_DAEMON)) 
 			kill_daemon(PIMS_DAEMON);
 
 		dense = pimdd_phyint(1, dev);
 	}
 
 	if (dense < 2)	{
-		if (is_daemon_running(PIMD_DAEMON)) 
+		if (libconfig_exec_check_daemon(PIMD_DAEMON)) 
 			kill_daemon(PIMD_DAEMON);
 	} else {
-		if (!is_daemon_running(PIMD_DAEMON)) 
+		if (!libconfig_exec_check_daemon(PIMD_DAEMON)) 
 			exec_daemon(PIMD_DAEMON);
 	}
 clean:
@@ -537,23 +537,23 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 		sparse=pimsd_phyint(0, dev);
 	else {
 #ifdef OPTION_SMCROUTE
-		if (is_daemon_running(SMC_DAEMON))
+		if (libconfig_exec_check_daemon(SMC_DAEMON))
 		{
 			printf("%% Disable static multicast routing first\n");
 			goto clean;
 		}
 #endif
 		dense = pimdd_phyint(0, dev);
-		if (dense < 2 && is_daemon_running(PIMD_DAEMON)) 
+		if (dense < 2 && libconfig_exec_check_daemon(PIMD_DAEMON)) 
 			kill_daemon(PIMD_DAEMON);
 		sparse = pimsd_phyint(1, dev);
 	}
 
 	if (sparse < 2)	{
-		if (is_daemon_running(PIMS_DAEMON)) 
+		if (libconfig_exec_check_daemon(PIMS_DAEMON)) 
 			kill_daemon(PIMS_DAEMON);
 	} else {
-		if (!is_daemon_running(PIMS_DAEMON)) 
+		if (!libconfig_exec_check_daemon(PIMS_DAEMON)) 
 			exec_daemon(PIMS_DAEMON);
 	}
 clean:
