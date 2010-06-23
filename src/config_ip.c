@@ -600,8 +600,8 @@ void arp_entry(const char *cmd) /* [no] arp <ipaddress> [<mac>] */
 	arglist *args;
 
 	args=libconfig_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) arp_del(args->argv[2]);
-		else if (args->argc == 3) arp_add(args->argv[1], args->argv[2]);
+	if (!strcmp(args->argv[0], "no")) libconfig_arp_del(args->argv[2]);
+		else if (args->argc == 3) libconfig_arp_add(args->argv[1], args->argv[2]);
 	libconfig_destroy_args(args);
 }
 

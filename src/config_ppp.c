@@ -35,7 +35,7 @@ void ppp_shutdown (const char *cmd)
 		}
 		if (interface_major < MAX_WAN_INTF) {
 			sprintf(master, "%s%d", SERIALDEV_PPP, interface_major); /* sx */
-			dev_set_link_down(master); /* ~UP */
+			libconfig_dev_set_link_down(master); /* ~UP */
 		}
 	}
 }
@@ -51,7 +51,7 @@ void ppp_noshutdown (const char *cmd)
 	{
 		if (interface_major < MAX_WAN_INTF) {
 			sprintf(master, "%s%d", SERIALDEV_PPP, interface_major); /* sx */
-			dev_set_link_up(master); /* UP */
+			libconfig_dev_set_link_up(master); /* UP */
 		}
 		cfg.up=1;
 		ppp_set_config(interface_major, &cfg);

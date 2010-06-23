@@ -136,7 +136,7 @@ void bridge_setproto (const char *cmd) /* bridge 1 protocol ieee */
 	{
 		br_addbr(brname);
 		br_set_stp(brname, 1); /* enable spanning-tree protocol */
-		dev_set_link_up(brname);
+		libconfig_dev_set_link_up(brname);
 	}
 	
 	libconfig_destroy_args (args);
@@ -160,7 +160,7 @@ void bridge_no (const char *cmd)
 		}
 		else
 		{
-			dev_set_link_down(brname);
+			libconfig_dev_set_link_down(brname);
 			br_delbr(brname);
 		}
 	}

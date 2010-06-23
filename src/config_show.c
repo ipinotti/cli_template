@@ -785,7 +785,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		                conf.running & IF_STATE_UP ? "up" : "down", conf.running
 		                                & IF_STATE_LOOP ? " (looped)" : "");
 
-		description = dev_get_description(conf.name);
+		description = libconfig_dev_get_description(conf.name);
 		if (description)
 			fprintf(out, "  Description: %s\n", description);
 

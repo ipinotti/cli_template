@@ -1782,8 +1782,8 @@ static void clear_ipsec_counters(char *conn_name)
 						/* Find the right ipsec interface */
 						for( i=0; i < count; i++ ) {
 							if( strcmp(entry[i].local_addr, p) == 0 ) {
-								if( dev_exists(entry[i].ipsec_intf) )
-									clear_interface_counters(entry[i].ipsec_intf);
+								if( libconfig_dev_exists(entry[i].ipsec_intf) )
+									libconfig_clear_interface_counters(entry[i].ipsec_intf);
 								found = 1;
 							}
 						}
@@ -1849,8 +1849,8 @@ void clear_counters(const char *cmdline)
 			else if_minor=-1;
 
 		interface=convert_device(if_edited->cish_string, if_major, if_minor);
-		if (dev_exists(interface)) {
-			clear=clear_interface_counters(interface);
+		if (libconfig_dev_exists(interface)) {
+			clear=libconfig_clear_interface_counters(interface);
 		} else {
 			printf("%% Inactive interface %s %s\n", device, sub);
 		}
@@ -1905,7 +1905,7 @@ void clear_iphc(const char *cmdline) /* clear ip header-compression [interface] 
 					break;
 			}
 			interface = convert_device(if_edited->cish_string, if_major, if_minor);
-			if( dev_exists(interface) ) {
+			if( libconfig_dev_exists(interface) ) {
 				switch( protocol ) {
 #ifdef CONFIG_FR_IPHC
 					case IF_PROTO_FR:

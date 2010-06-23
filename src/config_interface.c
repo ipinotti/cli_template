@@ -136,7 +136,7 @@ void interface_txqueue(const char *cmdline)
 	}
 #endif
 	dev=convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	dev_set_qlen(dev, val);
+	libconfig_dev_set_qlen(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -151,7 +151,7 @@ void interface_description(const char *cmd)
 	description = strchr (description, ' ');
 	if (!description) return;
 	while (*description == ' ') ++description;
-	dev_add_description(dev, description);
+	libconfig_dev_add_description(dev, description);
 	free(dev);
 }
 
@@ -160,7 +160,7 @@ void interface_no_description(const char *cmd)
 	char *dev;
 
 	dev=convert_device (interface_edited->cish_string, interface_major, interface_minor);
-	dev_del_description(dev);
+	libconfig_dev_del_description(dev);
 	free(dev);
 }
 
@@ -173,7 +173,7 @@ void interface_mtu(const char *cmdline)
 	args = libconfig_make_args(cmdline);
 	val = atoi(args->argv[1]);
 	dev = convert_device (interface_edited->cish_string, interface_major, interface_minor);
-	dev_set_mtu(dev, val);
+	libconfig_dev_set_mtu(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -186,7 +186,7 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 
 	tc_remove_all(dev);
 
-	dev_set_link_down(dev);
+	libconfig_dev_set_link_down(dev);
 
 	free(dev);
 }
@@ -199,7 +199,7 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
 	fam = getfamily(interface_edited->cish_string);
 
-	dev_set_link_up(dev); /* UP */
+	libconfig_dev_set_link_up(dev); /* UP */
 
 	if (fam) {
 		switch(fam->type) {
@@ -731,7 +731,7 @@ void interface_rxring(const char *cmdline) /* rxring <2-2048> */
 	args = libconfig_make_args(cmdline);
 	val = atoi(args->argv[1]);
 	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	dev_set_rxring(dev, val);
+	libconfig_dev_set_rxring(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -745,7 +745,7 @@ void interface_txring(const char *cmdline) /* txring <2-2048> */
 	args = libconfig_make_args(cmdline);
 	val = atoi(args->argv[1]);
 	dev = convert_device(interface_edited->cish_string, interface_major, interface_minor);
-	dev_set_txring(dev, val);
+	libconfig_dev_set_txring(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -764,7 +764,7 @@ void interface_weight(const char *cmdline) /* weight <2-1024> */
 		dev = (char *)malloc(2+1+1);
 		sprintf(dev, "%s%d", SERIALDEV_PPP, interface_major); /* 'sx?' */
 	} else
-		dev_set_weight(dev, val);
+		libconfig_dev_set_weight(dev, val);
 	libconfig_destroy_args(args);
 	free(dev);
 }
