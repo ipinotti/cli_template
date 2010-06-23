@@ -49,7 +49,7 @@ void enable(const char *cmdline)
 		printf("\n");
 
 		passwd[16] = 0;
-		striplf(passwd);
+		libconfig_str_striplf(passwd);
 
 		crypt_passwd = crypt(passwd, secret);
 		if (strcmp(crypt_passwd, secret) == 0) {
@@ -173,7 +173,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 			}
 			cish_timeout = 0;
 			echo_on();
-			striplf(in_passwd);
+			libconfig_str_striplf(in_passwd);
 			printf("\n");
 			if( is_safe(in_passwd) != 0 )
 				break;
@@ -192,7 +192,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 		fgets(in_passwd_validate, 16, stdin);
 		cish_timeout = 0;
 		echo_on();
-		striplf(in_passwd_validate);
+		libconfig_str_striplf(in_passwd_validate);
 		printf("\n");
 
 		if (strcmp(in_passwd, in_passwd_validate)) /* different */

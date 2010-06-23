@@ -249,10 +249,10 @@ void ipsec_autoreload(const char *cmd) /* [no] auto-reload [60-3600] */
 
 	args = libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0)
-		replace_string_in_file_nl(FILE_IPSEC_CONF,
+		libconfig_str_replace_string_in_file(FILE_IPSEC_CONF,
 		                STRING_IPSEC_AUTORELOAD, "0");
 	else
-		replace_string_in_file_nl(FILE_IPSEC_CONF,
+		libconfig_str_replace_string_in_file(FILE_IPSEC_CONF,
 		                STRING_IPSEC_AUTORELOAD, args->argv[1]);
 	libconfig_destroy_args(args);
 }
@@ -263,10 +263,10 @@ void ipsec_nat_traversal(const char *cmd) /* [no] nat-traversal */
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 2)
-		replace_string_in_file_nl(FILE_IPSEC_CONF, STRING_IPSEC_NAT,
+		libconfig_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_NAT,
 		                "no");
 	else
-		replace_string_in_file_nl(FILE_IPSEC_CONF, STRING_IPSEC_NAT,
+		libconfig_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_NAT,
 		                "yes");
 	libconfig_destroy_args(args);
 }
@@ -277,10 +277,10 @@ void ipsec_overridemtu(const char *cmd) /* [no] overridemtu [64-1460] */
 
 	args = libconfig_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0)
-		replace_string_in_file_nl(FILE_IPSEC_CONF, STRING_IPSEC_OMTU,
+		libconfig_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_OMTU,
 		                "0");
 	else
-		replace_string_in_file_nl(FILE_IPSEC_CONF, STRING_IPSEC_OMTU,
+		libconfig_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_OMTU,
 		                args->argv[1]);
 	libconfig_destroy_args(args);
 }

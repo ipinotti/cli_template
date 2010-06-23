@@ -510,7 +510,7 @@ void zebra_dump_routes(FILE *out)
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
 			line++;
-			striplf(buf);
+			libconfig_str_striplf(buf);
 			if (line == 1)
 #ifdef OPTION_BGP
 				fprintf(out, "Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF, B - BGP, > - selected route\n");
@@ -553,7 +553,7 @@ void show_ip_ospf(const char *cmdline)
 		return;
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
-			striplf(buf);
+			libconfig_str_striplf(buf);
 			pprintf("%s\n", libconfig_device_from_linux_cmdline(
 			                libconfig_zebra_to_linux_cmdline(buf)));
 		}
@@ -571,7 +571,7 @@ void show_ip_rip(const char *cmdline)
 		return;
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
-			striplf(buf);
+			libconfig_str_striplf(buf);
 			pprintf("%s\n", libconfig_device_from_linux_cmdline(
 			                libconfig_zebra_to_linux_cmdline(buf)));
 		}
@@ -583,7 +583,7 @@ void show_ip_rip(const char *cmdline)
 		return;
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
-			striplf(buf);
+			libconfig_str_striplf(buf);
 			pprintf("%s\n", libconfig_device_from_linux_cmdline(
 			                libconfig_zebra_to_linux_cmdline(buf)));
 		}
@@ -603,7 +603,7 @@ void show_ip_bgp(const char *cmdline)
 		return;
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
-			striplf(buf);
+			libconfig_str_striplf(buf);
 			pprintf("%s\n", libconfig_device_from_linux_cmdline(
 			                libconfig_zebra_to_linux_cmdline(buf)));
 

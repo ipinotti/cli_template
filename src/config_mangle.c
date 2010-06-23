@@ -597,7 +597,7 @@ int mangle_exists (char *mangle)
 		buf[0] = 0;
 		fgets (buf, 255, F);
 		buf[255] = 0;
-		striplf (buf);
+		libconfig_str_striplf (buf);
 		if (strncmp (buf, "Chain ", 6) == 0) {
 			tmp = strchr (buf + 6, ' ');
 			if (tmp) {
@@ -635,7 +635,7 @@ int matched_mangle_exists (char *mangle,
 		buf[0] = 0;
 		fgets (buf, 255, F);
 		buf[255] = 0;
-		striplf (buf);
+		libconfig_str_striplf (buf);
 		if (strncmp (buf, "Chain ", 6) == 0) {
 			if (in_chain)
 				break; // chegou `a proxima chain sem encontrar - finaliza
@@ -696,7 +696,7 @@ int get_mangle_refcount (char *mangle)
 		buf[0] = 0;
 		fgets (buf, 255, F);
 		buf[255] = 0;
-		striplf (buf);
+		libconfig_str_striplf (buf);
 		if (strncmp (buf, "Chain ", 6) == 0) {
 			tmp = strchr (buf + 6, ' ');
 			if (tmp) {
@@ -740,7 +740,7 @@ int clean_iface_mangle_rules (char *iface)
 		buf[0] = 0;
 		fgets (buf, 255, F);
 		buf[255] = 0;
-		striplf (buf);
+		libconfig_str_striplf (buf);
 		if (strncmp (buf, "Chain ", 6) == 0) {
 			p = strchr (buf + 6, ' ');
 			if (p) {

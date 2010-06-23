@@ -376,7 +376,7 @@ void show_arp(const char *cmdline)
 		tbuf[0] = 0;
 		fgets(tbuf, 127, F);
 		tbuf[127] = 0;
-		striplf(tbuf);
+		libconfig_str_striplf(tbuf);
 
 		args = libconfig_make_args(tbuf);
 		if (args->argc >= 6) {

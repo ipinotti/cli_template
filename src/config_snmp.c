@@ -326,7 +326,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			printf("               Username: %s\n", args->argv[2]);
 			printf("Authentication Password: ");
 			fflush(stdout);
-			readPassword(1, authpasswd, 31);
+			libconfig_str_read_password(1, authpasswd, 31);
 			printf("\n");
 			if (strlen(authpasswd) < 8) {
 				printf(
@@ -336,7 +336,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			}
 			printf("                 Retype: ");
 			fflush(stdout);
-			readPassword(1, retype, 31);
+			libconfig_str_read_password(1, retype, 31);
 			printf("\n");
 			if (strcmp(authpasswd, retype) != 0) {
 				printf("%% Password do not match!\n");
@@ -355,7 +355,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			printf("               Username: %s\n", args->argv[2]);
 			printf("Authentication Password: ");
 			fflush(stdout);
-			readPassword(1, authpasswd, 31);
+			libconfig_str_read_password(1, authpasswd, 31);
 			printf("\n");
 			if (strlen(authpasswd) < 8) {
 				printf(
@@ -365,7 +365,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			}
 			printf("                 Retype: ");
 			fflush(stdout);
-			readPassword(1, retype, 31);
+			libconfig_str_read_password(1, retype, 31);
 			printf("\n");
 			if (strcmp(authpasswd, retype) != 0) {
 				printf("%% Password do not match!\n");
@@ -375,7 +375,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 
 			printf("        Cipher Password: ");
 			fflush(stdout);
-			readPassword(1, privpasswd, 31);
+			libconfig_str_read_password(1, privpasswd, 31);
 			printf("\n");
 			if (strlen(privpasswd) < 8) {
 				printf(
@@ -385,7 +385,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			}
 			printf("                 Retype: ");
 			fflush(stdout);
-			readPassword(1, retype, 31);
+			libconfig_str_read_password(1, retype, 31);
 			printf("\n");
 			if (strcmp(privpasswd, retype) != 0) {
 				printf("%% Password do not match!\n");
