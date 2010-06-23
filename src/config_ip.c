@@ -269,12 +269,12 @@ void no_telnet_server(const char *cmd)
 
 void dhcp_server(const char *cmd)
 {
-	set_dhcp_server(1, (char*)cmd);
+	libconfig_dhcp_set_server(1, (char*)cmd);
 }
 
 void no_dhcp_server(const char *cmd)
 {
-	set_no_dhcp_server();
+	libconfig_dhcp_set_no_server();
 }
 
 void dhcp_relay(const char *cmd)
@@ -285,12 +285,12 @@ void dhcp_relay(const char *cmd)
 	if (!p) return;
 	p += 5;
 	while (*p == ' ') p++;
-	set_dhcp_relay(p);
+	libconfig_dhcp_set_relay(p);
 }
 
 void no_dhcp_relay(const char *cmd)
 {
-	set_no_dhcp_relay();
+	libconfig_dhcp_set_no_relay();
 }
 
 void ip_dnsrelay(const char *cmd) /* [no] ip dns relay */

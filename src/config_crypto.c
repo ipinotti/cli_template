@@ -1022,7 +1022,7 @@ void ipsec_pfs(const char *cmd)
 
 void l2tp_dhcp_server(const char *cmd) /* l2tp <local|ethernet 0-1> pool s.s.s.s e.e.e.e ... */
 {
-	set_dhcp_server_local(1, (char*) cmd);
+	libconfig_dhcp_set_server_local(1, (char*) cmd);
 }
 
 void l2tp_server(const char *cmd) /* [no] l2tp server */

@@ -1740,7 +1740,7 @@ void show_dumpleases(const char *cmdline)
 	for (i = 0; i < 1; i++)
 #endif
 	{
-		if (kick_udhcpd(i) == 0) {
+		if (libconfig_udhcpd_kick_by_eth(i) == 0) {
 			sprintf(filename, FILE_DHCPDLEASES, i);
 			tf = fopen(filename, "r");
 			if (!tf)

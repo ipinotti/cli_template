@@ -204,7 +204,7 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 	if (fam) {
 		switch(fam->type) {
 			case eth:
-				reload_udhcpd(interface_major); /* dhcp integration! force reload ethernet address */
+				libconfig_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
 				tc_insert_all(dev);
 				break;
 			default:
