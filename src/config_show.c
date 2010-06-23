@@ -939,7 +939,7 @@ void show_level_running_config(const char *cmdline)
 #endif
 		dump_chatscripts(f);
 		acl_dump_policy(f);
-		lconfig_acl_dump(0, f, 1);
+		libconfig_acl_dump(0, f, 1);
 		lconfig_nat_dump(0, f, 1);
 		lconfig_mangle_dump(0, f, 1);
 		dump_nat_helper(f);
@@ -1187,7 +1187,7 @@ void show_accesslists(const char *cmdline)
 	arglist *args;
 
 	args = make_args(cmdline);
-	lconfig_acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	libconfig_acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	destroy_args(args);
 }
 

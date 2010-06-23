@@ -22,7 +22,7 @@ AC_CHECK_LIB(pam, pam_get_data,, exit)
 AC_CHECK_LIB(pam_misc, pam_misc_setenv,, exit)
 AC_CHECK_LIB(crypto, RSA_public_encrypt,, exit)
 AC_CHECK_LIB(netsnmp, snmpv3_store,, exit)
-AC_CHECK_LIB(config, acl_apply,, exit)
+AC_CHECK_LIB(config, libconfig_acl_apply,, exit)
 AC_CHECK_LIB(readline, rl_on_new_line,, exit)
 AC_CHECK_LIB(configsnmp, snmp_get_contact,, exit)
 

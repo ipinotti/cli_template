@@ -74,8 +74,8 @@ void do_accesslist(const char *cmdline)
 	acl.name = args->argv[1];
 
 	/* Create new ACL if one does not exist */
-	if (!acl_exists(acl.name))
-		acl_create_new(acl.name);
+	if (!libconfig_acl_exists(acl.name))
+		libconfig_acl_create_new(acl.name);
 
 	crsr = 2;
 
@@ -406,7 +406,7 @@ void do_accesslist(const char *cmdline)
 	}
 
 	/* Apply the access list */
-	acl_apply(&acl);
+	libconfig_acl_apply(&acl);
 
 	destroy_args(args);
 }
@@ -422,7 +422,7 @@ void do_accesslist_mac(const char *cmdline)
 	mode = add_acl;
 	args = make_args(cmdline);
 	acl = args->argv[1];
-	if (!acl_exists(acl)) {
+	if (!libconfig_acl_exists(acl)) {
 		sprintf(cmd, "/bin/iptables -N %s", acl);
 		system(cmd);
 	}
@@ -531,11 +531,11 @@ void no_accesslist(const char *cmdline)
 
 	args = make_args(cmdline);
 	acl = args->argv[2];
-	if (!acl_exists(acl)) {
+	if (!libconfig_acl_exists(acl)) {
 		destroy_args(args);
 		return;
 	}
-	if (acl_get_refcount(acl)) {
+	if (libconfig_acl_get_refcount(acl)) {
 		printf("%% Access-list in use, can't delete\n");
 		destroy_args(args);
 		return;
@@ -566,21 +566,21 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 		chain = chain_in;
 	else if (strcasecmp(args->argv[3], "out") == 0)
 		chain = chain_out;
-	if (!acl_exists(listno)) {
+	if (!libconfig_acl_exists(listno)) {
 		printf("%% access-list %s undefined\n", listno);
 		free(dev);
 		destroy_args(args);
 		return;
 	}
-	if ((chain == chain_in) && (acl_matched_exists(0, dev, 0, "INPUT")
-	                || acl_matched_exists(0, dev, 0, "FORWARD"))) {
+	if ((chain == chain_in) && (libconfig_acl_matched_exists(0, dev, 0, "INPUT")
+	                || libconfig_acl_matched_exists(0, dev, 0, "FORWARD"))) {
 		printf("%% inbound access-list already defined.\n");
 		free(dev);
 		destroy_args(args);
 		return;
 	}
-	if ((chain == chain_out) && (acl_matched_exists(0, 0, dev, "OUTPUT")
-	                || acl_matched_exists(0, 0, dev, "FORWARD"))) {
+	if ((chain == chain_out) && (libconfig_acl_matched_exists(0, 0, dev, "OUTPUT")
+	                || libconfig_acl_matched_exists(0, 0, dev, "FORWARD"))) {
 		printf("%% outbound access-list already defined.\n");
 		free(dev);
 		destroy_args(args);
@@ -611,7 +611,7 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 		system(buf);
 	}
 #ifdef OPTION_IPSEC
-	acl_interface_ipsec(1, chain, dev, listno);
+	libconfig_acl_interface_ipsec(1, chain, dev, listno);
 #endif
 	destroy_args(args);
 	free(dev);
@@ -637,14 +637,14 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 			chain = chain_out;
 	}
 	if ((chain == chain_in) || (chain == chain_both)) {
-		if (acl_matched_exists(listno, dev, 0, "INPUT")) {
+		if (libconfig_acl_matched_exists(listno, dev, 0, "INPUT")) {
 			sprintf(buf, "/bin/iptables -D INPUT -i %s -j %s", dev,
 			                listno);
 
 			DEBUG_CMD(buf);
 			system(buf);
 		}
-		if (acl_matched_exists(listno, dev, 0, "FORWARD")) {
+		if (libconfig_acl_matched_exists(listno, dev, 0, "FORWARD")) {
 			sprintf(buf, "/bin/iptables -D FORWARD -i %s -j %s",
 			                dev, listno);
 
@@ -653,14 +653,14 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 		}
 	}
 	if ((chain == chain_out) || (chain == chain_both)) {
-		if (acl_matched_exists(listno, 0, dev, "OUTPUT")) {
+		if (libconfig_acl_matched_exists(listno, 0, dev, "OUTPUT")) {
 			sprintf(buf, "/bin/iptables -D OUTPUT -o %s -j %s",
 			                dev, listno);
 
 			DEBUG_CMD(buf);
 			system(buf);
 		}
-		if (acl_matched_exists(listno, 0, dev, "FORWARD")) {
+		if (libconfig_acl_matched_exists(listno, 0, dev, "FORWARD")) {
 			sprintf(buf, "/bin/iptables -D FORWARD -o %s -j %s",
 			                dev, listno);
 
@@ -669,7 +669,7 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 		}
 	}
 #ifdef OPTION_IPSEC
-	acl_interface_ipsec(0, chain, dev, listno);
+	libconfig_acl_interface_ipsec(0, chain, dev, listno);
 #endif
 	destroy_args(args);
 	free(dev);
