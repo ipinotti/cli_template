@@ -761,7 +761,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			phy_status=lan_get_status(conf.name);
 			running=(up && (phy_status & PHY_STAT_LINK) ? 1 : 0); /* vlan: interface must be up */
 			if (!strncmp(conf.name,"ethernet",8) && strstr(conf.name,".")) /* VLAN */
-			vlan_cos = get_vlan_cos(conf.name);
+			vlan_cos = libconfig_vlan_get_cos(conf.name);
 			else
 			vlan_cos = NONE_TO_COS;
 			break;

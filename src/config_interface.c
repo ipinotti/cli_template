@@ -39,7 +39,7 @@ int validate_interface_minor(void)
 {
 	switch(interface_edited->type) {
 		case eth:
-			if(vlan_exists(interface_major, interface_minor))
+			if(libconfig_vlan_exists(interface_major, interface_minor))
 				return 0; // ok
 			break;
 		default:
