@@ -11,11 +11,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <signal.h>
 #include <syslog.h>
 #include <fcntl.h>
 #include <errno.h>
 
+#include <net/if.h>
 #include <netinet/ip_icmp.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
