@@ -96,9 +96,9 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			case tun:
 				dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 				if (no) {
-					del_tunnel(dev);
+					libconfig_tunnel_del(dev);
 				} else {
-					add_tunnel(dev);
+					libconfig_tunnel_add(dev);
 					command_root=CMD_CONFIG_INTERFACE_TUNNEL;
 				}
 				free(dev);
@@ -451,9 +451,9 @@ void tunnel_destination(const char *cmdline) /* [no] tunnel destination <ipaddre
 	args=libconfig_make_args(cmdline);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
-		change_tunnel(dev, destination, NULL);
+		libconfig_tunnel_change(dev, TUNNEL_DESTINATION, NULL);
 	} else {
-		change_tunnel(dev, destination, args->argv[2]);
+		libconfig_tunnel_change(dev, TUNNEL_DESTINATION, args->argv[2]);
 	}
 	free(dev);
 	libconfig_destroy_args(args);
@@ -467,9 +467,9 @@ void tunnel_key(const char *cmdline) /* [no] tunnel key <key> */
 	args=libconfig_make_args(cmdline);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
-		change_tunnel(dev, key, NULL);
+		libconfig_tunnel_change(dev, TUNNEL_KEY, NULL);
 	} else {
-		change_tunnel(dev, key, args->argv[2]);
+		libconfig_tunnel_change(dev, TUNNEL_KEY, args->argv[2]);
 	}
 	free(dev);
 	libconfig_destroy_args(args);
@@ -483,9 +483,9 @@ void tunnel_mode(const char *cmdline) /* tunnel mode gre|ipip */
 	args=libconfig_make_args(cmdline);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[2], "gre") == 0) {
-		mode_tunnel(dev, IPPROTO_GRE);
+		libconfig_tunnel_mode(dev, IPPROTO_GRE);
 	} else if (strcmp(args->argv[2], "ipip") == 0) {
-		mode_tunnel(dev, IPPROTO_IPIP);
+		libconfig_tunnel_mode(dev, IPPROTO_IPIP);
 	}
 	/* TODO: pptp l2tp ipsec ipsec-l2tp */
 	free(dev);
@@ -504,7 +504,7 @@ void tunnel_source_interface(const char *cmdline) /* tunnel source <intf> <sub> 
 	if (strcmp(dev, source) == 0) {
 		fprintf(stderr, "%% Cannot use self\n");
 	} else {
-		change_tunnel(dev, source_interface, source);
+		libconfig_tunnel_change(dev, TUNNEL_SOURCE_INTERFACE, source);
 	}
 	free(dev);
 	libconfig_destroy_args(args);
@@ -518,9 +518,9 @@ void tunnel_source(const char *cmdline) /* [no] tunnel source <ipaddress> */
 	args=libconfig_make_args(cmdline);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
-		change_tunnel(dev, source, NULL);
+		libconfig_tunnel_change(dev, TUNNEL_SOURCE, NULL);
 	} else {
-		change_tunnel(dev, source, args->argv[2]);
+		libconfig_tunnel_change(dev, TUNNEL_SOURCE, args->argv[2]);
 	}
 	free(dev);
 	libconfig_destroy_args(args);
@@ -535,9 +535,9 @@ void tunnel_checksum(const char *cmdline) /* [no] tunnel checksum */
 	args=libconfig_make_args(cmdline);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
-		change_tunnel(dev, checksum, NULL);
+		libconfig_tunnel_change(dev, TUNNEL_CHECKSUM, NULL);
 	} else {
-		change_tunnel(dev, checksum, &i);
+		libconfig_tunnel_change(dev, TUNNEL_CHECKSUM, &i);
 	}
 	free(dev);
 	libconfig_destroy_args(args);
@@ -552,9 +552,9 @@ void tunnel_pmtu(const char *cmdline) /* [no] tunnel path-mtu-discovery */
 	args=libconfig_make_args(cmdline);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
-		change_tunnel(dev, pmtu, NULL);
+		libconfig_tunnel_change(dev, TUNNEL_PMTU, NULL);
 	} else {
-		change_tunnel(dev, pmtu, &i);
+		libconfig_tunnel_change(dev, TUNNEL_PMTU, &i);
 	}
 	free(dev);
 	libconfig_destroy_args(args);
@@ -569,9 +569,9 @@ void tunnel_sequence(const char *cmdline) /* [no] tunnel sequence-datagrams */
 	args=libconfig_make_args(cmdline);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
-		change_tunnel(dev, sequence, NULL);
+		libconfig_tunnel_change(dev, TUNNEL_SEQUENCE, NULL);
 	} else {
-		change_tunnel(dev, sequence, &i);
+		libconfig_tunnel_change(dev, TUNNEL_SEQUENCE, &i);
 	}
 	free(dev);
 	libconfig_destroy_args(args);
@@ -585,9 +585,9 @@ void tunnel_ttl(const char *cmdline) /* [no] tunnel ttl <0-255> */
 	args=libconfig_make_args(cmdline);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
-		change_tunnel(dev, ttl, NULL);
+		libconfig_tunnel_change(dev, TUNNEL_TTL, NULL);
 	} else {
-		change_tunnel(dev, ttl, args->argv[2]);
+		libconfig_tunnel_change(dev, TUNNEL_TTL, args->argv[2]);
 	}
 	free(dev);
 	libconfig_destroy_args(args);

@@ -821,7 +821,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 #ifdef OPTION_TUNNEL
 			case ARPHRD_TUNNEL:
 			case ARPHRD_IPGRE:
-			dump_tunnel_interface(out, conf_format, conf.name);
+			libconfig_tunnel_dump_interface(out, conf_format, conf.name);
 			break;
 #endif
 
