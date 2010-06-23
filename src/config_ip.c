@@ -308,8 +308,8 @@ void ip_domainlookup(const char *cmd) /* [no] ip domain lookup */
 	arglist *args;
 
 	args=libconfig_make_args(cmd);
-	if (args->argc == 4) dns_lookup(0);
-		else dns_lookup(1);
+	if (args->argc == 4) libconfig_dns_lookup(0);
+		else libconfig_dns_lookup(1);
 	libconfig_destroy_args(args);
 }
 
@@ -320,10 +320,10 @@ void ip_nameserver(const char *cmd) /* [no] ip name-server <ipaddress> */
 	args = libconfig_make_args(cmd);
 	switch (args->argc) {
 		case 3:
-			dns_nameserver(1, args->argv[2]);
+			libconfig_dns_nameserver(1, args->argv[2]);
 			break;
 		case 4:
-			dns_nameserver(0, args->argv[3]);
+			libconfig_dns_nameserver(0, args->argv[3]);
 			break;
 	}
 	libconfig_destroy_args(args);

@@ -426,29 +426,29 @@ void show_ip_dns(const char *cmdline)
 	char addr[16];
 	unsigned int i;
 
-	printf("IP domain lookup is currently %sabled\n", is_domain_lookup_enabled() ? "en" : "dis");
+	printf("IP domain lookup is currently %sabled\n", libconfig_dns_domain_lookup_enabled() ? "en" : "dis");
 	printf("DNS relay is currently %sabled\n", is_daemon_running(DNS_DAEMON) ? "en" : "dis");
 
 	/* Lista servidores DNS estaticos */
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i, addr) < 0)
+		if (libconfig_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i, addr) < 0)
 			break;
 		printf("Static ip name-server %s\n", addr);
 	}
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i, addr) < 0)
+		if (libconfig_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i, addr) < 0)
 			break;
 		printf("Static ip name-server %s (inactive)\n", addr);
 	}
 
 	/* Lista servidores DNS dinamicos */
 	for (i = 0;; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i, addr) < 0)
+		if (libconfig_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i, addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s\n", addr);
 	}
 	for (i = 0;; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i, addr) < 0)
+		if (libconfig_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i, addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s (inactive)\n", addr);
 	}
