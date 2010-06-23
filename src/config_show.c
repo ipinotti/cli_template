@@ -289,7 +289,7 @@ void show_processes(const char *cmdline)
 {
 	struct process_t *ps, *next;
 
-	next = ps = lconfig_get_ps_info();
+	next = ps = libconfig_ps_get_info();
 	if (ps == NULL)
 		return;
 
@@ -301,7 +301,7 @@ void show_processes(const char *cmdline)
 	}
 	printf("\n");
 
-	lconfig_free_ps_info(ps);
+	libconfig_ps_free_info(ps);
 	return;
 
 }
