@@ -1697,7 +1697,7 @@ void firmware_download(const char *cmd) /* firmware download <url> */
 
 void firmware_save(const char *cmd)
 {
-	write_image(1);
+	libconfig_write_image(1);
 }
 
 void firmware_upload(const char *cmd)
