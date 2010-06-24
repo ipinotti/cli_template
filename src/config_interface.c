@@ -785,7 +785,7 @@ void interface_modem3g_set_apn(const char *cmdline)
 	strcat(buffer,apn);
 	strcat(buffer,plus);
 
-	check = modem3g_set_apn(buffer, interface_major);
+	check = libconfig_modem3g_set_apn(buffer, interface_major);
 	if (check == -1){
 		printf("Error on set APN\n");
 		libconfig_destroy_args(args);
@@ -812,7 +812,7 @@ void interface_modem3g_set_password(const char *cmdline)
 
 	password = args->argv[2];
 
-	check = modem3g_set_password(password, interface_major);
+	check = libconfig_modem3g_set_password(password, interface_major);
 
 	if (check == -1){
 		printf("Error on set password\n");
@@ -840,7 +840,7 @@ void interface_modem3g_set_username(const char *cmdline)
 
 	username = args->argv[2];
 
-	check = modem3g_set_username(username, interface_major);
+	check = libconfig_modem3g_set_username(username, interface_major);
 
 	if (check == -1){
 		printf("Error on set username\n");

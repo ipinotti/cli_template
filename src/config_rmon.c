@@ -60,7 +60,7 @@ void rmon_alarm(const char *cmd)
 		return;
 	}
 
-	if( snmp_translate_oid(args->argv[3], name, &namelen) == 0 ) {
+	if( libconfig_snmp_translate_oid(args->argv[3], name, &namelen) == 0 ) {
 		printf("%% Invalid object identifier\n");
 		return;
 	}
@@ -288,7 +288,7 @@ void show_rmon_mibs(const char *cmd)
 
 void show_rmon_mibtree(const char *cmd)
 {
-	if( dump_snmp_mibtree() < 0 )
+	if( libconfig_snmp_dump_mibtree() < 0 )
 		printf("Not possible to show MIB tree!\n");
 }
 

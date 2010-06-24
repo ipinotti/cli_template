@@ -679,7 +679,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	fprintf(out, "  Encapsulation PPP");
 
-	if (modem3g_get_apn (apn, serial_no))
+	if (libconfig_modem3g_get_apn (apn, serial_no))
 		fprintf(out, ", APN is \"%s\"\n", apn);
 	else
 		printf(" Error - reading APN\n");
@@ -1877,7 +1877,7 @@ void show_modem3g_apn(const char *cmdline)
 {
 	int check=0;
 	char * apn=malloc(256);
-	check = modem3g_get_apn(apn,interface_major);
+	check = libconfig_modem3g_get_apn(apn,interface_major);
 	if (check == -1){
 		printf("Error on show APN\n");
 		free(apn);
@@ -1897,7 +1897,7 @@ void show_modem3g_username(const char *cmdline)
 	int check=0;
 	char * username=malloc(256);
 
-	check = modem3g_get_username(username, interface_major);
+	check = libconfig_modem3g_get_username(username, interface_major);
 	if (check == -1) {
 		printf("Error on show username\n");
 		free (username);
@@ -1917,7 +1917,7 @@ void show_modem3g_password(const char *cmdline)
 	int check=0;
 	char * password=malloc(256);
 
-	check = modem3g_get_password(password, interface_major);
+	check = libconfig_modem3g_get_password(password, interface_major);
 	if (check == -1) {
 		printf("Error on show password\n");
 		free (password);
