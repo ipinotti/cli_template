@@ -214,7 +214,7 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 
 	free(dev);
 #ifdef OPTION_SMCROUTE
-	lconfig_smcroute_hup();
+	libconfig_smc_route_hup();
 #endif
 }
 

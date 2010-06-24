@@ -165,7 +165,7 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 	new_cmdline = libconfig_device_to_linux_cmdline((char*) cmdline);
 	args = libconfig_make_args(new_cmdline);
 	if (strcmp(args->argv[0], "no") == 0) {
-		lconfig_smc_route(0, args->argv[3], args->argv[4], args->argv[6],
+		libconfig_smc_route(0, args->argv[3], args->argv[4], args->argv[6],
 		                args->argv[8]);
 	} else {
 #ifdef OPTION_PIMD
@@ -174,7 +174,7 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 			printf("%% Disable dynamic multicast routing first\n");
 		} else
 #endif
-			lconfig_smc_route(1, args->argv[2], args->argv[3],
+			libconfig_smc_route(1, args->argv[2], args->argv[3],
 			                args->argv[5], args->argv[7]);
 	}
 	libconfig_destroy_args(args);
