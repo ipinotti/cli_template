@@ -940,7 +940,7 @@ void show_level_running_config(const char *cmdline)
 		dump_chatscripts(f);
 		acl_dump_policy(f);
 		libconfig_acl_dump(0, f, 1);
-		lconfig_nat_dump(0, f, 1);
+		libconfig_nat_dump(0, f, 1);
 		libconfig_mangle_dump(0, f, 1);
 		dump_nat_helper(f);
 		dump_routing(f, 1);
@@ -1205,7 +1205,7 @@ void show_natrules(const char *cmdline)
 	arglist *args;
 
 	args = libconfig_make_args(cmdline);
-	lconfig_nat_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	libconfig_nat_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	libconfig_destroy_args(args);
 }
 

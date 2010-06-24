@@ -429,7 +429,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 		if (!strcmp(args->argv[2], "insert"))
 			insert = 1;
 		if ((f = fopen(TMP_CFG_FILE, "w+"))) {
-			lconfig_nat_dump(0, f, 1);
+			libconfig_nat_dump(0, f, 1);
 			fseek(f, 0, SEEK_SET);
 			while (fgets((char *) buf, 511, f)) {
 				if ((n = libconfig_parse_args_din((char *) buf, &argl))
