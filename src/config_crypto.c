@@ -90,14 +90,14 @@ int update_ipsec_conf(char *name, int action)
 	char filename[128], key[128];
 
 	if ((fd = open(FILE_IPSEC_CONF, O_RDWR)) < 0) {
-		if ((fd = create_ipsec_conf()) < 0) {
+		if ((fd = libconfig_ipsec_create_conf()) < 0) {
 			printf("%% could not open file %s\n", FILE_IPSEC_CONF);
 			return -1;
 		}
 	}
 	snprintf(filename, 128, FILE_IKE_CONN_CONF, name);
 	snprintf(key, 128, "include %s\n", filename);
-	ret = set_ipsec_connection(action, key, fd);
+	ret = libconfig_ipsec_set_connection(action, key, fd);
 	close(fd);
 	return ret;
 }
@@ -117,7 +117,7 @@ int update_ipsec_secrets(char *name, int action)
 	}
 	snprintf(filename, 128, FILE_CONN_SECRETS, name);
 	snprintf(key, 128, "include %s\n", filename);
-	ret = set_ipsec_connection(action, key, fd);
+	ret = libconfig_ipsec_set_connection(action, key, fd);
 	close(fd);
 	return ret;
 }
@@ -299,7 +299,7 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 			printf("%% Connection name to long\n");
 			goto free_args;
 		}
-		if (list_all_ipsec_names(&list) < 1) {
+		if (libconfig_ipsec_list_all_names(&list) < 1) {
 			printf("%% Not possible to add ipsec connection\n");
 			goto free_args;
 		}
@@ -360,7 +360,7 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 4) {
-		if (set_ipsec_link(args->argv[3], 0) < 0) {
+		if (libconfig_ipsec_set_link(args->argv[3], 0) < 0) {
 			printf("%% Not possible to del ipsec connection!\n");
 			goto free_args;
 		}
@@ -372,12 +372,12 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 		if (eval_connections_menus(0, args->argv[3]) < 0)
 			goto free_args;
 
-		if (list_all_ipsec_names(&list) > 0) {
+		if (libconfig_ipsec_list_all_names(&list) > 0) {
 			if (*list != NULL) {
 				list_ini = list;
 				for (i = 0; i < MAX_CONN; i++, list++) {
 					if (*list) {
-						if (get_ipsec_link(*list))
+						if (libconfig_ipsec_get_link(*list))
 							restart = 1;
 						free(*list);
 					}
@@ -386,9 +386,9 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 			}
 		}
 		if (restart)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 		else
-			set_ipsec(STOP);
+			libconfig_ipsec_exec(STOP);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -402,27 +402,27 @@ void generate_rsa_key(const char *cmd)
 	args = libconfig_make_args(cmd);
 	if (args->argc == 4) {
 		printf("%% Please wait... computation may take long time!\n");
-		if (create_rsakey(atoi(args->argv[3])) < 0) {
+		if (libconfig_ipsec_create_rsakey(atoi(args->argv[3])) < 0) {
 			printf("%% Not possible to generate RSA key!\n");
 			goto free_args;
 		}
-		if (list_all_ipsec_names(&list) < 1) {
+		if (libconfig_ipsec_list_all_names(&list) < 1) {
 			goto free_args;
 		}
 		if (*list != NULL) {
 			list_ini = list;
 			for (i = 0; i < MAX_CONN; i++, list++) {
 				if (*list) {
-					ret = get_ipsec_auth(*list, buf);
+					ret = libconfig_ipsec_get_auth(*list, buf);
 					if (ret == RSA)
-						create_secrets_conn_file(*list,
+						libconfig_ipsec_create_secrets_file(*list,
 						                1, NULL);
 					free(*list);
 				}
 			}
 			free(list_ini);
 		}
-		set_ipsec(RESTART);
+		libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -482,26 +482,26 @@ void ipsec_set_secret_key(const char *cmd) /* authby secret password */
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
-		if (create_secrets_conn_file(dynamic_ipsec_menu_name, 0,
+		if (libconfig_ipsec_create_secrets_file(dynamic_ipsec_menu_name, 0,
 		                args->argv[2]) < 0) {
 			printf(
 			                "%% Not possible to set secret authentication type\n");
 			goto free_args;
 		}
-		if (set_ipsec_auth(dynamic_ipsec_menu_name, SECRET) < 0) {
+		if (libconfig_ipsec_set_auth(dynamic_ipsec_menu_name, SECRET) < 0) {
 			printf(
 			                "%% Not possible to set secret authentication type\n");
 			goto free_args;
 		}
 		// se o link estiver ativo, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf(
 			                "%% Not possible to set secret authentication type\n");
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -513,26 +513,26 @@ void ipsec_authby_rsa(const char *cmd)
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 2) {
-		if (create_secrets_conn_file(dynamic_ipsec_menu_name, 1, NULL)
+		if (libconfig_ipsec_create_secrets_file(dynamic_ipsec_menu_name, 1, NULL)
 		                < 0) {
 			printf(
 			                "%% Not possible to set RSA authentication type\n");
 			goto free_args;
 		}
-		if (set_ipsec_auth(dynamic_ipsec_menu_name, RSA) < 0) {
+		if (libconfig_ipsec_set_auth(dynamic_ipsec_menu_name, RSA) < 0) {
 			printf(
 			                "%% Not possible to set RSA authentication type\n");
 			goto free_args;
 		}
 		// se o link estiver ativo, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf(
 			                "%% Not possible to set RSA authentication type\n");
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -544,18 +544,18 @@ void ipsec_authproto_esp(const char *cmd)
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 2) {
-		if (set_ipsec_ike_authproto(dynamic_ipsec_menu_name, ESP) < 0) {
+		if (libconfig_ipsec_set_ike_authproto(dynamic_ipsec_menu_name, ESP) < 0) {
 			printf("%% Not possible to set authproto to esp\n");
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set authproto to esp\n");
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -568,13 +568,13 @@ void set_esp_hash(const char *cmd)
 	args = libconfig_make_args(cmd);
 	switch (args->argc) {
 	case 1:
-		if (set_ipsec_esp(dynamic_ipsec_menu_name, NULL, NULL) < 0) {
+		if (libconfig_ipsec_set_esp(dynamic_ipsec_menu_name, NULL, NULL) < 0) {
 			printf("%% Not possible to reset esp\n");
 			goto free_args;
 		}
 		break;
 	case 2:
-		if (set_ipsec_esp(dynamic_ipsec_menu_name, args->argv[1], NULL)
+		if (libconfig_ipsec_set_esp(dynamic_ipsec_menu_name, args->argv[1], NULL)
 		                < 0) {
 			printf("%% Not possible to set cypher to %s\n",
 			                args->argv[1]);
@@ -582,7 +582,7 @@ void set_esp_hash(const char *cmd)
 		}
 		break;
 	case 3:
-		if (set_ipsec_esp(dynamic_ipsec_menu_name, args->argv[1],
+		if (libconfig_ipsec_set_esp(dynamic_ipsec_menu_name, args->argv[1],
 		                args->argv[2]) < 0) {
 			printf("%% Not possible to set cypher to %s/%s\n",
 			                args->argv[1], args->argv[2]);
@@ -593,13 +593,13 @@ void set_esp_hash(const char *cmd)
 		goto free_args;
 	}
 	// se o link estiver up, entao provocamos um RESTART no starter
-	ret = get_ipsec_link(dynamic_ipsec_menu_name);
+	ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 	if (ret < 0) {
 		printf("%% Not possible to set cypher\n");
 		goto free_args;
 	}
 	if (ret > 0)
-		set_ipsec(RESTART);
+		libconfig_ipsec_exec(RESTART);
 	free_args: libconfig_destroy_args(args);
 }
 
@@ -618,21 +618,21 @@ void set_ipsec_id(const char *cmd)
 			goto free_args;
 		}
 		if (strncmp(args->argv[0], "local", 5) == 0)
-			ret = set_ipsec_local_id(dynamic_ipsec_menu_name, tp);
+			ret = libconfig_ipsec_set_local_id(dynamic_ipsec_menu_name, tp);
 		else
-			ret = set_ipsec_remote_id(dynamic_ipsec_menu_name, tp);
+			ret = libconfig_ipsec_set_remote_id(dynamic_ipsec_menu_name, tp);
 		if (ret < 0) {
 			printf("%% Not possible to set %s id\n", args->argv[0]);
 			goto free_args;
 		}
 		// se o link estiver ativo, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set %s id\n", args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -645,23 +645,23 @@ void clear_ipsec_id(const char *cmd) /* no local/remote id */
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (strncmp(args->argv[1], "local", 5) == 0)
-			ret = set_ipsec_local_id(dynamic_ipsec_menu_name, "");
+			ret = libconfig_ipsec_set_local_id(dynamic_ipsec_menu_name, "");
 		else
-			ret = set_ipsec_remote_id(dynamic_ipsec_menu_name, "");
+			ret = libconfig_ipsec_set_remote_id(dynamic_ipsec_menu_name, "");
 		if (ret < 0) {
 			printf("%% Not possible to clear %s id\n",
 			                args->argv[1]);
 			goto free_args;
 		}
 		// se o link estiver ativo, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to clear %s id\n",
 			                args->argv[1]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -677,7 +677,7 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 		if (!strncmp(args->argv[0], "local", 5))
 			local = 1;
 		if (local && !strncmp(args->argv[2], "default-route", 13)) {
-			ret = set_ipsec_local_addr(dynamic_ipsec_menu_name,
+			ret = libconfig_ipsec_set_local_addr(dynamic_ipsec_menu_name,
 			                STRING_DEFAULTROUTE);
 			if (ret < 0) {
 				printf(
@@ -688,7 +688,7 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 		} else if (local && args->argc == 5 && !strncmp(args->argv[2],
 		                "interface", 9)) {
 			sprintf(tp, "%%%s%s", args->argv[3], args->argv[4]);
-			ret = set_ipsec_local_addr(dynamic_ipsec_menu_name, tp);
+			ret = libconfig_ipsec_set_local_addr(dynamic_ipsec_menu_name, tp);
 			if (ret < 0) {
 				printf(
 				                "%% Not possible to set %s address to interface %s\n",
@@ -696,7 +696,7 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 				goto free_args;
 			}
 		} else if (!local && !strncmp(args->argv[2], "any", 3)) {
-			ret = set_ipsec_remote_addr(dynamic_ipsec_menu_name,
+			ret = libconfig_ipsec_set_remote_addr(dynamic_ipsec_menu_name,
 			                STRING_ANY);
 			if (ret < 0) {
 				printf(
@@ -714,10 +714,10 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 				goto free_args;
 			}
 			if (local)
-				ret = set_ipsec_local_addr(
+				ret = libconfig_ipsec_set_local_addr(
 				                dynamic_ipsec_menu_name, tp);
 			else
-				ret = set_ipsec_remote_addr(
+				ret = libconfig_ipsec_set_remote_addr(
 				                dynamic_ipsec_menu_name, tp);
 			if (ret < 0) {
 				if (!strncmp(args->argv[2], "ip", 2))
@@ -733,14 +733,14 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 		}
 
 		// se o link estiver ativo, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set %s address\n",
 			                args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -753,10 +753,10 @@ void set_ipsec_nexthop(const char *cmd)
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[0], "local", 5))
-			ret = set_ipsec_nexthop_inf(LOCAL,
+			ret = libconfig_ipsec_set_nexthop_inf(LOCAL,
 			                dynamic_ipsec_menu_name, args->argv[2]);
 		else
-			ret = set_ipsec_nexthop_inf(REMOTE,
+			ret = libconfig_ipsec_set_nexthop_inf(REMOTE,
 			                dynamic_ipsec_menu_name, args->argv[2]);
 		if (ret < 0) {
 			printf("%% Not possible to set %s nexthop\n",
@@ -764,14 +764,14 @@ void set_ipsec_nexthop(const char *cmd)
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set %s nexthop\n",
 			                args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -784,10 +784,10 @@ void clear_ipsec_nexthop(const char *cmd) /* no local/remote nexthop */
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[1], "local", 5))
-			ret = set_ipsec_nexthop_inf(LOCAL,
+			ret = libconfig_ipsec_set_nexthop_inf(LOCAL,
 			                dynamic_ipsec_menu_name, "");
 		else
-			ret = set_ipsec_nexthop_inf(REMOTE,
+			ret = libconfig_ipsec_set_nexthop_inf(REMOTE,
 			                dynamic_ipsec_menu_name, "");
 		if (ret < 0) {
 			printf("%% Not possible to clear %s nexthop\n",
@@ -795,14 +795,14 @@ void clear_ipsec_nexthop(const char *cmd) /* no local/remote nexthop */
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to clear %s nexthop\n",
 			                args->argv[1]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -814,21 +814,21 @@ void set_ipsec_remote_rsakey(const char *cmd) /* remote rsakey [publickey] */
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
-		if (set_ipsec_rsakey(dynamic_ipsec_menu_name,
+		if (libconfig_ipsec_set_rsakey(dynamic_ipsec_menu_name,
 		                STRING_IPSEC_R_RSAKEY, args->argv[2]) < 0) {
 			printf("%% Not possible to set %s rsakey\n",
 			                args->argv[0]);
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set %s rsakey\n",
 			                args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -840,21 +840,21 @@ void clear_ipsec_remote_rsakey(const char *cmd) /* no local/remote rsakey */
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
-		if (set_ipsec_rsakey(dynamic_ipsec_menu_name,
+		if (libconfig_ipsec_set_rsakey(dynamic_ipsec_menu_name,
 		                STRING_IPSEC_R_RSAKEY, "") < 0) {
 			printf("%% Not possible to clear %s rsakey\n",
 			                args->argv[1]);
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to clear %s rsakey\n",
 			                args->argv[1]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -867,11 +867,11 @@ void set_ipsec_subnet(const char *cmd)
 	args = libconfig_make_args(cmd);
 	if (args->argc == 4) {
 		if (!strncmp(args->argv[0], "local", 5))
-			ret = set_ipsec_subnet_inf(LOCAL,
+			ret = libconfig_ipsec_set_subnet_inf(LOCAL,
 			                dynamic_ipsec_menu_name, args->argv[2],
 			                args->argv[3]);
 		else
-			ret = set_ipsec_subnet_inf(REMOTE,
+			ret = libconfig_ipsec_set_subnet_inf(REMOTE,
 			                dynamic_ipsec_menu_name, args->argv[2],
 			                args->argv[3]);
 		if (ret < 0) {
@@ -880,14 +880,14 @@ void set_ipsec_subnet(const char *cmd)
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set %s subnet\n",
 			                args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -900,10 +900,10 @@ void clear_ipsec_subnet(const char *cmd) /* no local/remote subnet */
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[1], "local", 5))
-			ret = set_ipsec_subnet_inf(LOCAL,
+			ret = libconfig_ipsec_set_subnet_inf(LOCAL,
 			                dynamic_ipsec_menu_name, "", "");
 		else
-			ret = set_ipsec_subnet_inf(REMOTE,
+			ret = libconfig_ipsec_set_subnet_inf(REMOTE,
 			                dynamic_ipsec_menu_name, "", "");
 		if (ret < 0) {
 			printf("%% Not possible to clear %s subnet\n",
@@ -911,28 +911,28 @@ void clear_ipsec_subnet(const char *cmd) /* no local/remote subnet */
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to clear %s subnet\n",
 			                args->argv[1]);
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
 
 void ipsec_link_up(const char *cmd)
 {
-	if (set_ipsec_link(dynamic_ipsec_menu_name, 1) < 0) {
+	if (libconfig_ipsec_set_link(dynamic_ipsec_menu_name, 1) < 0) {
 		printf("%% Not possible to enable tunnel\n");
 		return;
 	}
-	if (get_ipsec())
-		set_ipsec(RESTART);
+	if (libconfig_ipsec_is_running())
+		libconfig_ipsec_exec(RESTART);
 	else
-		set_ipsec(START);
+		libconfig_ipsec_exec(START);
 }
 
 void ipsec_link_down(const char *cmd)
@@ -940,16 +940,16 @@ void ipsec_link_down(const char *cmd)
 	int i, restart = 0;
 	char **list = NULL, **list_ini = NULL;
 
-	if (set_ipsec_link(dynamic_ipsec_menu_name, 0) < 0) {
+	if (libconfig_ipsec_set_link(dynamic_ipsec_menu_name, 0) < 0) {
 		printf("%% Not possible to shutdown\n");
 		return;
 	}
-	if (list_all_ipsec_names(&list) > 0) {
+	if (libconfig_ipsec_list_all_names(&list) > 0) {
 		if (*list != NULL) {
 			list_ini = list;
 			for (i = 0; i < MAX_CONN; i++, list++) {
 				if (*list) {
-					if (get_ipsec_link(*list))
+					if (libconfig_ipsec_get_link(*list))
 						restart = 1;
 					free(*list);
 				}
@@ -958,9 +958,9 @@ void ipsec_link_down(const char *cmd)
 		}
 	}
 	if (restart)
-		set_ipsec(RESTART);
+		libconfig_ipsec_exec(RESTART);
 	else
-		set_ipsec(STOP);
+		libconfig_ipsec_exec(STOP);
 }
 
 void set_ipsec_l2tp_protoport(const char *cmd) /* [no] l2tp protoport [SP1|SP2] */
@@ -971,18 +971,18 @@ void set_ipsec_l2tp_protoport(const char *cmd) /* [no] l2tp protoport [SP1|SP2] 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strcmp(args->argv[0], "no"))
-			set_ipsec_protoport(dynamic_ipsec_menu_name, NULL);
+			libconfig_ipsec_set_protoport(dynamic_ipsec_menu_name, NULL);
 		else
-			set_ipsec_protoport(dynamic_ipsec_menu_name,
+			libconfig_ipsec_set_protoport(dynamic_ipsec_menu_name,
 			                args->argv[2]);
 		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = get_ipsec_link(dynamic_ipsec_menu_name);
+		ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set protoport\n");
 			goto free_args;
 		}
 		if (ret > 0)
-			set_ipsec(RESTART);
+			libconfig_ipsec_exec(RESTART);
 	}
 	free_args: libconfig_destroy_args(args);
 }
@@ -995,13 +995,13 @@ void ipsec_pfs(const char *cmd)
 	args = libconfig_make_args(cmd);
 	switch (args->argc) {
 	case 1:
-		if (set_ipsec_pfs(dynamic_ipsec_menu_name, 1) < 0) {
+		if (libconfig_ipsec_set_pfs(dynamic_ipsec_menu_name, 1) < 0) {
 			printf("%% Not possible to turn on PFS\n");
 			goto free_args;
 		}
 		break;
 	case 2:
-		if (set_ipsec_pfs(dynamic_ipsec_menu_name, 0) < 0) {
+		if (libconfig_ipsec_set_pfs(dynamic_ipsec_menu_name, 0) < 0) {
 			printf("%% Not possible to turn off PFS\n");
 			goto free_args;
 		}
@@ -1010,13 +1010,13 @@ void ipsec_pfs(const char *cmd)
 		goto free_args;
 	}
 	// se o link estiver up, entao provocamos um RESTART no starter
-	ret = get_ipsec_link(dynamic_ipsec_menu_name);
+	ret = libconfig_ipsec_get_link(dynamic_ipsec_menu_name);
 	if (ret < 0) {
 		printf("%% Not possible to turn on PFS\n");
 		goto free_args;
 	}
 	if (ret > 0)
-		set_ipsec(RESTART);
+		libconfig_ipsec_exec(RESTART);
 	free_args: libconfig_destroy_args(args);
 }
 
@@ -1031,9 +1031,9 @@ void l2tp_server(const char *cmd) /* [no] l2tp server */
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 3 && !strcmp(args->argv[0], "no"))
-		set_l2tp(STOP);
+		libconfig_l2tp_exec(STOP);
 	else
-		set_l2tp(START);
+		libconfig_l2tp_exec(START);
 	libconfig_destroy_args(args);
 }
 
@@ -1042,7 +1042,7 @@ void check_initial_conn(void)
 	int i, j;
 	char *p, **list = NULL, **list_ini = NULL;
 
-	if (list_all_ipsec_names(&list) >= 0) {
+	if (libconfig_ipsec_list_all_names(&list) >= 0) {
 		if (*list != NULL) {
 			list_ini = list;
 			for (i = 0; i < MAX_CONN; i++) {

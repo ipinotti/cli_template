@@ -1734,7 +1734,7 @@ static void clear_ipsec_counters(char *conn_name)
 	unsigned int count, found;
 	struct runn_ipsec_itf entry[MAX_CONN];
 
-	if( get_ipsec() ) { /* Wait pluto start! */
+	if( libconfig_ipsec_is_running() ) { /* Wait pluto start! */
 		output = popen("/lib/ipsec/whack --status", "r");
 		if( !output ) {
 			printf("%% Not possible to clear counters\n");
@@ -1816,7 +1816,7 @@ void clear_counters(const char *cmdline)
 		int i;
 		char **list=NULL, **list_ini=NULL;
 
-		if( list_all_ipsec_names(&list_ini) < 1 ) {
+		if( libconfig_ipsec_list_all_names(&list_ini) < 1 ) {
 			printf("%% Not possible to clear counters\n");
 			libconfig_destroy_args(args);
 			return;

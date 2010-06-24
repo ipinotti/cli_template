@@ -1292,7 +1292,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca id local
 	tmp[0] = '\0';
 	id_l[0] = '\0';
-	if (get_ipsec_id(LOCAL, name, tmp) >= 0) {
+	if (libconfig_ipsec_get_id(LOCAL, name, tmp) >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < MAX_ADDR_SIZE)
 			strcpy(id_l, tmp);
 	}
@@ -1302,7 +1302,7 @@ static int show_conn_specific(char *name, int state)
 	addr_l[0] = '\0';
 	mask[0] = '\0';
 	cidr_l[0] = '\0';
-	if (get_ipsec_subnet(LOCAL, name, tmp) >= 0) {
+	if (libconfig_ipsec_get_subnet(LOCAL, name, tmp) >= 0) {
 		if (strlen(tmp) > 0) {
 			if ((p = strchr(tmp, ' '))) {
 				strncpy(addr_l, tmp, p - tmp);
@@ -1322,7 +1322,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca endereco local
 	tmp[0] = '\0';
 	addr_l[0] = '\0';
-	ret = get_ipsec_local_addr(name, tmp);
+	ret = libconfig_ipsec_get_local_addr(name, tmp);
 	if (ret >= 0) {
 		if (ret > 0 && strlen(tmp) < MAX_ADDR_SIZE) {
 			if (ret == ADDR_DEFAULT)
@@ -1337,7 +1337,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca nexthop local
 	tmp[0] = '\0';
 	nexthop_l[0] = '\0';
-	ret = get_ipsec_nexthop(LOCAL, name, tmp);
+	ret = libconfig_ipsec_get_nexthop(LOCAL, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < 20)
 			strcpy(nexthop_l, tmp);
@@ -1346,7 +1346,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca id remoto
 	tmp[0] = '\0';
 	id_r[0] = '\0';
-	if (get_ipsec_id(REMOTE, name, tmp) >= 0) {
+	if (libconfig_ipsec_get_id(REMOTE, name, tmp) >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < MAX_ADDR_SIZE)
 			strcpy(id_r, tmp);
 	}
@@ -1356,7 +1356,7 @@ static int show_conn_specific(char *name, int state)
 	addr_r[0] = '\0';
 	mask[0] = '\0';
 	cidr_r[0] = '\0';
-	ret = get_ipsec_subnet(REMOTE, name, tmp);
+	ret = libconfig_ipsec_get_subnet(REMOTE, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0) {
 			if ((p = strchr(tmp, ' '))) {
@@ -1377,7 +1377,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca endereco remoto
 	tmp[0] = '\0';
 	addr_r[0] = '\0';
-	ret = get_ipsec_remote_addr(name, tmp);
+	ret = libconfig_ipsec_get_remote_addr(name, tmp);
 	if (ret >= 0) {
 		if (ret > 0 && strlen(tmp) < MAX_ADDR_SIZE) {
 			if (ret == ADDR_ANY)
@@ -1392,7 +1392,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca nexthop remoto
 	tmp[0] = '\0';
 	nexthop_r[0] = '\0';
-	ret = get_ipsec_nexthop(REMOTE, name, tmp);
+	ret = libconfig_ipsec_get_nexthop(REMOTE, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < 20)
 			strcpy(nexthop_r, tmp);
@@ -1401,7 +1401,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca tipo de autenticacao
 	tmp[0] = '\0';
 	authby[0] = '\0';
-	switch (get_ipsec_auth(name, tmp)) {
+	switch (libconfig_ipsec_get_auth(name, tmp)) {
 	case SECRET:
 		strcpy(authby, "SECRET");
 		break;
@@ -1414,10 +1414,10 @@ static int show_conn_specific(char *name, int state)
 	tmp[0] = '\0';
 	esp_c[0] = '\0';
 	authproto[0] = '\0';
-	switch (get_ipsec_ike_authproto(name)) {
+	switch (libconfig_ipsec_get_ike_authproto(name)) {
 	case ESP:
 		strcat(authproto, "ESP");
-		switch (get_ipsec_esp(name, tmp)) {
+		switch (libconfig_ipsec_get_esp(name, tmp)) {
 		case 1:
 			if (strlen(tmp) > 0 && strlen(tmp) < 10) {
 				if (!strncmp(tmp, "des", 3))
@@ -1445,7 +1445,7 @@ static int show_conn_specific(char *name, int state)
 
 	// Busca PFS
 	pfs[0] = '\0';
-	ret = get_ipsec_pfs(name);
+	ret = libconfig_ipsec_get_pfs(name);
 	if (ret >= 0) {
 		if (ret > 0)
 			strcpy(pfs, "PFS");
@@ -1520,7 +1520,7 @@ void show_crypto(const char *cmdline)
 
 	args = libconfig_make_args(cmdline);
 	if (args->argc == 3) {
-		if (get_ipsec()) /* Wait pluto start! */
+		if (libconfig_ipsec_is_running()) /* Wait pluto start! */
 		{
 			char search_str[MAX_CMD_LINE];
 
@@ -1541,22 +1541,22 @@ void show_crypto(const char *cmdline)
 
 	total_name_len = 0;
 #if 0
-	if (get_ipsec_interface(iface, 20) < 1)
+	if (libconfig_ipsec_get_interface(iface, 20) < 1)
 	{
 		printf("%% Not possible to show ipsec interface\n");
 		return;
 	}
 	printf("interface %s\n", iface);
 #endif
-	if ((ret = get_ipsec_autoreload()) > 0)
+	if ((ret = libconfig_ipsec_get_autoreload()) > 0)
 		printf("auto-reload in %d seconds\n", ret);
-	if ((ret = get_ipsec_nat_traversal()) >= 0) {
+	if ((ret = libconfig_ipsec_get_nat_traversal()) >= 0) {
 		if (ret)
 			printf("NAT-Traversal on\n");
 		else
 			printf("NAT-Traversal off\n");
 	}
-	if ((ret = get_ipsec_overridemtu()) > 0)
+	if ((ret = libconfig_ipsec_get_overridemtu()) > 0)
 		printf("overridemtu %d\n", ret);
 	// chave rsa publica
 	if ((rsa = get_rsakeys_from_nv())) {
@@ -1573,7 +1573,7 @@ void show_crypto(const char *cmdline)
 	} else
 		printf("You have to generate rsa keys!\n");
 	// busca todas as conexoes existentes
-	if (list_all_ipsec_names(&list_ini) < 1) {
+	if (libconfig_ipsec_list_all_names(&list_ini) < 1) {
 		printf("%% Not possible to show ipsec connections\n");
 		return;
 	}
@@ -1587,7 +1587,7 @@ void show_crypto(const char *cmdline)
 		}
 		total_name_len += 9;
 
-		if (get_ipsec()) /* Wait pluto start! */
+		if (libconfig_ipsec_is_running()) /* Wait pluto start! */
 		{
 			if (!(output = popen("/lib/ipsec/whack --status", "r"))) {
 				printf("%% Not possible to show ipsec connections\n");
@@ -1640,7 +1640,7 @@ void show_crypto(const char *cmdline)
 		}
 		for (i = 0, list = list_ini; i < MAX_CONN; i++, list++) {
 			if (*list) {
-				switch (get_ipsec_auto(*list)) {
+				switch (libconfig_ipsec_get_auto(*list)) {
 				case AUTO_IGNORE:
 					if (show_conn_specific(*list, CONN_SHUTDOWN) < 1)
 						goto go_error;
