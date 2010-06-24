@@ -69,6 +69,25 @@ void process_cish_exit(void)
 	lconfig_munmap_cfg(cish_cfg);
 }
 
+static int _on_nfs(void)
+{
+	FILE *f;
+	char cmdline[256];
+	int nfs=0;
+
+	f = fopen("/proc/cmdline", "r");
+	if (f == NULL)
+		return 0;
+
+	fread(cmdline, sizeof(cmdline), 1, f);
+	if (strstr(cmdline,"nfs") != NULL)
+		nfs = 1;
+
+	fclose(f);
+
+	return nfs;
+}
+
 /* ==============================================================================
  * main
  * ============================================================================== */
@@ -329,6 +348,7 @@ void config_file(const char *f)
 	ocmd=command_root;
 	command_root=CMD_CONFIGURE;
 
+
 	F=fopen(f, "r");
 	if (F)
 	{
@@ -365,6 +385,20 @@ void config_file(const char *f)
 						cish_execute("exit");
 					}
 				}
+#ifdef CONFIG_DEVELOPMENT
+				if (_on_nfs()) {
+					if (command_root == CMD_CONFIG_INTERFACE_ETHERNET && interface_major == 0) {
+						if (strstr(line,"ip address") != NULL) {
+							syslog(LOG_INFO, "%% NFS Boot: skipping ethernet 0 ip configuration\n");
+							continue; /* skip ip address config when using NFS */
+						}
+						if (strstr(line,"shutdown") != NULL) {
+							syslog(LOG_INFO, "%% NFS Boot: skipping ethernet 0 disable\n");
+							continue; /* do not shutdown interface as well */
+						}
+					}
+				}
+#endif
 				if (strlen(&line[i]))
 					cish_execute(&line[i]);
 			}
