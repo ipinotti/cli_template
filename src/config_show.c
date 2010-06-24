@@ -547,7 +547,7 @@ static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 
 static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 {
-	int phy_status = lan_get_status(conf->name);
+	int phy_status = libconfig_lan_get_status(conf->name);
 
 	if (conf->mac[0])
 		fprintf(out, "  Hardware address is %s\n", conf->mac);
@@ -555,7 +555,7 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 	if (conf->running) {
 		int bmcr, pgsr, pssr;
 
-		bmcr = lan_get_phy_reg(conf->name, MII_BMCR);
+		bmcr = libconfig_lan_get_phy_reg(conf->name, MII_BMCR);
 		if (bmcr & BMCR_ANENABLE) {
 			fprintf(out, "  Auto-sense");
 			if (phy_status & PHY_STAT_ANC) {
@@ -589,8 +589,8 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 			fprintf(out, "\n");
 		}
 
-		pgsr = lan_get_phy_reg(conf->name, MII_ADM7001_PGSR);
-		pssr = lan_get_phy_reg(conf->name, MII_ADM7001_PSSR);
+		pgsr = libconfig_lan_get_phy_reg(conf->name, MII_ADM7001_PGSR);
+		pssr = libconfig_lan_get_phy_reg(conf->name, MII_ADM7001_PSSR);
 
 		if (pgsr & MII_ADM7001_PGSR_XOVER) {
 			fprintf(out, "  Cable MDIX");
@@ -758,7 +758,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		switch (conf.linktype) {
 
 			case ARPHRD_ETHER:
-			phy_status=lan_get_status(conf.name);
+			phy_status=libconfig_lan_get_status(conf.name);
 			running=(up && (phy_status & PHY_STAT_LINK) ? 1 : 0); /* vlan: interface must be up */
 			if (!strncmp(conf.name,"ethernet",8) && strstr(conf.name,".")) /* VLAN */
 			vlan_cos = libconfig_vlan_get_cos(conf.name);

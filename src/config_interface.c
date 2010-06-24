@@ -378,7 +378,7 @@ void interface_fec_cfg(const char *cmdline) /* speed 10|100 half|full */
 				if(speed100 < 0 || duplex < 0)
 					printf("%% Sintax error!\n");
 				else {
-					if(fec_config_link(dev, speed100, duplex) < 0)
+					if(libconfig_fec_config_link(dev, speed100, duplex) < 0)
 						printf("%% Not possible to set PHY parameters\n");
 				}
 			}
@@ -398,7 +398,7 @@ void interface_fec_autonegotiation(const char *cmdline) /* speed auto */
 #endif
 	if ((dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor))) {
 		if (strncmp(dev, "ethernet", 8) == 0) {
-			if(fec_autonegotiate_link(dev) < 0)
+			if(libconfig_fec_autonegotiate_link(dev) < 0)
 				printf("%% Not possible to set PHY parameters\n");
 		}
 		free(dev);
