@@ -236,24 +236,24 @@ void no_ip_param (const char *_cmd)
 #ifdef OPTION_HTTP
 void http_server (const char *cmd)
 {
-	exec_daemon(HTTP_DAEMON);
+	libconfig_exec_daemon(HTTP_DAEMON);
 }
 
 void no_http_server (const char *cmd)
 {
-	kill_daemon(HTTP_DAEMON);
+	libconfig_kill_daemon(HTTP_DAEMON);
 }
 #endif
 
 #ifdef OPTION_HTTPS
 void https_server (const char *cmd)
 {
-	exec_daemon(HTTPS_DAEMON);
+	libconfig_exec_daemon(HTTPS_DAEMON);
 }
 
 void no_https_server (const char *cmd)
 {
-	kill_daemon(HTTPS_DAEMON);
+	libconfig_kill_daemon(HTTPS_DAEMON);
 }
 #endif
 
@@ -298,8 +298,10 @@ void ip_dnsrelay(const char *cmd) /* [no] ip dns relay */
 	arglist *args;
 
 	args=libconfig_make_args(cmd);
-	if (args->argc == 4) kill_daemon(DNS_DAEMON);
-		else exec_daemon(DNS_DAEMON);
+	if (args->argc == 4)
+		libconfig_kill_daemon(DNS_DAEMON);
+	else
+		libconfig_exec_daemon(DNS_DAEMON);
 	libconfig_destroy_args(args);
 }
 
@@ -429,7 +431,7 @@ void ssh_server(const char *cmd)
 	if (load_ssh_secret(SSH_KEY_FILE) < 0) fprintf(stderr, "%% ERROR: You must create RSA keys first (ip ssh key rsa 1024).\n");
 		else
 #ifdef OPTION_OPENSSH
-				exec_daemon(SSH_DAEMON);
+				libconfig_exec_daemon(SSH_DAEMON);
 #else
 				libconfig_exec_set_inetd_program(1, SSH_DAEMON);
 #endif
@@ -438,7 +440,7 @@ void ssh_server(const char *cmd)
 void no_ssh_server(const char *cmd)
 {
 #ifdef OPTION_OPENSSH
-	kill_daemon(SSH_DAEMON);
+	libconfig_kill_daemon(SSH_DAEMON);
 #else
 	libconfig_exec_set_inetd_program(0, SSH_DAEMON);
 #endif
@@ -464,24 +466,24 @@ void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
 #if 0
 void pim_dense_server(const char *cmd) /* ip pim dense-mode */
 {
-	if (libconfig_exec_check_daemon(PIMS_DAEMON)) kill_daemon(PIMS_DAEMON);
-	exec_daemon(PIMD_DAEMON);
+	if (libconfig_exec_check_daemon(PIMS_DAEMON)) libconfig_kill_daemon(PIMS_DAEMON);
+	libconfig_exec_daemon(PIMD_DAEMON);
 }
 
 void no_pim_dense_server(const char *cmd)
 {
-	kill_daemon(PIMD_DAEMON);
+	libconfig_kill_daemon(PIMD_DAEMON);
 }
 
 void pim_sparse_server(const char *cmd) /* ip pim sparse-mode */
 {
-	if (libconfig_exec_check_daemon(PIMD_DAEMON)) kill_daemon(PIMD_DAEMON);
-	exec_daemon(PIMS_DAEMON);
+	if (libconfig_exec_check_daemon(PIMD_DAEMON)) libconfig_kill_daemon(PIMD_DAEMON);
+	libconfig_exec_daemon(PIMS_DAEMON);
 }
 
 void no_pim_sparse_server(const char *cmd)
 {
-	kill_daemon(PIMS_DAEMON);
+	libconfig_kill_daemon(PIMS_DAEMON);
 }
 #endif
 
@@ -507,17 +509,17 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 		sparse = pimsd_phyint(0, dev);
 		/* Kill pimsd if it is running */			
 		if (sparse < 2 && libconfig_exec_check_daemon(PIMS_DAEMON)) 
-			kill_daemon(PIMS_DAEMON);
+			libconfig_kill_daemon(PIMS_DAEMON);
 
 		dense = pimdd_phyint(1, dev);
 	}
 
 	if (dense < 2)	{
 		if (libconfig_exec_check_daemon(PIMD_DAEMON)) 
-			kill_daemon(PIMD_DAEMON);
+			libconfig_kill_daemon(PIMD_DAEMON);
 	} else {
 		if (!libconfig_exec_check_daemon(PIMD_DAEMON)) 
-			exec_daemon(PIMD_DAEMON);
+			libconfig_exec_daemon(PIMD_DAEMON);
 	}
 clean:
 	libconfig_destroy_args(args);
@@ -545,16 +547,16 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 #endif
 		dense = pimdd_phyint(0, dev);
 		if (dense < 2 && libconfig_exec_check_daemon(PIMD_DAEMON)) 
-			kill_daemon(PIMD_DAEMON);
+			libconfig_kill_daemon(PIMD_DAEMON);
 		sparse = pimsd_phyint(1, dev);
 	}
 
 	if (sparse < 2)	{
 		if (libconfig_exec_check_daemon(PIMS_DAEMON)) 
-			kill_daemon(PIMS_DAEMON);
+			libconfig_kill_daemon(PIMS_DAEMON);
 	} else {
 		if (!libconfig_exec_check_daemon(PIMS_DAEMON)) 
-			exec_daemon(PIMS_DAEMON);
+			libconfig_exec_daemon(PIMS_DAEMON);
 	}
 clean:
 	libconfig_destroy_args(args);

@@ -907,13 +907,13 @@ void ntp_sync(const char *cmd) /* ntp-sync [300-86400] <ipaddress> */
 	arglist *args;
 
 	args=libconfig_make_args(cmd);
-	if (args->argc == 3) ntp_set(atoi(args->argv[1]), args->argv[2]);
+	if (args->argc == 3) libconfig_ntp_set(atoi(args->argv[1]), args->argv[2]);
 	libconfig_destroy_args(args);
 }
 
 void no_ntp_sync(const char *cmd)
 {
-	ntp_set(0, NULL);
+	libconfig_ntp_set(0, NULL);
 }
 #endif
 

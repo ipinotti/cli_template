@@ -1682,7 +1682,7 @@ void log_remote(const char *cmd) /* logging remote <address> */
 	arglist *args;
 	char buf[16], option[24];
 
-	kill_daemon(PROG_SYSLOGD);
+	libconfig_kill_daemon(PROG_SYSLOGD);
 	stop_syslogd();
 	args = libconfig_make_args(cmd);
 	if( libconfig_exec_get_init_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
@@ -1696,7 +1696,7 @@ void log_remote(const char *cmd) /* logging remote <address> */
 	sprintf(option, "-L -R %s", args->argv[2]);
 	libconfig_exec_change_init_option(1, PROG_SYSLOGD, option);
 	libconfig_destroy_args(args);
-	exec_daemon(PROG_SYSLOGD);
+	libconfig_exec_daemon(PROG_SYSLOGD);
 }
 
 void no_log_remote(const char *cmd)
@@ -1704,11 +1704,11 @@ void no_log_remote(const char *cmd)
 	char buf[16], option[24];
 
 	if( libconfig_exec_get_init_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
-		kill_daemon(PROG_SYSLOGD);
+		libconfig_kill_daemon(PROG_SYSLOGD);
 		stop_syslogd();
 		sprintf(option, "-L -R %s", buf);
 		libconfig_exec_change_init_option(0, PROG_SYSLOGD, option);
-		exec_daemon(PROG_SYSLOGD);
+		libconfig_exec_daemon(PROG_SYSLOGD);
 	}
 }
 

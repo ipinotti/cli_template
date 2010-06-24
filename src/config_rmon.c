@@ -12,7 +12,7 @@
 void rmon_agent(const char *cmd)
 {
 	if( libconfig_exec_check_daemon(RMON_DAEMON) == 0 )
-		exec_daemon(RMON_DAEMON);
+		libconfig_exec_daemon(RMON_DAEMON);
 }
 
 void rmon_event(const char *cmd)
@@ -140,7 +140,7 @@ void rmon_alarm(const char *cmd)
 void no_rmon_agent(const char *cmd)
 {
 	if( libconfig_exec_check_daemon(RMON_DAEMON) )
-		kill_daemon(RMON_DAEMON);
+		libconfig_kill_daemon(RMON_DAEMON);
 }
 
 void no_rmon_event(const char *cmd)
