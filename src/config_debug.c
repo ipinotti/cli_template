@@ -24,23 +24,23 @@ void debug_all(const char *cmd) /* [no] debug all */
 	if (strcmp(args->argv[0], "no") == 0) {
 		libconfig_debug_set_all(0);
 		_cish_debug = 0;
-		if (get_ospfd())
+		if (libconfig_quagga_ospfd_is_running())
 			ospf_execute_root_cmd(no_debug_ospf);
-		if (get_ripd())
+		if (libconfig_quagga_ripd_is_running())
 			rip_execute_root_cmd(no_debug_rip);
 #ifdef OPTION_BGP
-		if (get_bgpd())
+		if (libconfig_quagga_bgpd_is_running())
 			bgp_execute_root_cmd(no_debug_bgp);
 #endif
 	} else {
 		libconfig_debug_set_all(1);
 		_cish_debug = 1;
-		if (get_ospfd())
+		if (libconfig_quagga_ospfd_is_running())
 			ospf_execute_root_cmd(&no_debug_ospf[3]);
-		if (get_ripd())
+		if (libconfig_quagga_ripd_is_running())
 			rip_execute_root_cmd(&no_debug_rip[3]);
 #ifdef OPTION_BGP
-		if (get_bgpd())
+		if (libconfig_quagga_bgpd_is_running())
 			bgp_execute_root_cmd(&no_debug_bgp[3]); /* debug bgp events */
 #endif
 	}
@@ -67,15 +67,15 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 		if (libconfig_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
 #endif
 		if (strcmp(args->argv[2], "ospf") == 0) {
-			if (get_ospfd())
+			if (libconfig_quagga_ospfd_is_running())
 				ospf_execute_root_cmd(no_debug_ospf);
 		} else if (strcmp(args->argv[2], "rip") == 0) {
-			if (get_ripd())
+			if (libconfig_quagga_ripd_is_running())
 				rip_execute_root_cmd(no_debug_rip);
 		}
 #ifdef OPTION_BGP
 		else if (strcmp(args->argv[2], "bgp") == 0) {
-			if (get_bgpd())
+			if (libconfig_quagga_bgpd_is_running())
 				bgp_execute_root_cmd(no_debug_bgp);
 		}
 #endif
@@ -87,13 +87,13 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 		if (libconfig_debug_set_token(1, args->argv[1]) >= 0)
 			_cish_debug = 1;
 		if (strcmp(args->argv[1], "ospf") == 0) {
-			if (get_ospfd()) ospf_execute_root_cmd(&no_debug_ospf[3]);
+			if (libconfig_quagga_ospfd_is_running()) ospf_execute_root_cmd(&no_debug_ospf[3]);
 		} else if (strcmp(args->argv[1], "rip") == 0) {
-			if (get_ripd()) rip_execute_root_cmd(&no_debug_rip[3]);
+			if (libconfig_quagga_ripd_is_running()) rip_execute_root_cmd(&no_debug_rip[3]);
 		}
 #ifdef OPTION_BGP
 		else if (strcmp(args->argv[1], "bgp") == 0) {
-			if (get_bgpd())
+			if (libconfig_quagga_bgpd_is_running())
 				bgp_execute_root_cmd(&no_debug_bgp[3]); /* debug bgp events */
 		}
 #endif

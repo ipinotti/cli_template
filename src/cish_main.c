@@ -117,10 +117,10 @@ int main(int argc, char *argv[])
 	/* Begin with NORMAL mask */
 	_cish_mask = MSK_NORMAL;
 
-	set_rip_interface_cmds(get_ripd());
-	set_ospf_interface_cmds(get_ospfd());
+	set_rip_interface_cmds(libconfig_quagga_ripd_is_running());
+	set_ospf_interface_cmds(libconfig_quagga_ospfd_is_running());
 #ifdef OPTION_BGP
-	set_bgp_interface_cmds(get_bgpd());
+	set_bgp_interface_cmds(libconfig_quagga_bgpd_is_running());
 #endif
 
 	set_model_qos_cmds(1);

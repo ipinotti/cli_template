@@ -120,7 +120,7 @@ void config_router(const char *cmdline)
 	{
 		command_root = CMD_CONFIG_ROUTER_RIP;
 		set_rip_interface_cmds(1);
-		set_ripd(1);
+		libconfig_quagga_ripd_exec(1);
 		/* sync debug! */
 		if (libconfig_debug_get_state(args->argv[1])) {
 			rip_execute_root_cmd(&no_debug_rip[3]);
@@ -132,7 +132,7 @@ void config_router(const char *cmdline)
 	{
 		command_root = CMD_CONFIG_ROUTER_OSPF;
 		set_ospf_interface_cmds(1);
-		set_ospfd(1);
+		libconfig_quagga_ospfd_exec(1);
 		/* sync debug! */
 		if (libconfig_debug_get_state(args->argv[1])) {
 			ospf_execute_root_cmd(&no_debug_ospf[3]);
@@ -145,9 +145,9 @@ void config_router(const char *cmdline)
 	{
 		int temp = atoi(args->argv[2]);
 		set_bgp_interface_cmds(1);
-		set_bgpd(1);
+		libconfig_quagga_bgpd_exec(1);
 		bgp_start_router_cmd(temp);	/* Initiates BGP with ASN = temp */
-		asn = lconfig_bgp_get_asn();
+		asn = libconfig_quagga_bgp_get_asn();
 		if ( asn == 0 || temp == asn)	/* Do not enter if another AS is already running */
 		{
 			asn=temp; 
@@ -174,7 +174,7 @@ void config_no_router(const char *cmdline)
 	if (strcasecmp (args->argv[2], "rip") == 0)
 	{
 		set_rip_interface_cmds(0);
-		set_ripd(0);
+		libconfig_quagga_ripd_exec(0);
 				sprintf(tmp, "cp %s %s", RIPD_RO_CONF, RIPD_CONF );	
 #ifdef DEBUG_ZEBRA
 		printf("%s\n", tmp);
@@ -184,7 +184,7 @@ void config_no_router(const char *cmdline)
 	else if (strcasecmp (args->argv[2], "ospf") == 0)
 	{
 		set_ospf_interface_cmds(0);
-		set_ospfd(0);
+		libconfig_quagga_ospfd_exec(0);
 		sprintf(tmp, "cp %s %s", OSPFD_RO_CONF, OSPFD_CONF );
 #ifdef DEBUG_ZEBRA
 		printf("%s\n", tmp);
@@ -195,11 +195,11 @@ void config_no_router(const char *cmdline)
 	else if (strcasecmp (args->argv[2], "bgp") == 0)
 	{
 		int asn_temp=atoi(args->argv[3]);
-		asn = lconfig_bgp_get_asn ();
+		asn = libconfig_quagga_bgp_get_asn ();
 		if (asn_temp == asn)	/* Make sure we're shutting down the correct AS...  otherwise, do nothing */
 		{
 			set_bgp_interface_cmds(0);
-			set_bgpd(0);
+			libconfig_quagga_bgpd_exec(0);
 			sprintf(tmp, "cp %s %s", BGPD_RO_CONF, BGPD_CONF );
 #ifdef DEBUG_ZEBRA
 			printf("%s\n", tmp);
@@ -221,18 +221,18 @@ void zebra_execute_cmd(const char *cmdline)
 {
 	char *new_cmdline;
 
-	if (daemon_connect(ZEBRA_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(ZEBRA_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("zebra_execute_cmd = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 #if 0
@@ -241,12 +241,12 @@ void zebra_execute_interface_cmd(const char *cmdline)
 	char *new_cmdline;
 	char *dev;
 
-	if (daemon_connect(ZEBRA_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(ZEBRA_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);
@@ -254,10 +254,10 @@ void zebra_execute_interface_cmd(const char *cmdline)
 printf("zebra_execute_interface_cmd = %s\n", buf);
 printf("zebra_execute_interface_cmd = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(buf, stdout, buf_daemon, 0);
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
-	fd_daemon_close();
+	libconfig_quagga_execute_client(buf, stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_close_daemon();
 }
 #endif
 
@@ -265,39 +265,39 @@ void ospf_execute_root_cmd(const char *cmdline)
 {
 	char *new_cmdline;
 
-	if (daemon_connect(OSPF_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(OSPF_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("ospf = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 void ospf_execute_router_cmd(const char *cmdline)
 {
 	char *new_cmdline;
 
-	if (daemon_connect(OSPF_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(OSPF_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
-	daemon_client_execute("router ospf", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("router ospf", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("ospf = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 void ospf_execute_interface_cmd(const char *cmdline)
@@ -305,11 +305,11 @@ void ospf_execute_interface_cmd(const char *cmdline)
 	char *new_cmdline;
 	char *dev;
 
-	if (daemon_connect(OSPF_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(OSPF_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 	dev=libconfig_device_convert (interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);
@@ -317,30 +317,30 @@ void ospf_execute_interface_cmd(const char *cmdline)
 printf("ospf = %s\n", buf);
 printf("ospf = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(buf, stdout, buf_daemon, 0);
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(buf, stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 void rip_execute_root_cmd(const char *cmdline)
 {
 	char *new_cmdline;
 
-	if (daemon_connect(RIP_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(RIP_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("rip = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 extern char keychain_name[64];
@@ -350,75 +350,75 @@ void rip_execute_keychain_cmd(const char *cmdline)
 {
 	char *new_cmdline;
 
-	if (daemon_connect(RIP_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(RIP_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 	sprintf(buf, "key chain %s", keychain_name);
-	daemon_client_execute(buf, stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(buf, stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("rip = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 void rip_execute_key_cmd(const char *cmdline)
 {
 	char *new_cmdline;
 
-	if (daemon_connect(RIP_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(RIP_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 	sprintf(buf, "key chain %s", keychain_name);
-	daemon_client_execute(buf, stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(buf, stdout, buf_daemon, 0);
 	sprintf(buf, "key %d", key_number);
-	daemon_client_execute(buf, stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(buf, stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("rip = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 void rip_execute_router_cmd(const char *cmdline)
 {
 	char *new_cmdline;
 
-	if (daemon_connect(RIP_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(RIP_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
-	daemon_client_execute("router rip", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("router rip", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("rip = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 void rip_execute_interface_cmd(const char *cmdline)
 {
 	char *dev, *new_cmdline;
 
-	if (daemon_connect(RIP_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(RIP_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);
@@ -426,11 +426,11 @@ void rip_execute_interface_cmd(const char *cmdline)
 printf("rip = %s\n", buf);
 printf("rip = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(buf, stdout, buf_daemon, 0);
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(buf, stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 #ifdef OPTION_BGP
@@ -438,19 +438,19 @@ void bgp_execute_root_cmd(const char *cmdline)
 {
 	char *new_cmdline;
 
-	if (daemon_connect(BGP_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(BGP_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("bgp = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 
 /* Initializes a BGP AS if one does not exist */
@@ -458,17 +458,17 @@ int bgp_start_router_cmd(int temp_asn)
 {
 	char tmp[32];
 
-	if (daemon_connect(BGP_PATH) < 0) return -1;
+	if (libconfig_quagga_connect_daemon(BGP_PATH) < 0) return -1;
 
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 	sprintf(tmp, "router bgp %d", temp_asn);
-	daemon_client_execute(tmp, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client(tmp, stdout, buf_daemon, 1); /* show errors! */
 
 #ifdef DEBUG_ZEBRA
 printf("bgp = %s\n", tmp);
 #endif
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 	
 	return 0;
 }
@@ -478,22 +478,22 @@ void bgp_execute_router_cmd(const char *cmdline)
 	char *new_cmdline;
 	char bgp_line[32];
 
-	if (daemon_connect(BGP_PATH) < 0) return;
+	if (libconfig_quagga_connect_daemon(BGP_PATH) < 0) return;
 
 	new_cmdline=libconfig_device_to_linux_cmdline((char*)cmdline);
 	new_cmdline=libconfig_zebra_from_linux_cmdline((char*)new_cmdline);
-	daemon_client_execute("enable", stdout, buf_daemon, 0);
-	daemon_client_execute("configure terminal", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("enable", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 	
 	sprintf(bgp_line, "router bgp %d", asn);	
-	daemon_client_execute(bgp_line, stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(bgp_line, stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
 printf("bgp = %s\n", new_cmdline);
 #endif
-	daemon_client_execute(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
-	daemon_client_execute("write file", stdout, buf_daemon, 0);
+	libconfig_quagga_execute_client(new_cmdline, stdout, buf_daemon, 1); /* show errors! */
+	libconfig_quagga_execute_client("write file", stdout, buf_daemon, 0);
 
-	fd_daemon_close();
+	libconfig_quagga_close_daemon();
 }
 #endif
 
@@ -505,7 +505,7 @@ void zebra_dump_routes(FILE *out)
 	char *new_buf, buf[1024];
 	unsigned int print, line = 0;
 
-	if (!(f = zebra_show_cmd("show ip route")))
+	if (!(f = libconfig_quagga_zebra_show_cmd("show ip route")))
 		return;
 	while (!feof(f)) {
 		if (fgets(buf, 1024, f)) {
@@ -548,7 +548,7 @@ void show_ip_ospf(const char *cmdline)
 	FILE *f;
 	char buf[1024];
 
-	f = ospf_show_cmd(cmdline);
+	f = libconfig_quagga_ospf_show_cmd(cmdline);
 	if (!f)
 		return;
 	while (!feof(f)) {
@@ -566,7 +566,7 @@ void show_ip_rip(const char *cmdline)
 	FILE *f;
 	char buf[1024];
 
-	f = rip_show_cmd("show ip protocols");
+	f = libconfig_quagga_rip_show_cmd("show ip protocols");
 	if (!f)
 		return;
 	while (!feof(f)) {
@@ -578,7 +578,7 @@ void show_ip_rip(const char *cmdline)
 	}
 	fclose(f);
 
-	f = rip_show_cmd(cmdline); /* show ip rip */
+	f = libconfig_quagga_rip_show_cmd(cmdline); /* show ip rip */
 	if (!f)
 		return;
 	while (!feof(f)) {
@@ -598,7 +598,7 @@ void show_ip_bgp(const char *cmdline)
 	FILE *f;
 	char buf[1024];
 
-	f = bgp_show_cmd(cmdline);
+	f = libconfig_quagga_bgp_show_cmd(cmdline);
 	if (!f)
 		return;
 	while (!feof(f)) {

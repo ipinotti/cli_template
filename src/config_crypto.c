@@ -1107,7 +1107,7 @@ void l2tp_peer(const char *cmd) /* [no] l2tp peer <ipaddress> <netmask> */
 	} else {
 		strncpy(cfg.peer, args->argv[2], 16);
 		cfg.peer[15] = 0;
-		cfg.peer_mask = netmask_to_cidr(args->argv[3]);
+		cfg.peer_mask = libconfig_quagga_netmask_to_cidr(args->argv[3]);
 	}
 	l2tp_ppp_set_config(dynamic_ipsec_menu_name, &cfg);
 	libconfig_destroy_args(args);

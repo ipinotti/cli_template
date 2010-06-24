@@ -506,7 +506,7 @@ void show_softnet(const char *cmdline)
 void dump_routing(FILE *out, int conf_format)
 {
 	if (conf_format) {
-		zebra_dump_static_routes_conf(out);
+		libconfig_quagga_zebra_dump_static_routes(out);
 	} else {
 		zebra_dump_routes(out);
 	}
@@ -1312,7 +1312,7 @@ static int show_conn_specific(char *name, int state)
 					;
 				if (strlen(p) > 0) {
 					strcpy(mask, p);
-					if (classic_to_cidr(addr_l, mask, cidr_l) != 0)
+					if (libconfig_quagga_classic_to_cidr(addr_l, mask, cidr_l) != 0)
 						cidr_l[0] = '\0';
 				}
 			}
@@ -1367,7 +1367,7 @@ static int show_conn_specific(char *name, int state)
 					;
 				if (strlen(p) > 0) {
 					strcpy(mask, p);
-					if (classic_to_cidr(addr_r, mask, cidr_r) != 0)
+					if (libconfig_quagga_classic_to_cidr(addr_r, mask, cidr_r) != 0)
 						cidr_r[0] = '\0';
 				}
 			}
