@@ -450,7 +450,7 @@ void ppp_ipxnet (const char *cmd)
 	if ((cfg.ipx_network!=net)||(cfg.ipx_enabled==0))
 	{
 		cfg.ipx_network=net;
-		get_mac("ethernet0", cfg.ipx_node);
+		libconfig_ip_get_mac("ethernet0", cfg.ipx_node);
 		cfg.ipx_enabled=1;
 		ppp_set_config(interface_major, &cfg);
 	}	
@@ -478,7 +478,7 @@ void ppp_unnumbered (const char *cmd) /* ip unnumbered ethernet 0-x */
 
 	args=libconfig_make_args(cmd);
 	dev=libconfig_device_convert(args->argv[2], atoi(args->argv[3]), -1);
-	get_ethernet_ip_addr(dev, addr, mask); // Captura o endere�o e mascara da interface Ethernet
+	libconfig_ip_ethernet_ip_addr(dev, addr, mask); // Captura o endere�o e mascara da interface Ethernet
 	ppp_get_config(interface_major, &cfg); // Armazena em cfg a configuracao da serial
 	strncpy(cfg.ip_addr, addr, 16); //Atualiza cfg com os dados da ethernet
 	cfg.ip_addr[15]=0;

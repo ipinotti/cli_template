@@ -120,7 +120,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			return;
 		}
 
-		src_cidr = netmask2cidr(args->argv[crsr + 1]);
+		src_cidr = libconfig_ip_netmask2cidr(args->argv[crsr + 1]);
 		if (src_cidr < 0) {
 			fprintf(stderr, "%% Invalid netmask\n");
 			libconfig_destroy_args(args);
@@ -141,7 +141,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -154,7 +154,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -167,7 +167,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -180,7 +180,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -198,7 +198,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1]) || !libconfig_ip_is_valid_port(
 		                args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
@@ -224,7 +224,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			return;
 		}
 
-		dst_cidr = netmask2cidr(args->argv[crsr + 1]);
+		dst_cidr = libconfig_ip_netmask2cidr(args->argv[crsr + 1]);
 		if (dst_cidr < 0) {
 			fprintf(stderr, "%% Invalid netmask\n");
 			libconfig_destroy_args(args);
@@ -242,7 +242,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -255,7 +255,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -268,7 +268,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -281,7 +281,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -299,7 +299,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1]) || !libconfig_ip_is_valid_port(
 		                args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Invalid argument\n");
 			libconfig_destroy_args(args);

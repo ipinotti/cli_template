@@ -230,7 +230,7 @@ void interface_ipaddr(const char *cmdline) /* ip address <address> <mask> */
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[2];
 	mask=args->argv[3];
-	set_interface_ip_addr(dev, addr, mask); /* preserve alias addresses */
+	libconfig_ip_interface_set_addr(dev, addr, mask); /* preserve alias addresses */
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -244,7 +244,7 @@ void interface_ipaddr_secondary(const char *cmdline) /* ip address <address> <ma
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[2];
 	mask=args->argv[3];
-	set_interface_ip_addr_secondary(dev, addr, mask);
+	libconfig_ip_interface_set_addr_secondary(dev, addr, mask);
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -258,7 +258,7 @@ void interface_no_ipaddr_secondary(const char *cmdline) /* no ip address <addres
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[3];
 	mask=args->argv[4];
-	set_interface_no_ip_addr_secondary(dev, addr, mask);
+	libconfig_ip_interface_set_no_addr_secondary(dev, addr, mask);
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -268,7 +268,7 @@ void interface_no_ipaddr(const char *cmdline) /* no ip address */
 	char *dev;
 
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	set_interface_no_ip_addr(dev);
+	libconfig_ip_interface_set_no_addr(dev);
 	free(dev);
 }
 
@@ -298,7 +298,7 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[2];
 	mask=args->argv[3];
-	set_ethernet_ip_addr(dev, addr, mask); /* preserve alias addresses */
+	libconfig_ip_ethernet_set_addr(dev, addr, mask); /* preserve alias addresses */
 
 	// Verifica se o ip unnumbered relaciona a ethernet com a serial
 	ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
@@ -323,7 +323,7 @@ void interface_ethernet_ipaddr_secondary(const char *cmdline) /* ip address <add
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[2];
 	mask=args->argv[3];
-	set_ethernet_ip_addr_secondary(dev, addr, mask);
+	libconfig_ip_ethernet_set_addr_secondary(dev, addr, mask);
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -337,7 +337,7 @@ void interface_ethernet_no_ipaddr_secondary(const char *cmdline) /* no ip addres
 	args=libconfig_make_args(cmdline);
 	addr=args->argv[3];
 	mask=args->argv[4];
-	set_ethernet_no_ip_addr_secondary(dev, addr, mask);
+	libconfig_ip_ethernet_set_no_addr_secondary(dev, addr, mask);
 	libconfig_destroy_args(args);
 	free(dev);
 }
@@ -351,7 +351,7 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
 	if (libconfig_exec_check_daemon(daemon_dhcpc))
 		kill_daemon(daemon_dhcpc);
-	set_ethernet_no_ip_addr(dev);
+	libconfig_ip_ethernet_set_no_addr(dev);
 	free(dev);
 }
 
@@ -418,7 +418,7 @@ void interface_sppp_ipaddr(const char *cmdline) /* ip address [local] [remote] [
 		else mask=NULL;
 
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	ip_addr_flush(dev);
+	libconfig_ip_addr_flush(dev);
 	ip_addr_add(dev, local, remote, mask ? mask : "255.255.255.255");
 	libconfig_destroy_args(args);
 	free(dev);

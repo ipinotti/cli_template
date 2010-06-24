@@ -729,7 +729,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		cish_dbg("%s\n", intf_list[i]);
 
-		if (lconfig_get_iface_config(intf_list[i], &conf) < 0) {
+		if (libconfig_ip_iface_get_config(intf_list[i], &conf) < 0) {
 			cish_dbg("%s not found\n", intf_list[i]);
 			continue;
 		}
@@ -1667,7 +1667,7 @@ void show_crypto(const char *cmdline)
 	} else
 		printf("No connections configured!\n"); /*\033[30C*/
 #if 0
-	ret=get_if_list();
+	ret=libconfig_ip_get_if_list();
 	if (ret < 0) return;
 	for (i=0; i < link_table_index; i++)
 	{

@@ -177,7 +177,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		acl.src_cidr = netmask2cidr(args->argv[crsr + 1]);
+		acl.src_cidr = libconfig_ip_netmask2cidr(args->argv[crsr + 1]);
 		if (acl.src_cidr < 0) {
 			fprintf(stderr, "%% Invalid netmask\n");
 			libconfig_destroy_args(args);
@@ -198,7 +198,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -211,7 +211,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -224,7 +224,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -237,7 +237,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -255,7 +255,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1]) || !libconfig_ip_is_valid_port(
 		                args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
@@ -280,7 +280,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		acl.dst_cidr = netmask2cidr(args->argv[crsr + 1]);
+		acl.dst_cidr = libconfig_ip_netmask2cidr(args->argv[crsr + 1]);
 		if (acl.dst_cidr < 0) {
 			fprintf(stderr, "%% Invalid netmask\n");
 			libconfig_destroy_args(args);
@@ -298,7 +298,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -311,7 +311,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -324,7 +324,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -337,7 +337,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);
 			return;
@@ -355,7 +355,7 @@ void do_accesslist(const char *cmdline)
 			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1]) || !libconfig_ip_is_valid_port(
 		                args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			libconfig_destroy_args(args);

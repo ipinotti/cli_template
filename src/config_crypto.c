@@ -1229,9 +1229,9 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 	args = libconfig_make_args(cmd);
 	dev = libconfig_device_convert(args->argv[4], atoi(args->argv[5]), -1);
 	if (!strncmp(dev, "loopback", strlen("loopback")))
-		get_interface_ip_addr(dev, addr, mask);
+		libconfig_ip_interface_get_ip_addr(dev, addr, mask);
 	else
-		get_ethernet_ip_addr(dev, addr, mask);
+		libconfig_ip_ethernet_ip_addr(dev, addr, mask);
 
 	l2tp_ppp_get_config(dynamic_ipsec_menu_name, &cfg);
 	strncpy(cfg.ip_addr, addr, 16);
