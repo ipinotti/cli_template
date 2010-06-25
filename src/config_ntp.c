@@ -31,7 +31,7 @@ void ntp_generate_keys(const char *cmd)
 	system("/bin/ntp-genkeys > /dev/null 2> /dev/null");
 #endif
 	libconfig_ntp_hup();
-	save_ntp_secret(NTP_KEY_FILE); /* save keys on flash! */
+	libconfig_nv_save_ntp_secret(NTP_KEY_FILE); /* save keys on flash! */
 }
 
 void ntp_restrict(const char *cmd) /* ntp restrict <ipaddr> <netmask> */

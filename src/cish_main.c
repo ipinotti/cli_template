@@ -133,10 +133,10 @@ int main(int argc, char *argv[])
 		if (strcmp (argv[1], "-b") == 0) { /* Board is booting up */
 			int size;
 
-			load_ssh_secret(SSH_KEY_FILE);
-			load_ntp_secret(NTP_KEY_FILE);
+			libconfig_nv_load_ssh_secret(SSH_KEY_FILE);
+			libconfig_nv_load_ntp_secret(NTP_KEY_FILE);
 
-			size = load_configuration(STARTUP_CFG_FILE);
+			size = libconfig_nv_load_configuration(STARTUP_CFG_FILE);
 
 			if (size <= 0) {
 				printf("%% using default configuration\n");
@@ -777,7 +777,7 @@ int cish_config_changed(void)
 		return -1;
 
 	/* Load configuration fron flash */
-	load_configuration(STARTUP_CFG_FILE);
+	libconfig_nv_load_configuration(STARTUP_CFG_FILE);
 
 	/* Check size */
 	stat(TMP_CFG_FILE,&run_stat);

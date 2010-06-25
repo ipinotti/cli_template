@@ -428,7 +428,7 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 
 void ssh_server(const char *cmd)
 {
-	if (load_ssh_secret(SSH_KEY_FILE) < 0) fprintf(stderr, "%% ERROR: You must create RSA keys first (ip ssh key rsa 1024).\n");
+	if (libconfig_nv_load_ssh_secret(SSH_KEY_FILE) < 0) fprintf(stderr, "%% ERROR: You must create RSA keys first (ip ssh key rsa 1024).\n");
 		else
 #ifdef OPTION_OPENSSH
 				libconfig_exec_daemon(SSH_DAEMON);

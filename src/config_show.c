@@ -990,7 +990,7 @@ void show_level_running_config(const char *cmdline)
 
 void show_startup_config(const char *cmdline)
 {
-	if (load_configuration(STARTUP_CFG_FILE) > 0) {
+	if (libconfig_nv_load_configuration(STARTUP_CFG_FILE) > 0) {
 		tf = fopen(STARTUP_CFG_FILE, "r");
 		show_output();
 		if (tf)
@@ -1000,7 +1000,7 @@ void show_startup_config(const char *cmdline)
 
 void show_previous_config(const char *cmdline)
 {
-	if (load_previous_configuration(TMP_CFG_FILE) > 0) {
+	if (libconfig_nv_load_previous_configuration(TMP_CFG_FILE) > 0) {
 		tf = fopen(TMP_CFG_FILE, "r");
 		show_output();
 		if (tf)
@@ -1037,7 +1037,7 @@ void cmd_copy(const char *cmdline)
 	}
 	switch (from) {
 	case 'p': {
-		if (load_previous_configuration(TMP_CFG_FILE) == 0) {
+		if (libconfig_nv_load_previous_configuration(TMP_CFG_FILE) == 0) {
 			fprintf(stderr, "%% No previous configuration\n");
 			libconfig_destroy_args(args);
 			return;
@@ -1059,7 +1059,7 @@ void cmd_copy(const char *cmdline)
 		break;
 
 	case 's':
-		if (load_configuration(STARTUP_CFG_FILE) == 0) {
+		if (libconfig_nv_load_configuration(STARTUP_CFG_FILE) == 0) {
 			fprintf(stderr, "%% Configuration not saved\n");
 			libconfig_destroy_args(args);
 			return;
@@ -1107,7 +1107,7 @@ void cmd_copy(const char *cmdline)
 		break;
 
 	case 's': {
-		if (save_configuration(in) < 0) {
+		if (libconfig_nv_save_configuration(in) < 0) {
 			fprintf(stderr, "%% Error writing configuration\n");
 			libconfig_destroy_args(args);
 			return;
@@ -1157,7 +1157,7 @@ void erase_cfg(const char *cmdline)
 
 	f = fopen(STARTUP_CFG_FILE, "wt");
 	fclose(f); /* zero size! */
-	save_configuration(STARTUP_CFG_FILE);
+	libconfig_nv_save_configuration(STARTUP_CFG_FILE);
 }
 
 void show_privilege(const char *cmdline)
@@ -1559,7 +1559,7 @@ void show_crypto(const char *cmdline)
 	if ((ret = libconfig_ipsec_get_overridemtu()) > 0)
 		printf("overridemtu %d\n", ret);
 	// chave rsa publica
-	if ((rsa = get_rsakeys_from_nv())) {
+	if ((rsa = libconfig_nv_get_rsakeys())) {
 		if ((p = strstr(rsa, "#pubkey="))) {
 			p += 8;
 			for (; *p == ' '; p++)
