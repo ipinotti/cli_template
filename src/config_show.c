@@ -285,128 +285,25 @@ void clear_logging(const char *cmdline) /* clear logging */
 	unlink(logname);
 }
 
-static void stripws(char *string)
-{
-	int ln; /* string length tempvar */
-
-	ln = strlen(string);
-	while ((ln > 0) && (string[ln - 1] <= 32))
-		string[--ln] = 0;
-}
-
 void show_processes(const char *cmdline)
 {
-	int pid, i;
-	char *t, *tt;
-	short found, first = 1;
+	struct process_t *ps, *next;
 
-	struct {
-		char *linux_name;
-		char *cish_name;
-	} proc_names[] = {
-			{ "syslogd", "System Logger" },
-			{ "klogd", "Kernel Logger" },
-			{ "cish", "Configuration Shell" },
-			{ "pppd", "PPP Session" },
-			{ "inetd", "Service Multiplexer" },
-			{ "systtyd", "Runtime System" },
-			{ "backupd", "Conection Manager"},
-			{ "wnsd", "HTTP Server" },
-			{ "wnsslsd", "HTTPS Server" },
-#ifdef OPTION_OPENSSH
-	                { "sshd", "SSH Server" },
-#else
-	                { "dropbear", "SSH Server"},
-#endif
-	                { "telnetd", "Telnet Server" },
-	                { "ftpd", "FTP Server" },
-	                { "snmpd", "SNMP Agent" },
-	                { "ospfd", "OSPF Server" },
-	                { "ripd", "RIP Server" },
-#ifdef OPTION_BGP
-	                { "bgpd", "BGP Server" },
-#endif
-#ifdef UDHCPD
-	                { "udhcpd", "DHCP Server" },
-#else
-	                { "dhcpd", "DHCP Server"},
-#endif
-	                { "dhcrelay", "DHCP Relay" },
-	                { "rfc1356", "RFC1356 Tunnel" },
-	                { "dnsmasq", "DNS Relay" },
-#ifdef OPTION_NTPD
-	                { "ntpd", "NTP Server" },
-#endif
-#ifdef OPTION_IPSEC
-	                { "/lib/ipsec/pluto", "VPN Server" }, { "l2tpd", "L2TP Server" },
-#endif
-#ifdef OPTION_PIMD
-	                { "pimdd", "PIM-DM Server" }, { "pimsd", "PIM-SM Server" },
-#endif
-#ifdef OPTION_RMON
-	                { "rmond", "RMON Server" },
-#endif
-#ifdef OPTION_VRRP
-	                { "keepalived", "VRRP Server"},
-#endif
-#ifdef OPTION_X25MAP
-	                { "x25mapd", "X25map Server"},
-#endif
-#ifdef OPTION_X25XOT
-	                { "xotd", "XOT Server"},
-#endif
-	                { NULL, NULL } };
-
-	tf = popen("/bin/ps", "r"); /* axuw */
-	if (!tf)
+	next = ps = lconfig_get_ps_info();
+	if (ps == NULL)
 		return;
 
-	cish_dbg("ps just ran!\n");
-
-	while (!feof(tf)) {
-		tbuf[0] = 0;
-		fgets(tbuf, 255, tf);
-		cish_dbg("parsing file : %s\n ", tbuf);
-		stripws(tbuf);
-		tbuf[88] = 0; /* truncate */
-		if (strlen(tbuf)) {
-			if (first) {
-				pprintf("%s\n", tbuf + 9);
-				first = 0;
-			} else {
-				t = tbuf;
-				while ((*t) && (*t != ' '))
-					++t;
-				while (*t == ' ')
-					++t;
-				pid = atoi(t);
-
-				t = strchr(tbuf, ':');
-				if ((t) && (tt = strchr(t + 1, ':'))) {
-					if ((tt - t) == 7)
-						t = tt;
-				}
-				if (t)
-					t = strchr(t, ' ');
-				if (t) {
-					++t;
-					found = 0;
-					for (i = 0; proc_names[i].linux_name; i++) {
-						if (strstr(t, proc_names[i].linux_name)) {
-							found = 1;
-							break;
-						}
-					}
-					if (found) {
-						strcpy(t, proc_names[i].cish_name);
-						pprintf("%s\n", tbuf + 9);
-					}
-				}
-			}
-		}
+	printf("\tPID\tPROCESS\n");
+	while (next != NULL) {
+		if (next->name[0])
+			printf("\t%d\t%s\n", next->pid, next->name);
+		next = next->next;
 	}
-	if (tf)
-		pclose(tf);
+	printf("\n");
+
+	lconfig_free_ps_info(ps);
+	return;
+
 }
 
 void show_uptime(const char *cmdline)

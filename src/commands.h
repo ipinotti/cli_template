@@ -37,6 +37,7 @@
 #include <libconfig/snmp.h>
 #include <libconfig/ppcio.h>
 #include <libconfig/md5.h>
+#include <libconfig/ps.h>
 
 #ifdef OPTION_MODEM3G
 #include <libconfig/modem3G.h>
