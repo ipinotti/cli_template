@@ -83,13 +83,13 @@ void cmd_aaa_authen(const char *cmd)
 	}
 
 	if (no || none) {
-		if (!conf_pam_mode(cish_cfg, AAA_AUTH_NONE, 1, filename)) {
+		if (!libconfig_pam_config_mode(cish_cfg, AAA_AUTH_NONE, 1, filename)) {
 			printf("%% Not possible to execute command with success\n");
 			libconfig_destroy_args_din(&exec_line_args);
 			return;
 		}
 	} else if (!strcmp(exec_line_args[4], "local")) {
-		if (!conf_pam_mode(cish_cfg, AAA_AUTH_LOCAL, 1, filename)) {
+		if (!libconfig_pam_config_mode(cish_cfg, AAA_AUTH_LOCAL, 1, filename)) {
 			printf("%% Not possible to execute command with success\n");
 			libconfig_destroy_args_din(&exec_line_args);
 			return;
@@ -106,7 +106,7 @@ void cmd_aaa_authen(const char *cmd)
 		}
 		fclose(server);
 
-		if (!conf_pam_mode(
+		if (!libconfig_pam_config_mode(
 		                cish_cfg,
 		                (exec_line_args_len == 7 ? AAA_AUTH_RADIUS_LOCAL : AAA_AUTH_RADIUS),
 		                1, filename)) {
@@ -127,7 +127,7 @@ void cmd_aaa_authen(const char *cmd)
 		}
 		fclose(server);
 
-		if (!conf_pam_mode(
+		if (!libconfig_pam_config_mode(
 		                cish_cfg,
 		                (exec_line_args_len == 7 ? AAA_AUTH_TACACS_LOCAL : AAA_AUTH_TACACS),
 		                1, filename)) {
@@ -154,7 +154,7 @@ void cmd_aaa_acct(const char *cmd)
 			return;
 		}
 		if (!strcmp(exec_line_args[0], "no") || !strcmp(exec_line_args[4], "none")) {
-			if (!conf_pam_mode(cish_cfg, AAA_ACCT_NONE, 1, FILE_PAM_GENERIC)) {
+			if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_NONE, 1, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
 				libconfig_destroy_args_din(&exec_line_args);
 				return;
@@ -170,7 +170,7 @@ void cmd_aaa_acct(const char *cmd)
 				return;
 			}
 			fclose(server);
-			if (!conf_pam_mode(cish_cfg, AAA_ACCT_TACACS, 1, FILE_PAM_GENERIC)) {
+			if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS, 1, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
 				libconfig_destroy_args_din(&exec_line_args);
 				return;
@@ -184,14 +184,14 @@ void cmd_aaa_acct(const char *cmd)
 		}
 		if (!strcmp(exec_line_args[0], "no")) {
 			if (!strcmp(exec_line_args[4], "1")) {
-				if (!conf_pam_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
+				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					libconfig_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[4], "15")) {
-				if (!conf_pam_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
+				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					libconfig_destroy_args_din(&exec_line_args);
@@ -200,14 +200,14 @@ void cmd_aaa_acct(const char *cmd)
 			}
 		} else if (!strcmp(exec_line_args[5], "none")) {
 			if (!strcmp(exec_line_args[3], "1")) {
-				if (!conf_pam_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
+				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					libconfig_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[3], "15")) {
-				if (!conf_pam_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
+				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					libconfig_destroy_args_din(&exec_line_args);
@@ -227,14 +227,14 @@ void cmd_aaa_acct(const char *cmd)
 			fclose(server);
 
 			if (!strcmp(exec_line_args[3], "1")) {
-				if (!conf_pam_mode(cish_cfg, AAA_ACCT_TACACS_CMD_1, 1,
+				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_CMD_1, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					libconfig_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[3], "15")) {
-				if (!conf_pam_mode(cish_cfg, AAA_ACCT_TACACS_CMD_15, 1,
+				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_CMD_15, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					libconfig_destroy_args_din(&exec_line_args);
@@ -260,7 +260,7 @@ void cmd_aaa_author(const char *cmd)
 
 		/* NO COMMAND */
 		if (!strcmp(exec_line_args[0], "no") || !strcmp(exec_line_args[4], "none")) {
-			if (!conf_pam_mode(cish_cfg, AAA_AUTHOR_NONE, 1, FILE_PAM_GENERIC)) {
+			if (!libconfig_pam_config_mode(cish_cfg, AAA_AUTHOR_NONE, 1, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
 				libconfig_destroy_args_din(&exec_line_args);
 				return;
@@ -277,7 +277,7 @@ void cmd_aaa_author(const char *cmd)
 					return;
 				}
 				fclose(server);
-				if (!conf_pam_mode(
+				if (!libconfig_pam_config_mode(
 				                cish_cfg,
 				                (exec_line_args_len == 7 ? AAA_AUTHOR_TACACS_LOCAL : AAA_AUTHOR_TACACS),
 				                1, FILE_PAM_GENERIC)) {
@@ -391,10 +391,10 @@ void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
 
 	args = libconfig_make_args(cmd);
 
-	if (discover_pam_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS
-	                || discover_pam_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS_LOCAL
-	                || discover_pam_current_mode(FILE_PAM_PPP) == AAA_AUTH_RADIUS
-	                || discover_pam_current_mode(FILE_PAM_PPP) == AAA_AUTH_RADIUS_LOCAL) {
+	if (libconfig_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS
+	                || libconfig_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS_LOCAL
+	                || libconfig_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_RADIUS
+	                || libconfig_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_RADIUS_LOCAL) {
 		printf("%% please disable RADIUS authentication first\n");
 		libconfig_destroy_args(args);
 		return;
@@ -484,25 +484,25 @@ void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
 
 	args = libconfig_make_args(cmd);
 
-	if (discover_pam_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS
-	                || discover_pam_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS_LOCAL
-	                || discover_pam_current_mode(FILE_PAM_PPP) == AAA_AUTH_TACACS
-	                || discover_pam_current_mode(FILE_PAM_PPP) == AAA_AUTH_TACACS_LOCAL) {
+	if (libconfig_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS
+	                || libconfig_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS_LOCAL
+	                || libconfig_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_TACACS
+	                || libconfig_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_TACACS_LOCAL) {
 		printf("%% please disable TACACS+ authentication first\n");
 		libconfig_destroy_args(args);
 		return;
 	}
-	if (discover_pam_current_author_mode(FILE_PAM_GENERIC) == AAA_AUTHOR_TACACS) {
+	if (libconfig_pam_get_current_author_mode(FILE_PAM_GENERIC) == AAA_AUTHOR_TACACS) {
 		printf("%% please disable TACACS+ authorization first\n");
 		libconfig_destroy_args(args);
 		return;
 	}
-	if (discover_pam_current_acct_mode(FILE_PAM_GENERIC) == AAA_ACCT_TACACS) {
+	if (libconfig_pam_get_current_acct_mode(FILE_PAM_GENERIC) == AAA_ACCT_TACACS) {
 		printf("%% please disable TACACS+ accounting first\n");
 		libconfig_destroy_args(args);
 		return;
 	}
-	if (discover_pam_current_acct_command_mode(FILE_PAM_GENERIC) != AAA_ACCT_TACACS_CMD_NONE) {
+	if (libconfig_pam_get_current_acct_cmd_mode(FILE_PAM_GENERIC) != AAA_ACCT_TACACS_CMD_NONE) {
 		printf("%% please disable TACACS+ accounting first\n");
 		libconfig_destroy_args(args);
 		return;

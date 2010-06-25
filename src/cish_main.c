@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
 				add_history(line);
 				retval = cish_execute(xline);
 				/* Command accounting */
-				acct_mode = discover_pam_current_acct_command_mode(FILE_PAM_GENERIC);
+				acct_mode = libconfig_pam_get_current_acct_cmd_mode(FILE_PAM_GENERIC);
 				if (retval && acct_mode!=AAA_ACCT_TACACS_CMD_NONE)
 				{
 					/* logs anything but exit and enable commands*/
