@@ -25,6 +25,13 @@
 
 #include "backupd.h"
 
+#define NUM_INTF_3G		2
+#define PPPD_BIN_FILE 		"/bin/pppd"
+
+static const char * M3G_0_CONFIG_FILE [] = {"/bin/pppd", "call", "modem-3g-0", NULL};
+static const char * M3G_1_CONFIG_FILE [] = {"/bin/pppd", "call", "modem-3g-1", NULL};
+static const char * M3G_2_CONFIG_FILE [] = {"/bin/pppd", "call", "modem-3g-2", NULL};
+
 static struct bckp_conf_t *bc; /* the only global variable */
 
 enum {
@@ -82,10 +89,9 @@ static int ping(char *ipaddr, char *device)
 	ioctl(pingsock, SIOCGIFADDR, &ifr);
 
 	bkpd_dbg("Ping interface %s. IP is %s\n", device,
-	         inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+			inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
 
-	if (bind(pingsock, (struct sockaddr*) &ifr.ifr_addr,
-	                sizeof(struct sockaddr_in)) == -1) {
+	if (bind(pingsock, (struct sockaddr*) &ifr.ifr_addr, sizeof(struct sockaddr_in)) == -1) {
 		perror("bind");
 		exit(2);
 	}
@@ -96,21 +102,19 @@ static int ping(char *ipaddr, char *device)
 	pkt->icmp_type = ICMP_ECHO;
 	pkt->icmp_cksum = in_cksum((unsigned short *) pkt, sizeof(packet));
 
-	c = sendto(pingsock, packet, DEFDATALEN + ICMP_MINLEN, 0,
-	                (struct sockaddr *) &pingaddr, sizeof(pingaddr));
+	c = sendto(pingsock, packet, DEFDATALEN + ICMP_MINLEN, 0, (struct sockaddr *) &pingaddr,
+	                sizeof(pingaddr));
 
 	/* Set non-blocking */
 	if ((arg = fcntl(pingsock, F_GETFL, NULL)) < 0) {
-		fprintf(stderr, "Error fcntl(..., F_GETFL) (%s)\n", strerror(
-		                errno));
+		fprintf(stderr, "Error fcntl(..., F_GETFL) (%s)\n", strerror(errno));
 		return -1;
 	}
 
 	arg |= O_NONBLOCK;
 
 	if (fcntl(pingsock, F_SETFL, arg) < 0) {
-		fprintf(stderr, "Error fcntl(..., F_SETFL) (%s)\n", strerror(
-		                errno));
+		fprintf(stderr, "Error fcntl(..., F_SETFL) (%s)\n", strerror(errno));
 		return -1;
 	}
 
@@ -122,8 +126,8 @@ static int ping(char *ipaddr, char *device)
 		struct sockaddr_in from;
 		socklen_t fromlen = sizeof(from);
 
-		c = recvfrom(pingsock, packet, sizeof(packet), 0,
-		                (struct sockaddr *) &from, &fromlen);
+		c = recvfrom(pingsock, packet, sizeof(packet), 0, (struct sockaddr *) &from,
+		                &fromlen);
 
 		bkpd_dbg("recvfrom returned %d bytes\n", c);
 
@@ -160,10 +164,13 @@ static void daemonize(void)
 	if (pid < 0) {
 		exit(EXIT_FAILURE);
 	}
+
+
 	/* If we got a good PID, then we can exit the parent process. */
 	if (pid > 0) {
 		exit(EXIT_SUCCESS);
 	}
+
 
 	/* At this point we are executing as the child process */
 
@@ -183,9 +190,11 @@ static void daemonize(void)
 	}
 
 	/* Redirect standard files to /dev/null */
-	freopen("/dev/null", "r", stdin);
-	freopen("/dev/null", "w", stdout);
-	freopen("/dev/null", "w", stderr);
+//	freopen("/dev/null", "r", stdin);
+//	freopen("/dev/null", "w", stdout);
+//	freopen("/dev/null", "w", stderr);
+
+
 }
 
 /**
@@ -216,6 +225,7 @@ static void clear_config(struct bckp_conf_t * bckp_conf)
  * The following structure is expected for each configuration
  *
  * interface=ppp0
+ * shutdown=yes
  * backing_up=yes
  * main_interface=ethernet0
  * method=ping
@@ -246,15 +256,9 @@ static struct bckp_conf_t * get_config(void)
 
 				/* If first config, set pointer to be returned */
 				if (!num_configs++)
-					bckp_conf
-					                = conf
-					                                = malloc(
-					                                                sizeof(struct bckp_conf_t));
+					bckp_conf = conf = malloc(sizeof(struct bckp_conf_t));
 				else
-					conf
-					                = conf->next
-					                                = malloc(
-					                                                sizeof(struct bckp_conf_t));
+					conf = conf->next = malloc(sizeof(struct bckp_conf_t));
 
 				memset(conf, 0, sizeof(struct bckp_conf_t));
 				strcpy(conf->intf_name, line + INTF_STR_LEN);
@@ -265,8 +269,17 @@ static struct bckp_conf_t * get_config(void)
 						*p = '\0';
 				}
 
-				next_field = FIELD_BCK_UP;
+				next_field = FIELD_SHUTD;
 				conf->state = STATE_WAITING;
+			}
+			break;
+
+		case FIELD_SHUTD:
+			/* Shutdown field */
+			if (!strncmp(line, SHUTD_STR, SHUTD_STR_LEN)) {
+				if (strstr(line, "yes"))
+					conf->shutdown = 1;
+				next_field = FIELD_BCK_UP;
 			}
 			break;
 
@@ -282,8 +295,7 @@ static struct bckp_conf_t * get_config(void)
 		case FIELD_MAIN_INTF:
 			/* Main interface field */
 			if (!strncmp(line, MAIN_INTF_STR, MAIN_INTF_STR_LEN)) {
-				strcpy(conf->main_intf_name, line
-				                + MAIN_INTF_STR_LEN);
+				strcpy(conf->main_intf_name, line + MAIN_INTF_STR_LEN);
 				/* Remove any line break */
 				for (p = conf->main_intf_name; *p != '\0'; p++) {
 					if (*p == '\n')
@@ -307,8 +319,7 @@ static struct bckp_conf_t * get_config(void)
 		case FIELD_PING_ADDR:
 			/* Is backup field */
 			if (!strncmp(line, PING_ADDR_STR, PING_ADDR_STR_LEN)) {
-				strcpy(conf->ping_address, line
-				                + PING_ADDR_STR_LEN);
+				strcpy(conf->ping_address, line + PING_ADDR_STR_LEN);
 				/* Remove any line break */
 				for (p = conf->ping_address; *p != '\0'; p++) {
 					if (*p == '\n')
@@ -351,91 +362,174 @@ static void alarm_handler(int sig)
 	/* TODO Think of something here */
 }
 
-#define PPPD_BIN_FILE 		"/bin/pppd"
-#define MODEM_3G_CONFIG_FILE 	"/etc/ppp/peers/%s"
-
-static int pppd_spawn(struct bckp_conf_t *conf) {
+static int pppd_spawn(struct bckp_conf_t *conf)
+{
 
 	pid_t pid;
-	char config_file[64];
+	int m3g_index =0;
 
-	sprintf(config_file, MODEM_3G_CONFIG_FILE, conf->intf_name);
+	m3g_index = conf->intf_name[strlen(conf->intf_name)];
 
-	switch(pid = fork()) {
-	case -1:
-		syslog(LOG_ERR, "Could not spawn pppd\n");
-		break;
-	case 0: /* Child, spawn pppd */
-		execv(PPPD_BIN_FILE, config_file);
-		break;
-	default: /* Parent, save child pid */
-		conf->pppd_pid = pid;
-		break;
-	}
+	printf ("ENTROU NO PPPD-SPAWN\n");
 
-	return;
-}
-
-static void do_backup(void)
-{
-	struct bckp_conf_t *bckp_conf;
-
-	bkpd_dbg("do_backup... bc is %p\n", bc);
-
-	for (bckp_conf = bc; bckp_conf != NULL; bckp_conf = bckp_conf->next) {
-
-		bkpd_dbg("Backup configuration\n");
-		bkpd_dbg("\tInterface is %s\n", bckp_conf->intf_name);
-		bkpd_dbg("\tBackup is %s\n", bckp_conf->is_backup ? "Enabled" : "Disabled");
-		bkpd_dbg("\tNext is %p\n", bckp_conf->next);
-
-		/* Main state machine */
-		switch (bckp_conf->state) {
-		/* backup disabled */
-		case STATE_NOBACKUP:
+	switch (pid = fork()) {
+		case -1:
+			syslog(LOG_ERR, "Could not spawn pppd\n");
 			break;
-			/* Waiting state: We must monitor the main interface status to check
-			 * if the backup interface must be enabled */
-		case STATE_WAITING:
-			/* Test if back up is enabled */
-			if (!bckp_conf->is_backup)
-				continue;
 
-			if (bckp_conf->method == BCKP_METHOD_PING) {
-				/* Test if main interface is up */
-				if (ping(bckp_conf->ping_address,
-				                bckp_conf->main_intf_name)) {
-					bckp_conf->state = STATE_WAITING;
-					bkpd_dbg("PING OK\n")
-					;
-				} else {
-					//bckp_conf->state = STATE_CONNECTING;
-					bkpd_dbg("PING Fail\n")
-					;
-				}
+		case 0: /* Child, spawn pppd */
 
-			} else if (bckp_conf->method == BCKP_METHOD_LINK) {
-				if (dev_get_link(bckp_conf->main_intf_name))
-					bckp_conf->state = STATE_WAITING;
-				else
-					bckp_conf->state = STATE_CONNECTING;
+			switch (m3g_index){
+				case 0:
+					execv(PPPD_BIN_FILE, (char * const *)M3G_0_CONFIG_FILE);
+					perror("execv");
+					exit(EXIT_FAILURE);
+					break;
+				case 1:
+					execv(PPPD_BIN_FILE, (char * const *)M3G_1_CONFIG_FILE);
+					perror("execv");
+					exit(EXIT_FAILURE);
+					break;
+				case 2:
+					execv(PPPD_BIN_FILE, (char * const *)M3G_2_CONFIG_FILE);
+					perror("execv");
+					exit(EXIT_FAILURE);
+					break;
+				default:
+					break;
 			}
 
 			break;
 
-		case STATE_CONNECTING:
-			/* Must connect the backup interface */
-			//spawn_pppd(bckp_conf);
-			break;
+		default: /* Parent, save child pid */
+			conf->pppd_pid = pid;
 
-		case STATE_CONNECTED:
-			/* Must check whether the main interface link has been reestablished */
+			if ( strcmp(conf->intf_name, bc->intf_name) == 0 )
+				bc->pppd_pid = conf->pppd_pid;
+			else
+				if ( strcmp(conf->intf_name, bc->next->intf_name) == 0 )
+					bc->next->pppd_pid = conf->pppd_pid;
+				else
+					if ( strcmp(conf->intf_name, bc->next->next->intf_name) == 0)
+						bc->next->next->pppd_pid = conf->pppd_pid;
 			break;
+	}
 
-		default:
-			break;
+	return 1;
+}
+
+static void do_backup(void)
+{
+	struct bckp_conf_t *bckp_conf, *bckp_buff;
+
+	bkpd_dbg("do_backup... bc is %p\n", bc);
+
+	bckp_buff = bc;
+
+	for (bckp_conf = bc; bckp_conf != NULL; bckp_conf = bckp_conf->next) {
+
+		bkpd_dbg("---------------------------\n");
+		bkpd_dbg("Backup configuration\n");
+		bkpd_dbg("\tInterface is %s\n", bckp_conf->intf_name);
+		bkpd_dbg("\tShutdown is %s\n", bckp_conf->shutdown ? "Enabled" : "Disabled");
+		bkpd_dbg("\tBackup is %s\n", bckp_conf->is_backup ? "Enabled" : "Disabled");
+		bkpd_dbg("\tPid is %d\n", (int)bckp_conf->pppd_pid);
+		bkpd_dbg("\tNext is %p\n", bckp_conf->next);
+  		bkpd_dbg("---------------------------\n\n");
+
+
+		/* Main state machine */
+		switch (bckp_conf->state) {
+
+			/* shutdown ON */
+			case STATE_SHUTDOWN:
+
+				printf(" -- entrei no shut\n\n");
+
+				if (bckp_conf->shutdown == 1 && bckp_conf->pppd_pid != (int)NULL){
+					kill(bckp_conf->pppd_pid,9);
+					bckp_conf->pppd_pid = (int)NULL;
+
+					if ( strcmp(bckp_conf->intf_name, bc->intf_name) == 0 )
+						bc->pppd_pid = bckp_conf->pppd_pid;
+					else
+						if ( strcmp(bckp_conf->intf_name, bc->next->intf_name) == 0 )
+							bc->next->pppd_pid = bckp_conf->pppd_pid;
+						else
+							if ( strcmp(bckp_conf->intf_name, bc->next->next->intf_name) == 0)
+								bc->next->next->pppd_pid = bckp_conf->pppd_pid;
+
+					printf("FEITO SHUTDOWN E KILL PROCESS\n\n");
+				}
+
+				bckp_conf->state = STATE_NOBACKUP;
+
+				break;
+
+			/* backup disabled */
+			case STATE_NOBACKUP:
+				printf(" -- entrei no back\n\n");
+
+				if ( (bckp_conf->is_backup == 0) && (bckp_conf->shutdown == 0) && (bckp_conf->pppd_pid == (int)NULL) ){
+					printf("dentro do if do back\n\n\n");
+					bckp_conf->state = STATE_CONNECTED;
+				}
+				else
+					bckp_conf->state = STATE_WAITING;
+
+				break;
+
+			/* Waiting state: We must monitor the main interface status to check
+			 * if the backup interface must be enabled */
+			case STATE_WAITING:
+				/* Test if back up is enabled */
+				printf(" -- entrei no waiting\n\n");
+
+				if (!bckp_conf->is_backup){
+					bckp_conf->state = STATE_CONNECTED;
+					continue;
+				}
+
+				if (bckp_conf->method == BCKP_METHOD_PING) {
+					/* Test if main interface is up */
+					if (ping(bckp_conf->ping_address, bckp_conf->main_intf_name)) {
+						bckp_conf->state = STATE_WAITING;
+						bkpd_dbg("PING OK\n");
+					} else {
+						bckp_conf->state = STATE_CONNECTED;
+						bckp_conf->shutdown=0;
+						bkpd_dbg("PING Fail\n");
+					}
+
+				} else if (bckp_conf->method == BCKP_METHOD_LINK) {
+					if (dev_get_link(bckp_conf->main_intf_name))
+						bckp_conf->state = STATE_WAITING;
+					else
+						bckp_conf->state = STATE_CONNECTED;
+				}
+
+				break;
+
+			case STATE_CONNECTED:
+				/* Must check whether the main interface link has been reestablished */
+				printf(" -- entrei no connect\n\n");
+
+				if ( !bckp_conf->shutdown && bckp_conf->pppd_pid == (int)NULL ){
+					bkpd_dbg("\antes do pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
+					pppd_spawn(bckp_conf);
+					bkpd_dbg("\tExecutou pppd spawn pelo %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
+
+				}
+				bckp_conf->state = STATE_SHUTDOWN;
+
+				break;
+
+			default:
+				break;
 
 		}
+
+
 	}
 }
 
@@ -462,8 +556,7 @@ int main(int argc, char **argv)
 
 	/* Check if another instance is running */
 	if ((pidfd = fopen(BACKUPD_PID_FILE, "r")) != NULL) {
-		fprintf(stderr,
-		                "Another instance is already running. Exiting ...\n");
+		fprintf(stderr, "Another instance is already running. Exiting ...\n");
 		fclose(pidfd);
 		exit(-1);
 	}
@@ -483,6 +576,8 @@ int main(int argc, char **argv)
 	if (!nodaemon)
 		daemonize();
 
+
+
 	/* Register signal handlers */
 	signal(SIGUSR1, usr_handler);
 	signal(SIGALRM, alarm_handler);
@@ -496,7 +591,8 @@ int main(int argc, char **argv)
 	/* Do the job */
 	while (1) {
 		sleep(2);
-		bkpd_dbg("Main loop ...\n");
+		printf ("\n\n\t\t--ANOTHER ROUND - WHILE--\n\n");
+//		bkpd_dbg("Main loop ...\n");
 		do_backup();
 	}
 
