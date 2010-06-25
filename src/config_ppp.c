@@ -25,7 +25,7 @@ void ppp_shutdown (const char *cmd)
 		if(!strcmp(dev, "serial0"))
 			system("gpio wan_status off");
 #endif
-		tc_remove_all(dev);
+		libconfig_qos_tc_remove_all(dev);
 		free(dev);
 		ppp_set_config(interface_major, &cfg);
 		for (i=0; i < 15; i++)
@@ -56,7 +56,7 @@ void ppp_noshutdown (const char *cmd)
 		cfg.up=1;
 		ppp_set_config(interface_major, &cfg);
 		dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-		tc_insert_all(dev);
+		libconfig_qos_tc_insert_all(dev);
 		free(dev);
 	}
 }

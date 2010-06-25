@@ -184,7 +184,7 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 
 	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 
-	tc_remove_all(dev);
+	libconfig_qos_tc_remove_all(dev);
 
 	libconfig_dev_set_link_down(dev);
 
@@ -205,7 +205,7 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 		switch(fam->type) {
 			case eth:
 				libconfig_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
-				tc_insert_all(dev);
+				libconfig_qos_tc_insert_all(dev);
 				break;
 			default:
 				break;
@@ -434,8 +434,8 @@ void interface_traffic_rate_no(const char *cmdline) /* no frame-relay traffic-ra
 	char *dev;
 
 	dev=libconfig_device_convert (interface_edited->cish_string, interface_major, interface_minor);
-	del_frts_cfg(dev);
-	tc_insert_all(dev);
+	libconfig_qos_del_frts_config(dev);
+	libconfig_qos_tc_insert_all(dev);
 	free(dev);
 }
 #endif
@@ -635,7 +635,7 @@ void do_bandwidth(const char *cmdline)
 	else if (strcasestr(args->argv[1],"mbps")) bw *= 1048576;
 
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	cfg_interface_bw(dev, bw);
+	libconfig_qos_config_interface_bw(dev, bw);
 	free(dev);
 	libconfig_destroy_args(args);
 	return;
@@ -657,7 +657,7 @@ void do_max_reserved_bw(const char *cmdline)
 
 	reserved_bw = atoi(args->argv[1]);
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	cfg_interface_reserved_bw(dev, reserved_bw);
+	libconfig_qos_config_reserved_bw(dev, reserved_bw);
 	free(dev);
 	return;
 }
@@ -674,7 +674,7 @@ void do_service_policy(const char *cmdline)
 		return;
 	}
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	apply_policy(dev,args->argv[1]);
+	libconfig_qos_apply_policy(dev,args->argv[1]);
 	free(dev);
 	return;
 }
@@ -685,11 +685,11 @@ void no_service_policy(const char *cmdline)
 	intf_qos_cfg_t *intf_cfg;
 
 	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	get_interface_qos_config (dev, &intf_cfg);
+	libconfig_qos_get_interface_config (dev, &intf_cfg);
 	if (intf_cfg)
 		intf_cfg->pname[0] = 0; /* clean policy-map */
-	release_qos_config(intf_cfg);
-	tc_insert_all(dev);
+	libconfig_qos_release_config(intf_cfg);
+	libconfig_qos_tc_insert_all(dev);
 	free(dev);
 	return;
 }

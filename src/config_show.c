@@ -1232,7 +1232,7 @@ void show_performance(const char *cmdline)
 
 void show_qos(const char *cmdline)
 {
-	lconfig_qos_dump_interfaces();
+	libconfig_qos_dump_interfaces();
 }
 
 #ifdef OPTION_IPSEC
