@@ -497,7 +497,7 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 	args=libconfig_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
-		dense = pimdd_phyint(0, dev);
+		dense = libconfig_pim_dense_phyint(0, dev);
 	else {
 #ifdef OPTION_SMCROUTE
 		if (libconfig_exec_check_daemon(SMC_DAEMON))
@@ -506,12 +506,12 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 			goto clean;
 		}
 #endif
-		sparse = pimsd_phyint(0, dev);
+		sparse = libconfig_pim_sparse_phyint(0, dev);
 		/* Kill pimsd if it is running */			
 		if (sparse < 2 && libconfig_exec_check_daemon(PIMS_DAEMON)) 
 			libconfig_kill_daemon(PIMS_DAEMON);
 
-		dense = pimdd_phyint(1, dev);
+		dense = libconfig_pim_dense_phyint(1, dev);
 	}
 
 	if (dense < 2)	{
@@ -536,7 +536,7 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 	args=libconfig_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
-		sparse=pimsd_phyint(0, dev);
+		sparse=libconfig_pim_sparse_phyint(0, dev);
 	else {
 #ifdef OPTION_SMCROUTE
 		if (libconfig_exec_check_daemon(SMC_DAEMON))
@@ -545,10 +545,10 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 			goto clean;
 		}
 #endif
-		dense = pimdd_phyint(0, dev);
+		dense = libconfig_pim_dense_phyint(0, dev);
 		if (dense < 2 && libconfig_exec_check_daemon(PIMD_DAEMON)) 
 			libconfig_kill_daemon(PIMD_DAEMON);
-		sparse = pimsd_phyint(1, dev);
+		sparse = libconfig_pim_sparse_phyint(1, dev);
 	}
 
 	if (sparse < 2)	{
@@ -568,9 +568,9 @@ void pim_bsr_candidate(const char *cmd) /* [no] ip pim bsr-candidate <ethernet|s
 	arglist *args;
 
 	args=libconfig_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) pimsd_bsr_candidate(0, NULL, NULL, NULL);
-		else if (args->argc == 5) pimsd_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
-			else if (args->argc == 7) pimsd_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
+	if (!strcmp(args->argv[0], "no")) libconfig_pim_sparse_bsr_candidate(0, NULL, NULL, NULL);
+		else if (args->argc == 5) libconfig_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
+			else if (args->argc == 7) libconfig_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
 	libconfig_destroy_args(args);
 }
 
@@ -579,8 +579,8 @@ void pim_rp_address(const char *cmd) /* [no] ip pim rp-address <ipaddress> */
 	arglist *args;
 
 	args=libconfig_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) pimsd_rp_address(0, NULL);
-		else if (args->argc == 4) pimsd_rp_address(1, args->argv[3]);
+	if (!strcmp(args->argv[0], "no")) libconfig_pim_sparse_rp_address(0, NULL);
+		else if (args->argc == 4) libconfig_pim_sparse_rp_address(1, args->argv[3]);
 	libconfig_destroy_args(args);
 }
 
@@ -589,10 +589,10 @@ void pim_rp_candidate(const char *cmd) /* [no] ip pim rp-candidate <ethernet|ser
 	arglist *args;
 
 	args=libconfig_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) pimsd_rp_candidate(0, NULL, NULL, NULL, NULL);
-		else if (args->argc == 5) pimsd_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
-			else if (args->argc == 7) pimsd_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], NULL);
-				else if (args->argc == 9) pimsd_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], args->argv[8]);
+	if (!strcmp(args->argv[0], "no")) libconfig_pim_sparse_rp_candidate(0, NULL, NULL, NULL, NULL);
+		else if (args->argc == 5) libconfig_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
+			else if (args->argc == 7) libconfig_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], NULL);
+				else if (args->argc == 9) libconfig_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], args->argv[8]);
 	libconfig_destroy_args(args);
 }
 #endif
