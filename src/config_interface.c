@@ -704,7 +704,7 @@ void interface_snmptrap(const char *cmd)
 	if ((dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor)))
 	{
 		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev, "serial", 6))
-			dev_add_snmptrap(dev);
+			libconfig_snmp_add_dev_trap(dev);
 		free(dev);
 	}
 }
@@ -716,7 +716,7 @@ void interface_no_snmptrap(const char *cmd)
 	if ((dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor)))
 	{
 		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev, "serial", 6))
-			dev_del_snmptrap(dev);
+			libconfig_snmp_del_dev_trap(dev);
 		free(dev);
 	}
 }

@@ -177,16 +177,16 @@ void snmp_community(const char *cmd)
 	else
 		ro = 1;
 
-	snmp_set_community(args->argv[2], 1, ro);
+	libconfig_snmp_set_community(args->argv[2], 1, ro);
 
 	libconfig_destroy_args(args);
 
-	if (snmp_is_running())
-		snmp_reload_config();
+	if (libconfig_snmp_is_running())
+		libconfig_snmp_reload_config();
 	/* This code is commented on Atlanta without any explanation */
 #ifdef CONFIG_BERLIN_SATROUTER
 	else
-	snmp_start();
+	libconfig_snmp_start();
 #endif
 }
 
@@ -202,16 +202,16 @@ void snmp_no_community(const char *cmd)
 	else
 		ro = 1;
 
-	snmp_set_community(args->argv[3], 0, ro);
+	libconfig_snmp_set_community(args->argv[3], 0, ro);
 
 	libconfig_destroy_args(args);
 
-	if (snmp_is_running())
-		snmp_reload_config();
+	if (libconfig_snmp_is_running())
+		libconfig_snmp_reload_config();
 	/* This code is commented on Atlanta without any explanation */
 #ifdef CONFIG_BERLIN_SATROUTER
 	else
-	snmp_start();
+	libconfig_snmp_start();
 #endif
 }
 
@@ -233,26 +233,26 @@ void snmp_text(const char *cmd) /* [no] snmp-server contact|location <text> */
 	if (!strcmp(args->argv[i], "contact")) {
 		if (args->argc > i + 1) {
 			if ((p = strstr((char *) cmd, args->argv[i + 1])))
-				snmp_set_contact(p);
+				libconfig_snmp_set_contact(p);
 		} else
-			snmp_set_contact(NULL);
+			libconfig_snmp_set_contact(NULL);
 	} else if (!strcmp(args->argv[i], "location")) {
 		if (args->argc > i + 1) {
 			if ((p = strstr((char *) cmd, args->argv[i + 1])))
-				snmp_set_location(p);
+				libconfig_snmp_set_location(p);
 		} else
-			snmp_set_location(NULL);
+			libconfig_snmp_set_location(NULL);
 	} else
 		fprintf(stderr, "%% Syntax error\n");
 	libconfig_destroy_args(args);
 
-	if (snmp_is_running())
-		snmp_reload_config();
+	if (libconfig_snmp_is_running())
+		libconfig_snmp_reload_config();
 }
 
 void snmp_no_server(const char *cmd)
 {
-	snmp_stop();
+	libconfig_snmp_stop();
 }
 
 void snmp_trapsink(const char *cmd) /* snmp trapsink <ipaddress> <community> */
@@ -261,7 +261,7 @@ void snmp_trapsink(const char *cmd) /* snmp trapsink <ipaddress> <community> */
 
 	args = libconfig_make_args(cmd);
 	if (args->argc >= 4)
-		snmp_add_trapsink(args->argv[2], args->argv[3]);
+		libconfig_snmp_add_trapsink(args->argv[2], args->argv[3]);
 	libconfig_destroy_args(args);
 }
 
@@ -271,7 +271,7 @@ void snmp_no_trapsink(const char *cmd) /* no snmp trapsink <ipaddress> */
 
 	args = libconfig_make_args(cmd);
 	if (args->argc == 4)
-		snmp_del_trapsink(args->argv[3]);
+		libconfig_snmp_del_trapsink(args->argv[3]);
 	libconfig_destroy_args(args);
 }
 
@@ -288,10 +288,10 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			int i, n;
 			char **list;
 
-			if ((n = list_snmp_users(&list)) > 0) {
+			if ((n = libconfig_snmp_list_users(&list)) > 0) {
 				for (i = (n - 1); i >= 0; i--) {
 					if (list[i] != NULL) {
-						if (remove_snmp_user(list[i])
+						if (libconfig_snmp_remove_user(list[i])
 						                < 0)
 							printf(
 							                "%% Not possible to remove user '%s'\n",
@@ -305,7 +305,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 		}
 
 		case 4:
-			if (remove_snmp_user(args->argv[3]) < 0)
+			if (libconfig_snmp_remove_user(args->argv[3]) < 0)
 				printf("%% Not possible to remove user '%s'\n",
 				                args->argv[3]);
 			break;
@@ -315,7 +315,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 	default: /* Adicao de usuario */
 		switch (args->argc) {
 		case 5:
-			if (add_snmp_user(args->argv[2], ((strcmp(
+			if (libconfig_snmp_add_user(args->argv[2], ((strcmp(
 			                args->argv[3], "rw") == 0) ? 1 : 0),
 			                args->argv[4], NULL, NULL, NULL, NULL)
 			                < 0)
@@ -343,7 +343,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 				libconfig_destroy_args(args);
 				return;
 			}
-			if (add_snmp_user(args->argv[2], ((strcmp(
+			if (libconfig_snmp_add_user(args->argv[2], ((strcmp(
 			                args->argv[3], "rw") == 0) ? 1 : 0),
 			                args->argv[4], args->argv[6], NULL,
 			                authpasswd, NULL) < 0)
@@ -392,7 +392,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 				libconfig_destroy_args(args);
 				return;
 			}
-			if (add_snmp_user(args->argv[2], ((strcmp(
+			if (libconfig_snmp_add_user(args->argv[2], ((strcmp(
 			                args->argv[3], "rw") == 0) ? 1 : 0),
 			                args->argv[4], args->argv[6],
 			                args->argv[8], authpasswd, privpasswd)
@@ -474,8 +474,8 @@ void snmp_version(const char *cmd)
 	char tp[16];
 	arglist *args;
 
-	if (snmp_is_running())
-		snmp_stop();
+	if (libconfig_snmp_is_running())
+		libconfig_snmp_stop();
 
 	args = libconfig_make_args(cmd);
 	tp[0] = 0;
@@ -492,6 +492,6 @@ void snmp_version(const char *cmd)
 	libconfig_destroy_args(args);
 
 	/* De qualquer forma colocamos o agente SNMP em execucao */
-	snmp_start();
+	libconfig_snmp_start();
 }
 
