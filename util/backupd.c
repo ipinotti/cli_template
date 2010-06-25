@@ -504,7 +504,7 @@ static void do_backup(void)
 					}
 
 				} else if (bckp_conf->method == BCKP_METHOD_LINK) {
-					if (dev_get_link(bckp_conf->main_intf_name))
+					if (libconfig_dev_get_link(bckp_conf->main_intf_name))
 						bckp_conf->state = STATE_WAITING;
 					else
 						bckp_conf->state = STATE_CONNECTED;
