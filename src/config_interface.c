@@ -301,13 +301,13 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 	libconfig_ip_ethernet_set_addr(dev, addr, mask); /* preserve alias addresses */
 
 	// Verifica se o ip unnumbered relaciona a ethernet com a serial
-	ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
+	libconfig_ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
 	if (cfg.ip_unnumbered == interface_major) {
 		strncpy(cfg.ip_addr, addr, 16); // Atualiza cfg com os dados da ethernet
 		cfg.ip_addr[15]=0;
 		strncpy(cfg.ip_mask, mask, 16);
 		cfg.ip_mask[15]=0;
-		ppp_set_config(0, &cfg); // Atualiza as configuracoes da serial
+		libconfig_ppp_set_config(0, &cfg); // Atualiza as configuracoes da serial
 	}
 
 	libconfig_destroy_args(args);

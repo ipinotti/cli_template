@@ -656,7 +656,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	/* Get config PPP ;
 	 * Get USB description ;
 	 * Verify existence of TTY, means USB device is a modem 3g ; */
-	ppp_get_config(serial_no, &cfg);
+	libconfig_ppp_get_config(serial_no, &cfg);
 	lusb_descriptor = libconfig_usb_get_descriptor(usbdev);
 	lusb_tty_verify = libconfig_usb_device_is_modem(usbdev->port);
 
