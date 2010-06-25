@@ -66,7 +66,7 @@ void process_cish_exit(void)
 {
 	syslog(LOG_INFO, "session closed from %s", _cish_source);
 	closelog();
-	lconfig_munmap_cfg(cish_cfg);
+	libconfig_config_munmap_cfg(cish_cfg);
 }
 
 static int _on_nfs(void)
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 	openlog("config", LOG_CONS|LOG_PID, LOG_USER);
 
 	/* Map CISH configuration */
-	cish_cfg = lconfig_mmap_cfg();
+	cish_cfg = libconfig_config_mmap_cfg();
 	if (cish_cfg == NULL)
 		exit(-1);
 
@@ -773,7 +773,7 @@ int cish_config_changed(void)
 	int ret=0;
 
 	/* Writes running config */
-	if (lconfig_write_config (TMP_CFG_FILE, cish_cfg) < 0)
+	if (libconfig_config_write (TMP_CFG_FILE, cish_cfg) < 0)
 		return -1;
 
 	/* Load configuration fron flash */

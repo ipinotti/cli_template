@@ -902,7 +902,7 @@ void show_running_config(const char *cmdline)
 	printf("Building configuration...\n");
 
 	/* Write config to f descriptor */
-	if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
+	if (libconfig_config_write(TMP_CFG_FILE, cish_cfg) < 0) {
 		fprintf(stderr, "%% Can't build configuration\n");
 		return;
 	}
@@ -1049,7 +1049,7 @@ void cmd_copy(const char *cmdline)
 	case 'r':
 		printf("Building configuration...\n");
 
-		if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
+		if (libconfig_config_write(TMP_CFG_FILE, cish_cfg) < 0) {
 			fprintf(stderr, "%% Can't build configuration\n");
 			libconfig_destroy_args(args);
 			return;
