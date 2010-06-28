@@ -1109,7 +1109,7 @@ void l2tp_peer(const char *cmd) /* [no] l2tp peer <ipaddress> <netmask> */
 		cfg.peer[15] = 0;
 		cfg.peer_mask = libconfig_quagga_netmask_to_cidr(args->argv[3]);
 	}
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	libconfig_destroy_args(args);
 }
 
@@ -1122,7 +1122,7 @@ void l2tp_ppp_auth_pass(const char *cmd) /* l2tp ppp authentication pass [passwo
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	strncpy(cfg.auth_pass, args->argv[4], MAX_PPP_PASS);
 	cfg.auth_pass[MAX_PPP_PASS - 1] = 0;
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	libconfig_destroy_args(args);
 }
 
@@ -1135,7 +1135,7 @@ void l2tp_ppp_auth_user(const char *cmd) /* l2tp ppp authentication user [userna
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	strncpy(cfg.auth_user, args->argv[4], MAX_PPP_USER);
 	cfg.auth_user[MAX_PPP_USER - 1] = 0;
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	libconfig_destroy_args(args);
 }
 
@@ -1145,7 +1145,7 @@ void l2tp_ppp_noauth(const char *cmd) /* no l2tp ppp authentication */
 
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.auth_user[0] = cfg.auth_pass[0] = 0;
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 }
 
 void l2tp_ppp_ipaddr(const char *cmd) /* l2tp ppp ip address <ipaddress> */
@@ -1158,7 +1158,7 @@ void l2tp_ppp_ipaddr(const char *cmd) /* l2tp ppp ip address <ipaddress> */
 	strncpy(cfg.ip_addr, args->argv[4], 16);
 	cfg.ip_addr[15] = 0;
 	cfg.ip_unnumbered = -1; /* Desativando a flag do IP UNNUMBERED */
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	libconfig_destroy_args(args);
 }
 
@@ -1168,7 +1168,7 @@ void l2tp_ppp_noipaddr(const char *cmd) /* no l2tp ppp ip address */
 
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.ip_addr[0] = cfg.ip_mask[0] = 0;
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 }
 
 void l2tp_ppp_defaultroute(const char *cmd) /* l2tp ppp ip default-route */
@@ -1178,7 +1178,7 @@ void l2tp_ppp_defaultroute(const char *cmd) /* l2tp ppp ip default-route */
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (!cfg.default_route) {
 		cfg.default_route = 1;
-		libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+		libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	}
 }
 
@@ -1189,7 +1189,7 @@ void l2tp_ppp_no_defaultroute(const char *cmd) /* no l2tp ppp ip default-route *
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (cfg.default_route) {
 		cfg.default_route = 0;
-		libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+		libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	}
 }
 
@@ -1206,7 +1206,7 @@ void l2tp_ppp_peeraddr(const char *cmd) /* l2tp ppp ip peer-address [pool|<ipadd
 		strncpy(cfg.ip_peer_addr, args->argv[4], 16);
 		cfg.ip_peer_addr[15] = 0;
 	}
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	libconfig_destroy_args(args);
 }
 
@@ -1216,7 +1216,7 @@ void l2tp_ppp_nopeeraddr(const char *cmd) /* no l2tp ppp ip peer-address */
 
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.ip_peer_addr[0] = 0;
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 }
 
 void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x */
@@ -1242,7 +1242,7 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 	else
 		cfg.ip_unnumbered = atoi(args->argv[5]);
 
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	free(dev);
 	libconfig_destroy_args(args);
 }
@@ -1254,7 +1254,7 @@ void l2tp_ppp_no_unnumbered(const char *cmd) /* no l2tp ppp ip unnumbered */
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.ip_addr[0] = cfg.ip_mask[0] = 0;
 	cfg.ip_unnumbered = -1;
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 }
 
 void l2tp_ppp_vj(const char *cmd) /* l2tp ppp ip vj */
@@ -1264,7 +1264,7 @@ void l2tp_ppp_vj(const char *cmd) /* l2tp ppp ip vj */
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (cfg.novj) {
 		cfg.novj = 0;
-		libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+		libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	}
 }
 
@@ -1275,7 +1275,7 @@ void l2tp_ppp_no_vj(const char *cmd) /* no l2tp ppp ip vj */
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (!cfg.novj) {
 		cfg.novj = 1;
-		libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+		libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	}
 }
 
@@ -1287,7 +1287,7 @@ void l2tp_ppp_keepalive_interval(const char *cmd) /* l2tp ppp keepalive interval
 	args = libconfig_make_args(cmd);
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.echo_interval = atoi(args->argv[4]);
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	libconfig_destroy_args(args);
 }
 
@@ -1299,7 +1299,7 @@ void l2tp_ppp_keepalive_timeout(const char *cmd) /* l2tp ppp keepalive timeout [
 	args = libconfig_make_args(cmd);
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.echo_failure = atoi(args->argv[4]);
-	libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+	libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	libconfig_destroy_args(args);
 }
 
@@ -1315,7 +1315,7 @@ void l2tp_ppp_mtu(const char *cmd) /* l2tp ppp mtu [mtu] */
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (cfg.mtu != mtu) {
 		cfg.mtu = mtu;
-		libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+		libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	}
 }
 
@@ -1326,7 +1326,7 @@ void l2tp_ppp_nomtu(const char *cmd) /* no l2tp ppp mtu */
 	libconfig_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (cfg.mtu) {
 		cfg.mtu = 0;
-		libconfig__ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
+		libconfig_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	}
 }
 #endif
