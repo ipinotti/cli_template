@@ -67,7 +67,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	nat_port2[0] = 0;
 
 	mode = add_nat;
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	nat_rule = args->argv[1];
 	if (!nat_rule_exists(nat_rule)) {
 		sprintf(cmd, "/bin/iptables -t nat -N %s", nat_rule);
@@ -95,7 +95,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	else {
 		if (!is_valid_protocolnumber(args->argv[crsr])) {
 			fprintf(stderr, "%% Invalid protocol number\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		protocol = atoi(args->argv[crsr]);
@@ -107,7 +107,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "host") == 0) {
 		if ((crsr + 1) > args->argc) {
 			fprintf(stderr, "%% Missing ip-address\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		++crsr;
@@ -116,14 +116,14 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else {
 		if ((crsr + 2) > args->argc) {
 			fprintf(stderr, "%% Missing netmask\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 
-		src_cidr = netmask2cidr(args->argv[crsr + 1]);
+		src_cidr = libconfig_ip_netmask2cidr(args->argv[crsr + 1]);
 		if (src_cidr < 0) {
 			fprintf(stderr, "%% Invalid netmask\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 
@@ -132,18 +132,18 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	}
 	if (crsr >= args->argc) {
 		fprintf(stderr, "%% Not enough arguments\n");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if (strcmp(args->argv[crsr], "eq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(src_portrange, "%s ", args->argv[crsr + 1]);
@@ -151,12 +151,12 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "neq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(src_portrange, "! %s ", args->argv[crsr + 1]);
@@ -164,12 +164,12 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "gt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(src_portrange, "%s: ", args->argv[crsr + 1]);
@@ -177,12 +177,12 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "lt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(src_portrange, ":%s ", args->argv[crsr + 1]);
@@ -190,18 +190,18 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "range") == 0) {
 		if ((crsr + 2) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (atoi(args->argv[crsr + 1]) > atoi(args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Invalid port range (min > max)\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1]) || !libconfig_ip_is_valid_port(
 		                args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(src_portrange, "%s:%s ", args->argv[crsr + 1],
@@ -220,14 +220,14 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else {
 		if ((crsr + 2) > args->argc) {
 			fprintf(stderr, "%% Missing netmask\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 
-		dst_cidr = netmask2cidr(args->argv[crsr + 1]);
+		dst_cidr = libconfig_ip_netmask2cidr(args->argv[crsr + 1]);
 		if (dst_cidr < 0) {
 			fprintf(stderr, "%% Invalid netmask\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 
@@ -239,12 +239,12 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "eq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(dst_portrange, "%s ", args->argv[crsr + 1]);
@@ -252,12 +252,12 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "neq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(dst_portrange, "! %s ", args->argv[crsr + 1]);
@@ -265,12 +265,12 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "gt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(dst_portrange, "%s: ", args->argv[crsr + 1]);
@@ -278,12 +278,12 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "lt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1])) {
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(dst_portrange, ":%s ", args->argv[crsr + 1]);
@@ -291,18 +291,18 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 	} else if (strcmp(args->argv[crsr], "range") == 0) {
 		if ((crsr + 2) >= args->argc) {
 			fprintf(stderr, "%% Not enough arguments\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		if (atoi(args->argv[crsr + 1]) > atoi(args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Invalid port range (min > max)\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
-		if (!is_valid_port(args->argv[crsr + 1]) || !is_valid_port(
+		if (!libconfig_ip_is_valid_port(args->argv[crsr + 1]) || !libconfig_ip_is_valid_port(
 		                args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Invalid argument\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(dst_portrange, "%s:%s ", args->argv[crsr + 1],
@@ -318,7 +318,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 		action = dnat;
 	} else {
 		fprintf(stderr, "%% Invalid action\n");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	crsr++;
@@ -346,7 +346,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 			if (atoi(nat_port1) > atoi(nat_port2)) {
 				fprintf(stderr,
 				                "%% Invalid port range (min > max)\n");
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				return;
 			}
 		} else {
@@ -400,7 +400,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 		if (action != snat) {
 			fprintf(stderr,
 			                "%% Change to interface-address is valid only with source NAT\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		strcat(cmd, "-j MASQUERADE ");
@@ -429,10 +429,10 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 		if (!strcmp(args->argv[2], "insert"))
 			insert = 1;
 		if ((f = fopen(TMP_CFG_FILE, "w+"))) {
-			lconfig_nat_dump(0, f, 1);
+			libconfig_nat_dump(0, f, 1);
 			fseek(f, 0, SEEK_SET);
 			while (fgets((char *) buf, 511, f)) {
-				if ((n = parse_args_din((char *) buf, &argl))
+				if ((n = libconfig_parse_args_din((char *) buf, &argl))
 				                > 3) {
 					if (n == (args->argc - insert)) {
 						if (!strcmp(args->argv[0],
@@ -454,14 +454,14 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 								}
 							}
 							if (ruleexists) {
-								free_args_din(
+								libconfig_destroy_args_din(
 								                &argl);
 								break;
 							}
 						}
 					}
 				}
-				free_args_din(&argl);
+				libconfig_destroy_args_din(&argl);
 			}
 			fclose(f);
 		}
@@ -472,7 +472,7 @@ void do_nat_rule(const char *cmdline) /* nat-rule <acl> ... */
 		DEBUG_CMD(cmd);
 		system(cmd);
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void no_nat_rule(const char *cmdline) /* no nat-rule <acl> */
@@ -481,15 +481,15 @@ void no_nat_rule(const char *cmdline) /* no nat-rule <acl> */
 	char *nat_rule;
 	char cmd[256];
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	nat_rule = args->argv[2];
 	if (!nat_rule_exists(nat_rule)) {
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	if (get_nat_rule_refcount(nat_rule)) {
 		printf("%% NAT rule in use, can't delete\n");
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	sprintf(cmd, "/bin/iptables -t nat -F %s", nat_rule); /* flush */
@@ -502,7 +502,7 @@ void no_nat_rule(const char *cmdline) /* no nat-rule <acl> */
 	DEBUG_CMD(cmd);
 	system(cmd);
 
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 int nat_rule_exists(char *nat_rule)
@@ -522,7 +522,7 @@ int nat_rule_exists(char *nat_rule)
 		buf[0] = 0;
 		fgets(buf, 255, F);
 		buf[255] = 0;
-		striplf(buf);
+		libconfig_str_striplf(buf);
 		if (strncmp(buf, "Chain ", 6) == 0) {
 			tmp = strchr(buf + 6, ' ');
 			if (tmp) {
@@ -560,7 +560,7 @@ int matched_nat_rule_exists(char *acl,
 		buf[0] = 0;
 		fgets(buf, 255, F);
 		buf[255] = 0;
-		striplf(buf);
+		libconfig_str_striplf(buf);
 		if (strncmp(buf, "Chain ", 6) == 0) {
 			if (in_chain)
 				break; // chegou `a proxima chain sem encontrar - finaliza
@@ -577,10 +577,10 @@ int matched_nat_rule_exists(char *acl,
 			p = buf;
 			while ((*p) && (*p == ' '))
 				p++;
-			args = make_args(p);
+			args = libconfig_make_args(p);
 
 			if (args->argc < 7) {
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				continue;
 			}
 
@@ -596,11 +596,11 @@ int matched_nat_rule_exists(char *acl,
 			                && ((acl == NULL) || (strcmp(target,
 			                                acl) == 0))) {
 				acl_exists = 1;
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				break;
 			}
 
-			destroy_args(args);
+			libconfig_destroy_args(args);
 		}
 	}
 	pclose(F);
@@ -624,7 +624,7 @@ int get_nat_rule_refcount(char *nat_rule)
 		buf[0] = 0;
 		fgets(buf, 255, F);
 		buf[255] = 0;
-		striplf(buf);
+		libconfig_str_striplf(buf);
 		if (strncmp(buf, "Chain ", 6) == 0) {
 			tmp = strchr(buf + 6, ' ');
 			if (tmp) {
@@ -668,7 +668,7 @@ int clean_iface_nat_rules(char *iface)
 		buf[0] = 0;
 		fgets(buf, 255, F);
 		buf[255] = 0;
-		striplf(buf);
+		libconfig_str_striplf(buf);
 		if (strncmp(buf, "Chain ", 6) == 0) {
 			p = strchr(buf + 6, ' ');
 			if (p) {
@@ -683,9 +683,9 @@ int clean_iface_nat_rules(char *iface)
 			p = buf;
 			while ((*p) && (*p == ' '))
 				p++;
-			args = make_args(p);
+			args = libconfig_make_args(p);
 			if (args->argc < 7) {
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				continue;
 			}
 			iface_in_ = args->argv[5];
@@ -713,7 +713,7 @@ int clean_iface_nat_rules(char *iface)
 				DEBUG_CMD(cmd);
 				system(cmd);
 			}
-			destroy_args(args);
+			libconfig_destroy_args(args);
 		}
 	}
 	pclose(F);
@@ -727,9 +727,9 @@ void interface_nat(const char *cmdline) /* ip nat <acl> <in|out> */
 	acl_chain chain = chain_in;
 	char *listno;
 
-	dev = convert_device(interface_edited->cish_string, interface_major,
+	dev = libconfig_device_convert(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	listno = args->argv[2];
 	if (strcasecmp(args->argv[3], "in") == 0)
 		chain = chain_in;
@@ -739,7 +739,7 @@ void interface_nat(const char *cmdline) /* ip nat <acl> <in|out> */
 	if (!nat_rule_exists(listno)) {
 		printf("%% nat-rule %s undefined\n", listno);
 		free(dev);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 
@@ -747,7 +747,7 @@ void interface_nat(const char *cmdline) /* ip nat <acl> <in|out> */
 	                "PREROUTING"))) {
 		printf("%% inbound NAT rule already defined.\n");
 		free(dev);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 
@@ -755,7 +755,7 @@ void interface_nat(const char *cmdline) /* ip nat <acl> <in|out> */
 	                "POSTROUTING"))) {
 		printf("%% outbound NAT rule already defined.\n");
 		free(dev);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 
@@ -778,7 +778,7 @@ void interface_nat(const char *cmdline) /* ip nat <acl> <in|out> */
 		system(buf);
 	}
 
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	free(dev);
 }
 
@@ -789,9 +789,9 @@ void interface_no_nat(const char *cmdline) /* no ip nat <acl> [in|out] */
 	acl_chain chain = chain_in;
 	char *listno;
 
-	dev = convert_device(interface_edited->cish_string, interface_major,
+	dev = libconfig_device_convert(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	listno = args->argv[3];
 
 	if (args->argc == 4)
@@ -824,6 +824,6 @@ void interface_no_nat(const char *cmdline) /* no ip nat <acl> [in|out] */
 			system(buf);
 		}
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 	free(dev);
 }

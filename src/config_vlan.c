@@ -17,13 +17,13 @@ void vlan_add(const char *cmd) /* vlan <id> */
 	int vid;
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	vid=atoi(args->argv[1]);
-	if(vlan_exists(interface_major, vid)) {
+	if(libconfig_vlan_exists(interface_major, vid)) {
 		printf("%% vlan allready used\n");
 	}
-		else vlan_vid(interface_major, vid, 1, 0);
-	destroy_args(args);
+		else libconfig_vlan_vid(interface_major, vid, 1, 0);
+	libconfig_destroy_args(args);
 }
 
 void vlan_del(const char *cmd) /* no vlan <id> */
@@ -31,33 +31,33 @@ void vlan_del(const char *cmd) /* no vlan <id> */
 	int vid;
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	vid=atoi(args->argv[2]);
-	if(!vlan_exists(interface_major, vid)) {
+	if(!libconfig_vlan_exists(interface_major, vid)) {
 		printf("%% vlan not defined\n");
 	}
-		else vlan_vid(interface_major, vid, 0, 0);
-	destroy_args(args);
+		else libconfig_vlan_vid(interface_major, vid, 0, 0);
+	libconfig_destroy_args(args);
 }
 
 #if 0
 void vlan_change_cos(const char *cmd) /* set cos [precedence|dscp] */
 {
 	arglist *args;
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 
-	if(!vlan_exists(interface_major, interface_minor)) {
+	if(!libconfig_vlan_exists(interface_major, interface_minor)) {
 		printf("%% vlan not defined\n");
 	}
 
 	if (!strcmp(args->argv[0],"no")) 
-		set_vlan_cos(interface_major, interface_minor, NONE_TO_COS);
+		libconfig_vlan_set_cos(interface_major, interface_minor, NONE_TO_COS);
 	else if (!strcmp(args->argv[2],"precedence"))
-		set_vlan_cos(interface_major, interface_minor, IP_PRECEDENCE_TO_COS);
+		libconfig_vlan_set_cos(interface_major, interface_minor, IP_PRECEDENCE_TO_COS);
 	else if (!strcmp(args->argv[2],"dscp"))
-		set_vlan_cos(interface_major, interface_minor, IP_DSCP_TO_COS);
+		libconfig_vlan_set_cos(interface_major, interface_minor, IP_DSCP_TO_COS);
 
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 #endif
 

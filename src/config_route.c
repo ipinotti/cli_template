@@ -26,12 +26,12 @@ void ip_route (const char *cmdline)
 	string[0] = 0;
 	metric = 0;
 	
-	args = make_args (cmdline);
+	args = libconfig_make_args (cmdline);
 	
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-	if (getfamily(destination)) /* route to a device */
+	if (libconfig_device_get_family(destination)) /* route to a device */
 	{
 		if (args->argc < 6)
 		{
@@ -50,7 +50,7 @@ void ip_route (const char *cmdline)
 		}
 		if (args->argc == 7) metric=atoi(args->argv[6]);
 		
-		dev = convert_device (destination, major, minor);
+		dev = libconfig_device_convert (destination, major, minor);
 		sprintf (string, "-net %s netmask %s dev %s", source_net, source_mask, dev);
 		if (metric) sprintf (string+strlen(string), " %i", metric);
 		free(dev);
@@ -74,7 +74,7 @@ void ip_route (const char *cmdline)
 		sprintf(cmd, "/bin/route add %s 2>&1 >/dev/null", string);
 		system(cmd);
 	}
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void no_ip_route (const char *cmdline)
@@ -104,12 +104,12 @@ void no_ip_route (const char *cmdline)
 	if (tmp) ++tmp;
 	else tmp = (char *)cmdline;
 	
-	args = make_args (tmp);
+	args = libconfig_make_args (tmp);
 	
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-	if (getfamily(destination)) /* route to a device */
+	if (libconfig_device_get_family(destination)) /* route to a device */
 	{
 		if (args->argc < 6)
 		{
@@ -128,7 +128,7 @@ void no_ip_route (const char *cmdline)
 		}
 		if (args->argc == 7) metric=atoi(args->argv[6]);
 		
-		dev = convert_device (destination, major, minor);
+		dev = libconfig_device_convert (destination, major, minor);
 		sprintf (string, "-net %s netmask %s dev %s", source_net, source_mask, dev);
 		if (metric) sprintf (string+strlen(string), " %i", metric);
 		free(dev);
@@ -152,7 +152,7 @@ void no_ip_route (const char *cmdline)
 		sprintf(cmd, "/bin/route delete %s >/dev/null", string);
 		system(cmd);
 	}
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 #endif
 
@@ -162,22 +162,22 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 	char *new_cmdline;
 	arglist *args;
 
-	new_cmdline = cish_to_linux_dev_cmdline((char*) cmdline);
-	args = make_args(new_cmdline);
+	new_cmdline = libconfig_device_to_linux_cmdline((char*) cmdline);
+	args = libconfig_make_args(new_cmdline);
 	if (strcmp(args->argv[0], "no") == 0) {
-		lconfig_smc_route(0, args->argv[3], args->argv[4], args->argv[6],
+		libconfig_smc_route(0, args->argv[3], args->argv[4], args->argv[6],
 		                args->argv[8]);
 	} else {
 #ifdef OPTION_PIMD
-		if (is_daemon_running(PIMS_DAEMON) || is_daemon_running(
+		if (libconfig_exec_check_daemon(PIMS_DAEMON) || libconfig_exec_check_daemon(
 		                PIMD_DAEMON)) {
 			printf("%% Disable dynamic multicast routing first\n");
 		} else
 #endif
-			lconfig_smc_route(1, args->argv[2], args->argv[3],
+			libconfig_smc_route(1, args->argv[2], args->argv[3],
 			                args->argv[5], args->argv[7]);
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 #endif
 

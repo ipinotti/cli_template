@@ -16,17 +16,18 @@
 #define bkpd_dbg(x,...)
 #endif
 
-
 #define BACKUPD_PID_FILE	"/var/run/backupd.pid"
 #define BACKUPD_CONF_FILE 	"/etc/backupd/backupd.conf"
 
 #define INTF_STR 		"interface="
+#define SHUTD_STR		"shutdown="
 #define BCKUP_STR 		"backing_up="
 #define MAIN_INTF_STR 		"main_interface="
 #define METHOD_STR 		"method="
 #define PING_ADDR_STR 		"ping-address="
 
 #define INTF_STR_LEN 		strlen(INTF_STR)
+#define SHUTD_STR_LEN		strlen(SHUTD_STR)
 #define BCKUP_STR_LEN 		strlen(BCKUP_STR)
 #define MAIN_INTF_STR_LEN 	strlen(MAIN_INTF_STR)
 #define METHOD_STR_LEN 		strlen(METHOD_STR)
@@ -43,6 +44,7 @@ enum bckp_method {
 
 enum bckp_config_field {
 	FIELD_INTF,
+	FIELD_SHUTD,
 	FIELD_BCK_UP,
 	FIELD_MAIN_INTF,
 	FIELD_METHOD,
@@ -50,9 +52,9 @@ enum bckp_config_field {
 };
 
 enum bckp_state {
+	STATE_SHUTDOWN,
 	STATE_NOBACKUP,
 	STATE_WAITING,
-	STATE_CONNECTING,
 	STATE_CONNECTED
 };
 
@@ -60,6 +62,7 @@ struct bckp_conf_t {
 	struct bckp_conf_t *next;
 	char intf_name[32];
 	int is_backup; /* Is backing up another interface */
+	int shutdown;
 	char main_intf_name[32];
 	enum bckp_method method;
 	char ping_address[128];

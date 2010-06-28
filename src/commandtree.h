@@ -19,7 +19,7 @@ extern int _cish_debug;
 extern int _cish_booting;
 extern const char *_cish_source;
 extern char buf[1024];
-extern device_family  *interface_edited;
+extern dev_family  *interface_edited;
 extern int interface_major;
 extern int interface_minor;
 

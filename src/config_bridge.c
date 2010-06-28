@@ -37,12 +37,12 @@ void bridge_setaging (const char *cmd)
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (check_bridge(args->argv[1], brname))
 		br_setageing(brname, atoi(args->argv[3]));
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void bridge_setfd (const char *cmd)
@@ -50,12 +50,12 @@ void bridge_setfd (const char *cmd)
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (check_bridge(args->argv[1], brname))
 		br_setfd(brname, atoi(args->argv[3]));
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void bridge_sethello (const char *cmd)
@@ -63,12 +63,12 @@ void bridge_sethello (const char *cmd)
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (check_bridge(args->argv[1], brname))
 		br_sethello(brname, atoi(args->argv[3]));
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void bridge_setmaxage (const char *cmd)
@@ -76,12 +76,12 @@ void bridge_setmaxage (const char *cmd)
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (check_bridge(args->argv[1], brname))
 		br_setmaxage(brname, atoi(args->argv[3]));
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void bridge_setprio (const char *cmd)
@@ -89,12 +89,12 @@ void bridge_setprio (const char *cmd)
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (check_bridge(args->argv[1], brname))
 		br_setbridgeprio(brname, atoi(args->argv[3]));
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void bridge_nostp (const char *cmd) /* bridge 1 spanning-disabled */
@@ -102,12 +102,12 @@ void bridge_nostp (const char *cmd) /* bridge 1 spanning-disabled */
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (check_bridge(args->argv[1], brname))
 		br_set_stp(brname, 0);
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void bridge_stp (const char *cmd) /* no bridge 1 spanning-disabled */
@@ -115,12 +115,12 @@ void bridge_stp (const char *cmd) /* no bridge 1 spanning-disabled */
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (check_bridge(args->argv[2], brname))
 		br_set_stp(brname, 1);
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void bridge_setproto (const char *cmd) /* bridge 1 protocol ieee */
@@ -128,7 +128,7 @@ void bridge_setproto (const char *cmd) /* bridge 1 protocol ieee */
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	strcpy(brname, BRIDGE_NAME);
 	strcat(brname, args->argv[1]);
@@ -136,10 +136,10 @@ void bridge_setproto (const char *cmd) /* bridge 1 protocol ieee */
 	{
 		br_addbr(brname);
 		br_set_stp(brname, 1); /* enable spanning-tree protocol */
-		dev_set_link_up(brname);
+		libconfig_dev_set_link_up(brname);
 	}
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void bridge_no (const char *cmd)
@@ -147,7 +147,7 @@ void bridge_no (const char *cmd)
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	strcpy(brname, BRIDGE_NAME);
 	strcat(brname, args->argv[2]);
@@ -160,12 +160,12 @@ void bridge_no (const char *cmd)
 		}
 		else
 		{
-			dev_set_link_down(brname);
+			libconfig_dev_set_link_down(brname);
 			br_delbr(brname);
 		}
 	}
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void dump_bridge (FILE *out)
@@ -195,14 +195,14 @@ void bridge_show (const char *cmd) /* show bridge 1 */
 	arglist *args;
 	char brname[32];
 	
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	
 	if (check_bridge(args->argv[2], brname))
 	{
 		br_dump_info(brname, stdout);
 	}
 	
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 #endif /* OPTION_BRIDGE */
 

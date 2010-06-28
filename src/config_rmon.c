@@ -11,8 +11,8 @@
 
 void rmon_agent(const char *cmd)
 {
-	if( is_daemon_running(RMON_DAEMON) == 0 )
-		exec_daemon(RMON_DAEMON);
+	if( libconfig_exec_check_daemon(RMON_DAEMON) == 0 )
+		libconfig_exec_daemon(RMON_DAEMON);
 }
 
 void rmon_event(const char *cmd)
@@ -21,7 +21,7 @@ void rmon_event(const char *cmd)
 	arglist *args;
 	char *descr, *owner, *community;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if( args->argc > 3 ) {
 		for(i=3, log=0, community=NULL, descr=NULL, owner=NULL; i < args->argc; i++) {
 			if( strcmp(args->argv[i], "log") == 0 )
@@ -39,11 +39,11 @@ void rmon_event(const char *cmd)
 					owner = args->argv[i];
 			}
 		}
-		if( do_rmon_add_event(atoi(args->argv[2]), log, community, 1, descr, owner) < 0 )
+		if( libconfig_snmp_rmon_add_event(atoi(args->argv[2]), log, community, 1, descr, owner) < 0 )
 			printf("%% Not possible to add event\n");
-		send_rmond_signal(SIGUSR1);
+		libconfig_snmp_rmon_send_signal(SIGUSR1);
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void rmon_alarm(const char *cmd)
@@ -54,13 +54,13 @@ void rmon_alarm(const char *cmd)
 	size_t namelen = MAX_OID_LEN;
 	int i, var_type = 0, rising_th = 0, rising_event = 0, falling_th = 0, falling_event = 0;
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	if( args->argc < 10 ) {
 		printf("%% Invalid command\n");
 		return;
 	}
 
-	if( snmp_translate_oid(args->argv[3], name, &namelen) == 0 ) {
+	if( libconfig_snmp_translate_oid(args->argv[3], name, &namelen) == 0 ) {
 		printf("%% Invalid object identifier\n");
 		return;
 	}
@@ -73,7 +73,7 @@ void rmon_alarm(const char *cmd)
 		if( (local = strdup(args->argv[3])) != NULL ) {
 			while( (p = strchr(local, '.')) != NULL )
 				*p = ' ';
-			if( (n = parse_args_din(local, &argl)) > 0 ) {
+			if( (n = libconfig_parse_args_din(local, &argl)) > 0 ) {
 				for( i=(n-1), isstr=-1; (i >= 0) && (isstr == -1); i-- ) {
 					for( p=argl[i]; *p != 0; p++ ) {
 						if( isdigit(*p) == 0 ) {
@@ -85,7 +85,7 @@ void rmon_alarm(const char *cmd)
 				if( isstr == (n-1) )
 					printf("ALERT: Apparently no instance specified. Is this really what you want?\n\n");
 			}
-			free_args_din(&argl);
+			libconfig_destroy_args_din(&argl);
 			free(local);
 		}
 	}
@@ -119,7 +119,7 @@ void rmon_alarm(const char *cmd)
 		}
 	}
 
-	if( do_rmon_add_alarm( atoi(args->argv[2]), 
+	if( libconfig_snmp_rmon_add_alarm( atoi(args->argv[2]), 
 				args->argv[3], 
 				name, 
 				namelen, 
@@ -132,85 +132,85 @@ void rmon_alarm(const char *cmd)
 				atoi(args->argv[4]) ? 1 : 0, owner) < 0 )
 		printf("%% Not possible to add alarm\n");
 
-	send_rmond_signal(SIGUSR1);
+	libconfig_snmp_rmon_send_signal(SIGUSR1);
 
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void no_rmon_agent(const char *cmd)
 {
-	if( is_daemon_running(RMON_DAEMON) )
-		kill_daemon(RMON_DAEMON);
+	if( libconfig_exec_check_daemon(RMON_DAEMON) )
+		libconfig_kill_daemon(RMON_DAEMON);
 }
 
 void no_rmon_event(const char *cmd)
 {
-	arglist *args = make_args(cmd);
+	arglist *args = libconfig_make_args(cmd);
 
 	switch( args->argc ) {
 		case 3:
-			if( do_remove_rmon_event(NULL) < 0 )
+			if( libconfig_snmp_rmon_remove_event(NULL) < 0 )
 				printf("%% Not possible to remove all events\n");
 			break;
 
 		case 4:
-			if( do_remove_rmon_event(args->argv[3]) < 0 )
+			if( libconfig_snmp_rmon_remove_event(args->argv[3]) < 0 )
 				printf("%% Not possible to remove all events\n");
 			break;
 	}
-	destroy_args(args);
-	send_rmond_signal(SIGUSR1);
+	libconfig_destroy_args(args);
+	libconfig_snmp_rmon_send_signal(SIGUSR1);
 }
 
 void no_rmon_alarm(const char *cmd)
 {
-	arglist *args = make_args(cmd);
+	arglist *args = libconfig_make_args(cmd);
 
 	switch( args->argc ) {
 		case 3:
-			if( do_remove_rmon_alarm(NULL) < 0 )
+			if( libconfig_snmp_rmon_remove_alarm(NULL) < 0 )
 				printf("%% Not possible to remove all alarms\n");
 			break;
 
 		case 4:
-			if( do_remove_rmon_alarm(args->argv[3]) < 0 )
+			if( libconfig_snmp_rmon_remove_alarm(args->argv[3]) < 0 )
 				printf("%% Not possible to remove all alarms\n");
 			break;
 	}
-	destroy_args(args);
-	send_rmond_signal(SIGUSR1);
+	libconfig_destroy_args(args);
+	libconfig_snmp_rmon_send_signal(SIGUSR1);
 }
 
 void show_rmon_events(const char *cmd)
 {
-	arglist *args = make_args(cmd);
+	arglist *args = libconfig_make_args(cmd);
 
 	switch( args->argc ) {
 		case 3:
-			do_rmon_event_show(NULL);
+			libconfig_snmp_rmon_show_event(NULL);
 			break;
 
 		case 4:
-			do_rmon_event_show(args->argv[3]);
+			libconfig_snmp_rmon_show_event(args->argv[3]);
 			break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_rmon_alarms(const char *cmd)
 {
-	arglist *args = make_args(cmd);
+	arglist *args = libconfig_make_args(cmd);
 
 	switch( args->argc ) {
 		case 3:
-			do_rmon_alarm_show(NULL);
+			libconfig_snmp_rmon_show_alarm(NULL);
 			break;
 
 		case 4:
-			do_rmon_alarm_show(args->argv[3]);
+			libconfig_snmp_rmon_show_alarm(args->argv[3]);
 			break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_rmon_agent(const char *cmd)
@@ -218,19 +218,19 @@ void show_rmon_agent(const char *cmd)
 	int i, show;
 	struct rmon_config *shm_rmon_p;
 
-	if( is_daemon_running(RMON_DAEMON) ) {
-		if( send_rmond_signal(SIGUSR2) ) {
+	if( libconfig_exec_check_daemon(RMON_DAEMON) ) {
+		if( libconfig_snmp_rmon_send_signal(SIGUSR2) ) {
 			for(i=0, show=0; i < 10; i++) {
-				if( get_access_rmon_config(&shm_rmon_p) ) {
+				if( libconfig_snmp_rmon_get_access_cfg(&shm_rmon_p) ) {
 					if( shm_rmon_p->valid_state ) {
 						printf("  %s\n", shm_rmon_p->state);
 						shm_rmon_p->valid_state = 0;
-						loose_access_rmon_config(&shm_rmon_p);
+						libconfig_snmp_rmon_free_access_cfg(&shm_rmon_p);
 						show++;
 						break;
 					}
 					else {
-						loose_access_rmon_config(&shm_rmon_p);
+						libconfig_snmp_rmon_free_access_cfg(&shm_rmon_p);
 						usleep(110000);
 					}
 				}
@@ -288,12 +288,12 @@ void show_rmon_mibs(const char *cmd)
 
 void show_rmon_mibtree(const char *cmd)
 {
-	if( dump_snmp_mibtree() < 0 )
+	if( libconfig_snmp_dump_mibtree() < 0 )
 		printf("Not possible to show MIB tree!\n");
 }
 
 void clear_rmon_events(const char *cmd)
 {
-	do_rmon_events_clear();
+	libconfig_snmp_rmon_clear_events();
 }
 

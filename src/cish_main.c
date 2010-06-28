@@ -66,7 +66,7 @@ void process_cish_exit(void)
 {
 	syslog(LOG_INFO, "session closed from %s", _cish_source);
 	closelog();
-	lconfig_munmap_cfg(cish_cfg);
+	libconfig_config_munmap_cfg(cish_cfg);
 }
 
 static int _on_nfs(void)
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 	openlog("config", LOG_CONS|LOG_PID, LOG_USER);
 
 	/* Map CISH configuration */
-	cish_cfg = lconfig_mmap_cfg();
+	cish_cfg = libconfig_config_mmap_cfg();
 	if (cish_cfg == NULL)
 		exit(-1);
 
@@ -117,10 +117,10 @@ int main(int argc, char *argv[])
 	/* Begin with NORMAL mask */
 	_cish_mask = MSK_NORMAL;
 
-	set_rip_interface_cmds(get_ripd());
-	set_ospf_interface_cmds(get_ospfd());
+	set_rip_interface_cmds(libconfig_quagga_ripd_is_running());
+	set_ospf_interface_cmds(libconfig_quagga_ospfd_is_running());
 #ifdef OPTION_BGP
-	set_bgp_interface_cmds(get_bgpd());
+	set_bgp_interface_cmds(libconfig_quagga_bgpd_is_running());
 #endif
 
 	set_model_qos_cmds(1);
@@ -136,10 +136,10 @@ int main(int argc, char *argv[])
 		if (strcmp (argv[1], "-b") == 0) { /* Board is booting up */
 			int size;
 
-			load_ssh_secret(SSH_KEY_FILE);
-			load_ntp_secret(NTP_KEY_FILE);
+			libconfig_nv_load_ssh_secret(SSH_KEY_FILE);
+			libconfig_nv_load_ntp_secret(NTP_KEY_FILE);
 
-			size = load_configuration(STARTUP_CFG_FILE);
+			size = libconfig_nv_load_configuration(STARTUP_CFG_FILE);
 
 			if (size <= 0) {
 				printf("%% using default configuration\n");
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
 				add_history(line);
 				retval = cish_execute(xline);
 				/* Command accounting */
-				acct_mode = discover_pam_current_acct_command_mode(FILE_PAM_GENERIC);
+				acct_mode = libconfig_pam_get_current_acct_cmd_mode(FILE_PAM_GENERIC);
 				if (retval && acct_mode!=AAA_ACCT_TACACS_CMD_NONE)
 				{
 					/* logs anything but exit and enable commands*/
@@ -358,15 +358,15 @@ void config_file(const char *f)
 		while (!feof(F)) {
 			line[0]=0;
 			fgets(line, 1023, F);
-			striplf(line);
+			libconfig_str_striplf(line);
 
 			if (strncmp(line, "version", 7) == 0) {
 				char cfg_version[32];
 
 				strncpy(cfg_version, line+8, 32);
 				cfg_version[31]=0;
-				striplf(cfg_version);
-				if (strcmp(cfg_version, get_system_version()))
+				libconfig_str_striplf(cfg_version);
+				if (strcmp(cfg_version, libconfig_get_system_version()))
 				{
 					fprintf(stderr, "%% Configurations from version %s may not be correctly understood!\n", cfg_version);
 				}
@@ -508,7 +508,7 @@ static void alarm_handler(int sig)
 				_buf[0] = 0;
 				fgets(_buf, 255, logfile);
 				_buf[255] = 0;
-				if (parse_args_din(_buf, &argl) > 5) {
+				if (libconfig_parse_args_din(_buf, &argl) > 5) {
 					crsr = strstr(_buf, argl[4]);
 					if (crsr) {
 						for (crsr+=strlen(argl[4]); *crsr == ' '; crsr++);
@@ -526,7 +526,7 @@ static void alarm_handler(int sig)
 							}
 							else {
 								LOGS[l].last_message_printed = 0;
-								p = find_debug_token(crsr, name, 0);
+								p = libconfig_debug_find_token(crsr, name, 0);
 								if (p != NULL) {
 									if (prompt_printed) {
 										printf("\n");
@@ -540,7 +540,7 @@ static void alarm_handler(int sig)
 						}
 					}
 				}
-				free_args_din(&argl);
+				libconfig_destroy_args_din(&argl);
 			}
 			LOGS[l].offset = ftell(logfile);
 			fclose(logfile);
@@ -776,11 +776,11 @@ int cish_config_changed(void)
 	int ret=0;
 
 	/* Writes running config */
-	if (lconfig_write_config (TMP_CFG_FILE, cish_cfg) < 0)
+	if (libconfig_config_write (TMP_CFG_FILE, cish_cfg) < 0)
 		return -1;
 
 	/* Load configuration fron flash */
-	load_configuration(STARTUP_CFG_FILE);
+	libconfig_nv_load_configuration(STARTUP_CFG_FILE);
 
 	/* Check size */
 	stat(TMP_CFG_FILE,&run_stat);
@@ -858,8 +858,9 @@ int cish_execute (const char *cmd)
 	if (start > 0)
 	{
 		pos=0;
-		while ((cmd[pos] == ' ') && (pos < start)) ++pos;	/* "    exemplo   arg1 arg2 " */
-															/*      ^pos   ^rightedge     */
+		while ((cmd[pos] == ' ') && (pos < start)) ++pos;
+		/* "    exemplo   arg1 arg2 " */
+		/*      ^pos   ^rightedge     */
 		while (pos < start)
 		{
 			rightedge=(strchr(cmd+pos, ' ') - cmd);
@@ -901,10 +902,8 @@ int cish_execute (const char *cmd)
 			while ((cmd[pos] == ' ') && (pos < start)) ++pos;
 		}
 	}
-	if (xcmd)
-	{
-		if (xcmd->func)
-		{
+	if (xcmd) {
+		if (xcmd->func) {
 #if 0 /* Debug */
 			printf("Execute line: %s\n", realcmd);
 #endif
@@ -1297,7 +1296,7 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 						int i, n;
 						arg_list argl=NULL;
 
-						if( (n = parse_args_din(local, &argl)) > 0 )
+						if( (n = libconfig_parse_args_din(local, &argl)) > 0 )
 						{
 							free(local);
 							local = NULL;
@@ -1316,7 +1315,7 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 									else
 										ok = 0;
 								}
-								free_args_din(&argl);
+								libconfig_destroy_args_din(&argl);
 								if( ok )
 								{
 									if (iteration<1)
@@ -1439,7 +1438,7 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 				if (strlen(unexpanded))
 				{
 					arg_list argl=NULL;
-					if(parse_args_din((char *) unexpanded, &argl) > 0)
+					if(libconfig_parse_args_din((char *) unexpanded, &argl) > 0)
 					{
 						if(strlen(argl[0]) == 17)
 						{
@@ -1456,7 +1455,7 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 							}
 							if(i == 6)
 							{
-								free_args_din(&argl);
+								libconfig_destroy_args_din(&argl);
 								if(iteration < 1)
 								{
 									strncpy(EXTCMD, unexpanded, 1023);
@@ -1467,7 +1466,7 @@ cish_command *expand_token (const char *unexpanded, cish_command *queue, int ite
 								}
 							}
 						}
-						free_args_din(&argl);
+						libconfig_destroy_args_din(&argl);
 					}
 				}
 			}
@@ -1482,22 +1481,22 @@ void term_length (const char *cmd)
 {
 	arglist *args;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 
 	terminal_lines = cish_cfg->terminal_lines = atoi (args->argv[2]);
 
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void term_timeout (const char *cmd)
 {
 	arglist *args;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 
 	cish_timeout = cish_cfg->terminal_timeout = atoi (args->argv[2]);
 
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void config_clock(const char *cmd) /* clock set [hh:mm:ss] dia mes ano */
@@ -1507,14 +1506,14 @@ void config_clock(const char *cmd) /* clock set [hh:mm:ss] dia mes ano */
 	time_t tm;
 	struct tm tm_time;
 
-	if( is_daemon_running(NTP_DAEMON) ) {
+	if( libconfig_exec_check_daemon(NTP_DAEMON) ) {
 		printf("NTP service is running. Stop this service first.\n");
 		return;
 	}
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	if ((args->argc < 3) ||
 		(parse_time(args->argv[2], &hour, &min, &sec) < 0)) {
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 	time(&tm);
@@ -1532,7 +1531,7 @@ void config_clock(const char *cmd) /* clock set [hh:mm:ss] dia mes ano */
 	else
 		year = tm_time.tm_year + 1900;
 	set_date(day, mon, year, hour, min, sec); /* !!! Test result! */
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_clock_timezone (const char *cmd)
@@ -1541,7 +1540,7 @@ void config_clock_timezone (const char *cmd)
 	char *name;
 	int hours, mins;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	name = args->argv[2];
 	hours = atoi(args->argv[3]);
 	if (args->argc>4)
@@ -1550,7 +1549,7 @@ void config_clock_timezone (const char *cmd)
 		mins = 0;
 
 	set_timezone(name, hours, mins);
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 
@@ -1559,9 +1558,9 @@ void hostname (const char *cmd)
 {
 	arglist *args;
 
-	args = make_args (cmd);
+	args = libconfig_make_args (cmd);
 	sethostname(args->argv[1], strlen(args->argv[1]));
-	destroy_args (args);
+	libconfig_destroy_args (args);
 }
 
 void help (const char *cmd)
@@ -1631,7 +1630,7 @@ void reload_in(const char *cmd) /* reload in [1-60] */
 	int timeout, in;
 	struct termios initial_settings, new_settings;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 	timeout=atoi(args->argv[2]);
 	cish_timeout=cish_cfg->terminal_timeout;
 	printf("Reload scheduled in %d minutes\n", timeout);
@@ -1652,7 +1651,7 @@ void reload_in(const char *cmd) /* reload in [1-60] */
 	if ((in=='y')||(in=='Y')||(in=='\n'))
 		cish_reload = timeout*60;
 
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_reload(const char *cmd)
@@ -1673,9 +1672,9 @@ void stop_syslogd(void)
 	if( (f = fopen(FILE_SYSLOGD_PID, "r")) != NULL ) {
 		if( fgets(buf, 127, f) != NULL ) {
 			buf[127] = 0;
-			if( parse_args_din(buf, &argl) > 0 )
+			if( libconfig_parse_args_din(buf, &argl) > 0 )
 				kill(atoi(argl[0]), SIGTERM);
-			free_args_din(&argl);
+			libconfig_destroy_args_din(&argl);
 		}
 		fclose(f);
 	}
@@ -1686,33 +1685,33 @@ void log_remote(const char *cmd) /* logging remote <address> */
 	arglist *args;
 	char buf[16], option[24];
 
-	kill_daemon(PROG_SYSLOGD);
+	libconfig_kill_daemon(PROG_SYSLOGD);
 	stop_syslogd();
-	args = make_args(cmd);
-	if( init_program_get_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
+	args = libconfig_make_args(cmd);
+	if( libconfig_exec_get_init_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
 		if( strcmp(buf, args->argv[2]) == 0 ) {
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		sprintf(option, "-L -R %s", buf);
-		init_program_change_option(0, PROG_SYSLOGD, option);
+		libconfig_exec_change_init_option(0, PROG_SYSLOGD, option);
 	}
 	sprintf(option, "-L -R %s", args->argv[2]);
-	init_program_change_option(1, PROG_SYSLOGD, option);
-	destroy_args(args);
-	exec_daemon(PROG_SYSLOGD);
+	libconfig_exec_change_init_option(1, PROG_SYSLOGD, option);
+	libconfig_destroy_args(args);
+	libconfig_exec_daemon(PROG_SYSLOGD);
 }
 
 void no_log_remote(const char *cmd)
 {
 	char buf[16], option[24];
 
-	if( init_program_get_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
-		kill_daemon(PROG_SYSLOGD);
+	if( libconfig_exec_get_init_option_value(PROG_SYSLOGD, "-R", buf, 16) >= 0 ) {
+		libconfig_kill_daemon(PROG_SYSLOGD);
 		stop_syslogd();
 		sprintf(option, "-L -R %s", buf);
-		init_program_change_option(0, PROG_SYSLOGD, option);
-		exec_daemon(PROG_SYSLOGD);
+		libconfig_exec_change_init_option(0, PROG_SYSLOGD, option);
+		libconfig_exec_daemon(PROG_SYSLOGD);
 	}
 }
 
@@ -1726,21 +1725,21 @@ void firmware_download(const char *cmd) /* firmware download <url> */
 {
 	arglist *args;
 
-	args=make_args(cmd);
+	args=libconfig_make_args(cmd);
 
-	exec_prog(0, "/bin/wget", "-P", "/mnt/image", args->argv[2], NULL);
-	destroy_args(args);
+	libconfig_exec_prog(0, "/bin/wget", "-P", "/mnt/image", args->argv[2], NULL);
+	libconfig_destroy_args(args);
 }
 
 void firmware_save(const char *cmd)
 {
-	write_image(1);
+	libconfig_write_image(1);
 }
 
 void firmware_upload(const char *cmd)
 {
 	/* Enable upload service */
-	if( set_inetd_program(1, FTP_DAEMON) < 0 ) {
+	if( libconfig_exec_set_inetd_program(1, FTP_DAEMON) < 0 ) {
 		printf("%% Not possible to enable FTP server\n");
 		return;
 	}
@@ -1749,7 +1748,7 @@ void firmware_upload(const char *cmd)
 void no_firmware_upload(const char *cmd)
 {
 	/* Disable upload service */
-	if( set_inetd_program(0, FTP_DAEMON) < 0 ) {
+	if( libconfig_exec_set_inetd_program(0, FTP_DAEMON) < 0 ) {
 		printf("%% Not possible to disable FTP server\n");
 		return;
 	}
@@ -1772,7 +1771,7 @@ static void clear_ipsec_counters(char *conn_name)
 	unsigned int count, found;
 	struct runn_ipsec_itf entry[MAX_CONN];
 
-	if( get_ipsec() ) { /* Wait pluto start! */
+	if( libconfig_ipsec_is_running() ) { /* Wait pluto start! */
 		output = popen("/lib/ipsec/whack --status", "r");
 		if( !output ) {
 			printf("%% Not possible to clear counters\n");
@@ -1781,7 +1780,7 @@ static void clear_ipsec_counters(char *conn_name)
 
 		/* Search for string containing the pair ipsec interface + real interface */
 		for( count=0; (count < MAX_CONN) && fgets(line, 1024, output); ) {
-			if( (n = parse_args_din(line, &argl)) > 3 ) {
+			if( (n = libconfig_parse_args_din(line, &argl)) > 3 ) {
 				if( (strcmp(argl[1], "interface") == 0) && (strncmp(argl[2], "ipsec", strlen("ipsec")) == 0) ) {
 					if( (p = strchr(argl[2], '/')) )
 						*p = 0;
@@ -1792,7 +1791,7 @@ static void clear_ipsec_counters(char *conn_name)
 					count++;
 				}
 			}
-			free_args_din(&argl);
+			libconfig_destroy_args_din(&argl);
 		}
 		pclose(output);
 		if( count == 0 )
@@ -1809,7 +1808,7 @@ static void clear_ipsec_counters(char *conn_name)
 
 		/* Find the right connection */
 		for( found=0; (found == 0) && fgets(line, 1024, output); ) {
-			if( parse_args_din(line, &argl) > 3 ) {
+			if( libconfig_parse_args_din(line, &argl) > 3 ) {
 				if( (strstr(argl[1], name_buf) != NULL) && ((p = strstr(argl[2], "===")) != NULL) ) {
 
 					p = p + 3; /* Start of IP address */
@@ -1820,15 +1819,15 @@ static void clear_ipsec_counters(char *conn_name)
 						/* Find the right ipsec interface */
 						for( i=0; i < count; i++ ) {
 							if( strcmp(entry[i].local_addr, p) == 0 ) {
-								if( dev_exists(entry[i].ipsec_intf) )
-									clear_interface_counters(entry[i].ipsec_intf);
+								if( libconfig_dev_exists(entry[i].ipsec_intf) )
+									libconfig_clear_interface_counters(entry[i].ipsec_intf);
 								found = 1;
 							}
 						}
 					}
 				}
 			}
-			free_args_din(&argl);
+			libconfig_destroy_args_din(&argl);
 		}
 		pclose(output);
 	}
@@ -1844,19 +1843,19 @@ void clear_counters(const char *cmdline)
 	char sub[16];
 	char *interface;
 	int clear;
-	device_family *if_edited;
+	dev_family *if_edited;
 	int if_major;
 	int if_minor;
 
-	args=make_args(cmdline); /* clear counters [interface] [major.minor] */
+	args=libconfig_make_args(cmdline); /* clear counters [interface] [major.minor] */
 #ifdef OPTION_IPSEC
 	if( strcmp(args->argv[2], "crypto") == 0 ) {
 		int i;
 		char **list=NULL, **list_ini=NULL;
 
-		if( list_all_ipsec_names(&list_ini) < 1 ) {
+		if( libconfig_ipsec_list_all_names(&list_ini) < 1 ) {
 			printf("%% Not possible to clear counters\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		for( i=0, list=list_ini; i < MAX_CONN; i++, list++ ) {
@@ -1871,13 +1870,13 @@ void clear_counters(const char *cmdline)
 			}
 		}
 		free(list_ini);
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
 #endif
 	strncpy(device, args->argv[2], 31); device[31]=0;
 	strncpy(sub, args->argv[3], 15); sub[15]=0;
-	if ((if_edited=getfamily(device))) {
+	if ((if_edited=libconfig_device_get_family(device))) {
 		major=sub;
 		minor=strchr(major, '.');
 		if (minor) *minor++ = 0;
@@ -1886,9 +1885,9 @@ void clear_counters(const char *cmdline)
 		if (minor) if_minor = atoi(minor);
 			else if_minor=-1;
 
-		interface=convert_device(if_edited->cish_string, if_major, if_minor);
-		if (dev_exists(interface)) {
-			clear=clear_interface_counters(interface);
+		interface=libconfig_device_convert(if_edited->cish_string, if_major, if_minor);
+		if (libconfig_dev_exists(interface)) {
+			clear=libconfig_clear_interface_counters(interface);
 		} else {
 			printf("%% Inactive interface %s %s\n", device, sub);
 		}
@@ -1898,7 +1897,7 @@ void clear_counters(const char *cmdline)
 	{
 		fprintf(stderr, "%% Unknown device type.\n");
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 #ifdef CONFIG_IPHC
@@ -1907,15 +1906,15 @@ void clear_iphc(const char *cmdline) /* clear ip header-compression [interface] 
 	arglist *args;
 	long protocol;
 	int if_major, if_minor;
-	device_family *if_edited;
+	dev_family *if_edited;
 	char *major, *minor, *interface, sub[16], device[32];
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	strncpy(device, args->argv[3], 31);
 	device[31] = 0;
 	strncpy(sub, args->argv[4], 15);
 	sub[15] = 0;
-	if( (if_edited = getfamily(device)) ) {
+	if( (if_edited = libconfig_device_get_family(device)) ) {
 		major = sub;
 		minor = strchr(major, '.');
 		if( minor )
@@ -1930,20 +1929,20 @@ void clear_iphc(const char *cmdline) /* clear ip header-compression [interface] 
 			switch( protocol ) {
 				case IF_PROTO_FR:
 					if( minor == NULL ) { /* Se nao for subinterface, retorna imediatamente */
-						destroy_args(args);
+						libconfig_destroy_args(args);
 						return;
 					}
 					if( fr_dlci_exists(if_major, if_minor) == 0 ) {
 						fprintf(stderr, "%% Invalid interface number.\n");
-						destroy_args(args);
+						libconfig_destroy_args(args);
 						return;
 					}
 					break;
 				default:
 					break;
 			}
-			interface = convert_device(if_edited->cish_string, if_major, if_minor);
-			if( dev_exists(interface) ) {
+			interface = libconfig_device_convert(if_edited->cish_string, if_major, if_minor);
+			if( libconfig_dev_exists(interface) ) {
 				switch( protocol ) {
 #ifdef CONFIG_FR_IPHC
 					case IF_PROTO_FR:
@@ -1964,7 +1963,7 @@ void clear_iphc(const char *cmdline) /* clear ip header-compression [interface] 
 	}
 	else
 		fprintf(stderr, "%% Unknown device type.\n");
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 #endif
 

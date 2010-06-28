@@ -17,7 +17,7 @@ void ssh(const char *cmd) /* ssh <ipaddr> <username> <port> */
 	pid_t pid;
 	char *xargv[7];
 
-	args = make_args(cmd);
+	args = libconfig_make_args(cmd);
 	switch (pid = fork()) {
 	case -1:
 		fprintf(stderr, "%% No processes left\n");
@@ -50,7 +50,7 @@ void ssh(const char *cmd) /* ssh <ipaddr> <username> <port> */
 		waitpid(pid, NULL, 0);
 		break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void telnet(const char *cmdline)
@@ -61,7 +61,7 @@ void telnet(const char *cmdline)
 	char *xargv[4];
 	pid_t pid;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	strncpy(addr, args->argv[1], 31);
 	addr[31] = 0;
 	if (args->argc > 2) {
@@ -70,7 +70,7 @@ void telnet(const char *cmdline)
 	} else {
 		port[0] = 0;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 
 	switch (pid = fork()) {
 	case -1:

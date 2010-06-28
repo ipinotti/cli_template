@@ -177,7 +177,7 @@ static int show_logging_file(time_t tm_start)
 					if (tm < tm_start)
 						continue; /* skip! */
 				}
-				p = find_debug_token(info, name, 1);
+				p = libconfig_debug_find_token(info, name, 1);
 				if (p != NULL) {
 					last_one_was_printed = 1;
 					pprintf("%s %s%s", date, name, p);
@@ -220,13 +220,13 @@ void show_logging(const char *cmdline) /* show logging [tail] */
 	time_t tm = 0;
 	struct tm tm_time;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc > 2) {
 		if (strcmp(args->argv[2], "tail") == 0) {
 			tail = 1;
 		} else {
 			if (parse_time(args->argv[2], &hour, &min, &sec) < 0) {
-				destroy_args(args);
+				libconfig_destroy_args(args);
 				return;
 			}
 			time(&tm);
@@ -264,7 +264,7 @@ void show_logging(const char *cmdline) /* show logging [tail] */
 		if (show_logging_file(tm))
 			pprintf("%s", "\n");
 	}
-	skip: destroy_args(args);
+	skip: libconfig_destroy_args(args);
 }
 
 void clear_logging(const char *cmdline) /* clear logging */
@@ -289,7 +289,7 @@ void show_processes(const char *cmdline)
 {
 	struct process_t *ps, *next;
 
-	next = ps = lconfig_get_ps_info();
+	next = ps = libconfig_ps_get_info();
 	if (ps == NULL)
 		return;
 
@@ -301,7 +301,7 @@ void show_processes(const char *cmdline)
 	}
 	printf("\n");
 
-	lconfig_free_ps_info(ps);
+	libconfig_ps_free_info(ps);
 	return;
 
 }
@@ -339,8 +339,8 @@ void show_version(const char *cmdline)
 #ifdef CONFIG_DEVELOPMENT
 	printf("Engineering prototype\n");
 #endif
-	printf("Bootloader version: %s\n", get_boot_version());
-	printf("System version: %s\n", get_system_version());
+	printf("Bootloader version: %s\n", libconfig_get_boot_version());
+	printf("System version: %s\n", libconfig_get_system_version());
 #if 0
 	printf("Owner: %s\n", get_product_owner());
 	printf("Licensed: %s\n", get_product_licensed());
@@ -376,9 +376,9 @@ void show_arp(const char *cmdline)
 		tbuf[0] = 0;
 		fgets(tbuf, 127, F);
 		tbuf[127] = 0;
-		striplf(tbuf);
+		libconfig_str_striplf(tbuf);
 
-		args = make_args(tbuf);
+		args = libconfig_make_args(tbuf);
 		if (args->argc >= 6) {
 			ipaddr = args->argv[0];
 			hwaddr = args->argv[3];
@@ -401,13 +401,13 @@ void show_arp(const char *cmdline)
 					printf("ARPA   ");
 				else
 					pprintf("other  ");
-				cdev = convert_os_device(osdev, 1);
+				cdev = libconfig_device_convert_os(osdev, 1);
 				if (cdev)
 					pprintf("%s", cdev);
 				pprintf("\n");
 			}
 		}
-		destroy_args(args);
+		libconfig_destroy_args(args);
 	}
 }
 
@@ -426,29 +426,29 @@ void show_ip_dns(const char *cmdline)
 	char addr[16];
 	unsigned int i;
 
-	printf("IP domain lookup is currently %sabled\n", is_domain_lookup_enabled() ? "en" : "dis");
-	printf("DNS relay is currently %sabled\n", is_daemon_running(DNS_DAEMON) ? "en" : "dis");
+	printf("IP domain lookup is currently %sabled\n", libconfig_dns_domain_lookup_enabled() ? "en" : "dis");
+	printf("DNS relay is currently %sabled\n", libconfig_exec_check_daemon(DNS_DAEMON) ? "en" : "dis");
 
 	/* Lista servidores DNS estaticos */
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i, addr) < 0)
+		if (libconfig_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i, addr) < 0)
 			break;
 		printf("Static ip name-server %s\n", addr);
 	}
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i, addr) < 0)
+		if (libconfig_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i, addr) < 0)
 			break;
 		printf("Static ip name-server %s (inactive)\n", addr);
 	}
 
 	/* Lista servidores DNS dinamicos */
 	for (i = 0;; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i, addr) < 0)
+		if (libconfig_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i, addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s\n", addr);
 	}
 	for (i = 0;; i++) {
-		if (get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i, addr) < 0)
+		if (libconfig_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i, addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s (inactive)\n", addr);
 	}
@@ -506,7 +506,7 @@ void show_softnet(const char *cmdline)
 void dump_routing(FILE *out, int conf_format)
 {
 	if (conf_format) {
-		zebra_dump_static_routes_conf(out);
+		libconfig_quagga_zebra_dump_static_routes(out);
 	} else {
 		zebra_dump_routes(out);
 	}
@@ -547,7 +547,7 @@ static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 
 static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 {
-	int phy_status = lan_get_status(conf->name);
+	int phy_status = libconfig_lan_get_status(conf->name);
 
 	if (conf->mac[0])
 		fprintf(out, "  Hardware address is %s\n", conf->mac);
@@ -555,7 +555,7 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 	if (conf->running) {
 		int bmcr, pgsr, pssr;
 
-		bmcr = lan_get_phy_reg(conf->name, MII_BMCR);
+		bmcr = libconfig_lan_get_phy_reg(conf->name, MII_BMCR);
 		if (bmcr & BMCR_ANENABLE) {
 			fprintf(out, "  Auto-sense");
 			if (phy_status & PHY_STAT_ANC) {
@@ -589,8 +589,8 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 			fprintf(out, "\n");
 		}
 
-		pgsr = lan_get_phy_reg(conf->name, MII_ADM7001_PGSR);
-		pssr = lan_get_phy_reg(conf->name, MII_ADM7001_PSSR);
+		pgsr = libconfig_lan_get_phy_reg(conf->name, MII_ADM7001_PGSR);
+		pssr = libconfig_lan_get_phy_reg(conf->name, MII_ADM7001_PSSR);
 
 		if (pgsr & MII_ADM7001_PGSR_XOVER) {
 			fprintf(out, "  Cable MDIX");
@@ -642,7 +642,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	int serial_no=0, lusb_descriptor=0, lusb_tty_verify=0;
 	char * apn = malloc (100);
 	int running = conf->running;
-	lusb_dev * usbdev=malloc(sizeof(lusb_dev));
+	libconfig_usb_dev * usbdev=malloc(sizeof(libconfig_usb_dev));
 
 
 	/* Get interface index */
@@ -656,9 +656,9 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	/* Get config PPP ;
 	 * Get USB description ;
 	 * Verify existence of TTY, means USB device is a modem 3g ; */
-	ppp_get_config(serial_no, &cfg);
-	lusb_descriptor = lusb_get_descriptor(usbdev);
-	lusb_tty_verify = lusb_check_usb_ttyUSB(usbdev->port);
+	libconfig_ppp_get_config(serial_no, &cfg);
+	lusb_descriptor = libconfig_usb_get_descriptor(usbdev);
+	lusb_tty_verify = libconfig_usb_device_is_modem(usbdev->port);
 
 
 
@@ -679,7 +679,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	fprintf(out, "  Encapsulation PPP");
 
-	if (modem3g_get_apn (apn, serial_no))
+	if (libconfig_modem3g_get_apn (apn, serial_no))
 		fprintf(out, ", APN is \"%s\"\n", apn);
 	else
 		printf(" Error - reading APN\n");
@@ -688,11 +688,11 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	if (lusb_descriptor == 1 && lusb_tty_verify == 1)
 		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d\n",
-				usbdev->iProduct_string,
-				usbdev->iManufacture_string,
+				usbdev->product_str,
+				usbdev->manufacture_str,
 				usbdev->port);
 	else
-		if (lusb_descriptor == 1 && lusb_tty_verify == -1)
+		if (lusb_descriptor == 1 && lusb_tty_verify == 0)
 			fprintf(out, "  USB device connected, but not a modem.\n");
 		else
 			fprintf(out, "  No USB device connected.\n");
@@ -729,14 +729,14 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		cish_dbg("%s\n", intf_list[i]);
 
-		if (lconfig_get_iface_config(intf_list[i], &conf) < 0) {
+		if (libconfig_ip_iface_get_config(intf_list[i], &conf) < 0) {
 			cish_dbg("%s not found\n", intf_list[i]);
 			continue;
 		}
 
 		st = conf.stats;
 
-		cish_dev = convert_os_device(conf.name, conf_format ? 0 : 1);
+		cish_dev = libconfig_device_convert_os(conf.name, conf_format ? 0 : 1);
 		cish_dbg("cish_dev : %s\n", cish_dev);
 
 		/* Check if only one interface is needed */
@@ -758,10 +758,10 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		switch (conf.linktype) {
 
 			case ARPHRD_ETHER:
-			phy_status=lan_get_status(conf.name);
+			phy_status=libconfig_lan_get_status(conf.name);
 			running=(up && (phy_status & PHY_STAT_LINK) ? 1 : 0); /* vlan: interface must be up */
 			if (!strncmp(conf.name,"ethernet",8) && strstr(conf.name,".")) /* VLAN */
-			vlan_cos = get_vlan_cos(conf.name);
+			vlan_cos = libconfig_vlan_get_cos(conf.name);
 			else
 			vlan_cos = NONE_TO_COS;
 			break;
@@ -785,7 +785,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		                conf.running & IF_STATE_UP ? "up" : "down", conf.running
 		                                & IF_STATE_LOOP ? " (looped)" : "");
 
-		description = dev_get_description(conf.name);
+		description = libconfig_dev_get_description(conf.name);
 		if (description)
 			fprintf(out, "  Description: %s\n", description);
 
@@ -821,7 +821,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 #ifdef OPTION_TUNNEL
 			case ARPHRD_TUNNEL:
 			case ARPHRD_IPGRE:
-			dump_tunnel_interface(out, conf_format, conf.name);
+			libconfig_tunnel_dump_interface(out, conf_format, conf.name);
 			break;
 #endif
 
@@ -902,7 +902,7 @@ void show_running_config(const char *cmdline)
 	printf("Building configuration...\n");
 
 	/* Write config to f descriptor */
-	if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
+	if (libconfig_config_write(TMP_CFG_FILE, cish_cfg) < 0) {
 		fprintf(stderr, "%% Can't build configuration\n");
 		return;
 	}
@@ -939,9 +939,9 @@ void show_level_running_config(const char *cmdline)
 #endif
 		dump_chatscripts(f);
 		acl_dump_policy(f);
-		lconfig_acl_dump(0, f, 1);
-		lconfig_nat_dump(0, f, 1);
-		lconfig_mangle_dump(0, f, 1);
+		libconfig_acl_dump(0, f, 1);
+		libconfig_nat_dump(0, f, 1);
+		libconfig_mangle_dump(0, f, 1);
 		dump_nat_helper(f);
 		dump_routing(f, 1);
 #ifdef OPTION_SMCROUTE
@@ -962,7 +962,7 @@ void show_level_running_config(const char *cmdline)
 	                || (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
 	                || (command_root == CMD_CONFIG_INTERFACE_M3G)) {
 
-		char *intf = convert_device(interface_edited->cish_string,
+		char *intf = libconfig_device_convert(interface_edited->cish_string,
 				interface_major, interface_minor);
 
 		dump_interfaces(f, 1, intf);
@@ -990,7 +990,7 @@ void show_level_running_config(const char *cmdline)
 
 void show_startup_config(const char *cmdline)
 {
-	if (load_configuration(STARTUP_CFG_FILE) > 0) {
+	if (libconfig_nv_load_configuration(STARTUP_CFG_FILE) > 0) {
 		tf = fopen(STARTUP_CFG_FILE, "r");
 		show_output();
 		if (tf)
@@ -1000,7 +1000,7 @@ void show_startup_config(const char *cmdline)
 
 void show_previous_config(const char *cmdline)
 {
-	if (load_previous_configuration(TMP_CFG_FILE) > 0) {
+	if (libconfig_nv_load_previous_configuration(TMP_CFG_FILE) > 0) {
 		tf = fopen(TMP_CFG_FILE, "r");
 		show_output();
 		if (tf)
@@ -1028,7 +1028,7 @@ void cmd_copy(const char *cmdline)
 	char from, to;
 	char *host = NULL, *filename = NULL;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	from = args->argv[1][0];
 	to = args->argv[2][0];
 	if ((from == 't') || (to == 't')) {
@@ -1037,9 +1037,9 @@ void cmd_copy(const char *cmdline)
 	}
 	switch (from) {
 	case 'p': {
-		if (load_previous_configuration(TMP_CFG_FILE) == 0) {
+		if (libconfig_nv_load_previous_configuration(TMP_CFG_FILE) == 0) {
 			fprintf(stderr, "%% No previous configuration\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		in = TMP_CFG_FILE;
@@ -1049,9 +1049,9 @@ void cmd_copy(const char *cmdline)
 	case 'r':
 		printf("Building configuration...\n");
 
-		if (lconfig_write_config(TMP_CFG_FILE, cish_cfg) < 0) {
+		if (libconfig_config_write(TMP_CFG_FILE, cish_cfg) < 0) {
 			fprintf(stderr, "%% Can't build configuration\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 
@@ -1059,9 +1059,9 @@ void cmd_copy(const char *cmdline)
 		break;
 
 	case 's':
-		if (load_configuration(STARTUP_CFG_FILE) == 0) {
+		if (libconfig_nv_load_configuration(STARTUP_CFG_FILE) == 0) {
 			fprintf(stderr, "%% Configuration not saved\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		in = STARTUP_CFG_FILE;
@@ -1079,7 +1079,7 @@ void cmd_copy(const char *cmdline)
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
 			fprintf(stderr, "%% Can't read output\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		fgets(buf, 127, f);
@@ -1087,7 +1087,7 @@ void cmd_copy(const char *cmdline)
 		s = strstr(buf, "tftp: ");
 		if (s) {
 			fprintf(stderr, "%% TFTP:%s", s + 5);
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		in = TFTP_CFG_FILE;
@@ -1107,9 +1107,9 @@ void cmd_copy(const char *cmdline)
 		break;
 
 	case 's': {
-		if (save_configuration(in) < 0) {
+		if (libconfig_nv_save_configuration(in) < 0) {
 			fprintf(stderr, "%% Error writing configuration\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 	}
@@ -1126,7 +1126,7 @@ void cmd_copy(const char *cmdline)
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
 			fprintf(stderr, "%% Can't read output\n");
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 		fgets(buf, 127, f);
@@ -1134,7 +1134,7 @@ void cmd_copy(const char *cmdline)
 		s = strstr(buf, "tftp: ");
 		if (s) {
 			fprintf(stderr, "%% TFTP:%s", s + 5);
-			destroy_args(args);
+			libconfig_destroy_args(args);
 			return;
 		}
 	}
@@ -1143,7 +1143,7 @@ void cmd_copy(const char *cmdline)
 	printf("[OK]\n");
 	unlink(TMP_CFG_FILE);
 	unlink(TFTP_CFG_FILE);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void config_memory(const char *cmdline)
@@ -1157,7 +1157,7 @@ void erase_cfg(const char *cmdline)
 
 	f = fopen(STARTUP_CFG_FILE, "wt");
 	fclose(f); /* zero size! */
-	save_configuration(STARTUP_CFG_FILE);
+	libconfig_nv_save_configuration(STARTUP_CFG_FILE);
 }
 
 void show_privilege(const char *cmdline)
@@ -1171,7 +1171,7 @@ void show_interfaces(const char *cmdline) /* show interfaces [aux|ethernet|loopb
 	char intf[100];
 
 	// Melhorar esta parte - nao perdi tempo agora porque a parte de interfaces vai mudar !!!
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc > 2) {
 		strncpy(intf, args->argv[2], 99);
 		if (args->argc > 3)
@@ -1179,34 +1179,34 @@ void show_interfaces(const char *cmdline) /* show interfaces [aux|ethernet|loopb
 		dump_interfaces(stdout, 0, intf);
 	} else
 		dump_interfaces(stdout, 0, NULL);
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_accesslists(const char *cmdline)
 {
 	arglist *args;
 
-	args = make_args(cmdline);
-	lconfig_acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
-	destroy_args(args);
+	args = libconfig_make_args(cmdline);
+	libconfig_acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	libconfig_destroy_args(args);
 }
 
 void show_manglerules(const char *cmdline)
 {
 	arglist *args;
 
-	args = make_args(cmdline);
-	lconfig_mangle_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
-	destroy_args(args);
+	args = libconfig_make_args(cmdline);
+	libconfig_mangle_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	libconfig_destroy_args(args);
 }
 
 void show_natrules(const char *cmdline)
 {
 	arglist *args;
 
-	args = make_args(cmdline);
-	lconfig_nat_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
-	destroy_args(args);
+	args = libconfig_make_args(cmdline);
+	libconfig_nat_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
+	libconfig_destroy_args(args);
 }
 
 void show_performance(const char *cmdline)
@@ -1214,7 +1214,7 @@ void show_performance(const char *cmdline)
 	pid_t pid;
 	arglist *args;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	switch ((pid = fork())) {
 	case -1:
 		fprintf(stderr, "%% No processes left\n");
@@ -1227,12 +1227,12 @@ void show_performance(const char *cmdline)
 		waitpid(pid, NULL, 0);
 		break;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 }
 
 void show_qos(const char *cmdline)
 {
-	lconfig_qos_dump_interfaces();
+	libconfig_qos_dump_interfaces();
 }
 
 #ifdef OPTION_IPSEC
@@ -1292,7 +1292,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca id local
 	tmp[0] = '\0';
 	id_l[0] = '\0';
-	if (get_ipsec_id(LOCAL, name, tmp) >= 0) {
+	if (libconfig_ipsec_get_id(LOCAL, name, tmp) >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < MAX_ADDR_SIZE)
 			strcpy(id_l, tmp);
 	}
@@ -1302,7 +1302,7 @@ static int show_conn_specific(char *name, int state)
 	addr_l[0] = '\0';
 	mask[0] = '\0';
 	cidr_l[0] = '\0';
-	if (get_ipsec_subnet(LOCAL, name, tmp) >= 0) {
+	if (libconfig_ipsec_get_subnet(LOCAL, name, tmp) >= 0) {
 		if (strlen(tmp) > 0) {
 			if ((p = strchr(tmp, ' '))) {
 				strncpy(addr_l, tmp, p - tmp);
@@ -1312,7 +1312,7 @@ static int show_conn_specific(char *name, int state)
 					;
 				if (strlen(p) > 0) {
 					strcpy(mask, p);
-					if (classic_to_cidr(addr_l, mask, cidr_l) != 0)
+					if (libconfig_quagga_classic_to_cidr(addr_l, mask, cidr_l) != 0)
 						cidr_l[0] = '\0';
 				}
 			}
@@ -1322,7 +1322,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca endereco local
 	tmp[0] = '\0';
 	addr_l[0] = '\0';
-	ret = get_ipsec_local_addr(name, tmp);
+	ret = libconfig_ipsec_get_local_addr(name, tmp);
 	if (ret >= 0) {
 		if (ret > 0 && strlen(tmp) < MAX_ADDR_SIZE) {
 			if (ret == ADDR_DEFAULT)
@@ -1337,7 +1337,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca nexthop local
 	tmp[0] = '\0';
 	nexthop_l[0] = '\0';
-	ret = get_ipsec_nexthop(LOCAL, name, tmp);
+	ret = libconfig_ipsec_get_nexthop(LOCAL, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < 20)
 			strcpy(nexthop_l, tmp);
@@ -1346,7 +1346,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca id remoto
 	tmp[0] = '\0';
 	id_r[0] = '\0';
-	if (get_ipsec_id(REMOTE, name, tmp) >= 0) {
+	if (libconfig_ipsec_get_id(REMOTE, name, tmp) >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < MAX_ADDR_SIZE)
 			strcpy(id_r, tmp);
 	}
@@ -1356,7 +1356,7 @@ static int show_conn_specific(char *name, int state)
 	addr_r[0] = '\0';
 	mask[0] = '\0';
 	cidr_r[0] = '\0';
-	ret = get_ipsec_subnet(REMOTE, name, tmp);
+	ret = libconfig_ipsec_get_subnet(REMOTE, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0) {
 			if ((p = strchr(tmp, ' '))) {
@@ -1367,7 +1367,7 @@ static int show_conn_specific(char *name, int state)
 					;
 				if (strlen(p) > 0) {
 					strcpy(mask, p);
-					if (classic_to_cidr(addr_r, mask, cidr_r) != 0)
+					if (libconfig_quagga_classic_to_cidr(addr_r, mask, cidr_r) != 0)
 						cidr_r[0] = '\0';
 				}
 			}
@@ -1377,7 +1377,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca endereco remoto
 	tmp[0] = '\0';
 	addr_r[0] = '\0';
-	ret = get_ipsec_remote_addr(name, tmp);
+	ret = libconfig_ipsec_get_remote_addr(name, tmp);
 	if (ret >= 0) {
 		if (ret > 0 && strlen(tmp) < MAX_ADDR_SIZE) {
 			if (ret == ADDR_ANY)
@@ -1392,7 +1392,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca nexthop remoto
 	tmp[0] = '\0';
 	nexthop_r[0] = '\0';
-	ret = get_ipsec_nexthop(REMOTE, name, tmp);
+	ret = libconfig_ipsec_get_nexthop(REMOTE, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < 20)
 			strcpy(nexthop_r, tmp);
@@ -1401,7 +1401,7 @@ static int show_conn_specific(char *name, int state)
 	// Busca tipo de autenticacao
 	tmp[0] = '\0';
 	authby[0] = '\0';
-	switch (get_ipsec_auth(name, tmp)) {
+	switch (libconfig_ipsec_get_auth(name, tmp)) {
 	case SECRET:
 		strcpy(authby, "SECRET");
 		break;
@@ -1414,10 +1414,10 @@ static int show_conn_specific(char *name, int state)
 	tmp[0] = '\0';
 	esp_c[0] = '\0';
 	authproto[0] = '\0';
-	switch (get_ipsec_ike_authproto(name)) {
+	switch (libconfig_ipsec_get_ike_authproto(name)) {
 	case ESP:
 		strcat(authproto, "ESP");
-		switch (get_ipsec_esp(name, tmp)) {
+		switch (libconfig_ipsec_get_esp(name, tmp)) {
 		case 1:
 			if (strlen(tmp) > 0 && strlen(tmp) < 10) {
 				if (!strncmp(tmp, "des", 3))
@@ -1445,7 +1445,7 @@ static int show_conn_specific(char *name, int state)
 
 	// Busca PFS
 	pfs[0] = '\0';
-	ret = get_ipsec_pfs(name);
+	ret = libconfig_ipsec_get_pfs(name);
 	if (ret >= 0) {
 		if (ret > 0)
 			strcpy(pfs, "PFS");
@@ -1518,9 +1518,9 @@ void show_crypto(const char *cmdline)
 	char *p, *rsa, **list = NULL, **list_ini = NULL, line[1024];
 	FILE *output;
 
-	args = make_args(cmdline);
+	args = libconfig_make_args(cmdline);
 	if (args->argc == 3) {
-		if (get_ipsec()) /* Wait pluto start! */
+		if (libconfig_ipsec_is_running()) /* Wait pluto start! */
 		{
 			char search_str[MAX_CMD_LINE];
 
@@ -1534,32 +1534,32 @@ void show_crypto(const char *cmdline)
 			}
 			pclose(output);
 		}
-		destroy_args(args);
+		libconfig_destroy_args(args);
 		return;
 	}
-	destroy_args(args);
+	libconfig_destroy_args(args);
 
 	total_name_len = 0;
 #if 0
-	if (get_ipsec_interface(iface, 20) < 1)
+	if (libconfig_ipsec_get_interface(iface, 20) < 1)
 	{
 		printf("%% Not possible to show ipsec interface\n");
 		return;
 	}
 	printf("interface %s\n", iface);
 #endif
-	if ((ret = get_ipsec_autoreload()) > 0)
+	if ((ret = libconfig_ipsec_get_autoreload()) > 0)
 		printf("auto-reload in %d seconds\n", ret);
-	if ((ret = get_ipsec_nat_traversal()) >= 0) {
+	if ((ret = libconfig_ipsec_get_nat_traversal()) >= 0) {
 		if (ret)
 			printf("NAT-Traversal on\n");
 		else
 			printf("NAT-Traversal off\n");
 	}
-	if ((ret = get_ipsec_overridemtu()) > 0)
+	if ((ret = libconfig_ipsec_get_overridemtu()) > 0)
 		printf("overridemtu %d\n", ret);
 	// chave rsa publica
-	if ((rsa = get_rsakeys_from_nv())) {
+	if ((rsa = libconfig_nv_get_rsakeys())) {
 		if ((p = strstr(rsa, "#pubkey="))) {
 			p += 8;
 			for (; *p == ' '; p++)
@@ -1573,7 +1573,7 @@ void show_crypto(const char *cmdline)
 	} else
 		printf("You have to generate rsa keys!\n");
 	// busca todas as conexoes existentes
-	if (list_all_ipsec_names(&list_ini) < 1) {
+	if (libconfig_ipsec_list_all_names(&list_ini) < 1) {
 		printf("%% Not possible to show ipsec connections\n");
 		return;
 	}
@@ -1587,7 +1587,7 @@ void show_crypto(const char *cmdline)
 		}
 		total_name_len += 9;
 
-		if (get_ipsec()) /* Wait pluto start! */
+		if (libconfig_ipsec_is_running()) /* Wait pluto start! */
 		{
 			if (!(output = popen("/lib/ipsec/whack --status", "r"))) {
 				printf("%% Not possible to show ipsec connections\n");
@@ -1602,7 +1602,7 @@ void show_crypto(const char *cmdline)
 					continue;
 				if (strlen(line) == 0)
 					break;
-				args = make_args(line);
+				args = libconfig_make_args(line);
 
 				if (args->argc == 7) {
 					if (!strstr(args->argv[2], "...%any")) /* skip roadwarrior master! */
@@ -1634,13 +1634,13 @@ void show_crypto(const char *cmdline)
 						}
 					}
 				}
-				destroy_args(args);
+				libconfig_destroy_args(args);
 			}
 			pclose(output);
 		}
 		for (i = 0, list = list_ini; i < MAX_CONN; i++, list++) {
 			if (*list) {
-				switch (get_ipsec_auto(*list)) {
+				switch (libconfig_ipsec_get_auto(*list)) {
 				case AUTO_IGNORE:
 					if (show_conn_specific(*list, CONN_SHUTDOWN) < 1)
 						goto go_error;
@@ -1667,7 +1667,7 @@ void show_crypto(const char *cmdline)
 	} else
 		printf("No connections configured!\n"); /*\033[30C*/
 #if 0
-	ret=get_if_list();
+	ret=libconfig_ip_get_if_list();
 	if (ret < 0) return;
 	for (i=0; i < link_table_index; i++)
 	{
@@ -1740,7 +1740,7 @@ void show_dumpleases(const char *cmdline)
 	for (i = 0; i < 1; i++)
 #endif
 	{
-		if (kick_udhcpd(i) == 0) {
+		if (libconfig_udhcpd_kick_by_eth(i) == 0) {
 			sprintf(filename, FILE_DHCPDLEASES, i);
 			tf = fopen(filename, "r");
 			if (!tf)
@@ -1770,7 +1770,7 @@ void show_ntpkeys(const char *cmdline)
 			if ((p = strchr(line, '\n')))
 				*p = '\0';
 			if (strlen(line)) {
-				args = make_args(line);
+				args = libconfig_make_args(line);
 				if (args->argc >= 3 && args->argv[0][0] != '#') /* 1 MD5 4+?PD7j5a$0jdy7@ # MD5 key */
 				{
 					if (!strcmp(args->argv[1], "MD5"))
@@ -1790,7 +1790,7 @@ void show_ntpassociations(const char *cmdline)
 	int i, used, n_local_addr = 0;
 	char buf[256], local_addr[16][16];
 
-	if (!is_daemon_running(NTP_DAEMON))
+	if (!libconfig_exec_check_daemon(NTP_DAEMON))
 		return;
 
 	/* Inicialmente temos que descobrir quais enderecos das interfaces locais estao operando com NTP */
@@ -1801,7 +1801,7 @@ void show_ntpassociations(const char *cmdline)
 		buf[255] = 0;
 		if (feof(f))
 			break;
-		if (parse_args_din(buf, &argl) == 10) {
+		if (libconfig_parse_args_din(buf, &argl) == 10) {
 			if (inet_aton(argl[1], &inp) == 1) {
 				for (i = 0, used = 0; (i < n_local_addr) && (i < 16); i++) {
 					if (strcmp(argl[1], local_addr[i]) == 0) {
@@ -1813,7 +1813,7 @@ void show_ntpassociations(const char *cmdline)
 					strcpy(local_addr[n_local_addr++], argl[1]);
 			}
 		}
-		free_args_din(&argl);
+		libconfig_destroy_args_din(&argl);
 	}
 	pclose(f);
 
@@ -1877,7 +1877,7 @@ void show_modem3g_apn(const char *cmdline)
 {
 	int check=0;
 	char * apn=malloc(256);
-	check = modem3g_get_apn(apn,interface_major);
+	check = libconfig_modem3g_get_apn(apn,interface_major);
 	if (check == -1){
 		printf("Error on show APN\n");
 		free(apn);
@@ -1897,7 +1897,7 @@ void show_modem3g_username(const char *cmdline)
 	int check=0;
 	char * username=malloc(256);
 
-	check = modem3g_get_username(username, interface_major);
+	check = libconfig_modem3g_get_username(username, interface_major);
 	if (check == -1) {
 		printf("Error on show username\n");
 		free (username);
@@ -1917,7 +1917,7 @@ void show_modem3g_password(const char *cmdline)
 	int check=0;
 	char * password=malloc(256);
 
-	check = modem3g_get_password(password, interface_major);
+	check = libconfig_modem3g_get_password(password, interface_major);
 	if (check == -1) {
 		printf("Error on show password\n");
 		free (password);
