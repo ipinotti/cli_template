@@ -426,17 +426,34 @@ cish_command CMD_CONFIG_INTERFACE_M3G_APN[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+cish_command CMD_BACKUP_INTERFACE_ETHERNET[] = {
+	{"0-1", "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_BACKUP_INTERFACE[] = {
+	{"ethernet", "Ethernet interface", CMD_BACKUP_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_NO[] = {
+	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
+	{"backup", "Shutdown backup over a given interface", NULL, backup_interface_shutdown, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
+};
+
 cish_command CMD_CONFIG_INTERFACE_M3G[] = {
 	{"apn", "Access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_APN, NULL, 1, MSK_NORMAL},
 	{"username", "Username for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USER, NULL, 1, MSK_NORMAL},
 	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_PASS, NULL, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
+	{"backup", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
+	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 #endif
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
-//	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_m3G_NO, NULL, 1, MSK_NORMAL},
-//	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
 

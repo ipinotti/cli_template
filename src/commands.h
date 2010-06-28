@@ -668,4 +668,7 @@ void interface_modem3g_set_password(const char *cmdline);
 void show_modem3g_apn(const char *cmdline);
 void show_modem3g_username(const char *cmdline);
 void show_modem3g_password(const char *cmdline);
+void backup_interface_shutdown(const char *cmdline);
+void backup_interface(const char *cmdline);
+
 #endif

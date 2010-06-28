@@ -30,9 +30,9 @@
 #define NUM_INTF_3G		2
 #define PPPD_BIN_FILE 		"/bin/pppd"
 
-static const char * M3G_0_CONFIG_FILE [] = {"/bin/pppd", "call", "modem-3g-0", NULL};
-static const char * M3G_1_CONFIG_FILE [] = {"/bin/pppd", "call", "modem-3g-1", NULL};
-static const char * M3G_2_CONFIG_FILE [] = {"/bin/pppd", "call", "modem-3g-2", NULL};
+static const char * M3G_0_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-0", NULL};
+static const char * M3G_1_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-1", NULL};
+static const char * M3G_2_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-2", NULL};
 
 static struct bckp_conf_t *bc; /* the only global variable */
 
@@ -192,10 +192,12 @@ static void daemonize(void)
 	}
 
 	/* Redirect standard files to /dev/null */
-//	freopen("/dev/null", "r", stdin);
-//	freopen("/dev/null", "w", stdout);
-//	freopen("/dev/null", "w", stderr);
+/*
+	freopen("/dev/null", "r", stdin);
+	freopen("/dev/null", "w", stdout);
+	freopen("/dev/null", "w", stderr);
 
+*/
 
 }
 
@@ -368,7 +370,7 @@ static int pppd_spawn(struct bckp_conf_t *conf)
 {
 
 	pid_t pid;
-	int m3g_index =0;
+	int m3g_index = 0;
 
 	m3g_index = conf->intf_name[strlen(conf->intf_name)];
 
