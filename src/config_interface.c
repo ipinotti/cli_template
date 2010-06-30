@@ -182,11 +182,11 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 {
 	char *dev;
 
-	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = libconfig_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 
-	libconfig_qos_tc_remove_all(dev);
-
-	libconfig_dev_set_link_down(dev);
+	if (libconfig_dev_shutdown(dev) < 0)
+		printf("%% Could not shutdown interface\n");
 
 	free(dev);
 }
@@ -197,25 +197,12 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 	dev_family *fam;
 
 	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	fam = libconfig_device_get_family(interface_edited->cish_string);
 
-	libconfig_dev_set_link_up(dev); /* UP */
-
-	if (fam) {
-		switch(fam->type) {
-			case eth:
-				libconfig_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
-				libconfig_qos_tc_insert_all(dev);
-				break;
-			default:
-				break;
-		}
-	}
+	if (libconfig_dev_noshutdown(dev) < 0)
+		printf("%% Could not enable interface\n");
 
 	free(dev);
-#ifdef OPTION_SMCROUTE
-	libconfig_smc_route_hup();
-#endif
+
 }
 
 /*
