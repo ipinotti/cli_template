@@ -844,4 +844,16 @@ void interface_modem3g_set_username(const char *cmdline)
 
 	username=NULL;
 }
+
+void backup_interface_shutdown(const char *cmdline){
+
+}
+
+void backup_interface(const char *cmdline){
+
+}
+
+
+
+
 #endif
