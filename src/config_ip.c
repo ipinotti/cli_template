@@ -236,45 +236,45 @@ void no_ip_param (const char *_cmd)
 #ifdef OPTION_HTTP
 void http_server (const char *cmd)
 {
-	libconfig_exec_daemon(HTTP_DAEMON);
+	librouter_exec_daemon(HTTP_DAEMON);
 }
 
 void no_http_server (const char *cmd)
 {
-	libconfig_kill_daemon(HTTP_DAEMON);
+	librouter_kill_daemon(HTTP_DAEMON);
 }
 #endif
 
 #ifdef OPTION_HTTPS
 void https_server (const char *cmd)
 {
-	libconfig_exec_daemon(HTTPS_DAEMON);
+	librouter_exec_daemon(HTTPS_DAEMON);
 }
 
 void no_https_server (const char *cmd)
 {
-	libconfig_kill_daemon(HTTPS_DAEMON);
+	librouter_kill_daemon(HTTPS_DAEMON);
 }
 #endif
 
 void telnet_server(const char *cmd)
 {
-	libconfig_exec_set_inetd_program(1, TELNET_DAEMON);
+	librouter_exec_set_inetd_program(1, TELNET_DAEMON);
 }
 
 void no_telnet_server(const char *cmd)
 {
-	libconfig_exec_set_inetd_program(0, TELNET_DAEMON);
+	librouter_exec_set_inetd_program(0, TELNET_DAEMON);
 }
 
 void dhcp_server(const char *cmd)
 {
-	libconfig_dhcp_set_server(1, (char*)cmd);
+	librouter_dhcp_set_server(1, (char*)cmd);
 }
 
 void no_dhcp_server(const char *cmd)
 {
-	libconfig_dhcp_set_no_server();
+	librouter_dhcp_set_no_server();
 }
 
 void dhcp_relay(const char *cmd)
@@ -285,50 +285,50 @@ void dhcp_relay(const char *cmd)
 	if (!p) return;
 	p += 5;
 	while (*p == ' ') p++;
-	libconfig_dhcp_set_relay(p);
+	librouter_dhcp_set_relay(p);
 }
 
 void no_dhcp_relay(const char *cmd)
 {
-	libconfig_dhcp_set_no_relay();
+	librouter_dhcp_set_no_relay();
 }
 
 void ip_dnsrelay(const char *cmd) /* [no] ip dns relay */
 {
 	arglist *args;
 
-	args=libconfig_make_args(cmd);
+	args=librouter_make_args(cmd);
 	if (args->argc == 4)
-		libconfig_kill_daemon(DNS_DAEMON);
+		librouter_kill_daemon(DNS_DAEMON);
 	else
-		libconfig_exec_daemon(DNS_DAEMON);
-	libconfig_destroy_args(args);
+		librouter_exec_daemon(DNS_DAEMON);
+	librouter_destroy_args(args);
 }
 
 void ip_domainlookup(const char *cmd) /* [no] ip domain lookup */
 {
 	arglist *args;
 
-	args=libconfig_make_args(cmd);
-	if (args->argc == 4) libconfig_dns_lookup(0);
-		else libconfig_dns_lookup(1);
-	libconfig_destroy_args(args);
+	args=librouter_make_args(cmd);
+	if (args->argc == 4) librouter_dns_lookup(0);
+		else librouter_dns_lookup(1);
+	librouter_destroy_args(args);
 }
 
 void ip_nameserver(const char *cmd) /* [no] ip name-server <ipaddress> */
 {
 	arglist *args;
 
-	args = libconfig_make_args(cmd);
+	args = librouter_make_args(cmd);
 	switch (args->argc) {
 		case 3:
-			libconfig_dns_nameserver(1, args->argv[2]);
+			librouter_dns_nameserver(1, args->argv[2]);
 			break;
 		case 4:
-			libconfig_dns_nameserver(0, args->argv[3]);
+			librouter_dns_nameserver(0, args->argv[3]);
 			break;
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 int delete_module(const char *name);
@@ -339,7 +339,7 @@ void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=libconfig_make_args(cmd);
+	args=librouter_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) no=1;
 		else no=0;
 	/* always remove modules first... */
@@ -361,7 +361,7 @@ void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
 		system(buf);
 		strcpy(cish_cfg->nat_helper_ftp_ports, "21"); /* netfilter_ipv4/ip_conntrack_ftp.h:#define FTP_PORT      21 */
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
@@ -370,7 +370,7 @@ void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=libconfig_make_args(cmd);
+	args=librouter_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) no=1;
 		else no=0;
 	/* always remove modules first... */
@@ -392,7 +392,7 @@ void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
 		system(buf);
 		strcpy(cish_cfg->nat_helper_irc_ports, "6667"); /* netfilter_ipv4/ip_conntrack_irc.h:#define IRC_PORT      6667 */
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
@@ -401,7 +401,7 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=libconfig_make_args(cmd);
+	args=librouter_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) no=1;
 		else no=0;
 	/* always remove modules first... */
@@ -423,26 +423,26 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 		system(buf);
 		strcpy(cish_cfg->nat_helper_tftp_ports, "69"); /* netfilter_ipv4/ip_conntrack_tftp.h:#define TFTP_PORT 69 */
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void ssh_server(const char *cmd)
 {
-	if (libconfig_nv_load_ssh_secret(SSH_KEY_FILE) < 0) fprintf(stderr, "%% ERROR: You must create RSA keys first (ip ssh key rsa 1024).\n");
+	if (librouter_nv_load_ssh_secret(SSH_KEY_FILE) < 0) fprintf(stderr, "%% ERROR: You must create RSA keys first (ip ssh key rsa 1024).\n");
 		else
 #ifdef OPTION_OPENSSH
-				libconfig_exec_daemon(SSH_DAEMON);
+				librouter_exec_daemon(SSH_DAEMON);
 #else
-				libconfig_exec_set_inetd_program(1, SSH_DAEMON);
+				librouter_exec_set_inetd_program(1, SSH_DAEMON);
 #endif
 }
 
 void no_ssh_server(const char *cmd)
 {
 #ifdef OPTION_OPENSSH
-	libconfig_kill_daemon(SSH_DAEMON);
+	librouter_kill_daemon(SSH_DAEMON);
 #else
-	libconfig_exec_set_inetd_program(0, SSH_DAEMON);
+	librouter_exec_set_inetd_program(0, SSH_DAEMON);
 #endif
 }
 
@@ -450,40 +450,40 @@ void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
 {
 	arglist *args;
 
-	args=libconfig_make_args(cmd);
+	args=librouter_make_args(cmd);
 	if (args->argc == 5)
 	{
 		printf("%% Please wait... computation may take long time!\n");
-		if (libconfig_ssh_create_rsakey(atoi(args->argv[4])) < 0)
+		if (librouter_ssh_create_rsakey(atoi(args->argv[4])) < 0)
 		{
 			printf("%% Not possible to generate RSA key!\n");
 		}
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 #ifdef OPTION_PIMD
 #if 0
 void pim_dense_server(const char *cmd) /* ip pim dense-mode */
 {
-	if (libconfig_exec_check_daemon(PIMS_DAEMON)) libconfig_kill_daemon(PIMS_DAEMON);
-	libconfig_exec_daemon(PIMD_DAEMON);
+	if (librouter_exec_check_daemon(PIMS_DAEMON)) librouter_kill_daemon(PIMS_DAEMON);
+	librouter_exec_daemon(PIMD_DAEMON);
 }
 
 void no_pim_dense_server(const char *cmd)
 {
-	libconfig_kill_daemon(PIMD_DAEMON);
+	librouter_kill_daemon(PIMD_DAEMON);
 }
 
 void pim_sparse_server(const char *cmd) /* ip pim sparse-mode */
 {
-	if (libconfig_exec_check_daemon(PIMD_DAEMON)) libconfig_kill_daemon(PIMD_DAEMON);
-	libconfig_exec_daemon(PIMS_DAEMON);
+	if (librouter_exec_check_daemon(PIMD_DAEMON)) librouter_kill_daemon(PIMD_DAEMON);
+	librouter_exec_daemon(PIMS_DAEMON);
 }
 
 void no_pim_sparse_server(const char *cmd)
 {
-	libconfig_kill_daemon(PIMS_DAEMON);
+	librouter_kill_daemon(PIMS_DAEMON);
 }
 #endif
 
@@ -493,36 +493,36 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 	char *dev;
 	arglist *args;
 
-	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=libconfig_make_args(cmd);
+	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args=librouter_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
-		dense = libconfig_pim_dense_phyint(0, dev);
+		dense = librouter_pim_dense_phyint(0, dev);
 	else {
 #ifdef OPTION_SMCROUTE
-		if (libconfig_exec_check_daemon(SMC_DAEMON))
+		if (librouter_exec_check_daemon(SMC_DAEMON))
 		{
 			printf("%% Disable static multicast routing first\n");
 			goto clean;
 		}
 #endif
-		sparse = libconfig_pim_sparse_phyint(0, dev);
+		sparse = librouter_pim_sparse_phyint(0, dev);
 		/* Kill pimsd if it is running */			
-		if (sparse < 2 && libconfig_exec_check_daemon(PIMS_DAEMON)) 
-			libconfig_kill_daemon(PIMS_DAEMON);
+		if (sparse < 2 && librouter_exec_check_daemon(PIMS_DAEMON)) 
+			librouter_kill_daemon(PIMS_DAEMON);
 
-		dense = libconfig_pim_dense_phyint(1, dev);
+		dense = librouter_pim_dense_phyint(1, dev);
 	}
 
 	if (dense < 2)	{
-		if (libconfig_exec_check_daemon(PIMD_DAEMON)) 
-			libconfig_kill_daemon(PIMD_DAEMON);
+		if (librouter_exec_check_daemon(PIMD_DAEMON)) 
+			librouter_kill_daemon(PIMD_DAEMON);
 	} else {
-		if (!libconfig_exec_check_daemon(PIMD_DAEMON)) 
-			libconfig_exec_daemon(PIMD_DAEMON);
+		if (!librouter_exec_check_daemon(PIMD_DAEMON)) 
+			librouter_exec_daemon(PIMD_DAEMON);
 	}
 clean:
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 	free(dev);
 }
 
@@ -532,34 +532,34 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 	char *dev;
 	arglist *args;
 
-	dev=libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=libconfig_make_args(cmd);
+	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args=librouter_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
-		sparse=libconfig_pim_sparse_phyint(0, dev);
+		sparse=librouter_pim_sparse_phyint(0, dev);
 	else {
 #ifdef OPTION_SMCROUTE
-		if (libconfig_exec_check_daemon(SMC_DAEMON))
+		if (librouter_exec_check_daemon(SMC_DAEMON))
 		{
 			printf("%% Disable static multicast routing first\n");
 			goto clean;
 		}
 #endif
-		dense = libconfig_pim_dense_phyint(0, dev);
-		if (dense < 2 && libconfig_exec_check_daemon(PIMD_DAEMON)) 
-			libconfig_kill_daemon(PIMD_DAEMON);
-		sparse = libconfig_pim_sparse_phyint(1, dev);
+		dense = librouter_pim_dense_phyint(0, dev);
+		if (dense < 2 && librouter_exec_check_daemon(PIMD_DAEMON)) 
+			librouter_kill_daemon(PIMD_DAEMON);
+		sparse = librouter_pim_sparse_phyint(1, dev);
 	}
 
 	if (sparse < 2)	{
-		if (libconfig_exec_check_daemon(PIMS_DAEMON)) 
-			libconfig_kill_daemon(PIMS_DAEMON);
+		if (librouter_exec_check_daemon(PIMS_DAEMON)) 
+			librouter_kill_daemon(PIMS_DAEMON);
 	} else {
-		if (!libconfig_exec_check_daemon(PIMS_DAEMON)) 
-			libconfig_exec_daemon(PIMS_DAEMON);
+		if (!librouter_exec_check_daemon(PIMS_DAEMON)) 
+			librouter_exec_daemon(PIMS_DAEMON);
 	}
 clean:
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 	free(dev);
 }
 
@@ -567,33 +567,33 @@ void pim_bsr_candidate(const char *cmd) /* [no] ip pim bsr-candidate <ethernet|s
 {
 	arglist *args;
 
-	args=libconfig_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) libconfig_pim_sparse_bsr_candidate(0, NULL, NULL, NULL);
-		else if (args->argc == 5) libconfig_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
-			else if (args->argc == 7) libconfig_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
-	libconfig_destroy_args(args);
+	args=librouter_make_args(cmd);
+	if (!strcmp(args->argv[0], "no")) librouter_pim_sparse_bsr_candidate(0, NULL, NULL, NULL);
+		else if (args->argc == 5) librouter_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
+			else if (args->argc == 7) librouter_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
+	librouter_destroy_args(args);
 }
 
 void pim_rp_address(const char *cmd) /* [no] ip pim rp-address <ipaddress> */
 {
 	arglist *args;
 
-	args=libconfig_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) libconfig_pim_sparse_rp_address(0, NULL);
-		else if (args->argc == 4) libconfig_pim_sparse_rp_address(1, args->argv[3]);
-	libconfig_destroy_args(args);
+	args=librouter_make_args(cmd);
+	if (!strcmp(args->argv[0], "no")) librouter_pim_sparse_rp_address(0, NULL);
+		else if (args->argc == 4) librouter_pim_sparse_rp_address(1, args->argv[3]);
+	librouter_destroy_args(args);
 }
 
 void pim_rp_candidate(const char *cmd) /* [no] ip pim rp-candidate <ethernet|serial> <0-0> [priority <0-255>] [interval <5-16383>] */
 {
 	arglist *args;
 
-	args=libconfig_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) libconfig_pim_sparse_rp_candidate(0, NULL, NULL, NULL, NULL);
-		else if (args->argc == 5) libconfig_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
-			else if (args->argc == 7) libconfig_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], NULL);
-				else if (args->argc == 9) libconfig_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], args->argv[8]);
-	libconfig_destroy_args(args);
+	args=librouter_make_args(cmd);
+	if (!strcmp(args->argv[0], "no")) librouter_pim_sparse_rp_candidate(0, NULL, NULL, NULL, NULL);
+		else if (args->argc == 5) librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
+			else if (args->argc == 7) librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], NULL);
+				else if (args->argc == 9) librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], args->argv[8]);
+	librouter_destroy_args(args);
 }
 #endif
 
@@ -601,10 +601,10 @@ void arp_entry(const char *cmd) /* [no] arp <ipaddress> [<mac>] */
 {
 	arglist *args;
 
-	args=libconfig_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) libconfig_arp_del(args->argv[2]);
-		else if (args->argc == 3) libconfig_arp_add(args->argv[1], args->argv[2]);
-	libconfig_destroy_args(args);
+	args=librouter_make_args(cmd);
+	if (!strcmp(args->argv[0], "no")) librouter_arp_del(args->argv[2]);
+		else if (args->argc == 3) librouter_arp_add(args->argv[1], args->argv[2]);
+	librouter_destroy_args(args);
 }
 
 void clear_ssh_hosts(const char *cmd)

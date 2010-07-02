@@ -46,14 +46,14 @@ void config_keychain(const char *cmdline) /* [no] key chain <text> */
 {
 	arglist *args;
 
-	args = libconfig_make_args(cmdline);
+	args = librouter_make_args(cmdline);
 	if (args->argc == 4 && strcmp(args->argv[0], "no") == 0) {
 		rip_execute_root_cmd(cmdline);
 	} else {
 		strncpy(keychain_name, args->argv[2], 63); /* save keychain name */
 		command_root = CMD_KEYCHAIN;
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void config_keychain_done(const char *cmdline)
@@ -65,14 +65,14 @@ void config_key(const char *cmdline) /* [no] key <0-2147483647> */
 {
 	arglist *args;
 
-	args = libconfig_make_args(cmdline);
+	args = librouter_make_args(cmdline);
 	if (args->argc == 3 && strcmp(args->argv[0], "no") == 0) {
 		rip_execute_keychain_cmd(cmdline);
 	} else {
 		key_number = atoi(args->argv[1]); /* save key number */
 		command_root = CMD_KEY;
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void config_key_done(const char *cmdline)
@@ -84,7 +84,7 @@ void config_key_string(const char *cmdline) /* key-string <text> */
 {
 	arglist *args;
 
-	args = libconfig_make_args(cmdline);
+	args = librouter_make_args(cmdline);
 	rip_execute_key_cmd(cmdline);
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }

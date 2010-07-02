@@ -141,7 +141,7 @@ void rip_execute_keychain_cmd(const char *);
 void rip_execute_key_cmd(const char *);
 void rip_execute_router_cmd(const char *);
 void rip_execute_interface_cmd(const char *);
-void libconfig_quagga_zebra_dump_static_routes(FILE *out);
+void librouter_quagga_zebra_dump_static_routes(FILE *out);
 void zebra_dump_routes(FILE *out);
 void show_ip_ospf(const char *cmdline);
 void show_ip_rip(const char *cmdline);

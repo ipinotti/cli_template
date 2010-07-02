@@ -49,7 +49,7 @@ void enable(const char *cmdline)
 		printf("\n");
 
 		passwd[16] = 0;
-		libconfig_str_striplf(passwd);
+		librouter_str_striplf(passwd);
 
 		crypt_passwd = crypt(passwd, secret);
 		if (strcmp(crypt_passwd, secret) == 0) {
@@ -141,7 +141,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 	time_t ti;
 	int count;
 
-	arglist	*args = libconfig_make_args(cmdline);
+	arglist	*args = librouter_make_args(cmdline);
 
 	if (args->argc == 4) { /* store hash! */
 		if (strcmp(args->argv[1], "enable") == 0) {
@@ -173,7 +173,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 			}
 			cish_timeout = 0;
 			echo_on();
-			libconfig_str_striplf(in_passwd);
+			librouter_str_striplf(in_passwd);
 			printf("\n");
 			if( is_safe(in_passwd) != 0 )
 				break;
@@ -181,7 +181,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 		}
 		if( count >= 3 ) {
 			printf("\n%% Excess failures - aborted\n");
-			libconfig_destroy_args(args);
+			librouter_destroy_args(args);
 			return;
 		}
 
@@ -192,7 +192,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 		fgets(in_passwd_validate, 16, stdin);
 		cish_timeout = 0;
 		echo_on();
-		libconfig_str_striplf(in_passwd_validate);
+		librouter_str_striplf(in_passwd_validate);
 		printf("\n");
 
 		if (strcmp(in_passwd, in_passwd_validate)) /* different */
@@ -224,12 +224,12 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 				printf("%% Unknown failure\n");
 		}
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void set_nosecret(const char *cmdline) /* no secret enable|login */
 {
-	arglist	*args = libconfig_make_args(cmdline);
+	arglist	*args = librouter_make_args(cmdline);
 
 	if (strcmp(args->argv[2], "enable") == 0) {
 		cish_cfg->enable_secret[0] = 0;
@@ -239,7 +239,7 @@ void set_nosecret(const char *cmdline) /* no secret enable|login */
 		cish_cfg->login_secret[0] = 0;
 		set_admin_secret(NULL);
 	}
-	libconfig_destroy_args (args);
+	librouter_destroy_args (args);
 }
 
 void disable(const char *cmdline)
