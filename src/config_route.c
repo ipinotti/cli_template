@@ -31,7 +31,7 @@ void ip_route (const char *cmdline)
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-	if (libconfig_device_get_family(destination)) /* route to a device */
+	if (libconfig_device_get_family_by_name(destination)) /* route to a device */
 	{
 		if (args->argc < 6)
 		{
@@ -109,7 +109,7 @@ void no_ip_route (const char *cmdline)
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-	if (libconfig_device_get_family(destination)) /* route to a device */
+	if (libconfig_device_get_family_by_name(destination)) /* route to a device */
 	{
 		if (args->argc < 6)
 		{

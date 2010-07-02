@@ -1876,7 +1876,7 @@ void clear_counters(const char *cmdline)
 #endif
 	strncpy(device, args->argv[2], 31); device[31]=0;
 	strncpy(sub, args->argv[3], 15); sub[15]=0;
-	if ((if_edited=libconfig_device_get_family(device))) {
+	if ((if_edited=libconfig_device_get_family_by_name(device, str_cish))) {
 		major=sub;
 		minor=strchr(major, '.');
 		if (minor) *minor++ = 0;
@@ -1914,7 +1914,7 @@ void clear_iphc(const char *cmdline) /* clear ip header-compression [interface] 
 	device[31] = 0;
 	strncpy(sub, args->argv[4], 15);
 	sub[15] = 0;
-	if( (if_edited = libconfig_device_get_family(device)) ) {
+	if( (if_edited = libconfig_device_get_family_by_name(device, str_cish)) ) {
 		major = sub;
 		minor = strchr(major, '.');
 		if( minor )
