@@ -793,8 +793,11 @@ void interface_modem3g_set_apn(const char *cmdline)
 		return;
 	}
 
-#ifdef DEBUG
-	printf("\nAPN stored\n\n");
+	if (check == -1)
+		printf("%% Error on set APN\n");
+#ifdef DEBUG_M3G
+	else
+		printf("\nAPN stored\n\n");
 #endif
 
 	librouter_destroy_args(args);
@@ -821,8 +824,11 @@ void interface_modem3g_set_password(const char *cmdline)
 		return;
 	}
 
-#ifdef DEBUG
-	printf("\nPassword stored\n\n");
+	if (check == -1)
+		printf("%% Error on set password\n");
+#ifdef DEBUG_M3G
+	else
+		printf("\nPassword stored\n\n");
 #endif
 
 	librouter_destroy_args(args);
@@ -849,8 +855,11 @@ void interface_modem3g_set_username(const char *cmdline)
 		return;
 	}
 
-#ifdef DEBUG
-	printf("\nUsername stored\n\n");
+	if (check == -1)
+		printf("%% Error on set username\n");
+#ifdef DEBUG_M3G
+	else
+		printf("\nUsername stored\n\n");
 #endif
 
 	librouter_destroy_args(args);
