@@ -639,7 +639,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	ppp_config cfg;
 	struct ip_t ip;
 	char *osdev = conf->name;
-	int serial_no=0, lusb_descriptor=0, lusb_tty_verify=0;
+	int serial_no=0, lusb_descriptor=-1, lusb_tty_verify=-1;
 	char * apn = malloc (100);
 	int running = conf->running;
 	librouter_usb_dev * usbdev=malloc(sizeof(librouter_usb_dev));
@@ -679,20 +679,20 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	fprintf(out, "  Encapsulation PPP");
 
-	if (librouter_modem3g_get_apn (apn, serial_no))
+	if (!librouter_modem3g_get_apn (apn, serial_no))
 		fprintf(out, ", APN is \"%s\"\n", apn);
 	else
 		printf(" Error - reading APN\n");
 
 	free (apn);
 
-	if (lusb_descriptor == 1 && lusb_tty_verify == 1)
+	if ( (!lusb_descriptor) && (lusb_tty_verify) )
 		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d\n",
 				usbdev->product_str,
 				usbdev->manufacture_str,
 				usbdev->port);
 	else
-		if (lusb_descriptor == 1 && lusb_tty_verify == 0)
+		if ( (!lusb_descriptor) && (!lusb_tty_verify) )
 			fprintf(out, "  USB device connected, but not a modem.\n");
 		else
 			fprintf(out, "  No USB device connected.\n");
@@ -1072,8 +1072,7 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,
-		                filename, host);
+		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> ",TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,filename, host);
 
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
@@ -1120,8 +1119,7 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename,
-		                host);
+		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> ",TMP_TFTP_OUTPUT_FILE, in, filename,host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
