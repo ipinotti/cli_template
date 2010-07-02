@@ -267,15 +267,65 @@ void no_telnet_server(const char *cmd)
 	libconfig_exec_set_inetd_program(0, TELNET_DAEMON);
 }
 
-void dhcp_server(const char *cmd)
+
+
+
+void dhcp_server_enable(const char *cmd)
 {
 	libconfig_dhcp_set_server(1, (char*)cmd);
 }
 
-void no_dhcp_server(const char *cmd)
+void dhcp_server_dns(const char *cmd)
+{
+}
+
+void dhcp_server_leasetime(const char *cmd)
+{
+
+}
+
+void dhcp_server_domainname(const char *cmd)
+{
+
+}
+
+void dhcp_server_nbns(const char *cmd)
+{
+
+}
+
+void dhcp_server_nbdd(const char *cmd)
+{
+
+}
+
+void dhcp_server_nbnt(const char *cmd)
+{
+
+}
+
+void dhcp_server_default_router(const char *cmd)
+{
+
+}
+
+void dhcp_server_disable(const char *cmd)
 {
 	libconfig_dhcp_set_no_server();
 }
+
+void dhcp_server(const char *cmd)
+{
+	command_root = CMD_IP_DHCP_SERVER;
+}
+
+void dhcp_server_exit(const char *cmd)
+{
+	command_root = CMD_CONFIGURE;
+}
+
+
+
 
 void dhcp_relay(const char *cmd)
 {

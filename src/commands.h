@@ -193,8 +193,23 @@ void firmware_download(const char *cmd);
 void firmware_save(const char *cmd);
 void firmware_upload(const char *cmd);
 void no_firmware_upload(const char *cmd);
+
+
+/* DHCP Server */
+void dhcp_server_enable(const char *cmd);
+void dhcp_server_disable(const char *cmd);
+
+void dhcp_server_dns(const char *cmd);
+void dhcp_server_leasetime(const char *cmd);
+void dhcp_server_domainname(const char *cmd);
+void dhcp_server_nbns(const char *cmd);
+void dhcp_server_nbdd(const char *cmd);
+void dhcp_server_nbnt(const char *cmd);
+void dhcp_server_default_router(const char *cmd);
+
 void dhcp_server(const char *cmd);
 void no_dhcp_server(const char *cmd);
+
 void dhcp_relay(const char *cmd);
 void no_dhcp_relay(const char *cmd);
 void ip_dnsrelay(const char *cmd);

@@ -215,91 +215,97 @@ cish_command CMD_IP_TELNET[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-extern cish_command CMD_IP_DHCP_SERVER5[]; /* Loop! */
 
-cish_command CMD_IP_DHCP_SERVER10[] = {
-	{"<ipaddress>", "IP address of a DNS server", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+/* DHCP Server commands */
+cish_command CMD_IP_DHCP_SERVER_DNS[] = {
+	{"<ipaddress>", "IP address of a DNS server", NULL, dhcp_server_dns, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER20[] = {
-	{"<ipaddress>", "IP address of the default router", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_DEFAULT_ROUTER[] = {
+	{"<ipaddress>", "IP address of the default router", NULL, dhcp_server_default_router, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER30[] = {
-	{"<text>", "Domain name for the client", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_SERVER_NAME[] = {
+	{"<text>", "Domain name for the client", NULL, dhcp_server_domainname, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER43[] = {
-	{"0-59", "seconds", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_SERVER_LEASETIME_3[] = {
+	{"0-59", "seconds", NULL, dhcp_server_leasetime, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER42[] = {
-	{"0-59", "minutes", CMD_IP_DHCP_SERVER43, NULL, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_SERVER_LEASETIME_2[] = {
+	{"0-59", "minutes", CMD_IP_DHCP_SERVER_LEASETIME_3, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER41[] = {
-	{"0-23", "hours", CMD_IP_DHCP_SERVER42, NULL, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_SERVER_LEASETIME_1[] = {
+	{"0-23", "hours", CMD_IP_DHCP_SERVER_LEASETIME_2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER40[] = {
-	{"0-20000", "days", CMD_IP_DHCP_SERVER41, NULL, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_SERVER_LEASETIME[] = {
+	{"0-20000", "days", CMD_IP_DHCP_SERVER_LEASETIME_1, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER50[] = {
-	{"<ipaddress>", "IP address of a NetBIOS name server WINS (NBNS)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_SERVER_NBNS[] = {
+	{"<ipaddress>", "IP address of a NetBIOS name server WINS (NBNS)", NULL, dhcp_server_nbns, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER60[] = {
-	{"<ipaddress>", "IP address of a NetBIOS datagram distribution server (NBDD)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_SERVER_NBDD[] = {
+	{"<ipaddress>", "IP address of a NetBIOS datagram distribution server (NBDD)", NULL, dhcp_server_nbdd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER70[] = {
-	{"B", "NetBIOS B-node (Broadcast - no WINS)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
-	{"P", "NetBIOS P-node (Peer - WINS only)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
-	{"M", "NetBIOS M-node (Mixed - broadcast, then WINS)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
-	{"H", "NetBIOS H-node (Hybrid - WINS, then broadcast)", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_SERVER_NBNT[] = {
+	{"B", "NetBIOS B-node (Broadcast - no WINS)", NULL, dhcp_server_nbnt, 1, MSK_NORMAL},
+	{"P", "NetBIOS P-node (Peer - WINS only)", NULL, dhcp_server_nbnt, 1, MSK_NORMAL},
+	{"M", "NetBIOS M-node (Mixed - broadcast, then WINS)", NULL, dhcp_server_nbnt, 1, MSK_NORMAL},
+	{"H", "NetBIOS H-node (Hybrid - WINS, then broadcast)", NULL, dhcp_server_nbnt, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER5[] = {
-	{"default-lease-time", "Specify default lease time", CMD_IP_DHCP_SERVER40, NULL, 1, MSK_NORMAL},
-	{"domain-name", "Specify the domain name for the client", CMD_IP_DHCP_SERVER30, NULL, 1, MSK_NORMAL},
-	{"dns-server", "Specify the IP address of a DNS server", CMD_IP_DHCP_SERVER10, NULL, 1, MSK_NORMAL},
-	{"max-lease-time", "Specify maximum lease time", CMD_IP_DHCP_SERVER40, NULL, 1, MSK_NORMAL},
-	{"netbios-name-server", "Specify the IP address of the NetBIOS name server WINS (NBNS)", CMD_IP_DHCP_SERVER50, NULL, 1, MSK_NORMAL},
-	{"netbios-dd-server", "Specify the IP address of the NetBIOS datagram distribution server (NBDD)", CMD_IP_DHCP_SERVER60, NULL, 1, MSK_NORMAL},
-	{"netbios-node-type", "Specify the NetBIOS node type of the client", CMD_IP_DHCP_SERVER70, NULL, 1, MSK_NORMAL},
-	{"router", "Specify the IP address of the default router", CMD_IP_DHCP_SERVER20, NULL, 1, MSK_NORMAL},
-	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+
+cish_command CMD_IP_DHCP_POOL_END[] = {
+	{"<ipaddress>", "Pool end", NULL, dhcp_server, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER4[] = {
-	{"<ipaddress>", "Pool end", CMD_IP_DHCP_SERVER5, dhcp_server, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_POOL_BEGIN[] = {
+	{"<ipaddress>", "Pool begin", CMD_IP_DHCP_POOL_END, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER3[] = {
-	{"<ipaddress>", "Pool begin", CMD_IP_DHCP_SERVER4, NULL, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_NETWORK_MASK[] = {
+	{"<netmask>", "Network mask of the DHCP pool", NULL, dhcp_server, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_IP_DHCP_SERVER2[] = {
-	{"<netmask>", "Network mask of the DHCP pool", CMD_IP_DHCP_SERVER3, NULL, 1, MSK_NORMAL},
+cish_command CMD_IP_DHCP_NETWORK[] = {
+	{"<ipaddress>", "Network number of the DHCP pool", CMD_IP_DHCP_NETWORK_MASK, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_IP_DHCP_SERVER[] = {
-	{"<ipaddress>", "Network number of the DHCP pool", CMD_IP_DHCP_SERVER2, NULL, 1, MSK_NORMAL},
+	{"default-lease-time", "Specify default lease time", CMD_IP_DHCP_SERVER_LEASETIME, NULL, 1, MSK_NORMAL},
+	{"domain-name", "Specify the domain name for the client", CMD_IP_DHCP_SERVER_NAME, NULL, 1, MSK_NORMAL},
+	{"dns-server", "Specify the IP address of a DNS server", CMD_IP_DHCP_SERVER_DNS, NULL, 1, MSK_NORMAL},
+	{"max-lease-time", "Specify maximum lease time", CMD_IP_DHCP_SERVER_LEASETIME, NULL, 1, MSK_NORMAL},
+	{"netbios-name-server", "Specify the IP address of the NetBIOS name server WINS (NBNS)",
+			CMD_IP_DHCP_SERVER_NBNS, NULL, 1, MSK_NORMAL},
+	{"netbios-dd-server", "Specify the IP address of the NetBIOS datagram distribution server (NBDD)",
+			CMD_IP_DHCP_SERVER_NBDD, NULL, 1, MSK_NORMAL},
+	{"netbios-node-type", "Specify the NetBIOS node type of the client",
+			CMD_IP_DHCP_SERVER_NBNT, NULL, 1, MSK_NORMAL},
+	{"network", "Specify the network for the DHCP pool", CMD_IP_DHCP_NETWORK, NULL, 1, MSK_NORMAL},
+	{"pool", "Specify a pool of supplied addresses", CMD_IP_DHCP_POOL_BEGIN, NULL, 1, MSK_NORMAL},
+	{"router", "Specify the IP address of the default router", CMD_IP_DHCP_DEFAULT_ROUTER, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -316,7 +322,7 @@ cish_command CMD_IP_DHCP_RELAY_SERVER1[] = {
 
 cish_command CMD_IP_DHCP[] = {
 	{"relay", "Enable DHCP relay", CMD_IP_DHCP_RELAY_SERVER1, NULL, 1, MSK_NORMAL},
-	{"server", "Enable DHCP server", CMD_IP_DHCP_SERVER, NULL, 1, MSK_NORMAL},
+	{"server", "Enter DHCP server menu", NULL, dhcp_server, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
