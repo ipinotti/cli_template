@@ -801,7 +801,7 @@ void interface_modem3g_set_apn(const char *cmdline)
 
 	if (check == -1)
 		printf("%% Error on set APN\n");
-#ifdef DEBUG
+#ifdef DEBUG_M3G
 	else
 		printf("\nAPN stored\n\n");
 #endif
@@ -823,7 +823,7 @@ void interface_modem3g_set_password(const char *cmdline)
 
 	if (check == -1)
 		printf("%% Error on set password\n");
-#ifdef DEBUG
+#ifdef DEBUG_M3G
 	else
 		printf("\nPassword stored\n\n");
 #endif
@@ -845,7 +845,7 @@ void interface_modem3g_set_username(const char *cmdline)
 
 	if (check == -1)
 		printf("%% Error on set username\n");
-#ifdef DEBUG
+#ifdef DEBUG_M3G
 	else
 		printf("\nUsername stored\n\n");
 #endif
