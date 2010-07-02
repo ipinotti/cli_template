@@ -23,7 +23,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <libconfig/dev.h> /* get_dev_link */
+#include <librouter/dev.h> /* get_dev_link */
 
 #include "backupd.h"
 
@@ -246,6 +246,7 @@ static struct bckp_conf_t * get_config(void)
 	int num_configs = 0; /* Number of configurations found */
 	char *p;
 
+
 	if ((fd = fopen(BACKUPD_CONF_FILE, "r")) == NULL) {
 		syslog(LOG_ERR, "Could not open configuration file\n");
 		unlink(BACKUPD_PID_FILE);
@@ -448,7 +449,7 @@ static void do_backup(void)
 			/* shutdown ON */
 			case STATE_SHUTDOWN:
 
-				printf(" -- entrei no shut\n\n");
+			//	printf(" -- entrei no shut\n\n");
 
 				if (bckp_conf->shutdown == 1 && bckp_conf->pppd_pid != (int)NULL){
 					kill(bckp_conf->pppd_pid,9);
@@ -472,7 +473,7 @@ static void do_backup(void)
 
 			/* backup disabled */
 			case STATE_NOBACKUP:
-				printf(" -- entrei no back\n\n");
+			//	printf(" -- entrei no back\n\n");
 
 				if ( (bckp_conf->is_backup == 0) && (bckp_conf->shutdown == 0) && (bckp_conf->pppd_pid == (int)NULL) ){
 					printf("dentro do if do back\n\n\n");
@@ -487,7 +488,7 @@ static void do_backup(void)
 			 * if the backup interface must be enabled */
 			case STATE_WAITING:
 				/* Test if back up is enabled */
-				printf(" -- entrei no waiting\n\n");
+			//	printf(" -- entrei no waiting\n\n");
 
 				if (!bckp_conf->is_backup){
 					bckp_conf->state = STATE_CONNECTED;
@@ -515,7 +516,7 @@ static void do_backup(void)
 
 			case STATE_CONNECTED:
 				/* Must check whether the main interface link has been reestablished */
-				printf(" -- entrei no connect\n\n");
+			//	printf(" -- entrei no connect\n\n");
 
 				if ( !bckp_conf->shutdown && bckp_conf->pppd_pid == (int)NULL ){
 					bkpd_dbg("\antes do pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);

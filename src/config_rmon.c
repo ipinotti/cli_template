@@ -5,11 +5,11 @@
 #include <signal.h>
 #include <ctype.h>
 
-#include <libconfig/defines.h>
-#include <libconfig/args.h>
-#include <libconfig/exec.h>
-#include <libconfig/snmp.h>
-#include <libconfig/mib.h>
+#include <librouter/defines.h>
+#include <librouter/args.h>
+#include <librouter/exec.h>
+#include <librouter/snmp.h>
+#include <librouter/mib.h>
 
 void rmon_agent(const char *cmd)
 {

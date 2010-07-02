@@ -8,17 +8,17 @@
 #include <linux/netdevice.h>
 #include <netinet/in.h>
 
-#include <libconfig/options.h>
+#include <librouter/options.h>
 
 #ifdef OPTION_VRRP
 #include "commandtree.h"
 #include "commands_vrrp.h"
 
-#include <libconfig/device.h>
-#include <libconfig/defines.h>
-#include <libconfig/args.h>
-#include <libconfig/dev.h>
-#include <libconfig/vrrp.h>
+#include <librouter/device.h>
+#include <librouter/defines.h>
+#include <librouter/args.h>
+#include <librouter/dev.h>
+#include <librouter/vrrp.h>
 
 extern dev_family *interface_edited;
 extern int interface_major;

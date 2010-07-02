@@ -1,4 +1,4 @@
-#include <libconfig/args.h>
+#include <librouter/args.h>
 #include "bwmon.h"
 
 static int print_bytes = 0;

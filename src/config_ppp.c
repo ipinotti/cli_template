@@ -7,7 +7,7 @@
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
-#include <libconfig/options.h>
+#include <librouter/options.h>
 
 void ppp_shutdown (const char *cmd)
 {

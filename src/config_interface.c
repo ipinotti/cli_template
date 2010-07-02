@@ -17,12 +17,12 @@
 #include <linux/if_arp.h>
 #include <linux/mii.h>
 
-#include "options.h"
+#include <librouter/options.h>
 #include "commands.h"
 #include "commandtree.h"
 #include "cish_main.h"
 #include "pprintf.h"
-#include "device.h"
+#include <librouter/device.h>
 
 
 extern int _cish_booting;
@@ -64,7 +64,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 	sub[15]=0;
 	librouter_destroy_args(args);
 
-	if ((interface_edited=librouter_device_get_family(device))) {
+	if ((interface_edited=librouter_device_get_family_by_name(device, str_cish))) {
 
 		major=sub;
 		minor=strchr(major, '.');
@@ -197,7 +197,7 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 	dev_family *fam;
 
 	dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	fam = librouter_device_get_family(interface_edited->cish_string);
+	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
 
 	librouter_dev_set_link_up(dev); /* UP */
 

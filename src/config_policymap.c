@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h> /* mmap */
 
-#include <libconfig/options.h>
+#include <librouter/options.h>
 
 #include "commands.h"
 #include "commandtree.h"

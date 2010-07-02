@@ -14,11 +14,11 @@
 #include "cish_main.h" /* buf */
 #include "pprintf.h"
 
-#include <libconfig/acl.h>
-#include <libconfig/args.h>
-#include <libconfig/exec.h>
-#include <libconfig/device.h>
-#include <libconfig/ip.h>
+#include <librouter/acl.h>
+#include <librouter/args.h>
+#include <librouter/exec.h>
+#include <librouter/device.h>
+#include <librouter/ip.h>
 
 //#define DEBUG_CMD(x) printf("cmd = %s\n", x)
 #define DEBUG_CMD(x)
