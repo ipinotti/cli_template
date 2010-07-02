@@ -23,6 +23,7 @@
 #include "cish_main.h"
 #include "pprintf.h"
 #include "device.h"
+#include "util/backupd.h"
 
 
 extern int _cish_booting;
@@ -181,12 +182,26 @@ void interface_mtu(const char *cmdline)
 void interface_shutdown(const char *cmdline) /* shutdown */
 {
 	char *dev;
+	dev_family *fam;
 
 	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	fam = libconfig_device_get_family(interface_edited->cish_string);
 
-	libconfig_qos_tc_remove_all(dev);
+	if (fam){
+		switch(fam->type) {
+			case eth:
+				libconfig_qos_tc_remove_all(dev);
+				libconfig_dev_set_link_down(dev);
+				break;
+			case ppp:
+				libconfig_ppp_set_param_backupd(dev,SHUTD_STR,"yes");
+				libconfig_ppp_reload_backupd();
+				break;
+			default:
+				break;
+		}
 
-	libconfig_dev_set_link_down(dev);
+	}
 
 	free(dev);
 }
@@ -199,14 +214,16 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 	dev = libconfig_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	fam = libconfig_device_get_family(interface_edited->cish_string);
 
-	libconfig_dev_set_link_up(dev); /* UP */
-
 	if (fam) {
 		switch(fam->type) {
 			case eth:
+				libconfig_dev_set_link_up(dev); /* UP */
 				libconfig_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
 				libconfig_qos_tc_insert_all(dev);
 				break;
+			case ppp:
+				libconfig_ppp_set_param_backupd(dev,SHUTD_STR,"no");
+				libconfig_ppp_reload_backupd();
 			default:
 				break;
 		}
@@ -776,18 +793,13 @@ void interface_modem3g_set_apn(const char *cmdline)
 	arglist * args;
 	int check=0;
 	char * apn=NULL;
-	char buffer[256]="\"";
-	char plus[]="\"'";
 
 	args = libconfig_make_args(cmdline);
 	apn=args->argv[2];
 
-	strcat(buffer,apn);
-	strcat(buffer,plus);
-
-	check = libconfig_modem3g_set_apn(buffer, interface_major);
+	check = libconfig_modem3g_set_apn(apn, interface_major);
 	if (check == -1){
-		printf("Error on set APN\n");
+		printf("%% Error on set APN\n");
 		libconfig_destroy_args(args);
 		apn=NULL;
 		return;
@@ -815,7 +827,7 @@ void interface_modem3g_set_password(const char *cmdline)
 	check = libconfig_modem3g_set_password(password, interface_major);
 
 	if (check == -1){
-		printf("Error on set password\n");
+		printf("%% Error on set password\n");
 		libconfig_destroy_args(args);
 		password=NULL;
 		return;
@@ -843,7 +855,7 @@ void interface_modem3g_set_username(const char *cmdline)
 	check = libconfig_modem3g_set_username(username, interface_major);
 
 	if (check == -1){
-		printf("Error on set username\n");
+		printf("%% Error on set username\n");
 		libconfig_destroy_args(args);
 		username=NULL;
 		return;
@@ -860,13 +872,83 @@ void interface_modem3g_set_username(const char *cmdline)
 
 void backup_interface_shutdown(const char *cmdline){
 
+	char * interface = malloc(24);
+	int check = -1;
+	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
+
+	check = libconfig_ppp_set_param_backupd(interface,SHUTD_STR,"yes");
+	if (check < 0){
+		printf("%% Error on set backup interface shutdown\n");
+		goto end;
+	}
+
+	check = libconfig_ppp_set_param_backupd(interface,BCKUP_STR,"no");
+	if (check < 0){
+		printf("%% Error on set backup interface shutdown\n");
+		goto end;
+	}
+
+	check = libconfig_ppp_set_param_backupd(interface,MAIN_INTF_STR,"");
+	if (check < 0){
+		printf("%% Error on set backup interface shutdown\n");
+		goto end;
+	}
+
+	check = libconfig_ppp_reload_backupd();
+	if (check < 0){
+		printf("%% Error on set backup interface shutdown - (reload configs)\n");
+		goto end;
+	}
+
+end:
+	free (interface);
 }
 
 void backup_interface(const char *cmdline){
 
+	arglist * args;
+	char * main_interface = malloc(24);
+	char * interface = malloc(24);
+	char * intf_return = malloc(24);
+	int check = -1;
+	args = libconfig_make_args(cmdline);
+
+	main_interface = args->argv[1];
+	strcat(main_interface,args->argv[2]);
+	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
+
+	if ( !libconfig_ppp_verif_param_backupd(MAIN_INTF_STR,main_interface, intf_return) ){
+		check = libconfig_ppp_set_param_backupd(interface,BCKUP_STR,"yes");
+		if (check < 0){
+			printf("%% Error on set backup interface\n");
+			goto end;
+		}
+		check = libconfig_ppp_set_param_backupd(interface,MAIN_INTF_STR,main_interface);
+		if (check < 0){
+			printf("%% Error on set backup interface\n");
+			goto end;
+		}
+		check = libconfig_ppp_reload_backupd();
+		if (check < 0){
+			printf("%% Error on set backup interface - (reload configs.)\n");
+			goto end;
+		}
+	}
+	else{
+		printf("\n%% The interface is already with a backup connection by %s", intf_return);
+		printf("%% Settings couldn't be applied\n\n");
+	}
+
+
+end:
+	main_interface = NULL;
+	interface = NULL;
+	intf_return = NULL;
+	libconfig_destroy_args(args);
+	free (main_interface);
+	free (interface);
+	free (intf_return);
 }
-
-
 
 
 #endif
