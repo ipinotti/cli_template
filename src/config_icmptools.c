@@ -18,7 +18,7 @@ void ping (const char *cmdline)
 	char *xargv[16];
 	pid_t ping_pid;
 	
-	args = libconfig_make_args (cmdline);
+	args = librouter_make_args (cmdline);
 	
 	strncpy(addr, args->argv[1], 31); 
 	addr[31] = 0;
@@ -43,7 +43,7 @@ void ping (const char *cmdline)
 		argc += 2;
 	}
 	
-	libconfig_destroy_args (args);
+	librouter_destroy_args (args);
 	
 	switch (ping_pid = fork())
 	{

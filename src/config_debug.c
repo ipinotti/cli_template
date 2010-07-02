@@ -20,31 +20,31 @@ void debug_all(const char *cmd) /* [no] debug all */
 	char no_debug_bgp[]="no debug bgp events";
 #endif
 
-	args=libconfig_make_args(cmd);
+	args=librouter_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) {
-		libconfig_debug_set_all(0);
+		librouter_debug_set_all(0);
 		_cish_debug = 0;
-		if (libconfig_quagga_ospfd_is_running())
+		if (librouter_quagga_ospfd_is_running())
 			ospf_execute_root_cmd(no_debug_ospf);
-		if (libconfig_quagga_ripd_is_running())
+		if (librouter_quagga_ripd_is_running())
 			rip_execute_root_cmd(no_debug_rip);
 #ifdef OPTION_BGP
-		if (libconfig_quagga_bgpd_is_running())
+		if (librouter_quagga_bgpd_is_running())
 			bgp_execute_root_cmd(no_debug_bgp);
 #endif
 	} else {
-		libconfig_debug_set_all(1);
+		librouter_debug_set_all(1);
 		_cish_debug = 1;
-		if (libconfig_quagga_ospfd_is_running())
+		if (librouter_quagga_ospfd_is_running())
 			ospf_execute_root_cmd(&no_debug_ospf[3]);
-		if (libconfig_quagga_ripd_is_running())
+		if (librouter_quagga_ripd_is_running())
 			rip_execute_root_cmd(&no_debug_rip[3]);
 #ifdef OPTION_BGP
-		if (libconfig_quagga_bgpd_is_running())
+		if (librouter_quagga_bgpd_is_running())
 			bgp_execute_root_cmd(&no_debug_bgp[3]); /* debug bgp events */
 #endif
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void debug_one(const char *cmd) /* [no] debug <token> */
@@ -59,23 +59,23 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 	int vc = 0; /* x25 */
 #endif
 
-	args=libconfig_make_args(cmd);
+	args=librouter_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) {
 #ifdef CONFIG_BERLIN_SATROUTER
-		if (libconfig_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
+		if (librouter_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
 #else
-		if (libconfig_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
+		if (librouter_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
 #endif
 		if (strcmp(args->argv[2], "ospf") == 0) {
-			if (libconfig_quagga_ospfd_is_running())
+			if (librouter_quagga_ospfd_is_running())
 				ospf_execute_root_cmd(no_debug_ospf);
 		} else if (strcmp(args->argv[2], "rip") == 0) {
-			if (libconfig_quagga_ripd_is_running())
+			if (librouter_quagga_ripd_is_running())
 				rip_execute_root_cmd(no_debug_rip);
 		}
 #ifdef OPTION_BGP
 		else if (strcmp(args->argv[2], "bgp") == 0) {
-			if (libconfig_quagga_bgpd_is_running())
+			if (librouter_quagga_bgpd_is_running())
 				bgp_execute_root_cmd(no_debug_bgp);
 		}
 #endif
@@ -84,26 +84,26 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 		if (args->argc > 2) /* x25 */
 			vc = atoi(args->argv[2]);
 #endif
-		if (libconfig_debug_set_token(1, args->argv[1]) >= 0)
+		if (librouter_debug_set_token(1, args->argv[1]) >= 0)
 			_cish_debug = 1;
 		if (strcmp(args->argv[1], "ospf") == 0) {
-			if (libconfig_quagga_ospfd_is_running()) ospf_execute_root_cmd(&no_debug_ospf[3]);
+			if (librouter_quagga_ospfd_is_running()) ospf_execute_root_cmd(&no_debug_ospf[3]);
 		} else if (strcmp(args->argv[1], "rip") == 0) {
-			if (libconfig_quagga_ripd_is_running()) rip_execute_root_cmd(&no_debug_rip[3]);
+			if (librouter_quagga_ripd_is_running()) rip_execute_root_cmd(&no_debug_rip[3]);
 		}
 #ifdef OPTION_BGP
 		else if (strcmp(args->argv[1], "bgp") == 0) {
-			if (libconfig_quagga_bgpd_is_running())
+			if (librouter_quagga_bgpd_is_running())
 				bgp_execute_root_cmd(&no_debug_bgp[3]); /* debug bgp events */
 		}
 #endif
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void show_debug(const char *cmd)
 {
-	libconfig_debug_dump();
+	librouter_debug_dump();
 }
 
 #if defined(CONFIG_BERLIN_SATROUTER) && defined(CONFIG_LOG_CONSOLE)
@@ -116,23 +116,23 @@ void debug_console(const char *cmd)
 	arglist *args;
 	unsigned int debug;
 
-	args = libconfig_make_args(cmd);
+	args = librouter_make_args(cmd);
 	debug = (strcmp(args->argv[0], "no")==0 ? 0 : 1);
 	if( (pf = open(TTS_AUX1, O_RDWR | O_NDELAY)) < 0 )
 	{
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		printf("Not possible to enable/disable debug\n");
 		return;
 	}
 	if( ioctl(pf, TIOSERDEBUG, &debug) != 0 )
 	{
 		close(pf);
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		printf("Not possible to enable/disable debug\n");
 		return;
 	}
 	close(pf);
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 #endif

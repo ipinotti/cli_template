@@ -1,6 +1,6 @@
 include ../../common.mk
 
-CFLAGS= -O2 -Wall -I. -I$(ROOTDIR)/include -I$(ROOTDIR)/include/ncurses -I$(ROOTDIR)/$(FSDIR)/include/libconfig/ \
+CFLAGS= -O2 -Wall -I. -I$(ROOTDIR)/include -I$(ROOTDIR)/include/ncurses -I$(ROOTDIR)/$(FSDIR)/include/librouter/ \
 	  -I$(ROOTDIR)/$(FSDIR)/include
 LDFLAGS= -L$(ROOTDIR)/$(FSDIR)/lib -lusb-1.0
 

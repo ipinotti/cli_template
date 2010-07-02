@@ -63,7 +63,7 @@ void do_mangle (const char *cmdline)
 	dst_portrange[0] = 0;
 
 	mode = add_mangle;
-	args = libconfig_make_args (cmdline);
+	args = librouter_make_args (cmdline);
 	mangle = args->argv[1];
 	if (!mangle_exists (mangle)) {
 		sprintf (cmd, "/bin/iptables -t mangle -N %s", mangle);
@@ -92,12 +92,12 @@ void do_mangle (const char *cmdline)
 		crsr += 1;
 		if (!is_valid_mark (args->argv[crsr])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 	} else {
 		fprintf (stderr, "%% Illegal action type, use dscp or mark\n");
-		libconfig_destroy_args (args);
+		librouter_destroy_args (args);
 		return;
 	}
 	action_param = args->argv[crsr]; /* mark; dscp; dscp_class; */
@@ -118,7 +118,7 @@ void do_mangle (const char *cmdline)
 			++crsr;
 			if (crsr >= args->argc) {
 				fprintf (stderr, "%% Missing icmp type\n");
-				libconfig_destroy_args (args);
+				librouter_destroy_args (args);
 				return;
 			}
 			icmp_type = args->argv[crsr];
@@ -131,7 +131,7 @@ void do_mangle (const char *cmdline)
 				if (crsr >= args->argc) {
 					fprintf (stderr,
 					                "%% Missing icmp type code\n");
-					libconfig_destroy_args (args);
+					librouter_destroy_args (args);
 					return;
 				}
 				if (strcmp (args->argv[crsr], "any"))
@@ -146,7 +146,7 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "host") == 0) {
 		if ((crsr + 1) > args->argc) {
 			fprintf (stderr, "%% Missing ip-address\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		++crsr;
@@ -155,13 +155,13 @@ void do_mangle (const char *cmdline)
 	} else {
 		if ((crsr + 2) > args->argc) {
 			fprintf (stderr, "%% Missing netmask\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		src_cidr = libconfig_ip_netmask2cidr (args->argv[crsr + 1]);
+		src_cidr = librouter_ip_netmask2cidr (args->argv[crsr + 1]);
 		if (src_cidr < 0) {
 			fprintf (stderr, "%% Invalid netmask\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (src_address, "%s/%i ", args->argv[crsr], src_cidr);
@@ -169,18 +169,18 @@ void do_mangle (const char *cmdline)
 	}
 	if (crsr >= args->argc) {
 		fprintf (stderr, "%% Not enough arguments\n");
-		libconfig_destroy_args (args);
+		librouter_destroy_args (args);
 		return;
 	}
 	if (strcmp (args->argv[crsr], "eq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1])) {
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (src_portrange, "%s ", args->argv[crsr + 1]);
@@ -188,12 +188,12 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "neq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1])) {
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (src_portrange, "! %s ", args->argv[crsr + 1]);
@@ -201,12 +201,12 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "gt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1])) {
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (src_portrange, "%s: ", args->argv[crsr + 1]);
@@ -214,12 +214,12 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "lt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1])) {
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (src_portrange, ":%s ", args->argv[crsr + 1]);
@@ -227,18 +227,18 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "range") == 0) {
 		if ((crsr + 2) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		if (atoi (args->argv[crsr + 1]) > atoi (args->argv[crsr + 2])) {
 			fprintf (stderr, "%% Invalid port range (min > max)\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1]) || !libconfig_ip_is_valid_port (
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1]) || !librouter_ip_is_valid_port (
 		                args->argv[crsr + 2])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (src_portrange, "%s:%s ", args->argv[crsr + 1],
@@ -257,14 +257,14 @@ void do_mangle (const char *cmdline)
 	} else {
 		if ((crsr + 2) > args->argc) {
 			fprintf (stderr, "%% Missing netmask\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 
-		dst_cidr = libconfig_ip_netmask2cidr (args->argv[crsr + 1]);
+		dst_cidr = librouter_ip_netmask2cidr (args->argv[crsr + 1]);
 		if (dst_cidr < 0) {
 			fprintf (stderr, "%% Invalid netmask\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 
@@ -276,12 +276,12 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "eq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1])) {
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (dst_portrange, "%s ", args->argv[crsr + 1]);
@@ -289,12 +289,12 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "neq") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1])) {
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (dst_portrange, "! %s ", args->argv[crsr + 1]);
@@ -302,12 +302,12 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "gt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1])) {
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (dst_portrange, "%s: ", args->argv[crsr + 1]);
@@ -315,12 +315,12 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "lt") == 0) {
 		if ((crsr + 1) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1])) {
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (dst_portrange, ":%s ", args->argv[crsr + 1]);
@@ -328,18 +328,18 @@ void do_mangle (const char *cmdline)
 	} else if (strcmp (args->argv[crsr], "range") == 0) {
 		if ((crsr + 2) >= args->argc) {
 			fprintf (stderr, "%% Not enough arguments\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		if (atoi (args->argv[crsr + 1]) > atoi (args->argv[crsr + 2])) {
 			fprintf (stderr, "%% Invalid port range (min > max)\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
-		if (!libconfig_ip_is_valid_port (args->argv[crsr + 1]) || !libconfig_ip_is_valid_port (
+		if (!librouter_ip_is_valid_port (args->argv[crsr + 1]) || !librouter_ip_is_valid_port (
 		                args->argv[crsr + 2])) {
 			fprintf (stderr, "%% Invalid argument\n");
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 			return;
 		}
 		sprintf (dst_portrange, "%s:%s ", args->argv[crsr + 1],
@@ -359,7 +359,7 @@ void do_mangle (const char *cmdline)
 		else if (strcmp (args->argv[crsr], "tos") == 0) {
 			if ((crsr + 1) >= args->argc) {
 				fprintf (stderr, "%% Not enough arguments\n");
-				libconfig_destroy_args (args);
+				librouter_destroy_args (args);
 				return;
 			}
 			tos = args->argv[crsr + 1];
@@ -368,14 +368,14 @@ void do_mangle (const char *cmdline)
 			crsr++;
 			if (crsr >= args->argc) {
 				fprintf (stderr, "%% Not enough arguments\n");
-				libconfig_destroy_args (args);
+				librouter_destroy_args (args);
 				return;
 			}
 			flags = args->argv[crsr];
 		} else if (strcmp (args->argv[crsr], "dscp") == 0) {
 			if ((crsr + 1) >= args->argc) {
 				fprintf (stderr, "%% Not enough arguments\n");
-				libconfig_destroy_args (args);
+				librouter_destroy_args (args);
 				return;
 			}
 			if (strcmp (args->argv[crsr + 1], "class") == 0) {
@@ -492,7 +492,7 @@ void do_mangle (const char *cmdline)
 		break;
 	default:
 		fprintf (stderr, "%% Invalid action\n");
-		libconfig_destroy_args (args);
+		librouter_destroy_args (args);
 		return;
 	}
 	strcat (cmd, action_param); /* mark; dscp; dscp_class; */
@@ -507,10 +507,10 @@ void do_mangle (const char *cmdline)
 		if (!strcmp (args->argv[2], "insert"))
 			insert = 1;
 		if ((f = fopen (TMP_CFG_FILE, "w+"))) {
-			libconfig_mangle_dump (0, f, 1);
+			librouter_mangle_dump (0, f, 1);
 			fseek (f, 0, SEEK_SET);
 			while (fgets ((char *) buf, 511, f)) {
-				if ((n = libconfig_parse_args_din ((char *) buf, &argl))
+				if ((n = librouter_parse_args_din ((char *) buf, &argl))
 				                > 3) {
 					if (n == (args->argc - insert)) {
 						if (!strcmp (args->argv[0],
@@ -532,14 +532,14 @@ void do_mangle (const char *cmdline)
 								}
 							}
 							if (ruleexists) {
-								libconfig_destroy_args_din (
+								librouter_destroy_args_din (
 								                &argl);
 								break;
 							}
 						}
 					}
 				}
-				libconfig_destroy_args_din (&argl);
+				librouter_destroy_args_din (&argl);
 			}
 			fclose (f);
 		}
@@ -550,7 +550,7 @@ void do_mangle (const char *cmdline)
 		DEBUG_CMD(cmd);
 		system (cmd);
 	}
-	libconfig_destroy_args (args);
+	librouter_destroy_args (args);
 }
 
 void no_mangle_rule (const char *cmdline)
@@ -559,15 +559,15 @@ void no_mangle_rule (const char *cmdline)
 	char *mangle;
 	char cmd[256];
 
-	args = libconfig_make_args (cmdline);
+	args = librouter_make_args (cmdline);
 	mangle = args->argv[2]; /* no mark-rule <name> */
 	if (!mangle_exists (mangle)) {
-		libconfig_destroy_args (args);
+		librouter_destroy_args (args);
 		return;
 	}
 	if (get_mangle_refcount (mangle)) {
 		printf ("%% mark-rule in use, can't delete\n");
-		libconfig_destroy_args (args);
+		librouter_destroy_args (args);
 		return;
 	}
 	sprintf (cmd, "/bin/iptables -t mangle -F %s", mangle); /* flush */
@@ -577,7 +577,7 @@ void no_mangle_rule (const char *cmdline)
 
 	system (cmd);
 
-	libconfig_destroy_args (args);
+	librouter_destroy_args (args);
 }
 
 int mangle_exists (char *mangle)
@@ -597,7 +597,7 @@ int mangle_exists (char *mangle)
 		buf[0] = 0;
 		fgets (buf, 255, F);
 		buf[255] = 0;
-		libconfig_str_striplf (buf);
+		librouter_str_striplf (buf);
 		if (strncmp (buf, "Chain ", 6) == 0) {
 			tmp = strchr (buf + 6, ' ');
 			if (tmp) {
@@ -635,7 +635,7 @@ int matched_mangle_exists (char *mangle,
 		buf[0] = 0;
 		fgets (buf, 255, F);
 		buf[255] = 0;
-		libconfig_str_striplf (buf);
+		librouter_str_striplf (buf);
 		if (strncmp (buf, "Chain ", 6) == 0) {
 			if (in_chain)
 				break; // chegou `a proxima chain sem encontrar - finaliza
@@ -652,10 +652,10 @@ int matched_mangle_exists (char *mangle,
 			p = buf;
 			while ((*p) && (*p == ' '))
 				p++;
-			args = libconfig_make_args (p);
+			args = librouter_make_args (p);
 
 			if (args->argc < 7) {
-				libconfig_destroy_args (args);
+				librouter_destroy_args (args);
 				continue;
 			}
 			iface_in_ = args->argv[5];
@@ -669,10 +669,10 @@ int matched_mangle_exists (char *mangle,
 			                == NULL) || (strcmp (target, mangle)
 			                == 0))) {
 				mangle_exists = 1;
-				libconfig_destroy_args (args);
+				librouter_destroy_args (args);
 				break;
 			}
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 		}
 	}
 	pclose (F);
@@ -696,7 +696,7 @@ int get_mangle_refcount (char *mangle)
 		buf[0] = 0;
 		fgets (buf, 255, F);
 		buf[255] = 0;
-		libconfig_str_striplf (buf);
+		librouter_str_striplf (buf);
 		if (strncmp (buf, "Chain ", 6) == 0) {
 			tmp = strchr (buf + 6, ' ');
 			if (tmp) {
@@ -740,7 +740,7 @@ int clean_iface_mangle_rules (char *iface)
 		buf[0] = 0;
 		fgets (buf, 255, F);
 		buf[255] = 0;
-		libconfig_str_striplf (buf);
+		librouter_str_striplf (buf);
 		if (strncmp (buf, "Chain ", 6) == 0) {
 			p = strchr (buf + 6, ' ');
 			if (p) {
@@ -755,9 +755,9 @@ int clean_iface_mangle_rules (char *iface)
 			p = buf;
 			while ((*p) && (*p == ' '))
 				p++;
-			args = libconfig_make_args (p);
+			args = librouter_make_args (p);
 			if (args->argc < 7) {
-				libconfig_destroy_args (args);
+				librouter_destroy_args (args);
 				continue;
 			}
 			iface_in_ = args->argv[5];
@@ -780,7 +780,7 @@ int clean_iface_mangle_rules (char *iface)
 				DEBUG_CMD(cmd);
 				system (cmd);
 			}
-			libconfig_destroy_args (args);
+			librouter_destroy_args (args);
 		}
 	}
 	pclose (F);
@@ -794,9 +794,9 @@ void interface_mangle (const char *cmdline)
 	acl_chain chain = chain_in;
 	char *listno;
 
-	dev = libconfig_device_convert (interface_edited->cish_string, interface_major,
+	dev = librouter_device_convert (interface_edited->cish_string, interface_major,
 	                interface_minor);
-	args = libconfig_make_args (cmdline);
+	args = librouter_make_args (cmdline);
 	listno = args->argv[2]; /* ip mark <name> in|out */
 	if (strcasecmp (args->argv[3], "in") == 0)
 		chain = chain_in;
@@ -805,14 +805,14 @@ void interface_mangle (const char *cmdline)
 	if (!mangle_exists (listno)) {
 		printf ("%% mark-rule %s undefined\n", listno);
 		free (dev);
-		libconfig_destroy_args (args);
+		librouter_destroy_args (args);
 		return;
 	}
 	if ((chain == chain_in) && (matched_mangle_exists (0, dev, 0, "INPUT")
 	                || matched_mangle_exists (0, dev, 0, "PREROUTING"))) {
 		printf ("%% inbound MARK rule already defined.\n");
 		free (dev);
-		libconfig_destroy_args (args);
+		librouter_destroy_args (args);
 		return;
 	}
 	if ((chain == chain_out)
@@ -821,7 +821,7 @@ void interface_mangle (const char *cmdline)
 	                                                "POSTROUTING"))) {
 		printf ("%% outbound MARK rule already defined.\n");
 		free (dev);
-		libconfig_destroy_args (args);
+		librouter_destroy_args (args);
 		return;
 	}
 	if (!mangle_exists (listno)) {
@@ -855,7 +855,7 @@ void interface_mangle (const char *cmdline)
 		DEBUG_CMD(buf);
 		system (buf);
 	}
-	libconfig_destroy_args (args);
+	librouter_destroy_args (args);
 	free (dev);
 }
 
@@ -866,9 +866,9 @@ void interface_no_mangle (const char *cmdline)
 	acl_chain chain = chain_in;
 	char *listno;
 
-	dev = libconfig_device_convert (interface_edited->cish_string, interface_major,
+	dev = librouter_device_convert (interface_edited->cish_string, interface_major,
 	                interface_minor);
-	args = libconfig_make_args (cmdline); /* no ip mark <name> in|out */
+	args = librouter_make_args (cmdline); /* no ip mark <name> in|out */
 	listno = args->argv[3];
 	if (args->argc == 4)
 		chain = chain_both;
@@ -919,7 +919,7 @@ void interface_no_mangle (const char *cmdline)
 			system (buf);
 		}
 	}
-	libconfig_destroy_args (args);
+	librouter_destroy_args (args);
 	free (dev);
 }
 

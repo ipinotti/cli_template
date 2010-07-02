@@ -61,10 +61,10 @@ void cmd_aaa_authen(const char *cmd)
 	char *service;
 	int no = 0, none = 0;
 
-	exec_line_args_len = libconfig_parse_args_din((char *) cmd, &exec_line_args);
+	exec_line_args_len = librouter_parse_args_din((char *) cmd, &exec_line_args);
 
 	if (exec_line_args_len < 5) {
-		libconfig_destroy_args_din(&exec_line_args);
+		librouter_destroy_args_din(&exec_line_args);
 		return;
 	}
 
@@ -83,15 +83,15 @@ void cmd_aaa_authen(const char *cmd)
 	}
 
 	if (no || none) {
-		if (!libconfig_pam_config_mode(cish_cfg, AAA_AUTH_NONE, 1, filename)) {
+		if (!librouter_pam_config_mode(cish_cfg, AAA_AUTH_NONE, 1, filename)) {
 			printf("%% Not possible to execute command with success\n");
-			libconfig_destroy_args_din(&exec_line_args);
+			librouter_destroy_args_din(&exec_line_args);
 			return;
 		}
 	} else if (!strcmp(exec_line_args[4], "local")) {
-		if (!libconfig_pam_config_mode(cish_cfg, AAA_AUTH_LOCAL, 1, filename)) {
+		if (!librouter_pam_config_mode(cish_cfg, AAA_AUTH_LOCAL, 1, filename)) {
 			printf("%% Not possible to execute command with success\n");
-			libconfig_destroy_args_din(&exec_line_args);
+			librouter_destroy_args_din(&exec_line_args);
 			return;
 		}
 	} else if (!strcmp(exec_line_args[5], "radius")) {
@@ -106,12 +106,12 @@ void cmd_aaa_authen(const char *cmd)
 		}
 		fclose(server);
 
-		if (!libconfig_pam_config_mode(
+		if (!librouter_pam_config_mode(
 		                cish_cfg,
 		                (exec_line_args_len == 7 ? AAA_AUTH_RADIUS_LOCAL : AAA_AUTH_RADIUS),
 		                1, filename)) {
 			printf("%% Not possible to execute command with success\n");
-			libconfig_destroy_args_din(&exec_line_args);
+			librouter_destroy_args_din(&exec_line_args);
 			return;
 		}
 
@@ -127,12 +127,12 @@ void cmd_aaa_authen(const char *cmd)
 		}
 		fclose(server);
 
-		if (!libconfig_pam_config_mode(
+		if (!librouter_pam_config_mode(
 		                cish_cfg,
 		                (exec_line_args_len == 7 ? AAA_AUTH_TACACS_LOCAL : AAA_AUTH_TACACS),
 		                1, filename)) {
 			printf("%% Not possible to execute command with success\n");
-			libconfig_destroy_args_din(&exec_line_args);
+			librouter_destroy_args_din(&exec_line_args);
 			return;
 		}
 	}
@@ -147,16 +147,16 @@ void cmd_aaa_acct(const char *cmd)
 	FILE *server;
 	struct stat buf;
 
-	if ((exec_line_args_len = libconfig_parse_args_din((char *) cmd, &exec_line_args))) {
+	if ((exec_line_args_len = librouter_parse_args_din((char *) cmd, &exec_line_args))) {
 		/* [no] aaa accounting exec */
 		if (exec_line_args_len < 5) {
-			libconfig_destroy_args_din(&exec_line_args);
+			librouter_destroy_args_din(&exec_line_args);
 			return;
 		}
 		if (!strcmp(exec_line_args[0], "no") || !strcmp(exec_line_args[4], "none")) {
-			if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_NONE, 1, FILE_PAM_GENERIC)) {
+			if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_NONE, 1, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
-				libconfig_destroy_args_din(&exec_line_args);
+				librouter_destroy_args_din(&exec_line_args);
 				return;
 			}
 		} else if (!strcmp(exec_line_args[2], "exec")) {
@@ -170,47 +170,47 @@ void cmd_aaa_acct(const char *cmd)
 				return;
 			}
 			fclose(server);
-			if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS, 1, FILE_PAM_GENERIC)) {
+			if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS, 1, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
-				libconfig_destroy_args_din(&exec_line_args);
+				librouter_destroy_args_din(&exec_line_args);
 				return;
 			}
 		}
 
 		/* [no] aaa accounting commands */
 		if (exec_line_args_len < 6) {
-			libconfig_destroy_args_din(&exec_line_args);
+			librouter_destroy_args_din(&exec_line_args);
 			return;
 		}
 		if (!strcmp(exec_line_args[0], "no")) {
 			if (!strcmp(exec_line_args[4], "1")) {
-				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
+				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
-					libconfig_destroy_args_din(&exec_line_args);
+					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[4], "15")) {
-				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
+				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
-					libconfig_destroy_args_din(&exec_line_args);
+					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			}
 		} else if (!strcmp(exec_line_args[5], "none")) {
 			if (!strcmp(exec_line_args[3], "1")) {
-				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
+				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
-					libconfig_destroy_args_din(&exec_line_args);
+					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[3], "15")) {
-				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
+				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
-					libconfig_destroy_args_din(&exec_line_args);
+					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			}
@@ -227,17 +227,17 @@ void cmd_aaa_acct(const char *cmd)
 			fclose(server);
 
 			if (!strcmp(exec_line_args[3], "1")) {
-				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_CMD_1, 1,
+				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_CMD_1, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
-					libconfig_destroy_args_din(&exec_line_args);
+					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[3], "15")) {
-				if (!libconfig_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_CMD_15, 1,
+				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_CMD_15, 1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
-					libconfig_destroy_args_din(&exec_line_args);
+					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			}
@@ -252,17 +252,17 @@ void cmd_aaa_author(const char *cmd)
 	FILE *server;
 	struct stat buf;
 
-	if ((exec_line_args_len = libconfig_parse_args_din((char *) cmd, &exec_line_args))) {
+	if ((exec_line_args_len = librouter_parse_args_din((char *) cmd, &exec_line_args))) {
 		if (exec_line_args_len < 5) {
-			libconfig_destroy_args_din(&exec_line_args);
+			librouter_destroy_args_din(&exec_line_args);
 			return;
 		}
 
 		/* NO COMMAND */
 		if (!strcmp(exec_line_args[0], "no") || !strcmp(exec_line_args[4], "none")) {
-			if (!libconfig_pam_config_mode(cish_cfg, AAA_AUTHOR_NONE, 1, FILE_PAM_GENERIC)) {
+			if (!librouter_pam_config_mode(cish_cfg, AAA_AUTHOR_NONE, 1, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
-				libconfig_destroy_args_din(&exec_line_args);
+				librouter_destroy_args_din(&exec_line_args);
 				return;
 			}
 		} else if (!strcmp(exec_line_args[4], "group")) {
@@ -277,17 +277,17 @@ void cmd_aaa_author(const char *cmd)
 					return;
 				}
 				fclose(server);
-				if (!libconfig_pam_config_mode(
+				if (!librouter_pam_config_mode(
 				                cish_cfg,
 				                (exec_line_args_len == 7 ? AAA_AUTHOR_TACACS_LOCAL : AAA_AUTHOR_TACACS),
 				                1, FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
-					libconfig_destroy_args_din(&exec_line_args);
+					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			}
 		}
-		libconfig_destroy_args_din(&exec_line_args);
+		librouter_destroy_args_din(&exec_line_args);
 	}
 }
 
@@ -299,10 +299,10 @@ void add_user(const char *cmd) /* aaa username <user> password [hash] <pass> *//
 	char buffer[256];
 	int i;
 
-	args = libconfig_make_args(cmd);
+	args = librouter_make_args(cmd);
 	for (i = 0; users[i]; i++) {
 		if (strcmp(users[i], args->argv[2]) == 0) {
-			libconfig_destroy_args(args);
+			librouter_destroy_args(args);
 			printf("%% Invalid user!\n");
 			return;
 		}
@@ -316,7 +316,7 @@ void add_user(const char *cmd) /* aaa username <user> password [hash] <pass> *//
 		snprintf(buffer, 255, "/bin/adduser %s -p '%s' >/dev/null 2>/dev/null",
 		                args->argv[2], args->argv[4]);
 	system(buffer);
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void del_user(const char *cmd) /* no aaa username <user> *//* tinylogin */
@@ -325,17 +325,17 @@ void del_user(const char *cmd) /* no aaa username <user> *//* tinylogin */
 	arglist *args;
 	char buffer[256];
 
-	args = libconfig_make_args(cmd);
+	args = librouter_make_args(cmd);
 	for (i = 0; users[i]; i++) {
 		if (strcmp(users[i], args->argv[3]) == 0) {
-			libconfig_destroy_args(args);
+			librouter_destroy_args(args);
 			printf("%% Invalid user!\n");
 			return;
 		}
 	}
 	snprintf(buffer, 255, "/bin/deluser %s >/dev/null 2>/dev/null", args->argv[3]);
 	system(buffer);
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void add_radiusserver(const char *cmd) /* radius-server host <ipaddr> [key <secret> [timeout <1-1000>]] */
@@ -344,7 +344,7 @@ void add_radiusserver(const char *cmd) /* radius-server host <ipaddr> [key <secr
 	arglist *args;
 	FILE *server;
 
-	args = libconfig_make_args(cmd);
+	args = librouter_make_args(cmd);
 	for (i = 0; i < MAX_SERVERS; i++) {
 		if (cish_cfg->radius[i].ip_addr[0] == 0 || !strncmp(cish_cfg->radius[i].ip_addr,
 		                args->argv[2], 16)) {
@@ -363,7 +363,7 @@ void add_radiusserver(const char *cmd) /* radius-server host <ipaddr> [key <secr
 	}
 	if (i == MAX_SERVERS) {
 		printf("%% Maximum servers reached!\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
 	if ((server = fopen(FILE_RADDB_SERVER, "w"))) {
@@ -380,7 +380,7 @@ void add_radiusserver(const char *cmd) /* radius-server host <ipaddr> [key <secr
 		}
 		fclose(server);
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
@@ -389,14 +389,14 @@ void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
 	FILE *server;
 	arglist *args;
 
-	args = libconfig_make_args(cmd);
+	args = librouter_make_args(cmd);
 
-	if (libconfig_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS
-	                || libconfig_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS_LOCAL
-	                || libconfig_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_RADIUS
-	                || libconfig_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_RADIUS_LOCAL) {
+	if (librouter_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS
+	                || librouter_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_RADIUS_LOCAL
+	                || librouter_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_RADIUS
+	                || librouter_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_RADIUS_LOCAL) {
 		printf("%% please disable RADIUS authentication first\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
 
@@ -411,7 +411,7 @@ void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
 	}
 	if (i == MAX_SERVERS && args->argc == 4) {
 		printf("%% Server not found!\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
 	if ((server = fopen(FILE_RADDB_SERVER, "w"))) {
@@ -428,7 +428,7 @@ void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
 		}
 		fclose(server);
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void add_tacacsserver(const char *cmd) /* tacacs-server host <ipaddr> key <secret> [timeout <1-1000>] */
@@ -437,7 +437,7 @@ void add_tacacsserver(const char *cmd) /* tacacs-server host <ipaddr> key <secre
 	arglist *args;
 	FILE *server;
 
-	args = libconfig_make_args(cmd);
+	args = librouter_make_args(cmd);
 	for (i = 0; i < MAX_SERVERS; i++) {
 		if (cish_cfg->tacacs[i].ip_addr[0] == 0 || !strncmp(cish_cfg->tacacs[i].ip_addr,
 		                args->argv[2], 16)) {
@@ -456,7 +456,7 @@ void add_tacacsserver(const char *cmd) /* tacacs-server host <ipaddr> key <secre
 	}
 	if (i == MAX_SERVERS) {
 		printf("%% Maximum servers reached!\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
 	if ((server = fopen(FILE_TACDB_SERVER, "w"))) {
@@ -473,7 +473,7 @@ void add_tacacsserver(const char *cmd) /* tacacs-server host <ipaddr> key <secre
 		}
 		fclose(server);
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 
 void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
@@ -482,29 +482,29 @@ void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
 	FILE *server;
 	arglist *args;
 
-	args = libconfig_make_args(cmd);
+	args = librouter_make_args(cmd);
 
-	if (libconfig_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS
-	                || libconfig_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS_LOCAL
-	                || libconfig_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_TACACS
-	                || libconfig_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_TACACS_LOCAL) {
+	if (librouter_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS
+	                || librouter_pam_get_current_mode(FILE_PAM_GENERIC) == AAA_AUTH_TACACS_LOCAL
+	                || librouter_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_TACACS
+	                || librouter_pam_get_current_mode(FILE_PAM_PPP) == AAA_AUTH_TACACS_LOCAL) {
 		printf("%% please disable TACACS+ authentication first\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
-	if (libconfig_pam_get_current_author_mode(FILE_PAM_GENERIC) == AAA_AUTHOR_TACACS) {
+	if (librouter_pam_get_current_author_mode(FILE_PAM_GENERIC) == AAA_AUTHOR_TACACS) {
 		printf("%% please disable TACACS+ authorization first\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
-	if (libconfig_pam_get_current_acct_mode(FILE_PAM_GENERIC) == AAA_ACCT_TACACS) {
+	if (librouter_pam_get_current_acct_mode(FILE_PAM_GENERIC) == AAA_ACCT_TACACS) {
 		printf("%% please disable TACACS+ accounting first\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
-	if (libconfig_pam_get_current_acct_cmd_mode(FILE_PAM_GENERIC) != AAA_ACCT_TACACS_CMD_NONE) {
+	if (librouter_pam_get_current_acct_cmd_mode(FILE_PAM_GENERIC) != AAA_ACCT_TACACS_CMD_NONE) {
 		printf("%% please disable TACACS+ accounting first\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
 
@@ -519,7 +519,7 @@ void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
 	}
 	if (i == MAX_SERVERS && args->argc == 4) {
 		printf("%% Server not found!\n");
-		libconfig_destroy_args(args);
+		librouter_destroy_args(args);
 		return;
 	}
 	if ((server = fopen(FILE_TACDB_SERVER, "w"))) {
@@ -536,5 +536,5 @@ void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
 		}
 		fclose(server);
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }

@@ -26,12 +26,16 @@ void ip_route (const char *cmdline)
 	string[0] = 0;
 	metric = 0;
 	
-	args = libconfig_make_args (cmdline);
+	args = librouter_make_args (cmdline);
 	
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-	if (libconfig_device_get_family_by_name(destination)) /* route to a device */
+<<<<<<< HEAD
+	if (librouter_device_get_family(destination)) /* route to a device */
+=======
+	if (librouter_device_get_family_by_name(destination)) /* route to a device */
+>>>>>>> b4fe5c51875d94d6ec664bd83a353a60eb973f10
 	{
 		if (args->argc < 6)
 		{
@@ -50,7 +54,7 @@ void ip_route (const char *cmdline)
 		}
 		if (args->argc == 7) metric=atoi(args->argv[6]);
 		
-		dev = libconfig_device_convert (destination, major, minor);
+		dev = librouter_device_convert (destination, major, minor);
 		sprintf (string, "-net %s netmask %s dev %s", source_net, source_mask, dev);
 		if (metric) sprintf (string+strlen(string), " %i", metric);
 		free(dev);
@@ -74,7 +78,7 @@ void ip_route (const char *cmdline)
 		sprintf(cmd, "/bin/route add %s 2>&1 >/dev/null", string);
 		system(cmd);
 	}
-	libconfig_destroy_args (args);
+	librouter_destroy_args (args);
 }
 
 void no_ip_route (const char *cmdline)
@@ -104,12 +108,16 @@ void no_ip_route (const char *cmdline)
 	if (tmp) ++tmp;
 	else tmp = (char *)cmdline;
 	
-	args = libconfig_make_args (tmp);
+	args = librouter_make_args (tmp);
 	
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-	if (libconfig_device_get_family_by_name(destination)) /* route to a device */
+<<<<<<< HEAD
+	if (librouter_device_get_family(destination)) /* route to a device */
+=======
+	if (librouter_device_get_family_by_name(destination)) /* route to a device */
+>>>>>>> b4fe5c51875d94d6ec664bd83a353a60eb973f10
 	{
 		if (args->argc < 6)
 		{
@@ -128,7 +136,7 @@ void no_ip_route (const char *cmdline)
 		}
 		if (args->argc == 7) metric=atoi(args->argv[6]);
 		
-		dev = libconfig_device_convert (destination, major, minor);
+		dev = librouter_device_convert (destination, major, minor);
 		sprintf (string, "-net %s netmask %s dev %s", source_net, source_mask, dev);
 		if (metric) sprintf (string+strlen(string), " %i", metric);
 		free(dev);
@@ -152,7 +160,7 @@ void no_ip_route (const char *cmdline)
 		sprintf(cmd, "/bin/route delete %s >/dev/null", string);
 		system(cmd);
 	}
-	libconfig_destroy_args (args);
+	librouter_destroy_args (args);
 }
 #endif
 
@@ -162,22 +170,22 @@ void ip_mroute(const char *cmdline) /* [no] ip mroute <IPorigin> <McastGroup> in
 	char *new_cmdline;
 	arglist *args;
 
-	new_cmdline = libconfig_device_to_linux_cmdline((char*) cmdline);
-	args = libconfig_make_args(new_cmdline);
+	new_cmdline = librouter_device_to_linux_cmdline((char*) cmdline);
+	args = librouter_make_args(new_cmdline);
 	if (strcmp(args->argv[0], "no") == 0) {
-		libconfig_smc_route(0, args->argv[3], args->argv[4], args->argv[6],
+		librouter_smc_route(0, args->argv[3], args->argv[4], args->argv[6],
 		                args->argv[8]);
 	} else {
 #ifdef OPTION_PIMD
-		if (libconfig_exec_check_daemon(PIMS_DAEMON) || libconfig_exec_check_daemon(
+		if (librouter_exec_check_daemon(PIMS_DAEMON) || librouter_exec_check_daemon(
 		                PIMD_DAEMON)) {
 			printf("%% Disable dynamic multicast routing first\n");
 		} else
 #endif
-			libconfig_smc_route(1, args->argv[2], args->argv[3],
+			librouter_smc_route(1, args->argv[2], args->argv[3],
 			                args->argv[5], args->argv[7]);
 	}
-	libconfig_destroy_args(args);
+	librouter_destroy_args(args);
 }
 #endif
 
