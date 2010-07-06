@@ -640,18 +640,13 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	struct ip_t ip;
 	char *osdev = conf->name;
 	int serial_no=0, lusb_descriptor=-1, lusb_tty_verify=-1;
-	char * apn = malloc (100);
+	char * apn = malloc(100);
 	int running = conf->running;
-	librouter_usb_dev * usbdev=malloc(sizeof(librouter_usb_dev));
-
+	librouter_usb_dev * usbdev = malloc(sizeof(librouter_usb_dev));
 
 	/* Get interface index */
 	serial_no = atoi(osdev + strlen(PPPDEV));
 	usbdev->port = serial_no+1;
-
-	/* Retrieve info about up/down */
-	cfg.up = conf->up; //FIXME
-
 
 	/* Get config PPP ;
 	 * Get USB description ;
@@ -659,7 +654,6 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	librouter_ppp_get_config(serial_no, &cfg);
 	lusb_descriptor = librouter_usb_get_descriptor(usbdev);
 	lusb_tty_verify = librouter_usb_device_is_modem(usbdev->port);
-
 
 
 	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
