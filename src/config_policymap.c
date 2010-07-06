@@ -28,7 +28,7 @@
 static char pname[32];
 static int mark;
 
-/* Main functions - parsing and configuring via libconfig */
+/* Main functions - parsing and configuring via librouter */
 void do_policy_description(const char *cmdline) /* [no] description [<text>]*/
 {
 	
