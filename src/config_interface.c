@@ -28,11 +28,14 @@
 extern int _cish_booting;
 
 dev_family *interface_edited;
-int interface_major, interface_minor;
+int interface_major = -1;
+int interface_minor = -1;
 
 void config_interface_done(const char *cmdline)
 {
 	command_root=CMD_CONFIGURE;
+	interface_major = -1;
+	interface_minor = -1;
 }
 
 int validate_interface_minor(void)
