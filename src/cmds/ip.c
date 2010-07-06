@@ -44,7 +44,6 @@ cish_command CMD_NO_IP_TELNET[] = {
 
 cish_command CMD_NO_IP_DHCP[] = {
 	{"relay", "Disable DHCP relay", NULL, no_dhcp_relay, 1, MSK_NORMAL},
-	{"server", "Disable DHCP server", NULL, no_dhcp_server, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -252,6 +251,7 @@ cish_command CMD_IP_DHCP_SERVER_LEASETIME[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_DHCP_NETBIOS
 cish_command CMD_IP_DHCP_SERVER_NBNS[] = {
 	{"<ipaddress>", "IP address of a NetBIOS name server WINS (NBNS)", NULL, dhcp_server_nbns, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -269,10 +269,10 @@ cish_command CMD_IP_DHCP_SERVER_NBNT[] = {
 	{"H", "NetBIOS H-node (Hybrid - WINS, then broadcast)", NULL, dhcp_server_nbnt, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
-
+#endif
 
 cish_command CMD_IP_DHCP_POOL_END[] = {
-	{"<ipaddress>", "Pool end", NULL, dhcp_server, 1, MSK_NORMAL},
+	{"<ipaddress>", "Pool end", NULL, dhcp_server_pool, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -282,7 +282,7 @@ cish_command CMD_IP_DHCP_POOL_BEGIN[] = {
 };
 
 cish_command CMD_IP_DHCP_NETWORK_MASK[] = {
-	{"<netmask>", "Network mask of the DHCP pool", NULL, dhcp_server, 1, MSK_NORMAL},
+	{"<netmask>", "Network mask of the DHCP pool", NULL, dhcp_server_network, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -291,21 +291,43 @@ cish_command CMD_IP_DHCP_NETWORK[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_IP_DHCP_SERVER_NO[] = {
+	{"default-lease-time", "Delete default lease time", NULL, dhcp_server_leasetime, 1, MSK_NORMAL},
+	{"domain-name", "Delete current domain name for the client", NULL, dhcp_server_domainname, 1, MSK_NORMAL},
+	{"dns-server", "Delete current IP address of a DNS server", NULL, dhcp_server_dns, 1, MSK_NORMAL},
+	{"enable", "Disable DHCP Server", NULL, dhcp_server_disable, 1, MSK_NORMAL},
+	{"max-lease-time", "Delete maximum lease time", NULL, dhcp_server_leasetime, 1, MSK_NORMAL},
+#ifdef OPTION_DHCP_NETBIOS
+	{"netbios-name-server", "Delete current IP address of the NetBIOS name server WINS (NBNS)",
+			CMD_IP_DHCP_SERVER_NBNS, NULL, 1, MSK_NORMAL},
+	{"netbios-dd-server", "Delete current the IP address of the NetBIOS datagram distribution server (NBDD)",
+			CMD_IP_DHCP_SERVER_NBDD, NULL, 1, MSK_NORMAL},
+	{"netbios-node-type", "Delete current NetBIOS node type of the client",
+			CMD_IP_DHCP_SERVER_NBNT, NULL, 1, MSK_NORMAL},
+#endif
+	{"router", "Delete current IP address of the default router", NULL, dhcp_server_default_router, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_IP_DHCP_SERVER[] = {
 	{"default-lease-time", "Specify default lease time", CMD_IP_DHCP_SERVER_LEASETIME, NULL, 1, MSK_NORMAL},
 	{"domain-name", "Specify the domain name for the client", CMD_IP_DHCP_SERVER_NAME, NULL, 1, MSK_NORMAL},
 	{"dns-server", "Specify the IP address of a DNS server", CMD_IP_DHCP_SERVER_DNS, NULL, 1, MSK_NORMAL},
+	{"enable", "Enable DHCP Server", NULL, dhcp_server_enable, 1, MSK_NORMAL},
+	{"exit","Exit this menu", NULL, dhcp_server_exit, 0, MSK_NORMAL},
 	{"max-lease-time", "Specify maximum lease time", CMD_IP_DHCP_SERVER_LEASETIME, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_DHCP_NETBIOS
 	{"netbios-name-server", "Specify the IP address of the NetBIOS name server WINS (NBNS)",
 			CMD_IP_DHCP_SERVER_NBNS, NULL, 1, MSK_NORMAL},
 	{"netbios-dd-server", "Specify the IP address of the NetBIOS datagram distribution server (NBDD)",
 			CMD_IP_DHCP_SERVER_NBDD, NULL, 1, MSK_NORMAL},
 	{"netbios-node-type", "Specify the NetBIOS node type of the client",
 			CMD_IP_DHCP_SERVER_NBNT, NULL, 1, MSK_NORMAL},
+#endif
 	{"network", "Specify the network for the DHCP pool", CMD_IP_DHCP_NETWORK, NULL, 1, MSK_NORMAL},
+	{"no", "Reverse a Setting", CMD_IP_DHCP_SERVER_NO, NULL, 1, MSK_NORMAL},
 	{"pool", "Specify a pool of supplied addresses", CMD_IP_DHCP_POOL_BEGIN, NULL, 1, MSK_NORMAL},
 	{"router", "Specify the IP address of the default router", CMD_IP_DHCP_DEFAULT_ROUTER, NULL, 1, MSK_NORMAL},
-	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
