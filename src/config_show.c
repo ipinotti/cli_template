@@ -639,19 +639,14 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	ppp_config cfg;
 	struct ip_t ip;
 	char *osdev = conf->name;
-	int serial_no=0, lusb_descriptor=0, lusb_tty_verify=0;
-	char * apn = malloc (100);
+	int serial_no=0, lusb_descriptor=-1, lusb_tty_verify=-1;
+	char * apn = malloc(100);
 	int running = conf->running;
-	librouter_usb_dev * usbdev=malloc(sizeof(librouter_usb_dev));
-
+	librouter_usb_dev * usbdev = malloc(sizeof(librouter_usb_dev));
 
 	/* Get interface index */
 	serial_no = atoi(osdev + strlen(PPPDEV));
 	usbdev->port = serial_no+1;
-
-	/* Retrieve info about up/down */
-	cfg.up = conf->up; //FIXME
-
 
 	/* Get config PPP ;
 	 * Get USB description ;
@@ -659,7 +654,6 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	librouter_ppp_get_config(serial_no, &cfg);
 	lusb_descriptor = librouter_usb_get_descriptor(usbdev);
 	lusb_tty_verify = librouter_usb_device_is_modem(usbdev->port);
-
 
 
 	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
@@ -679,20 +673,20 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	fprintf(out, "  Encapsulation PPP");
 
-	if (librouter_modem3g_get_apn (apn, serial_no))
+	if (!librouter_modem3g_get_apn (apn, serial_no))
 		fprintf(out, ", APN is \"%s\"\n", apn);
 	else
 		printf(" Error - reading APN\n");
 
 	free (apn);
 
-	if (lusb_descriptor == 1 && lusb_tty_verify == 1)
+	if ( (!lusb_descriptor) && (lusb_tty_verify) )
 		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d\n",
 				usbdev->product_str,
 				usbdev->manufacture_str,
 				usbdev->port);
 	else
-		if (lusb_descriptor == 1 && lusb_tty_verify == 0)
+		if ( (!lusb_descriptor) && (!lusb_tty_verify) )
 			fprintf(out, "  USB device connected, but not a modem.\n");
 		else
 			fprintf(out, "  No USB device connected.\n");
@@ -1070,8 +1064,7 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,
-		                filename, host);
+		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> ",TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,filename, host);
 
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
@@ -1118,8 +1111,7 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename,
-		                host);
+		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> ",TMP_TFTP_OUTPUT_FILE, in, filename,host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
