@@ -1064,7 +1064,8 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> ",TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,filename, host);
+		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> "
+		        TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,filename, host);
 
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
@@ -1111,7 +1112,7 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> ",TMP_TFTP_OUTPUT_FILE, in, filename,host);
+		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename,host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
