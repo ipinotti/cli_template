@@ -778,8 +778,6 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			continue;
 		}
 
-		conf.type = DUMP_INTF_STATUS;
-
 		fprintf(out, "%s is %s, line protocol is %s%s\n", cish_dev,
 		                conf.up ? (1 ? "up" : "down") : "administratively down", //FIXME
 		                conf.running & IF_STATE_UP ? "up" : "down", conf.running
