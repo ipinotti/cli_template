@@ -96,9 +96,6 @@ void show_kmalloc(const char *);
 void show_softnet(const char *);
 void clear_ssh_hosts(const char *cmd);
 
-
-
-
 void show_clock(const char *);
 void show_logging(const char *);
 void clear_logging(const char *);
@@ -119,6 +116,7 @@ void set_ospf_interface_cmds(int enable);
 void set_bgp_interface_cmds(int enable);
 void set_model_aux_cmds(int enable);
 void set_model_qos_cmds(int enable);
+void set_model_vpn_cmds(int enable);
 void set_model_ethernet_cmds(const char *);
 void set_model_serial_cmds(const char *);
 void disable_exc_cmds(void);
@@ -688,5 +686,4 @@ void backup_interface_shutdown(const char *cmdline);
 void backup_interface(const char *cmdline);
 void backup_method_set_ping (const char *cmdline);
 void backup_method_set_link (const char *cmdline);
-
 #endif
