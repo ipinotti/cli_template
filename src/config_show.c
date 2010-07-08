@@ -646,7 +646,7 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	/* Get interface index */
 	serial_no = atoi(osdev + strlen(PPPDEV));
-	usbdev->port = serial_no+1;
+	usbdev->port = serial_no+1; /* FIXME porta+1 pois não existe usb3g builtin */
 
 	/* Get config PPP ;
 	 * Get USB description ;

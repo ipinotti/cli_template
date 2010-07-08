@@ -16,6 +16,8 @@
 #include <syslog.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include <net/if.h>
 #include <netinet/ip_icmp.h>
@@ -24,6 +26,7 @@
 #include <arpa/inet.h>
 
 #include <librouter/dev.h> /* get_dev_link */
+#include <librouter/usb.h>
 
 #include "backupd.h"
 
@@ -230,8 +233,8 @@ static void clear_config(struct bckp_conf_t * bckp_conf)
  *
  * interface=ppp0
  * shutdown=yes
- * backing_up=yes
- * main_interface=ethernet0
+ * backing_up=no
+ * main_interface=
  * method=ping
  * ping-address=8.8.8.8
  *
@@ -351,7 +354,23 @@ static struct bckp_conf_t * get_config(void)
 static void usr_handler(int sig)
 {
 	/* Reload configuration */
-	bc = get_config();
+	struct bckp_conf_t *bckp_conf, *bckp_buff_bc, *bc_new;
+	bkpd_dbg("do_backup... bc is %p\n", bc);
+
+	bc_new = get_config();
+	bckp_buff_bc = bc;
+
+	for (bckp_conf = bc_new; bckp_conf != NULL; bckp_conf = bckp_conf->next) {
+		bckp_conf->state = bckp_buff_bc->state;
+		bckp_conf->pppd_pid = bckp_buff_bc->pppd_pid;
+		bckp_buff_bc = bckp_buff_bc->next;
+	}
+
+	clear_config(bc);
+	bc = bc_new;
+	clear_config(bckp_conf);
+	clear_config(bckp_buff_bc);
+
 }
 
 static void hup_handler(int sig)
@@ -370,12 +389,12 @@ static void alarm_handler(int sig)
 static int pppd_spawn(struct bckp_conf_t *conf)
 {
 
+	struct bckp_conf_t *bckp_save_pid;
 	pid_t pid;
-	int m3g_index = 0;
+	int m3g_index = -1;
 
-	m3g_index = conf->intf_name[strlen(conf->intf_name)];
-
-	printf ("ENTROU NO PPPD-SPAWN\n");
+	m3g_index = atoi(&conf->intf_name[3]); /* ppp0 -> 0 */
+	bkpd_dbg("M3G INDEX = %d\n\n", m3g_index);
 
 	switch (pid = fork()) {
 		case -1:
@@ -401,6 +420,7 @@ static int pppd_spawn(struct bckp_conf_t *conf)
 					exit(EXIT_FAILURE);
 					break;
 				default:
+					syslog(LOG_ERR, "Could not load file to spawn pppd\n");
 					break;
 			}
 
@@ -409,14 +429,13 @@ static int pppd_spawn(struct bckp_conf_t *conf)
 		default: /* Parent, save child pid */
 			conf->pppd_pid = pid;
 
-			if ( strcmp(conf->intf_name, bc->intf_name) == 0 )
-				bc->pppd_pid = conf->pppd_pid;
-			else
-				if ( strcmp(conf->intf_name, bc->next->intf_name) == 0 )
-					bc->next->pppd_pid = conf->pppd_pid;
-				else
-					if ( strcmp(conf->intf_name, bc->next->next->intf_name) == 0)
-						bc->next->next->pppd_pid = conf->pppd_pid;
+			bkpd_dbg("PID DO PPPD - %d\n\n", (int)pid);
+
+			for (bckp_save_pid = bc; bckp_save_pid != NULL; bckp_save_pid = bckp_save_pid->next){
+				if ( strcmp(conf->intf_name, bckp_save_pid->intf_name) == 0 )
+					bckp_save_pid->pppd_pid = conf->pppd_pid;
+			}
+			clear_config(bckp_save_pid);
 			break;
 	}
 
@@ -425,11 +444,10 @@ static int pppd_spawn(struct bckp_conf_t *conf)
 
 static void do_backup(void)
 {
-	struct bckp_conf_t *bckp_conf, *bckp_buff;
-
+	struct bckp_conf_t *bckp_conf, *bckp_buff, *bckp_save_pid;
 	bkpd_dbg("do_backup... bc is %p\n", bc);
-
 	bckp_buff = bc;
+	int tty_check=-1;
 
 	for (bckp_conf = bc; bckp_conf != NULL; bckp_conf = bckp_conf->next) {
 
@@ -442,29 +460,32 @@ static void do_backup(void)
 		bkpd_dbg("\tNext is %p\n", bckp_conf->next);
   		bkpd_dbg("---------------------------\n\n");
 
+  		tty_check = librouter_usb_device_is_modem((atoi(&bckp_conf->intf_name[3])+1)); /* FIXME [dev_num+1] devido a numeração do arquivo no sistema começar em 1 e nao em 0 */
+  		bkpd_dbg("tty check = %d\n\n",tty_check);
 
-		/* Main state machine */
+  		/* Main state machine */
 		switch (bckp_conf->state) {
 
 			/* shutdown ON */
 			case STATE_SHUTDOWN:
 
-			//	printf(" -- entrei no shut\n\n");
+				bkpd_dbg("--STATE SHUTDOWN--\n\n");
 
-				if (bckp_conf->shutdown == 1 && bckp_conf->pppd_pid != (int)NULL){
-					kill(bckp_conf->pppd_pid,9);
-					bckp_conf->pppd_pid = (int)NULL;
+				if (tty_check){
+					if ( (bckp_conf->shutdown) && (bckp_conf->pppd_pid != (int)NULL) ){
 
-					if ( strcmp(bckp_conf->intf_name, bc->intf_name) == 0 )
-						bc->pppd_pid = bckp_conf->pppd_pid;
-					else
-						if ( strcmp(bckp_conf->intf_name, bc->next->intf_name) == 0 )
-							bc->next->pppd_pid = bckp_conf->pppd_pid;
-						else
-							if ( strcmp(bckp_conf->intf_name, bc->next->next->intf_name) == 0)
-								bc->next->next->pppd_pid = bckp_conf->pppd_pid;
+						kill(bckp_conf->pppd_pid,SIGTERM);
+						usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
+						waitpid(bckp_conf->pppd_pid,NULL,0);
 
-					printf("FEITO SHUTDOWN E KILL PROCESS\n\n");
+						bckp_conf->pppd_pid = (int)NULL;
+
+						for (bckp_save_pid = bc; bckp_save_pid != NULL; bckp_save_pid = bckp_save_pid->next){
+							if ( strcmp(bckp_conf->intf_name, bckp_save_pid->intf_name) == 0 )
+								bckp_save_pid->pppd_pid = bckp_conf->pppd_pid;
+						}
+						clear_config(bckp_save_pid);
+					}
 				}
 
 				bckp_conf->state = STATE_NOBACKUP;
@@ -473,11 +494,16 @@ static void do_backup(void)
 
 			/* backup disabled */
 			case STATE_NOBACKUP:
-			//	printf(" -- entrei no back\n\n");
 
-				if ( (bckp_conf->is_backup == 0) && (bckp_conf->shutdown == 0) && (bckp_conf->pppd_pid == (int)NULL) ){
-					printf("dentro do if do back\n\n\n");
-					bckp_conf->state = STATE_CONNECTED;
+				bkpd_dbg("--STATE NOBACKUP--\n\n");
+
+				if (tty_check){
+
+					if ( (!bckp_conf->is_backup) && (!bckp_conf->shutdown) && (bckp_conf->pppd_pid == (int)NULL) )
+						bckp_conf->state = STATE_CONNECTED;
+					else
+						bckp_conf->state = STATE_WAITING;
+
 				}
 				else
 					bckp_conf->state = STATE_WAITING;
@@ -488,44 +514,69 @@ static void do_backup(void)
 			 * if the backup interface must be enabled */
 			case STATE_WAITING:
 				/* Test if back up is enabled */
-			//	printf(" -- entrei no waiting\n\n");
 
-				if (!bckp_conf->is_backup){
-					bckp_conf->state = STATE_CONNECTED;
-					continue;
-				}
+				bkpd_dbg("--STATE WAITING--\n\n");
+				//printf("--STATE WAITING--\n\n");
 
-				if (bckp_conf->method == BCKP_METHOD_PING) {
-					/* Test if main interface is up */
-					if (ping(bckp_conf->ping_address, bckp_conf->main_intf_name)) {
-						bckp_conf->state = STATE_WAITING;
-						bkpd_dbg("PING OK\n");
-					} else {
+				if (tty_check){
+
+					if (!bckp_conf->is_backup){
 						bckp_conf->state = STATE_CONNECTED;
-						bckp_conf->shutdown=0;
-						bkpd_dbg("PING Fail\n");
+						continue;
 					}
-
-				} else if (bckp_conf->method == BCKP_METHOD_LINK) {
-					if (librouter_dev_get_link(bckp_conf->main_intf_name))
-						bckp_conf->state = STATE_WAITING;
 					else
-						bckp_conf->state = STATE_CONNECTED;
+						if (bckp_conf->method == BCKP_METHOD_PING) {
+							/* Test if main interface is up */
+							if (ping(bckp_conf->ping_address, bckp_conf->main_intf_name)) {
+								bckp_conf->state = STATE_WAITING;
+								bkpd_dbg("PING OK\n");
+								//printf("PING OK\n");
+
+							}
+							else{
+								bckp_conf->state = STATE_CONNECTED;
+								bckp_conf->shutdown=0;
+								bkpd_dbg("PING Fail\n");
+								//printf("PING FAIL\n");
+
+							}
+
+						}
+						else
+							if (bckp_conf->method == BCKP_METHOD_LINK) {
+								if (librouter_dev_get_link(bckp_conf->main_intf_name)){
+									bckp_conf->state = STATE_WAITING;
+									bkpd_dbg("LINK OK\n");
+									//printf("LINK OK\n");
+								}
+								else{
+									bckp_conf->state = STATE_CONNECTED;
+									bckp_conf->shutdown=0;
+									bkpd_dbg("LINK Fail\n");
+									//printf("LINK FAIL\n");
+
+								}
+						}
 				}
+				else
+					bckp_conf->state = STATE_CONNECTED;
+
 				break;
 
 			case STATE_CONNECTED:
 				/* Must check whether the main interface link has been reestablished */
-			//	printf(" -- entrei no connect\n\n");
 
-				if ( !bckp_conf->shutdown && bckp_conf->pppd_pid == (int)NULL ){
-					bkpd_dbg("\antes do pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
-					pppd_spawn(bckp_conf);
-					bkpd_dbg("\tExecutou pppd spawn pelo %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
-
+				bkpd_dbg("--STATE CONNECTED--\n\n");
+				//printf("--STATE CONNECTED--\n\n");
+				if (tty_check){
+					if ( !bckp_conf->shutdown && bckp_conf->pppd_pid == (int)NULL ){
+						bkpd_dbg("\antes do pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
+						pppd_spawn(bckp_conf);
+						bkpd_dbg("\tExecutou pppd spawn pelo %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
+					}
 				}
-				bckp_conf->state = STATE_SHUTDOWN;
 
+				bckp_conf->state = STATE_SHUTDOWN;
 				break;
 
 			default:
@@ -535,6 +586,8 @@ static void do_backup(void)
 
 
 	}
+	bckp_conf=NULL;
+	bckp_save_pid=NULL;
 }
 
 int main(int argc, char **argv)
@@ -558,6 +611,10 @@ int main(int argc, char **argv)
 		}
 	}
 
+	/* Daemonize */
+	if (!nodaemon)
+		daemonize();
+
 	/* Check if another instance is running */
 	if ((pidfd = fopen(BACKUPD_PID_FILE, "r")) != NULL) {
 		fprintf(stderr, "Another instance is already running. Exiting ...\n");
@@ -576,12 +633,6 @@ int main(int argc, char **argv)
 		exit(-1);
 	}
 
-	/* Daemonize */
-	if (!nodaemon)
-		daemonize();
-
-
-
 	/* Register signal handlers */
 	signal(SIGUSR1, usr_handler);
 	signal(SIGALRM, alarm_handler);
@@ -595,8 +646,7 @@ int main(int argc, char **argv)
 	/* Do the job */
 	while (1) {
 		sleep(2);
-		printf ("\n\n\t\t--ANOTHER ROUND - WHILE--\n\n");
-//		bkpd_dbg("Main loop ...\n");
+		bkpd_dbg("Main loop ...\n");
 		do_backup();
 	}
 
