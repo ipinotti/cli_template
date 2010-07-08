@@ -187,6 +187,15 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 
 	librouter_qos_tc_remove_all(dev);
 
+	if (strstr(dev,"ppp") != NULL){
+		/* [interface_major+1] devido a numeração do arquivo começar em 1 e nao em 0 */
+		if (!librouter_usb_device_is_modem(interface_major+1)){
+			printf("\n%% The interface is not connected or is not a modem");
+			printf("\n%% Settings couldn't be applied at this moment\n\n");
+		}
+
+	}
+
 	librouter_dev_set_link_down(dev);
 
 	free(dev);
@@ -199,6 +208,16 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 
 	dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
+
+	if (strstr(dev,"ppp") != NULL){
+		/* [interface_major+1] devido a numeração do arquivo começar em 1 e nao em 0 */
+		if (!librouter_usb_device_is_modem(interface_major+1)){
+			printf("\n%% The interface is not connected or is not a modem");
+			printf("\n%% Settings couldn't be applied at this moment\n\n");
+		}
+
+	}
+
 
 	librouter_dev_set_link_up(dev); /* UP */
 
