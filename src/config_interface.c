@@ -18,6 +18,7 @@
 #include <linux/mii.h>
 
 #include <librouter/options.h>
+#include <librouter/usb.h>
 #include "commands.h"
 #include "commandtree.h"
 #include "cish_main.h"
