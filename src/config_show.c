@@ -772,8 +772,6 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			continue;
 		}
 
-		conf.type = DUMP_INTF_STATUS;
-
 		fprintf(out, "%s is %s, line protocol is %s%s\n", cish_dev,
 		                conf.up ? (1 ? "up" : "down") : "administratively down", //FIXME
 		                conf.running & IF_STATE_UP ? "up" : "down", conf.running
@@ -1066,7 +1064,8 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> ",TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,filename, host);
+		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> "
+		        TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,filename, host);
 
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
@@ -1113,7 +1112,7 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> ",TMP_TFTP_OUTPUT_FILE, in, filename,host);
+		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename,host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {

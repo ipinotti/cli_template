@@ -52,11 +52,10 @@
 #include <librouter/ssh.h>
 #include <librouter/vlan.h>
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #define cish_dbg(x,...) \
-		printf("%s : %d =>", __FUNCTION__, __LINE__); \
-		printf(x, ##__VA_ARGS__)
+		syslog(LOG_INFO, "%s : %d => "x , __FUNCTION__, __LINE__, ##__VA_ARGS__);
 #else
 #define cish_dbg(x,...)
 #endif
@@ -193,8 +192,25 @@ void firmware_download(const char *cmd);
 void firmware_save(const char *cmd);
 void firmware_upload(const char *cmd);
 void no_firmware_upload(const char *cmd);
+
+
+/* DHCP Server */
+void dhcp_server_enable(const char *cmd);
+void dhcp_server_disable(const char *cmd);
+void dhcp_server_network(const char *cmd);
+void dhcp_server_pool(const char *cmd);
+
+void dhcp_server_dns(const char *cmd);
+void dhcp_server_leasetime(const char *cmd);
+void dhcp_server_domainname(const char *cmd);
+void dhcp_server_nbns(const char *cmd);
+void dhcp_server_nbdd(const char *cmd);
+void dhcp_server_nbnt(const char *cmd);
+void dhcp_server_default_router(const char *cmd);
+
 void dhcp_server(const char *cmd);
-void no_dhcp_server(const char *cmd);
+void dhcp_server_exit(const char *cmd);
+
 void dhcp_relay(const char *cmd);
 void no_dhcp_relay(const char *cmd);
 void ip_dnsrelay(const char *cmd);

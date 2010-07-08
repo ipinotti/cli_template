@@ -17,241 +17,197 @@
 #include <sys/socket.h>
 #include <linux/config.h>
 #include <linux/if_arp.h>
+#include <syslog.h>
 
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
 #include "cish_main.h"
 
+int get_procip_val(const char *);
 
-int get_procip_val (const char *);
-
-void ip_param (const char *cmd)
+void ip_param(const char *cmd)
 {
-	const char	*dst_file;
-	int  		 dst_val;
-	FILE		*F;
-	
-	dst_file	= (const char *) NULL;
-	dst_val     = -1;
-	
-	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0)
-	{
+	const char *dst_file;
+	int dst_val;
+	FILE *F;
+
+	dst_file = (const char *) NULL;
+	dst_val = -1;
+
+	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ip_forward"; /* "/proc/sys/net/ipv4/conf/all/forwarding" */
-		dst_val  = 1;
+		dst_val = 1;
 	}
 #ifdef OPTION_PIMD
-	else if (strncmp (cmd, "ip multicast-routing", 20) == 0)
-	{
+	else if (strncmp(cmd, "ip multicast-routing", 20) == 0) {
 		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
 		dst_val = 1;
 	}
 #endif
-	else if (strncmp (cmd, "ip pmtu-discovery", 17) == 0)
-	{
+	else if (strncmp(cmd, "ip pmtu-discovery", 17) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ip_no_pmtu_disc";
 		dst_val = 0;
-	}
-	else if (strncmp (cmd, "ip default-ttl ", 15) == 0)
-	{
-		if ((dst_val = atoi (cmd+15))<=0)
-		{
-			printf ("%% Parameter error\n");
+	} else if (strncmp(cmd, "ip default-ttl ", 15) == 0) {
+		if ((dst_val = atoi(cmd + 15)) <= 0) {
+			printf("%% Parameter error\n");
 			return;
 		}
 		dst_file = "/proc/sys/net/ipv4/ip_default_ttl";
-	}
-	else if (strncmp (cmd, "ip icmp ignore all", 18) == 0)
-	{
+	} else if (strncmp(cmd, "ip icmp ignore all", 18) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_all";
-		dst_val  = 1;
-	}
-	else if (strncmp (cmd, "ip icmp ignore broadcast", 24) == 0)
-	{
+		dst_val = 1;
+	} else if (strncmp(cmd, "ip icmp ignore broadcast", 24) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts";
-		dst_val  = 1;
-	}
-	else if (strncmp (cmd, "ip icmp ignore bogus", 20) == 0)
-	{
+		dst_val = 1;
+	} else if (strncmp(cmd, "ip icmp ignore bogus", 20) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_ignore_bogus_error_responses";
-		dst_val  = 1;
-	}
-	else if (strncmp (cmd, "ip icmp rate dest-unreachable ", 30) == 0)
-	{
+		dst_val = 1;
+	} else if (strncmp(cmd, "ip icmp rate dest-unreachable ", 30) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_destunreach_rate";
-		dst_val  = atoi (cmd+30);
-		
-		if ((!dst_val)&&(cmd[30]!='0')) return;
-	} 
-	else if (strncmp (cmd, "ip icmp rate echo-reply ", 24) == 0)
-	{
+		dst_val = atoi(cmd + 30);
+
+		if ((!dst_val) && (cmd[30] != '0'))
+			return;
+	} else if (strncmp(cmd, "ip icmp rate echo-reply ", 24) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_echoreply_rate";
-		dst_val  = atoi (cmd+24);
-		
-		if ((!dst_val)&&(cmd[24]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip icmp rate param-prob ", 24) == 0)
-	{
+		dst_val = atoi(cmd + 24);
+
+		if ((!dst_val) && (cmd[24] != '0'))
+			return;
+	} else if (strncmp(cmd, "ip icmp rate param-prob ", 24) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_paramprob_rate";
-		dst_val  = atoi (cmd+24);
-		
-		if ((!dst_val)&&(cmd[24]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip icmp rate time-exceed ", 25) == 0)
-	{
+		dst_val = atoi(cmd + 24);
+
+		if ((!dst_val) && (cmd[24] != '0'))
+			return;
+	} else if (strncmp(cmd, "ip icmp rate time-exceed ", 25) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_timeexceed_rate";
-		dst_val  = atoi (cmd+25);
-		
-		if ((!dst_val)&&(cmd[25]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip fragment high ", 17) == 0)
-	{
+		dst_val = atoi(cmd + 25);
+
+		if ((!dst_val) && (cmd[25] != '0'))
+			return;
+	} else if (strncmp(cmd, "ip fragment high ", 17) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ipfrag_high_thresh";
-		dst_val  = atoi (cmd+17);
+		dst_val = atoi(cmd + 17);
 
-		if ((!dst_val)&&(cmd[17]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip fragment low ", 16) == 0)
-	{
+		if ((!dst_val) && (cmd[17] != '0'))
+			return;
+	} else if (strncmp(cmd, "ip fragment low ", 16) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ipfrag_low_thresh";
-		dst_val  = atoi (cmd+16);
+		dst_val = atoi(cmd + 16);
 
-		if ((!dst_val)&&(cmd[16]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip fragment time ", 17) == 0)
-	{
+		if ((!dst_val) && (cmd[16] != '0'))
+			return;
+	} else if (strncmp(cmd, "ip fragment time ", 17) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ipfrag_time";
-		dst_val  = atoi (cmd+17);
+		dst_val = atoi(cmd + 17);
 
-		if ((!dst_val)&&(cmd[17]!='0')) return;
-	}
-	else if (strncmp (cmd, "ip tcp ecn", 10) == 0)
-	{
+		if ((!dst_val) && (cmd[17] != '0'))
+			return;
+	} else if (strncmp(cmd, "ip tcp ecn", 10) == 0) {
 		dst_file = "/proc/sys/net/ipv4/tcp_ecn";
 		dst_val = 1;
-	}
-	else if (strncmp (cmd, "ip tcp syncookies", 17) == 0)
-	{
+	} else if (strncmp(cmd, "ip tcp syncookies", 17) == 0) {
 		dst_file = "/proc/sys/net/ipv4/tcp_syncookies";
 		dst_val = 1;
-	}
-	else if (strncmp (cmd, "ip rp-filter", 12) == 0)
-	{
+	} else if (strncmp(cmd, "ip rp-filter", 12) == 0) {
 		dst_file = "/proc/sys/net/ipv4/conf/all/rp_filter";
 		dst_val = 1;
 	}
 
-	if (!dst_file)
-	{
-		printf ("%% Error\n");
+	if (!dst_file) {
+		printf("%% Error\n");
 		return;
 	}
-	
-	F = fopen (dst_file, "w");
-	if (!F)
-	{
-		printf ("%% Error opening %s\n", dst_file);
+
+	F = fopen(dst_file, "w");
+	if (!F) {
+		printf("%% Error opening %s\n", dst_file);
 		return;
 	}
-	fprintf (F, "%d", dst_val);
-	fclose (F);
+	fprintf(F, "%d", dst_val);
+	fclose(F);
 }
 
-void no_ip_param (const char *_cmd)
+void no_ip_param(const char *_cmd)
 {
-	const char	*cmd;
-	const char	*dst_file;
-	int  		 dst_val;
-	FILE		*F;
-	
+	const char *cmd;
+	const char *dst_file;
+	int dst_val;
+	FILE *F;
+
 	cmd = _cmd + 3;
-	
-	dst_file	= (const char *) NULL;
-	dst_val     = -1;
-	
-	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0)
-	{
+
+	dst_file = (const char *) NULL;
+	dst_val = -1;
+
+	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ip_forward"; /* "/proc/sys/net/ipv4/conf/all/forwarding" */
-		dst_val  = 0;
+		dst_val = 0;
 	}
 #ifdef OPTION_PIMD
-	else if (strncmp (cmd, "ip multicast-routing", 20) == 0)
-	{
+	else if (strncmp(cmd, "ip multicast-routing", 20) == 0) {
 		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
 		dst_val = 0;
 	}
 #endif
-	else if (strncmp (cmd, "ip pmtu-discovery", 17) == 0)
-	{
+	else if (strncmp(cmd, "ip pmtu-discovery", 17) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ip_no_pmtu_disc";
 		dst_val = 1;
-	}
-	else if (strncmp (cmd, "ip icmp ignore all", 18) == 0)
-	{
+	} else if (strncmp(cmd, "ip icmp ignore all", 18) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_all";
-		dst_val  = 0;
-	}
-	else if (strncmp (cmd, "ip icmp ignore broadcast", 24) == 0)
-	{
+		dst_val = 0;
+	} else if (strncmp(cmd, "ip icmp ignore broadcast", 24) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts";
-		dst_val  = 0;
-	}
-	else if (strncmp (cmd, "ip icmp ignore bogus", 20) == 0)
-	{
+		dst_val = 0;
+	} else if (strncmp(cmd, "ip icmp ignore bogus", 20) == 0) {
 		dst_file = "/proc/sys/net/ipv4/icmp_ignore_bogus_error_responses";
-		dst_val  = 0;
-	}
-	else if (strncmp (cmd, "ip tcp ecn", 10) == 0)
-	{
+		dst_val = 0;
+	} else if (strncmp(cmd, "ip tcp ecn", 10) == 0) {
 		dst_file = "/proc/sys/net/ipv4/tcp_ecn";
 		dst_val = 0;
-	}
-	else if (strncmp (cmd, "ip tcp syncookies", 17) == 0)
-	{
+	} else if (strncmp(cmd, "ip tcp syncookies", 17) == 0) {
 		dst_file = "/proc/sys/net/ipv4/tcp_syncookies";
 		dst_val = 0;
-	}
-	else if (strncmp (cmd, "ip rp-filter", 12) == 0)
-	{
+	} else if (strncmp(cmd, "ip rp-filter", 12) == 0) {
 		dst_file = "/proc/sys/net/ipv4/conf/all/rp_filter";
 		dst_val = 0;
 	}
 
-	if (!dst_file)
-	{
-		printf ("%% Error\n");
+	if (!dst_file) {
+		printf("%% Error\n");
 		return;
 	}
-	
-	F = fopen (dst_file, "w");
-	if (!F)
-	{
-		printf ("%% Error opening %s\n", dst_file);
+
+	F = fopen(dst_file, "w");
+	if (!F) {
+		printf("%% Error opening %s\n", dst_file);
 		return;
 	}
-	fprintf (F, "%d", dst_val);
-	fclose (F);
+	fprintf(F, "%d", dst_val);
+	fclose(F);
 }
 
 #ifdef OPTION_HTTP
-void http_server (const char *cmd)
+void http_server(const char *cmd)
 {
 	librouter_exec_daemon(HTTP_DAEMON);
 }
 
-void no_http_server (const char *cmd)
+void no_http_server(const char *cmd)
 {
 	librouter_kill_daemon(HTTP_DAEMON);
 }
 #endif
 
 #ifdef OPTION_HTTPS
-void https_server (const char *cmd)
+void https_server(const char *cmd)
 {
 	librouter_exec_daemon(HTTPS_DAEMON);
 }
 
-void no_https_server (const char *cmd)
+void no_https_server(const char *cmd)
 {
 	librouter_kill_daemon(HTTPS_DAEMON);
 }
@@ -267,24 +223,257 @@ void no_telnet_server(const char *cmd)
 	librouter_exec_set_inetd_program(0, TELNET_DAEMON);
 }
 
-void dhcp_server(const char *cmd)
+/* DHCP Server */
+void dhcp_server_enable(const char *cmd)
 {
-	librouter_dhcp_set_server(1, (char*)cmd);
+	if (librouter_dhcp_server_set(1) < 0)
+		printf("%% Could not start DHCP Server\n");
 }
 
-void no_dhcp_server(const char *cmd)
+void dhcp_server_disable(const char *cmd)
 {
-	librouter_dhcp_set_no_server();
+	if (librouter_dhcp_server_set(0) < 0)
+		printf("%% Could not stop DHCP Server\n");
+}
+
+void dhcp_server_dns(const char *cmd)
+{
+	arglist *args;
+	char *dns;
+
+	args = librouter_make_args(cmd);
+
+	if (!strcmp(args->argv[0], "no"))
+		dns = NULL;
+	else
+		dns = args->argv[1];
+
+	if (librouter_dhcp_server_set_dnsserver(dns) < 0)
+		printf("%% Could not set DNS server\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+
+void dhcp_server_leasetime(const char *cmd)
+{
+	arglist *args;
+	int lease_time;
+
+	args = librouter_make_args(cmd);
+
+	if (!strcmp(args->argv[0], "no")) {
+		if (!strcmp(args->argv[1], "default-lease-time")) {
+			if (librouter_dhcp_server_set_leasetime(0) < 0)
+				printf("%% Could not deleted default lease time\n");
+		} else {
+			if (librouter_dhcp_server_set_maxleasetime(0) < 0)
+				printf("%% Could not deleted max lease time\n");
+		}
+		return;
+	}
+
+	lease_time = atoi(args->argv[1]) * 86400;
+	lease_time += atoi(args->argv[2]) * 3600;
+	lease_time += atoi(args->argv[3]) * 60;
+	lease_time += atoi(args->argv[4]);
+
+	if (!strcmp(args->argv[0], "default-lease-time")) {
+		if (librouter_dhcp_server_set_leasetime(lease_time) < 0)
+			printf("%% Could not set default lease time\n");
+	} else {
+		if (librouter_dhcp_server_set_maxleasetime(lease_time) < 0)
+			printf("%% Could not set max lease time\n");
+	}
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+
+void dhcp_server_domainname(const char *cmd)
+{
+	arglist *args;
+	char *dn;
+
+	args = librouter_make_args(cmd);
+	if (!strcmp(args->argv[0],"no"))
+		dn = NULL;
+	else
+		dn = args->argv[1];
+
+	if (librouter_dhcp_server_set_domain(dn) < 0)
+		printf("%% Could not set Domain Name\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+
+#ifdef OPTION_DHCP_NETBIOS
+void dhcp_server_nbns(const char *cmd)
+{
+	arglist *args;
+	char *ns;
+
+	args = librouter_make_args(cmd);
+	if (!strcmp(args->argv[0],"no"))
+		ns = NULL;
+	else
+		ns = args->argv[1];
+
+	if (librouter_dhcp_server_set_nbns(ns) < 0)
+		printf("%% Could not set NetBIOS Name Server\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+
+void dhcp_server_nbdd(const char *cmd)
+{
+	arglist *args;
+	char *dd;
+
+	args = librouter_make_args(cmd);
+
+	if (!strcmp(args->argv[0],"no"))
+		dd = NULL;
+	else
+		dd = args->argv[1];
+
+	if (librouter_dhcp_server_set_nbdd(dd) < 0)
+		printf("%% Could not set NetBIOS Datagram Distribution server\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+
+void dhcp_server_nbnt(const char *cmd)
+{
+	arglist *args;
+	int netbios_node_type;
+
+	args = librouter_make_args(cmd);
+
+	if (!strcmp(args->argv[0],"no"))
+		netbios_node_type = 0;
+	else {
+		switch (args->argv[1][0]) {
+		case 'B':
+			netbios_node_type = 1;
+			break;
+		case 'P':
+			netbios_node_type = 2;
+			break;
+		case 'M':
+			netbios_node_type = 4;
+			break;
+		case 'H':
+			netbios_node_type = 8;
+			break;
+		default:
+			netbios_node_type = 0;
+			break;
+		}
+	}
+
+	if (librouter_dhcp_server_set_nbnt(netbios_node_type) < 0)
+		printf("%% Could not set NetBIOS node type\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+#endif /* OPTION_DHCP_NETBIOS */
+
+void dhcp_server_default_router(const char *cmd)
+{
+	arglist *args;
+	char *router;
+
+	args = librouter_make_args(cmd);
+
+	if (!strcmp(args->argv[0],"no"))
+		router = NULL;
+	else
+		router = args->argv[1];
+
+	if (librouter_dhcp_server_set_router(router) < 0)
+		printf("%% Could not set default router\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+
+void dhcp_server_pool(const char *cmd)
+{
+	arglist *args;
+	char *start, *end;
+
+	args = librouter_make_args(cmd);
+
+	start = args->argv[1];
+	end = args->argv[2];
+
+	if (librouter_dhcp_server_set_pool(start, end) < 0)
+		printf("%% Could not set pool\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+
+void dhcp_server_network(const char *cmd)
+{
+	arglist *args;
+	char *network, *mask;
+
+	args = librouter_make_args(cmd);
+
+	network = args->argv[1];
+	mask = args->argv[2];
+
+	if (librouter_dhcp_server_set_network(network, mask) < 0)
+		printf("%% Could not set network\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+
+	free(args);
+}
+
+void dhcp_server(const char *cmd)
+{
+	command_root = CMD_IP_DHCP_SERVER;
+}
+
+void dhcp_server_exit(const char *cmd)
+{
+	command_root = CMD_CONFIGURE;
 }
 
 void dhcp_relay(const char *cmd)
 {
 	char *p;
-	
-	p=strstr(cmd, "relay");
-	if (!p) return;
+
+	p = strstr(cmd, "relay");
+	if (!p)
+		return;
 	p += 5;
-	while (*p == ' ') p++;
+	while (*p == ' ')
+		p++;
 	librouter_dhcp_set_relay(p);
 }
 
@@ -297,7 +486,7 @@ void ip_dnsrelay(const char *cmd) /* [no] ip dns relay */
 {
 	arglist *args;
 
-	args=librouter_make_args(cmd);
+	args = librouter_make_args(cmd);
 	if (args->argc == 4)
 		librouter_kill_daemon(DNS_DAEMON);
 	else
@@ -309,9 +498,11 @@ void ip_domainlookup(const char *cmd) /* [no] ip domain lookup */
 {
 	arglist *args;
 
-	args=librouter_make_args(cmd);
-	if (args->argc == 4) librouter_dns_lookup(0);
-		else librouter_dns_lookup(1);
+	args = librouter_make_args(cmd);
+	if (args->argc == 4)
+		librouter_dns_lookup(0);
+	else
+		librouter_dns_lookup(1);
 	librouter_destroy_args(args);
 }
 
@@ -321,12 +512,12 @@ void ip_nameserver(const char *cmd) /* [no] ip name-server <ipaddress> */
 
 	args = librouter_make_args(cmd);
 	switch (args->argc) {
-		case 3:
-			librouter_dns_nameserver(1, args->argv[2]);
-			break;
-		case 4:
-			librouter_dns_nameserver(0, args->argv[3]);
-			break;
+	case 3:
+		librouter_dns_nameserver(1, args->argv[2]);
+		break;
+	case 4:
+		librouter_dns_nameserver(0, args->argv[3]);
+		break;
 	}
 	librouter_destroy_args(args);
 }
@@ -339,19 +530,23 @@ void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=librouter_make_args(cmd);
-	if (strcmp(args->argv[0], "no") == 0) no=1;
-		else no=0;
+	args = librouter_make_args(cmd);
+	if (strcmp(args->argv[0], "no") == 0)
+		no = 1;
+	else
+		no = 0;
 	/* always remove modules first... */
 	sprintf(buf, "ip_nat_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
 	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
-	cish_cfg->nat_helper_ftp_ports[0]=0;
+	cish_cfg->nat_helper_ftp_ports[0] = 0;
 	if (!no && args->argc == 6) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
+		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null",
+		                args->argv[3], args->argv[5]);
 		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
+		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null",
+		                args->argv[3], args->argv[5]);
 		system(buf);
 		strncpy(cish_cfg->nat_helper_ftp_ports, args->argv[5], 48);
 	} else if (!no && args->argc == 4) {
@@ -370,19 +565,23 @@ void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=librouter_make_args(cmd);
-	if (strcmp(args->argv[0], "no") == 0) no=1;
-		else no=0;
+	args = librouter_make_args(cmd);
+	if (strcmp(args->argv[0], "no") == 0)
+		no = 1;
+	else
+		no = 0;
 	/* always remove modules first... */
 	sprintf(buf, "ip_nat_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
 	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
-	cish_cfg->nat_helper_irc_ports[0]=0;
+	cish_cfg->nat_helper_irc_ports[0] = 0;
 	if (!no && args->argc == 6) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
+		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null",
+		                args->argv[3], args->argv[5]);
 		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
+		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null",
+		                args->argv[3], args->argv[5]);
 		system(buf);
 		strncpy(cish_cfg->nat_helper_irc_ports, args->argv[5], 48);
 	} else if (!no && args->argc == 4) {
@@ -401,19 +600,23 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 	char buf[128];
 	int no;
 
-	args=librouter_make_args(cmd);
-	if (strcmp(args->argv[0], "no") == 0) no=1;
-		else no=0;
+	args = librouter_make_args(cmd);
+	if (strcmp(args->argv[0], "no") == 0)
+		no = 1;
+	else
+		no = 0;
 	/* always remove modules first... */
 	sprintf(buf, "ip_nat_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
 	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
-	cish_cfg->nat_helper_tftp_ports[0]=0;
+	cish_cfg->nat_helper_tftp_ports[0] = 0;
 	if (!no && args->argc == 6) {
-		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
+		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null",
+		                args->argv[3], args->argv[5]);
 		system(buf);
-		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null", args->argv[3], args->argv[5]);
+		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null",
+		                args->argv[3], args->argv[5]);
 		system(buf);
 		strncpy(cish_cfg->nat_helper_tftp_ports, args->argv[5], 48);
 	} else if (!no && args->argc == 4) {
@@ -428,12 +631,13 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 
 void ssh_server(const char *cmd)
 {
-	if (librouter_nv_load_ssh_secret(SSH_KEY_FILE) < 0) fprintf(stderr, "%% ERROR: You must create RSA keys first (ip ssh key rsa 1024).\n");
-		else
+	if (librouter_nv_load_ssh_secret(SSH_KEY_FILE) < 0)
+		fprintf(stderr, "%% ERROR: You must create RSA keys first (ip ssh key rsa 1024).\n");
+	else
 #ifdef OPTION_OPENSSH
-				librouter_exec_daemon(SSH_DAEMON);
+		librouter_exec_daemon(SSH_DAEMON);
 #else
-				librouter_exec_set_inetd_program(1, SSH_DAEMON);
+	librouter_exec_set_inetd_program(1, SSH_DAEMON);
 #endif
 }
 
@@ -450,12 +654,10 @@ void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
 {
 	arglist *args;
 
-	args=librouter_make_args(cmd);
-	if (args->argc == 5)
-	{
+	args = librouter_make_args(cmd);
+	if (args->argc == 5) {
 		printf("%% Please wait... computation may take long time!\n");
-		if (librouter_ssh_create_rsakey(atoi(args->argv[4])) < 0)
-		{
+		if (librouter_ssh_create_rsakey(atoi(args->argv[4])) < 0) {
 			printf("%% Not possible to generate RSA key!\n");
 		}
 	}
@@ -493,36 +695,35 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 	char *dev;
 	arglist *args;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=librouter_make_args(cmd);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	args = librouter_make_args(cmd);
 
-	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
+	if (args->argc == 4 && !strcmp(args->argv[0], "no"))
 		dense = librouter_pim_dense_phyint(0, dev);
 	else {
 #ifdef OPTION_SMCROUTE
-		if (librouter_exec_check_daemon(SMC_DAEMON))
-		{
+		if (librouter_exec_check_daemon(SMC_DAEMON)) {
 			printf("%% Disable static multicast routing first\n");
 			goto clean;
 		}
 #endif
 		sparse = librouter_pim_sparse_phyint(0, dev);
-		/* Kill pimsd if it is running */			
-		if (sparse < 2 && librouter_exec_check_daemon(PIMS_DAEMON)) 
+		/* Kill pimsd if it is running */
+		if (sparse < 2 && librouter_exec_check_daemon(PIMS_DAEMON))
 			librouter_kill_daemon(PIMS_DAEMON);
 
 		dense = librouter_pim_dense_phyint(1, dev);
 	}
 
-	if (dense < 2)	{
-		if (librouter_exec_check_daemon(PIMD_DAEMON)) 
+	if (dense < 2) {
+		if (librouter_exec_check_daemon(PIMD_DAEMON))
 			librouter_kill_daemon(PIMD_DAEMON);
 	} else {
-		if (!librouter_exec_check_daemon(PIMD_DAEMON)) 
+		if (!librouter_exec_check_daemon(PIMD_DAEMON))
 			librouter_exec_daemon(PIMD_DAEMON);
 	}
-clean:
-	librouter_destroy_args(args);
+	clean: librouter_destroy_args(args);
 	free(dev);
 }
 
@@ -532,34 +733,33 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 	char *dev;
 	arglist *args;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=librouter_make_args(cmd);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	args = librouter_make_args(cmd);
 
-	if (args->argc == 4 && !strcmp(args->argv[0], "no")) 
-		sparse=librouter_pim_sparse_phyint(0, dev);
+	if (args->argc == 4 && !strcmp(args->argv[0], "no"))
+		sparse = librouter_pim_sparse_phyint(0, dev);
 	else {
 #ifdef OPTION_SMCROUTE
-		if (librouter_exec_check_daemon(SMC_DAEMON))
-		{
+		if (librouter_exec_check_daemon(SMC_DAEMON)) {
 			printf("%% Disable static multicast routing first\n");
 			goto clean;
 		}
 #endif
 		dense = librouter_pim_dense_phyint(0, dev);
-		if (dense < 2 && librouter_exec_check_daemon(PIMD_DAEMON)) 
+		if (dense < 2 && librouter_exec_check_daemon(PIMD_DAEMON))
 			librouter_kill_daemon(PIMD_DAEMON);
 		sparse = librouter_pim_sparse_phyint(1, dev);
 	}
 
-	if (sparse < 2)	{
-		if (librouter_exec_check_daemon(PIMS_DAEMON)) 
+	if (sparse < 2) {
+		if (librouter_exec_check_daemon(PIMS_DAEMON))
 			librouter_kill_daemon(PIMS_DAEMON);
 	} else {
-		if (!librouter_exec_check_daemon(PIMS_DAEMON)) 
+		if (!librouter_exec_check_daemon(PIMS_DAEMON))
 			librouter_exec_daemon(PIMS_DAEMON);
 	}
-clean:
-	librouter_destroy_args(args);
+	clean: librouter_destroy_args(args);
 	free(dev);
 }
 
@@ -567,10 +767,13 @@ void pim_bsr_candidate(const char *cmd) /* [no] ip pim bsr-candidate <ethernet|s
 {
 	arglist *args;
 
-	args=librouter_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) librouter_pim_sparse_bsr_candidate(0, NULL, NULL, NULL);
-		else if (args->argc == 5) librouter_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
-			else if (args->argc == 7) librouter_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
+	args = librouter_make_args(cmd);
+	if (!strcmp(args->argv[0], "no"))
+		librouter_pim_sparse_bsr_candidate(0, NULL, NULL, NULL);
+	else if (args->argc == 5)
+		librouter_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
+	else if (args->argc == 7)
+		librouter_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
 	librouter_destroy_args(args);
 }
 
@@ -578,9 +781,11 @@ void pim_rp_address(const char *cmd) /* [no] ip pim rp-address <ipaddress> */
 {
 	arglist *args;
 
-	args=librouter_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) librouter_pim_sparse_rp_address(0, NULL);
-		else if (args->argc == 4) librouter_pim_sparse_rp_address(1, args->argv[3]);
+	args = librouter_make_args(cmd);
+	if (!strcmp(args->argv[0], "no"))
+		librouter_pim_sparse_rp_address(0, NULL);
+	else if (args->argc == 4)
+		librouter_pim_sparse_rp_address(1, args->argv[3]);
 	librouter_destroy_args(args);
 }
 
@@ -588,11 +793,17 @@ void pim_rp_candidate(const char *cmd) /* [no] ip pim rp-candidate <ethernet|ser
 {
 	arglist *args;
 
-	args=librouter_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) librouter_pim_sparse_rp_candidate(0, NULL, NULL, NULL, NULL);
-		else if (args->argc == 5) librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
-			else if (args->argc == 7) librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], NULL);
-				else if (args->argc == 9) librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6], args->argv[8]);
+	args = librouter_make_args(cmd);
+	if (!strcmp(args->argv[0], "no"))
+		librouter_pim_sparse_rp_candidate(0, NULL, NULL, NULL, NULL);
+	else if (args->argc == 5)
+		librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
+	else if (args->argc == 7)
+		librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6],
+		                NULL);
+	else if (args->argc == 9)
+		librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6],
+		                args->argv[8]);
 	librouter_destroy_args(args);
 }
 #endif
@@ -601,9 +812,11 @@ void arp_entry(const char *cmd) /* [no] arp <ipaddress> [<mac>] */
 {
 	arglist *args;
 
-	args=librouter_make_args(cmd);
-	if (!strcmp(args->argv[0], "no")) librouter_arp_del(args->argv[2]);
-		else if (args->argc == 3) librouter_arp_add(args->argv[1], args->argv[2]);
+	args = librouter_make_args(cmd);
+	if (!strcmp(args->argv[0], "no"))
+		librouter_arp_del(args->argv[2]);
+	else if (args->argc == 3)
+		librouter_arp_add(args->argv[1], args->argv[2]);
 	librouter_destroy_args(args);
 }
 

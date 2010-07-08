@@ -130,6 +130,7 @@ extern cish_command CMD_SHOW_INTERFACES[];
 /* IP */
 extern cish_command CMD_IP[];
 extern cish_command CMD_NO_IP[];
+extern cish_command CMD_IP_DHCP_SERVER[];
 
 extern cish_command CMD_CONFIG_NO_ROUTER[];
 extern cish_command CMD_IP_ROUTE3[];
