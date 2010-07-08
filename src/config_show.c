@@ -72,7 +72,7 @@ void show_cpu(const char *cmdline)
 	static long long iowait_old = 0, irq_old = 0, softirq_old = 0;
 
 	float scale;
-	// enough for a /proc/stat CPU line (not the intr line)
+	/* enough for a /proc/stat CPU line (not the intr line) */
 	char buf[256];
 
 	tf = fopen("/proc/stat", "r");
@@ -386,7 +386,7 @@ void show_arp(const char *cmdline)
 			osdev = args->argv[5];
 			flags = strtoul(args->argv[2], 0, 16);
 
-			if (flags & ATF_COM) // Entrada valida (completed)
+			if (flags & ATF_COM) /* Entrada valida (completed) */
 			{
 				pprintf("Internet  %s%s", ipaddr, SPAC32 + 16 + strlen(ipaddr));
 				pprintf("        0     %c%c%c%c.%c%c%c%c.%c%c%c%c ", tolower(
@@ -703,15 +703,18 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 {
 	int i;
 	struct ip_t ip;
-
 	char *cish_dev;
 	char *description;
 	struct net_device_stats *st;
-
 	struct interface_conf conf;
+	struct intf_info info;
+	char *intf_list[MAX_NUM_LINKS];
 
-	char intf_list[32][16] = { "ethernet0", "ethernet1", "loopback0", "ppp0", "ppp1", "ppp2",
-	                "\0" };
+	/* Get interface names */
+	librouter_ip_get_if_list(&info);
+	for (i = 0; i < MAX_NUM_LINKS; i++) {
+		intf_list[i] = info.link[i].ifname;
+	}
 
 #if 0
 	int vlan_cos=NONE_TO_COS;
@@ -723,7 +726,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		cish_dbg("%s\n", intf_list[i]);
 
-		if (librouter_ip_iface_get_config(intf_list[i], &conf) < 0) {
+		if (librouter_ip_iface_get_config(intf_list[i], &conf, &info) < 0) {
 			cish_dbg("%s not found\n", intf_list[i]);
 			continue;
 		}
@@ -773,7 +776,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		}
 
 		fprintf(out, "%s is %s, line protocol is %s%s\n", cish_dev,
-		                conf.up ? (1 ? "up" : "down") : "administratively down", //FIXME
+		                conf.up ? (1 ? "up" : "down") : "administratively down", /* FIXME */
 		                conf.running & IF_STATE_UP ? "up" : "down", conf.running
 		                                & IF_STATE_LOOP ? " (looped)" : "");
 
@@ -1159,14 +1162,13 @@ void show_privilege(const char *cmdline)
 void show_interfaces(const char *cmdline) /* show interfaces [aux|ethernet|loopback|serial|tunnel] [0-?] */
 {
 	arglist *args;
-	char intf[100];
+	char intf[32];
 
-	// Melhorar esta parte - nao perdi tempo agora porque a parte de interfaces vai mudar !!!
 	args = librouter_make_args(cmdline);
 	if (args->argc > 2) {
-		strncpy(intf, args->argv[2], 99);
+		strncpy(intf, args->argv[2], sizeof(intf));
 		if (args->argc > 3)
-			strncat(intf, args->argv[3], 99);
+			strncat(intf, args->argv[3], sizeof(intf));
 		dump_interfaces(stdout, 0, intf);
 	} else
 		dump_interfaces(stdout, 0, NULL);
