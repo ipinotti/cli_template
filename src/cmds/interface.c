@@ -457,8 +457,8 @@ cish_command CMD_CONFIG_INTERFACE_M3G[] = {
 	{"apn", "Access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_APN, NULL, 1, MSK_NORMAL},
 	{"username", "Username for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USER, NULL, 1, MSK_NORMAL},
 	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_PASS, NULL, 1, MSK_NORMAL},
-	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
+	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL

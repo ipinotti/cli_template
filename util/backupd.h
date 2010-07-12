@@ -16,6 +16,17 @@
 #define bkpd_dbg(x,...)
 #endif
 
+#define DEBUGB
+#ifdef DEBUGB
+#define bkpd_dbgb(x,...) \
+		printf("%s : %d => "x, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#else
+#define bkpd_dbgb(x,...)
+#endif
+
+
+
+
 #define BACKUPD_PID_FILE	"/var/run/backupd.pid"
 #define BACKUPD_CONF_FILE 	"/etc/backupd/backupd.conf"
 
@@ -55,7 +66,8 @@ enum bckp_state {
 	STATE_SHUTDOWN,
 	STATE_NOBACKUP,
 	STATE_WAITING,
-	STATE_CONNECTED
+	STATE_RECONNECT,
+	STATE_CONNECT
 };
 
 struct bckp_conf_t {
