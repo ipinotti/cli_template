@@ -57,6 +57,14 @@ void set_model_qos_cmds(int enable)
 		_cish_mask &= ~MSK_QOS;
 }
 
+void set_model_vpn_cmds(int enable)
+{
+	if (enable)
+		_cish_mask |= MSK_VPN;
+	else
+		_cish_mask &= ~MSK_VPN;
+}
+
 extern cish_command CMD_SHOW_INTERFACE_ETHERNET[];
 #ifdef OPTION_SMCROUTE
 extern cish_command CMD_IP_MROUTE8_ETHERNET[];

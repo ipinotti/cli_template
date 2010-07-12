@@ -181,7 +181,9 @@ int main(int argc, char *argv[])
 	set_bgp_interface_cmds(librouter_quagga_bgpd_is_running());
 #endif
 
+	/* Enable QoS and VPN */
 	set_model_qos_cmds(1);
+	set_model_vpn_cmds(1);
 
 	/* Ethernet 0 and 1 */
 	set_model_ethernet_cmds("0-1");
