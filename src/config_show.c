@@ -44,15 +44,15 @@ extern int _cish_aux;
 extern char *tzname[2];
 
 static char tbuf[256];
-static FILE *tf;
+
 #ifdef OPTION_IPSEC
 static int total_name_len;
 char separator[] = "<--->";
 #endif
 
-void show_output(void)
+void show_output(FILE *tf)
 {
-	if (!tf)
+	if (tf == NULL)
 		return;
 
 	while (!feof(tf)) {
@@ -70,6 +70,7 @@ void show_cpu(const char *cmdline)
 	long long idle, user, nice, system, iowait, irq, softirq;
 	static long long idle_old = 0, nice_old = 0, user_old = 0, system_old = 0;
 	static long long iowait_old = 0, irq_old = 0, softirq_old = 0;
+	FILE *tf;
 
 	float scale;
 	/* enough for a /proc/stat CPU line (not the intr line) */
@@ -137,7 +138,7 @@ void show_cpu(const char *cmdline)
 }
 
 /* <7> Jan  9 23:41:40 kernel: X.25(1): TX on serial0 size=131 frametype=0x54 */
-static int show_logging_file(time_t tm_start)
+static int show_logging_file(time_t tm_start, FILE *tf)
 {
 	int status;
 	pid_t pid;
@@ -220,6 +221,8 @@ void show_logging(const char *cmdline) /* show logging [tail] */
 	time_t tm = 0;
 	struct tm tm_time;
 
+	FILE *tf;
+
 	args = librouter_make_args(cmdline);
 	if (args->argc > 2) {
 		if (strcmp(args->argv[2], "tail") == 0) {
@@ -252,7 +255,7 @@ void show_logging(const char *cmdline) /* show logging [tail] */
 		{
 			sprintf(logname, "/var/log/messages.%d", i);
 			if ((tf = fopen(logname, "r")) != NULL) {
-				if (show_logging_file(tm)) {
+				if (show_logging_file(tm, tf)) {
 					pprintf("%s", "\n");
 					goto skip;
 				}
@@ -261,7 +264,7 @@ void show_logging(const char *cmdline) /* show logging [tail] */
 	}
 	strcpy(logname, "/var/log/messages");
 	if ((tf = fopen(logname, "r")) != NULL) {
-		if (show_logging_file(tm))
+		if (show_logging_file(tm, tf))
 			pprintf("%s", "\n");
 	}
 	skip: librouter_destroy_args(args);
@@ -308,8 +311,10 @@ void show_processes(const char *cmdline)
 
 void show_uptime(const char *cmdline)
 {
+	FILE *tf;
+
 	tf = popen("/bin/uptime", "r");
-	show_output();
+	show_output(tf);
 	if (tf)
 		pclose(tf);
 }
@@ -457,6 +462,7 @@ void show_ip_dns(const char *cmdline)
 void show_memory(const char *cmdline)
 {
 	int i;
+	FILE *tf;
 
 	if ((tf = fopen("/proc/meminfo", "r"))) {
 		for (i = 0; (i < 2) && !feof(tf); i++) {
@@ -490,6 +496,7 @@ void show_kmalloc(const char *cmdline)
 #ifdef CONFIG_DEVELOPMENT
 void show_softnet(const char *cmdline)
 {
+	FILE *tf;
 	if ((tf = fopen("/proc/net/softnet_stat", "r"))) {
 		for (; !feof(tf);) {
 			tbuf[0] = 0;
@@ -893,6 +900,7 @@ void show_routingtables(const char *cmdline)
 
 void show_running_config(const char *cmdline)
 {
+	FILE *tf;
 
 	printf("Building configuration...\n");
 
@@ -905,7 +913,7 @@ void show_running_config(const char *cmdline)
 	tf = fopen(TMP_CFG_FILE, "r");
 
 	/* Show the configuration */
-	show_output();
+	show_output(tf);
 
 	if (tf)
 		fclose(tf);
@@ -917,6 +925,7 @@ void show_running_config(const char *cmdline)
 void show_level_running_config(const char *cmdline)
 {
 	FILE *f;
+	FILE *tf;
 
 	if ((f = fopen(TMP_CFG_FILE, "wt")) == NULL) {
 		fprintf(stderr, "%% Not possible to show configuration\n");
@@ -976,7 +985,7 @@ void show_level_running_config(const char *cmdline)
 
 	//exclude_last_line_from_file_if_excl(TMP_CFG_FILE);
 	tf = fopen(TMP_CFG_FILE, "r");
-	show_output();
+	show_output(tf);
 	if (tf)
 	fclose(tf);
 	unlink(TMP_CFG_FILE);
@@ -985,9 +994,11 @@ void show_level_running_config(const char *cmdline)
 
 void show_startup_config(const char *cmdline)
 {
+	FILE *tf;
+
 	if (librouter_nv_load_configuration(STARTUP_CFG_FILE) > 0) {
 		tf = fopen(STARTUP_CFG_FILE, "r");
-		show_output();
+		show_output(tf);
 		if (tf)
 			fclose(tf);
 	}
@@ -995,9 +1006,11 @@ void show_startup_config(const char *cmdline)
 
 void show_previous_config(const char *cmdline)
 {
+	FILE *tf;
+
 	if (librouter_nv_load_previous_configuration(TMP_CFG_FILE) > 0) {
 		tf = fopen(TMP_CFG_FILE, "r");
-		show_output();
+		show_output(tf);
 		if (tf)
 			fclose(tf);
 	}
@@ -1724,14 +1737,9 @@ void show_dumpleases(const char *cmdline)
 {
 	int i;
 	char filename[64];
+	FILE *tf;
 
-#if defined(CONFIG_BERLIN_MU0)
-	for (i=0; i < 2; i++)
-#elif defined(CONFIG_BERLIN_SATROUTER)
-	for (i=0; i < ((get_board_hw_id() == BOARD_HW_ID_1) ? 1 : 2); i++)
-#else
-	for (i = 0; i < 1; i++)
-#endif
+	for (i = 0; i < MAX_LAN_INTF; i++)
 	{
 		if (librouter_udhcpd_kick_by_eth(i) == 0) {
 			sprintf(filename, FILE_DHCPDLEASES, i);
@@ -1743,7 +1751,7 @@ void show_dumpleases(const char *cmdline)
 			tf = popen(filename, "r");
 			if (tf) {
 				pprintf("interface ethernet%d\n", i);
-				show_output();
+				show_output(tf);
 				pclose(tf);
 			}
 		}
@@ -1831,21 +1839,22 @@ void show_ntpassociations(const char *cmdline)
 #ifdef OPTION_PIMD
 void show_mroute(const char *cmdline) /* !!! */
 {
+	FILE *tf;
 #if 0
 	if ((tf=fopen("/proc/net/dev_mcast","r")))
 	{
-		show_output();
+		show_output(tf);
 		fclose(tf);
 	}
 #endif
 	pprintf("Multicast Interfaces:\n");
 	if ((tf = fopen("/proc/net/ip_mr_vif", "r"))) {
-		show_output();
+		show_output(tf);
 		fclose(tf);
 	}
 	pprintf("\nMulticast Group Cache:\n");
 	if ((tf = fopen("/proc/net/ip_mr_cache", "r"))) {
-		show_output();
+		show_output(tf);
 		fclose(tf);
 	}
 }
@@ -1854,11 +1863,12 @@ void show_mroute(const char *cmdline) /* !!! */
 #ifdef OPTION_VRRP
 void show_vrrp(const char *cmdline)
 {
+	FILE *tf;
 	dump_vrrp_status();
 
 	if (!(tf = fopen(VRRP_SHOW_FILE,"r"))) /* Open vrrp show file */
 	return;
-	show_output(); /* Print file */
+	show_output(tf); /* Print file */
 	fclose(tf);
 }
 #endif
