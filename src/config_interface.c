@@ -25,7 +25,9 @@
 #include "pprintf.h"
 #include <librouter/device.h>
 #include "../../cish/util/backupd.h" /*FIXME*/
-
+#ifdef OPTION_MODEM3G
+#include <librouter/modem3G.h>
+#endif
 
 extern int _cish_booting;
 
@@ -110,7 +112,10 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 				break;
 #ifdef OPTION_MODEM3G
 			case ppp:
-				command_root=CMD_CONFIG_INTERFACE_M3G;
+				if (interface_major == 0)
+					command_root=CMD_CONFIG_INTERFACE_M3G_BTIN;
+				else
+					command_root=CMD_CONFIG_INTERFACE_M3G_USB;
 				break;
 #endif
 			default:
@@ -795,8 +800,8 @@ void interface_weight(const char *cmdline) /* weight <2-1024> */
 #endif
 
 #ifdef OPTION_MODEM3G
-void interface_modem3g_set_apn(const char *cmdline)
-{
+void interface_modem3g_set_apn(const char *cmdline){
+
 	arglist * args;
 	int check = -1;
 	char * apn = NULL;
@@ -818,8 +823,8 @@ void interface_modem3g_set_apn(const char *cmdline)
 	apn=NULL;
 }
 
-void interface_modem3g_set_password(const char *cmdline)
-{
+void interface_modem3g_set_password(const char *cmdline){
+
 	arglist * args;
 	int check = -1;
 	char * password = NULL;
@@ -842,8 +847,8 @@ void interface_modem3g_set_password(const char *cmdline)
 	password=NULL;
 }
 
-void interface_modem3g_set_username(const char *cmdline)
-{
+void interface_modem3g_set_username(const char *cmdline){
+
 	arglist * args;
 	int check = -1;
 	char * username=NULL;
@@ -1026,6 +1031,39 @@ end:
 	free(interface);
 
 
+}
+
+
+void sim_card_select(const char *cmdline){
+
+}
+
+void interface_modem3g_btin_set_info(const char *cmdline){
+	arglist * args;
+	int check = -1;
+	int sim;
+	char * value = NULL;
+	char * field = NULL;
+
+	args = librouter_make_args(cmdline);
+
+	sim = atoi(args->argv[1]);
+	field = args->argv[2];
+	value = args->argv[4];
+
+
+	check = librouter_modem3g_sim_set_info_infile(sim, field, value);
+
+	if (check == -1)
+		printf("%% Error on set %s\n",field);
+#ifdef DEBUG_M3G
+	else
+		printf("\n%s stored\n\n",field);
+#endif
+
+	librouter_destroy_args(args);
+	value = NULL;
+	field = NULL;
 }
 
 

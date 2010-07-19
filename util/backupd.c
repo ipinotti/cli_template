@@ -573,7 +573,7 @@ static void do_backup(void)
 									bckp_conf->state = STATE_CONNECT;
 									bkpd_dbgb("LINK Fail\n");
 								}
-						}
+							}
 					}
 				}
 				else

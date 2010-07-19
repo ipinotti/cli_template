@@ -955,7 +955,7 @@ void show_level_running_config(const char *cmdline)
 	                || (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
 	                || (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
 	                || (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
-	                || (command_root == CMD_CONFIG_INTERFACE_M3G)) {
+	                || (command_root == CMD_CONFIG_INTERFACE_M3G_USB)) {
 
 		char *intf = librouter_device_convert(interface_edited->cish_string,
 				interface_major, interface_minor);
