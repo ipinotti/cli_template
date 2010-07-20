@@ -121,14 +121,6 @@ void show_cpu(const char *cmdline)
 		tbuf[0] = 0;
 		fgets(tbuf, 255, tf);
 
-#ifdef CONFIG_BERLIN
-		/* Don't show the following patterns */
-		if (strstr(tbuf, "berlin")) continue;
-		if (strstr(tbuf, "Berlin")) continue;
-		if (strstr(tbuf, "BERLIN")) continue;
-		if (strstr(tbuf, "Memory")) continue;
-#endif
-
 		tbuf[255] = 0;
 		if (strlen(tbuf))
 			pprintf("%s", tbuf);

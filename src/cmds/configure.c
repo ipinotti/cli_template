@@ -62,36 +62,6 @@ cish_command CMD_NO_NAT[] = {
 	{NULL, NULL, NULL, NULL, 0}
 };
 
-#ifdef OPTION_NTPD
-cish_command CMD_NO_NTP_RESTRICT[] = {
-	{"<ipaddress>","Exclude one rule", NULL, no_ntp_restrict, 1, MSK_NORMAL},
-	{"<enter>", "Exclude all rules", NULL, NULL, 0, MSK_NORMAL},
-	{NULL, NULL, NULL, NULL, 0}
-};
-
-cish_command CMD_NO_NTP_SERVER[] = {
-	{"<ipaddress>","Exclude one server", NULL, no_ntp_server, 1, MSK_NORMAL},
-	{"<enter>", "Exclude all servers", NULL, NULL, 0, MSK_NORMAL},
-	{NULL, NULL, NULL, NULL, 0}
-};
-
-cish_command CMD_NO_NTP_TRUSTEDKEYS[] = {
-	{"1-16","Exclude one key from trusted list", NULL, no_ntp_trustedkeys, 1, MSK_NORMAL},
-	{"<enter>", "Exclude all keys from trusted list", NULL, NULL, 0, MSK_NORMAL},
-	{NULL, NULL, NULL, NULL, 0}
-};
-
-cish_command CMD_NO_NTP[] = {
-#ifdef OPTION_NTPD_authenticate
-	{"authenticate","Use of authentication", NULL, no_ntp_authenticate, 1, MSK_NORMAL},
-#endif
-	{"restrict","NTP restriction rules", CMD_NO_NTP_RESTRICT, no_ntp_restrict, 1, MSK_NORMAL},
-	{"server","NTP servers", CMD_NO_NTP_SERVER, no_ntp_server, 1, MSK_NORMAL},
-	{"trusted-key","Trusted keys", CMD_NO_NTP_TRUSTEDKEYS, no_ntp_trustedkeys, 1, MSK_NORMAL},
-	{NULL, NULL, NULL, NULL, 0}
-};
-#endif
-
 cish_command CMD_CONFIG_NO_CHATSCRIPT[] = {
 	{"<text>","Chatscript name", NULL, ppp_nochatscript, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}

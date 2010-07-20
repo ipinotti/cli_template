@@ -175,4 +175,7 @@ extern cish_command CMD_BGP_INTERFACE_ETHERNET[];
 /* Firmware */
 extern cish_command CMD_FIRMWARE[];
 
+/* NTP */
+extern cish_command CMD_NO_NTP[];
+
 #endif /* _COMMANDTREE_H */
