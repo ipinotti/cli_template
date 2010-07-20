@@ -938,7 +938,7 @@ void backup_interface(const char *cmdline){
  	}
  	else{
  		printf("\n%% The interface is already with a backup connection by %s", intf_return);
- 		printf("%% Settings couldn't be applied\n\n");
+ 		printf("%% Settings could not be applied\n\n");
  	}
 
 
@@ -985,7 +985,7 @@ void backup_method_set_ping (const char *cmdline){
 	else{
 		printf("\n%% The interface is already backing up");
 		printf("\n%% It is necessary to shutdown backup first");
-		printf("\n%% Settings couldn't be applied\n\n");
+		printf("\n%% Settings could not be applied\n\n");
 	}
 
 end:
@@ -1023,7 +1023,7 @@ void backup_method_set_link (const char *cmdline){
 	else{
 		printf("\n%% The interface is already backing up");
 		printf("\n%% It is necessary to shutdown backup first");
-		printf("\n%% Settings couldn't be applied\n\n");
+		printf("\n%% Settings could not be applied\n\n");
 	}
 
 end:
@@ -1034,8 +1034,51 @@ end:
 }
 
 
-void sim_card_select(const char *cmdline){
+void interface_modem3g_sim_card_select(const char *cmdline){
+	arglist * args;
+	int main_intf = -1;
+	int backup_intf = -1;
+	struct sim_conf * sim = malloc(sizeof(struct sim_conf));
 
+	args = librouter_make_args(cmdline);
+	main_intf = atoi(args->argv[1]);
+	backup_intf = atoi(args->argv[2]);
+
+	if (main_intf == backup_intf){
+		printf("\n%% Wrong input - same SIM card for <MAIN> interface and <BACKUP> interface");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+
+	sim->sim_num = main_intf;
+
+	if(librouter_modem3g_sim_set_order(main_intf) < 0){
+		printf("%% Error on set SIM card order\n");
+		goto end;
+	}
+
+	if(librouter_modem3g_sim_get_info_fromfile(sim) < 0){
+		printf("%% Error on set SIM card order - retrieving information\n");
+		goto end;
+	}
+
+	printf("sim_user = %s !! sim_pass = %s\n\n", sim->username, sim->password);
+
+	if(!strcmp(sim->apn,"")){
+		printf("\n%% Missing APN address");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+
+	if(librouter_modem3g_set_all_info(sim,interface_major) <0){
+		printf("\n%% Error on set configuration");
+		printf("\n%% Settings could not be applied\n\n");
+	}
+
+end:
+	librouter_destroy_args(args);
+	if (sim)
+		free(sim);
 }
 
 void interface_modem3g_btin_set_info(const char *cmdline){

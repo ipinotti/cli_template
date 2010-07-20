@@ -491,7 +491,7 @@ static void do_backup(void)
 
 		/* shutdown ON */
 		case STATE_SHUTDOWN:
-			bkpd_dbgb("--STATE SHUTDOWN-- %s\n\n",bckp_conf->intf_name);
+			bkpd_dbgb("-- STATE SHUTDOWN  -- %s\n\n",bckp_conf->intf_name);
 
 			if ( (bckp_conf->shutdown) && (bckp_conf->pppd_pid != (int)NULL) ){
 
@@ -514,7 +514,7 @@ static void do_backup(void)
 
 		/* backup disabled */
 		case STATE_NOBACKUP:
-			bkpd_dbgb("--STATE NOBACKUP-- %s\n\n",bckp_conf->intf_name);
+			bkpd_dbgb("-- STATE NOBACKUP  -- %s\n\n",bckp_conf->intf_name);
 
 			if ( (!bckp_conf->is_backup) && (!bckp_conf->shutdown) && (bckp_conf->pppd_pid == (int)NULL) )
 				bckp_conf->state = STATE_CONNECT;
@@ -526,7 +526,7 @@ static void do_backup(void)
 		/* Waiting state: We must monitor the main interface status to check
 		 * if the backup interface must be enabled */
 		case STATE_WAITING:
-			bkpd_dbgb("--STATE WAITING-- %s\n\n",bckp_conf->intf_name);
+			bkpd_dbgb("-- STATE WAITING   -- %s\n\n",bckp_conf->intf_name);
 
 
 			if(!bckp_conf->shutdown){
@@ -580,7 +580,7 @@ static void do_backup(void)
 
 		case STATE_RECONNECT:
 			/* Must check whether the main interface link has been reestablished */
-			bkpd_dbgb("--STATE RECONNECT-- %s\n\n",bckp_conf->intf_name);
+			bkpd_dbgb("-- STATE RECONNECT -- %s\n\n",bckp_conf->intf_name);
 
 			if(!bckp_conf->shutdown && bckp_conf->is_backup && bckp_conf->pppd_pid != (int)NULL){
 				kill(bckp_conf->pppd_pid,SIGTERM);
@@ -603,7 +603,7 @@ static void do_backup(void)
 
 		case STATE_CONNECT:
 			/* Power on the backup link m3G */
-			bkpd_dbgb("--STATE CONNECT-- %s\n\n",bckp_conf->intf_name);
+			bkpd_dbgb("-- STATE CONNECT   -- %s\n\n",bckp_conf->intf_name);
 
 			if ( !bckp_conf->shutdown && bckp_conf->pppd_pid == (int)NULL ){
 				bkpd_dbg("Before pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
