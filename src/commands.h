@@ -506,6 +506,7 @@ void ntp_set_key_value(const char *cmd);
 void no_ntp_authenticate(const char *cmd);
 void no_ntp_restrict(const char *cmd);
 void no_ntp_server(const char *cmd);
+void ntp_enable(const char *cmd);
 void no_ntp_trustedkeys(const char *cmd);
 void ntp_update_calendar(const char *cmd);
 

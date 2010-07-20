@@ -61,11 +61,9 @@ void debug_one(const char *cmd) /* [no] debug <token> */
 
 	args=librouter_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0) {
-#ifdef CONFIG_BERLIN_SATROUTER
+
 		if (librouter_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
-#else
-		if (librouter_debug_set_token(0, args->argv[2]) >= 0) _cish_debug = 0;
-#endif
+
 		if (strcmp(args->argv[2], "ospf") == 0) {
 			if (librouter_quagga_ospfd_is_running())
 				ospf_execute_root_cmd(no_debug_ospf);
@@ -105,35 +103,4 @@ void show_debug(const char *cmd)
 {
 	librouter_debug_dump();
 }
-
-#if defined(CONFIG_BERLIN_SATROUTER) && defined(CONFIG_LOG_CONSOLE)
-
-#define TIOSERDEBUG		0x545E	/* enable/disable low level uart debug */
-
-void debug_console(const char *cmd)
-{
-	int pf;
-	arglist *args;
-	unsigned int debug;
-
-	args = librouter_make_args(cmd);
-	debug = (strcmp(args->argv[0], "no")==0 ? 0 : 1);
-	if( (pf = open(TTS_AUX1, O_RDWR | O_NDELAY)) < 0 )
-	{
-		librouter_destroy_args(args);
-		printf("Not possible to enable/disable debug\n");
-		return;
-	}
-	if( ioctl(pf, TIOSERDEBUG, &debug) != 0 )
-	{
-		close(pf);
-		librouter_destroy_args(args);
-		printf("Not possible to enable/disable debug\n");
-		return;
-	}
-	close(pf);
-	librouter_destroy_args(args);
-}
-
-#endif
 

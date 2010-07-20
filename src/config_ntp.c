@@ -48,20 +48,12 @@ void ntp_server(const char *cmd) /* ntp server <ipaddr> [key <1-16>] */
 	arglist *args;
 
 	args=librouter_make_args(cmd);
-#ifdef CONFIG_BERLIN_SATROUTER
-	if( is_network_up() > 0 ) {
-		if(args->argc == 3)
-			librouter_ntp_server(args->argv[2], NULL);
-		else if(args->argc == 5)
-			librouter_ntp_server(args->argv[2], args->argv[4]);
-	}
-	else
-		printf("** NTP is based on network access. Please configure and " 
-			"enable network first. Check also cables.\n** Command '%s' ignored!\n\n", cmd);
-#else
-	if (args->argc == 3) librouter_ntp_server(args->argv[2], NULL);
-		else if (args->argc == 5) librouter_ntp_server(args->argv[2], args->argv[4]);
-#endif
+
+	if (args->argc == 3)
+		librouter_ntp_server(args->argv[2], NULL);
+	else if (args->argc == 5)
+		librouter_ntp_server(args->argv[2], args->argv[4]);
+
 	librouter_destroy_args(args);
 }
 
@@ -104,9 +96,27 @@ void no_ntp_server(const char *cmd) /* no ntp server [<ipaddr>] */
 {
 	arglist *args;
 
-	args=librouter_make_args(cmd);
-	if (args->argc == 4) librouter_ntp_exclude_server(args->argv[3]);
-		else librouter_ntp_exclude_server(NULL);
+	args = librouter_make_args(cmd);
+
+	if (args->argc == 4)
+		librouter_ntp_exclude_server(args->argv[3]);
+	else
+		librouter_ntp_exclude_server(NULL);
+
+	librouter_destroy_args(args);
+}
+
+void ntp_enable(const char *cmd)
+{
+	arglist *args;
+
+	args = librouter_make_args(cmd);
+
+	if (args->argc == 3) /* no ntp enable */
+		librouter_ntp_set_daemon(0);
+	else
+		librouter_ntp_set_daemon(1);
+
 	librouter_destroy_args(args);
 }
 
@@ -122,7 +132,7 @@ void no_ntp_trustedkeys(const char *cmd) /* no ntp trusted-key [<1-16>] */
 
 void ntp_update_calendar(const char *cmd)
 {
-	if (set_rtc_with_system_date() < 0)
+	if (librouter_time_system_to_rtc() < 0)
 		printf("%% Could not execute command\n");
 }
 #endif
