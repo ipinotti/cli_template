@@ -878,19 +878,19 @@ void backup_interface_shutdown(const char *cmdline){
 
  	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
- 	check = librouter_ppp_set_param_infile_backupd(interface,SHUTD_STR,"yes");
+ 	check = librouter_ppp_backupd_set_param_infile(interface,SHUTD_STR,"yes");
  	if (check < 0){
  		printf("%% Error on set backup interface shutdown\n");
  		goto end;
  	}
 
- 	check = librouter_ppp_set_param_infile_backupd(interface,BCKUP_STR,"no");
+ 	check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"no");
  	if (check < 0){
  		printf("%% Error on set backup interface shutdown\n");
  		goto end;
  	}
 
- 	check = librouter_ppp_set_param_infile_backupd(interface,MAIN_INTF_STR,"");
+ 	check = librouter_ppp_backupd_set_param_infile(interface,MAIN_INTF_STR,"");
  	if (check < 0){
  		printf("%% Error on set backup interface shutdown\n");
  		goto end;
@@ -919,13 +919,13 @@ void backup_interface(const char *cmdline){
  	strcat(main_interface,args->argv[2]);
  	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
- 	if ( !librouter_ppp_verif_param_infile_backupd(MAIN_INTF_STR,main_interface, intf_return) ){
- 		check = librouter_ppp_set_param_infile_backupd(interface,BCKUP_STR,"yes");
+ 	if ( !librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR,main_interface, intf_return) ){
+ 		check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"yes");
  		if (check < 0){
  			printf("%% Error on set backup interface\n");
  			goto end;
  		}
- 		check = librouter_ppp_set_param_infile_backupd(interface,MAIN_INTF_STR,main_interface);
+ 		check = librouter_ppp_backupd_set_param_infile(interface,MAIN_INTF_STR,main_interface);
  		if (check < 0){
  			printf("%% Error on set backup interface\n");
  			goto end;
@@ -964,14 +964,14 @@ void backup_method_set_ping (const char *cmdline){
 
  	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
-	if ( !librouter_ppp_verif_param_byintf_infile_backupd(interface, BCKUP_STR, "yes") ){
+	if ( !librouter_ppp_backupd_verif_param_byintf_infile(interface, BCKUP_STR, "yes") ){
 
-		check = librouter_ppp_set_param_infile_backupd(interface,METHOD_STR,"ping");
+		check = librouter_ppp_backupd_set_param_infile(interface,METHOD_STR,"ping");
 		if (check < 0){
 			printf("%% Error on set backup method - ping\n");
 			goto end;
 		}
-		check = librouter_ppp_set_param_infile_backupd(interface,PING_ADDR_STR,ping);
+		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,ping);
 		if (check < 0){
 			printf("%% Error on set backup method - ping\n");
 			goto end;
@@ -1002,14 +1002,14 @@ void backup_method_set_link (const char *cmdline){
 
 	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
-	if ( !librouter_ppp_verif_param_byintf_infile_backupd(interface,BCKUP_STR, "yes") ){
+	if ( !librouter_ppp_backupd_verif_param_byintf_infile(interface,BCKUP_STR, "yes") ){
 
-		check = librouter_ppp_set_param_infile_backupd(interface,METHOD_STR,"link");
+		check = librouter_ppp_backupd_set_param_infile(interface,METHOD_STR,"link");
 		if (check < 0){
 			printf("%% Error on set backup method - link\n");
 			goto end;
 		}
-		check = librouter_ppp_set_param_infile_backupd(interface,PING_ADDR_STR,"");
+		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,"");
 		if (check < 0){
 			printf("%% Error on set backup method - link\n");
 			goto end;
