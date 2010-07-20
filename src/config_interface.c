@@ -1052,17 +1052,17 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 
 	sim->sim_num = main_intf;
 
-	if(librouter_modem3g_sim_set_order(main_intf) < 0){
+	if(librouter_modem3g_sim_set_order(sim->sim_num) < 0){
 		printf("%% Error on set SIM card order\n");
+		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
 	if(librouter_modem3g_sim_get_info_fromfile(sim) < 0){
 		printf("%% Error on set SIM card order - retrieving information\n");
+		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
-
-	printf("sim_user = %s !! sim_pass = %s\n\n", sim->username, sim->password);
 
 	if(!strcmp(sim->apn,"")){
 		printf("\n%% Missing APN address");
@@ -1072,6 +1072,12 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 
 	if(librouter_modem3g_set_all_info(sim,interface_major) <0){
 		printf("\n%% Error on set configuration");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+
+	if(librouter_modem3g_sim_set_card(sim->sim_num) < 0){
+		printf("\n%% Error on set SIM card");
 		printf("\n%% Settings could not be applied\n\n");
 	}
 
