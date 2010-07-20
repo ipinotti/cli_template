@@ -1451,26 +1451,35 @@ void config_clock(const char *cmd) /* clock set [hh:mm:ss] dia mes ano */
 		printf("NTP service is running. Stop this service first.\n");
 		return;
 	}
+
 	args = librouter_make_args(cmd);
+
 	if ((args->argc < 3) || (parse_time(args->argv[2], &hour, &min, &sec) < 0)) {
 		librouter_destroy_args(args);
 		return;
 	}
+
 	time(&tm);
 	localtime_r(&tm, &tm_time);
+
 	if (args->argc > 3)
 		day = atoi(args->argv[3]);
 	else
 		day = tm_time.tm_mday;
+
 	if (args->argc > 4)
 		mon = atoi(args->argv[4]);
 	else
 		mon = tm_time.tm_mon + 1;
+
 	if (args->argc > 5)
 		year = atoi(args->argv[5]);
 	else
 		year = tm_time.tm_year + 1900;
-	set_date(day, mon, year, hour, min, sec); /* !!! Test result! */
+
+	if (set_date(day, mon, year, hour, min, sec) < 0)
+		printf("%% Could not set date\n");
+
 	librouter_destroy_args(args);
 }
 
