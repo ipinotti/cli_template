@@ -392,7 +392,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_PASS_SET[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_CONFIG_INTERFACE_M3G_PASS[] = {
+cish_command CMD_CONFIG_INTERFACE_M3G_USB_PASS[] = {
 	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_PASS_SET, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show password of ISP (address of ISP)", NULL, show_modem3g_password, 1, MSK_NORMAL},
@@ -400,26 +400,26 @@ cish_command CMD_CONFIG_INTERFACE_M3G_PASS[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_CONFIG_INTERFACE_M3G_USER_SET[] = {
+cish_command CMD_CONFIG_INTERFACE_M3G_USB_USER_SET[] = {
 	{"<text>", "Username for login on ISP", NULL, interface_modem3g_set_username, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_CONFIG_INTERFACE_M3G_USER[] = {
-	{"set", "Set username for login on ISP", CMD_CONFIG_INTERFACE_M3G_USER_SET, NULL, 1, MSK_NORMAL},
+cish_command CMD_CONFIG_INTERFACE_M3G_USB_USER[] = {
+	{"set", "Set username for login on ISP", CMD_CONFIG_INTERFACE_M3G_USB_USER_SET, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show username of login on ISP", NULL, show_modem3g_username, 1, MSK_NORMAL},
 #endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_CONFIG_INTERFACE_M3G_APN_SET[] = {
+cish_command CMD_CONFIG_INTERFACE_M3G_USB_APN_SET[] = {
 	{"<text>", "APN(address of ISP)", NULL, interface_modem3g_set_apn, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
-cish_command CMD_CONFIG_INTERFACE_M3G_APN[] = {
-	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_APN_SET, NULL, 1, MSK_NORMAL},
+cish_command CMD_CONFIG_INTERFACE_M3G_USB_APN[] = {
+	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_USB_APN_SET, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show acess point name (address of ISP)", NULL, show_modem3g_apn, 1, MSK_NORMAL},
 #endif
@@ -453,10 +453,84 @@ cish_command CMD_CONFIG_INTERFACE_M3G_NO[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-cish_command CMD_CONFIG_INTERFACE_M3G[] = {
-	{"apn", "Access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_APN, NULL, 1, MSK_NORMAL},
-	{"username", "Username for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USER, NULL, 1, MSK_NORMAL},
-	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_PASS, NULL, 1, MSK_NORMAL},
+cish_command CMD_CONFIG_INTERFACE_M3G_USB[] = {
+	{"apn", "Access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_USB_APN, NULL, 1, MSK_NORMAL},
+	{"username", "Username for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USB_USER, NULL, 1, MSK_NORMAL},
+	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USB_PASS, NULL, 1, MSK_NORMAL},
+	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
+	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
+	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
+#ifdef OPTION_SHOWLEVEL
+	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
+	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
+	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
+};
+
+
+
+
+
+
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_APN_SET[] = {
+	{"<text>", "APN(address of ISP)", NULL, interface_modem3g_btin_set_info, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_APN[] = {
+	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_BTIN_APN_SET, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_USER_SET[] = {
+	{"<text>", "Username for login on ISP", NULL, interface_modem3g_btin_set_info, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_USER[] = {
+	{"set", "Set username for login on ISP", CMD_CONFIG_INTERFACE_M3G_BTIN_USER_SET, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_PASS_SET[] = {
+	{"<text>", "Password for login on ISP", NULL, interface_modem3g_btin_set_info, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_PASS[] = {
+	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_BTIN_PASS_SET, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_CONF[] = {
+	{"apn", "Access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_BTIN_APN, NULL, 1, MSK_NORMAL},
+	{"username", "Username for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_BTIN_USER, NULL, 1, MSK_NORMAL},
+	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_BTIN_PASS, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM[] = {
+	{"0-1", "SIM Card Number", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_CONF, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER_BACK[] = {
+	{"0-1", "Set backup SIM card", NULL, sim_card_select, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER[] = {
+	{"0-1", "Set main SIM card", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER_BACK, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+
+};
+
+cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
+	{"sim", "Choose SIM Card", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM, NULL, 1, MSK_NORMAL},
+	{"sim-order", "Set order of SIM Cards for backup", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
@@ -470,7 +544,6 @@ cish_command CMD_CONFIG_INTERFACE_M3G[] = {
 };
 
 #endif
-
 
 
 

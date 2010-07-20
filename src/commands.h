@@ -687,4 +687,6 @@ void backup_interface_shutdown(const char *cmdline);
 void backup_interface(const char *cmdline);
 void backup_method_set_ping (const char *cmdline);
 void backup_method_set_link (const char *cmdline);
+void sim_card_select(const char *cmdline);
+void interface_modem3g_btin_set_info(const char *cmdline);
 #endif

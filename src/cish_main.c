@@ -110,7 +110,8 @@ static int _print_current_menu()
 		{ CMD_CONFIG_INTERFACE_LOOPBACK, "(config-if-loopback-"},
 		{ CMD_CONFIG_INTERFACE_TUNNEL, "(config-if-tunnel-"},
 #ifdef OPTION_MODEM3G
-		{ CMD_CONFIG_INTERFACE_M3G, "(config-if-m3G-"},
+		{ CMD_CONFIG_INTERFACE_M3G_USB, "(config-if-m3G-"},
+		{ CMD_CONFIG_INTERFACE_M3G_BTIN, "(config-if-m3G-"},
 #endif
 #ifdef OPTION_IPSEC
 		{ CMD_CONFIG_CRYPTO, "(config-crypto)"},

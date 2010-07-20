@@ -25,7 +25,9 @@
 #include "pprintf.h"
 #include <librouter/device.h>
 #include "../../cish/util/backupd.h" /*FIXME*/
-
+#ifdef OPTION_MODEM3G
+#include <librouter/modem3G.h>
+#endif
 
 extern int _cish_booting;
 
@@ -110,7 +112,10 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 				break;
 #ifdef OPTION_MODEM3G
 			case ppp:
-				command_root=CMD_CONFIG_INTERFACE_M3G;
+				if (interface_major == 0)
+					command_root=CMD_CONFIG_INTERFACE_M3G_BTIN;
+				else
+					command_root=CMD_CONFIG_INTERFACE_M3G_USB;
 				break;
 #endif
 			default:
@@ -795,8 +800,8 @@ void interface_weight(const char *cmdline) /* weight <2-1024> */
 #endif
 
 #ifdef OPTION_MODEM3G
-void interface_modem3g_set_apn(const char *cmdline)
-{
+void interface_modem3g_set_apn(const char *cmdline){
+
 	arglist * args;
 	int check = -1;
 	char * apn = NULL;
@@ -818,8 +823,8 @@ void interface_modem3g_set_apn(const char *cmdline)
 	apn=NULL;
 }
 
-void interface_modem3g_set_password(const char *cmdline)
-{
+void interface_modem3g_set_password(const char *cmdline){
+
 	arglist * args;
 	int check = -1;
 	char * password = NULL;
@@ -842,8 +847,8 @@ void interface_modem3g_set_password(const char *cmdline)
 	password=NULL;
 }
 
-void interface_modem3g_set_username(const char *cmdline)
-{
+void interface_modem3g_set_username(const char *cmdline){
+
 	arglist * args;
 	int check = -1;
 	char * username=NULL;
@@ -873,19 +878,19 @@ void backup_interface_shutdown(const char *cmdline){
 
  	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
- 	check = librouter_ppp_set_param_infile_backupd(interface,SHUTD_STR,"yes");
+ 	check = librouter_ppp_backupd_set_param_infile(interface,SHUTD_STR,"yes");
  	if (check < 0){
  		printf("%% Error on set backup interface shutdown\n");
  		goto end;
  	}
 
- 	check = librouter_ppp_set_param_infile_backupd(interface,BCKUP_STR,"no");
+ 	check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"no");
  	if (check < 0){
  		printf("%% Error on set backup interface shutdown\n");
  		goto end;
  	}
 
- 	check = librouter_ppp_set_param_infile_backupd(interface,MAIN_INTF_STR,"");
+ 	check = librouter_ppp_backupd_set_param_infile(interface,MAIN_INTF_STR,"");
  	if (check < 0){
  		printf("%% Error on set backup interface shutdown\n");
  		goto end;
@@ -914,13 +919,13 @@ void backup_interface(const char *cmdline){
  	strcat(main_interface,args->argv[2]);
  	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
- 	if ( !librouter_ppp_verif_param_infile_backupd(MAIN_INTF_STR,main_interface, intf_return) ){
- 		check = librouter_ppp_set_param_infile_backupd(interface,BCKUP_STR,"yes");
+ 	if ( !librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR,main_interface, intf_return) ){
+ 		check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"yes");
  		if (check < 0){
  			printf("%% Error on set backup interface\n");
  			goto end;
  		}
- 		check = librouter_ppp_set_param_infile_backupd(interface,MAIN_INTF_STR,main_interface);
+ 		check = librouter_ppp_backupd_set_param_infile(interface,MAIN_INTF_STR,main_interface);
  		if (check < 0){
  			printf("%% Error on set backup interface\n");
  			goto end;
@@ -959,14 +964,14 @@ void backup_method_set_ping (const char *cmdline){
 
  	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
-	if ( !librouter_ppp_verif_param_byintf_infile_backupd(interface, BCKUP_STR, "yes") ){
+	if ( !librouter_ppp_backupd_verif_param_byintf_infile(interface, BCKUP_STR, "yes") ){
 
-		check = librouter_ppp_set_param_infile_backupd(interface,METHOD_STR,"ping");
+		check = librouter_ppp_backupd_set_param_infile(interface,METHOD_STR,"ping");
 		if (check < 0){
 			printf("%% Error on set backup method - ping\n");
 			goto end;
 		}
-		check = librouter_ppp_set_param_infile_backupd(interface,PING_ADDR_STR,ping);
+		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,ping);
 		if (check < 0){
 			printf("%% Error on set backup method - ping\n");
 			goto end;
@@ -997,14 +1002,14 @@ void backup_method_set_link (const char *cmdline){
 
 	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
-	if ( !librouter_ppp_verif_param_byintf_infile_backupd(interface,BCKUP_STR, "yes") ){
+	if ( !librouter_ppp_backupd_verif_param_byintf_infile(interface,BCKUP_STR, "yes") ){
 
-		check = librouter_ppp_set_param_infile_backupd(interface,METHOD_STR,"link");
+		check = librouter_ppp_backupd_set_param_infile(interface,METHOD_STR,"link");
 		if (check < 0){
 			printf("%% Error on set backup method - link\n");
 			goto end;
 		}
-		check = librouter_ppp_set_param_infile_backupd(interface,PING_ADDR_STR,"");
+		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,"");
 		if (check < 0){
 			printf("%% Error on set backup method - link\n");
 			goto end;
@@ -1026,6 +1031,39 @@ end:
 	free(interface);
 
 
+}
+
+
+void sim_card_select(const char *cmdline){
+
+}
+
+void interface_modem3g_btin_set_info(const char *cmdline){
+	arglist * args;
+	int check = -1;
+	int sim;
+	char * value = NULL;
+	char * field = NULL;
+
+	args = librouter_make_args(cmdline);
+
+	sim = atoi(args->argv[1]);
+	field = args->argv[2];
+	value = args->argv[4];
+
+
+	check = librouter_modem3g_sim_set_info_infile(sim, field, value);
+
+	if (check == -1)
+		printf("%% Error on set %s\n",field);
+#ifdef DEBUG_M3G
+	else
+		printf("\n%s stored\n\n",field);
+#endif
+
+	librouter_destroy_args(args);
+	value = NULL;
+	field = NULL;
 }
 
 
