@@ -24,9 +24,10 @@
 #include "cish_main.h"
 #include "pprintf.h"
 #include <librouter/device.h>
-#include "../../cish/util/backupd.h" /*FIXME*/
+
 #ifdef OPTION_MODEM3G
 #include <librouter/modem3G.h>
+#include "../../cish/util/backupd.h" /*FIXME*/
 #endif
 
 extern int _cish_booting;

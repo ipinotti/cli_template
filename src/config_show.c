@@ -28,15 +28,14 @@
 #include <time.h>
 #include <linux/if_vlan.h>	/* 802.1p mappings */
 
-#include <librouter/options.h>
 #include "commands.h"
 #include "commandtree.h"
 #include "cish_main.h"
 #include "pprintf.h"
-
 #include "terminal_echo.h"
-#include <librouter/usb.h>
 
+#include <librouter/options.h>
+#include <librouter/usb.h>
 
 #define PPPDEV "ppp"
 
