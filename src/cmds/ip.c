@@ -630,7 +630,7 @@ cish_command CMD_IP[] = {
 #ifdef OPTION_BGP
 	{"as-path", "BGP autonomous system path filter", CMD_IP_AS_PATH, NULL, 1, MSK_BGP},
 #endif
-	{"cache-flush", "Routing cache flush", NULL, ip_param, 1, MSK_NORMAL},
+	//{"cache-flush", "Routing cache flush", NULL, ip_param, 1, MSK_NORMAL},
 	{"default-ttl", "Default TTL value", CMD_IP_DEFAULT_TTL, NULL, 1, MSK_NORMAL},
 	{"dhcp", "Enable DHCP server/relay", CMD_IP_DHCP, NULL, 1, MSK_NORMAL},
 	{"dns", "Configure DNS relay", CMD_IP_DNS, NULL, 1, MSK_NORMAL},
@@ -650,7 +650,7 @@ cish_command CMD_IP[] = {
 #endif
 	{"icmp", "Set icmp parameters", CMD_IP_ICMP, NULL, 1, MSK_NORMAL},
 #ifdef CONFIG_DEVELOPMENT
-	{"max_backlog", "Set maximum RX packets backlog", CMD_IP_MAXBACKLOG, NULL, 1, MSK_NORMAL},
+	//{"max_backlog", "Set maximum RX packets backlog", CMD_IP_MAXBACKLOG, NULL, 1, MSK_NORMAL},
 #endif
 #ifdef OPTION_PIMD
 	{"multicast-routing", "Enable IP multicast forwarding", NULL, ip_param, 1, MSK_NORMAL},

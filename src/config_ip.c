@@ -117,7 +117,7 @@ void ip_param(const char *cmd)
 	}
 
 	if (!dst_file) {
-		printf("%% Error\n");
+		printf("%% Error! No such file!\n");
 		return;
 	}
 

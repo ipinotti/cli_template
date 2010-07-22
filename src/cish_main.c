@@ -1478,7 +1478,7 @@ void config_clock(const char *cmd) /* clock set [hh:mm:ss] dia mes ano */
 	else
 		year = tm_time.tm_year + 1900;
 
-	if (set_date(day, mon, year, hour, min, sec) < 0)
+	if (librouter_time_set_date(day, mon, year, hour, min, sec) < 0)
 		printf("%% Could not set date\n");
 
 	librouter_destroy_args(args);
@@ -1498,7 +1498,7 @@ void config_clock_timezone(const char *cmd)
 	else
 		mins = 0;
 
-	set_timezone(name, hours, mins);
+	librouter_time_set_timezone(name, hours, mins);
 	librouter_destroy_args(args);
 }
 
