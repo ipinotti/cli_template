@@ -1038,22 +1038,35 @@ end:
 void interface_modem3g_sim_card_select(const char *cmdline){
 	arglist * args;
 	int main_intf = -1;
-	int backup_intf = -1;
 	struct sim_conf * sim = malloc(sizeof(struct sim_conf));
 
 	args = librouter_make_args(cmdline);
 	main_intf = atoi(args->argv[1]);
-	backup_intf = atoi(args->argv[2]);
 
-	if (main_intf == backup_intf){
-		printf("\n%% Wrong input - same SIM card for <MAIN> interface and <BACKUP> interface");
-		printf("\n%% Settings could not be applied\n\n");
-		goto end;
+	if (args->argc >= 3){
+		if (main_intf == atoi(args->argv[2])){
+			printf("\n%% Wrong input - same SIM card for <MAIN> interface and <BACKUP> interface");
+			printf("\n%% Settings could not be applied\n\n");
+			goto end;
+		}
+
+		if (librouter_modem3g_sim_order_set_enable(1) < 0){
+			printf("%% Error on set SIM card order - enable backup sim\n");
+			printf("\n%% Settings could not be applied\n\n");
+			goto end;
+		}
+	}
+	else{
+		if (librouter_modem3g_sim_order_set_enable(0) < 0){
+			printf("%% Error on set SIM card order - disable backup sim\n");
+			printf("\n%% Settings could not be applied\n\n");
+			goto end;
+		}
 	}
 
 	sim->sim_num = main_intf;
 
-	if(librouter_modem3g_sim_set_order(sim->sim_num) < 0){
+	if(librouter_modem3g_sim_order_set_mainsim(sim->sim_num) < 0){
 		printf("%% Error on set SIM card order\n");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
@@ -1077,7 +1090,7 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 		goto end;
 	}
 
-	if(librouter_modem3g_sim_set_card(sim->sim_num) < 0){
+	if(librouter_modem3g_sim_card_set(sim->sim_num) < 0){
 		printf("\n%% Error on set SIM card");
 		printf("\n%% Settings could not be applied\n\n");
 	}
