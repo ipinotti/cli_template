@@ -812,8 +812,10 @@ void interface_modem3g_set_apn(const char *cmdline){
 
 	check = librouter_modem3g_set_apn(apn, interface_major);
 
-	if (check == -1)
-		printf("%% Error on set APN\n");
+	if (check == -1){
+		printf("\n%% Error on set APN");
+		printf("\n%% Settings could not be applied\n\n");
+	}
 #ifdef DEBUG_M3G
 	else
 		printf("\nAPN stored\n\n");
@@ -836,8 +838,10 @@ void interface_modem3g_set_password(const char *cmdline){
 
 	check = librouter_modem3g_set_password(password, interface_major);
 
-	if (check == -1)
-		printf("%% Error on set password\n");
+	if (check == -1){
+		printf("\n%% Error on set password");
+		printf("\n%% Settings could not be applied\n\n");
+	}
 #ifdef DEBUG_M3G
 	else
 		printf("\nPassword stored\n\n");
@@ -860,8 +864,10 @@ void interface_modem3g_set_username(const char *cmdline){
 
 	check = librouter_modem3g_set_username(username, interface_major);
 
-	if (check == -1)
-		printf("%% Error on set username\n");
+	if (check == -1){
+		printf("\n%% Error on set username");
+		printf("\n%% Settings could not be applied\n\n");
+	}
 #ifdef DEBUG_M3G
 	else
 		printf("\nUsername stored\n\n");
@@ -881,25 +887,29 @@ void backup_interface_shutdown(const char *cmdline){
 
  	check = librouter_ppp_backupd_set_param_infile(interface,SHUTD_STR,"yes");
  	if (check < 0){
- 		printf("%% Error on set backup interface shutdown\n");
+ 		printf("\n%% Error on set backup interface shutdown");
+		printf("\n%% Settings could not be applied\n\n");
  		goto end;
  	}
 
  	check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"no");
  	if (check < 0){
- 		printf("%% Error on set backup interface shutdown\n");
+ 		printf("\n%% Error on set backup interface shutdown");
+		printf("\n%% Settings could not be applied\n\n");
  		goto end;
  	}
 
  	check = librouter_ppp_backupd_set_param_infile(interface,MAIN_INTF_STR,"");
  	if (check < 0){
- 		printf("%% Error on set backup interface shutdown\n");
+ 		printf("\n%% Error on set backup interface shutdown");
+		printf("\n%% Settings could not be applied\n\n");
  		goto end;
  	}
 
    	check = librouter_ppp_reload_backupd();
  	if (check < 0){
- 		printf("%% Error on set backup interface shutdown - (reload configs)\n");
+ 		printf("\n%% Error on set backup interface shutdown - (reload configs)\n");
+		printf("\n%% Settings could not be applied\n\n");
  		goto end;
  	}
 
@@ -913,8 +923,17 @@ void backup_interface(const char *cmdline){
  	char * main_interface = malloc(24);
  	char * interface = malloc(24);
  	char * intf_return = malloc(24);
+ 	char intf[3];
  	int check = -1;
  	args = librouter_make_args(cmdline);
+	sprintf(intf,"ppp%d",interface_major);
+
+	if (librouter_dev_exists((char *)intf)){
+		printf("\n%% Error on set backup interface");
+		printf("\n%% It is necessary to shutdown %s%d interface first", interface_edited->cish_string,interface_major);
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
 
  	main_interface = args->argv[1];
  	strcat(main_interface,args->argv[2]);
@@ -923,23 +942,26 @@ void backup_interface(const char *cmdline){
  	if ( !librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR,main_interface, intf_return) ){
  		check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"yes");
  		if (check < 0){
- 			printf("%% Error on set backup interface\n");
+ 			printf("\n%% Error on set backup interface");
+			printf("\n%% Settings could not be applied\n\n");
  			goto end;
  		}
  		check = librouter_ppp_backupd_set_param_infile(interface,MAIN_INTF_STR,main_interface);
  		if (check < 0){
- 			printf("%% Error on set backup interface\n");
+ 			printf("\n%% Error on set backup interface");
+			printf("\n%% Settings could not be applied\n\n");
  			goto end;
  		}
  		check = librouter_ppp_reload_backupd();
  		if (check < 0){
- 			printf("%% Error on set backup interface - (reload configs.)\n");
+ 			printf("\n%% Error on set backup interface - (reload configs.)");
+			printf("\n%% Settings could not be applied\n\n");
  			goto end;
  		}
  	}
  	else{
  		printf("\n%% The interface is already with a backup connection by %s", intf_return);
- 		printf("%% Settings could not be applied\n\n");
+ 		printf("\n%% Settings could not be applied\n\n");
  	}
 
 
@@ -951,7 +973,7 @@ end:
  	free (main_interface);
  	free (interface);
  	free (intf_return);
- }
+}
 
 void backup_method_set_ping (const char *cmdline){
 
@@ -969,17 +991,21 @@ void backup_method_set_ping (const char *cmdline){
 
 		check = librouter_ppp_backupd_set_param_infile(interface,METHOD_STR,"ping");
 		if (check < 0){
-			printf("%% Error on set backup method - ping\n");
+			printf("\n%% Error on set backup method - ping");
+			printf("\n%% Settings could not be applied\n\n");
+
 			goto end;
 		}
 		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,ping);
 		if (check < 0){
-			printf("%% Error on set backup method - ping\n");
+			printf("\n%% Error on set backup method - ping");
+			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 		check = librouter_ppp_reload_backupd();
 		if (check < 0){
-			printf("%% Error on set backup method - ping - (reload configs.)\n");
+			printf("\n%% Error on set backup method - ping - (reload configs.)");
+			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 	}
@@ -1007,17 +1033,20 @@ void backup_method_set_link (const char *cmdline){
 
 		check = librouter_ppp_backupd_set_param_infile(interface,METHOD_STR,"link");
 		if (check < 0){
-			printf("%% Error on set backup method - link\n");
+			printf("\n%% Error on set backup method - link");
+			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,"");
 		if (check < 0){
-			printf("%% Error on set backup method - link\n");
+			printf("\n%% Error on set backup method - link");
+			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 		check = librouter_ppp_reload_backupd();
 		if (check < 0){
-			printf("%% Error on set backup method - link - (reload configs.)\n");
+			printf("\n%% Error on set backup method - link - (reload configs.)");
+			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 	}
@@ -1039,9 +1068,18 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 	arglist * args;
 	int main_intf = -1;
 	struct sim_conf * sim = malloc(sizeof(struct sim_conf));
-
+	char intf[3];
 	args = librouter_make_args(cmdline);
 	main_intf = atoi(args->argv[1]);
+	sprintf(intf,"ppp%d",interface_major);
+
+	if (librouter_dev_exists((char *)intf)){
+		printf("\n%% Error on set SIM card order");
+		printf("\n%% It is necessary to shutdown %s%d interface first", interface_edited->cish_string, interface_major);
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+
+	}
 
 	if (args->argc >= 3){
 		if (main_intf == atoi(args->argv[2])){
@@ -1051,14 +1089,14 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 		}
 
 		if (librouter_modem3g_sim_order_set_enable(1) < 0){
-			printf("%% Error on set SIM card order - enable backup sim\n");
+			printf("\n%% Error on set SIM card order - enable backup sim");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 	}
 	else{
 		if (librouter_modem3g_sim_order_set_enable(0) < 0){
-			printf("%% Error on set SIM card order - disable backup sim\n");
+			printf("\n%% Error on set SIM card order - disable backup sim");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
@@ -1067,13 +1105,13 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 	sim->sim_num = main_intf;
 
 	if(librouter_modem3g_sim_order_set_mainsim(sim->sim_num) < 0){
-		printf("%% Error on set SIM card order\n");
+		printf("\n%% Error on set SIM card order");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
 	if(librouter_modem3g_sim_get_info_fromfile(sim) < 0){
-		printf("%% Error on set SIM card order - retrieving information\n");
+		printf("\n%% Error on set SIM card order - retrieving information");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
@@ -1084,7 +1122,7 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 		goto end;
 	}
 
-	if(librouter_modem3g_set_all_info(sim,interface_major) <0){
+	if(librouter_modem3g_set_all_info_inchat(sim,interface_major) <0){
 		printf("\n%% Error on set configuration");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
@@ -1117,8 +1155,10 @@ void interface_modem3g_btin_set_info(const char *cmdline){
 
 	check = librouter_modem3g_sim_set_info_infile(sim, field, value);
 
-	if (check == -1)
-		printf("%% Error on set %s\n",field);
+	if (check == -1){
+		printf("\n%% Error on set %s",field);
+		printf("\n%% Settings could not be applied\n\n");
+	}
 #ifdef DEBUG_M3G
 	else
 		printf("\n%s stored\n\n",field);

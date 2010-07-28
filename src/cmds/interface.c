@@ -519,6 +519,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM[] = {
 
 cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER_BACK[] = {
 	{"0-1", "Set <backup> SIM card", NULL, interface_modem3g_sim_card_select, 0, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -529,7 +530,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
-	{"sim", "Choose SIM Card", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM, NULL, 1, MSK_NORMAL},
+	{"sim", "Configure SIM Cards", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM, NULL, 1, MSK_NORMAL},
 	{"sim-order", "Set order of SIM Cards for backup - <MAIN> <BACKUP>", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
