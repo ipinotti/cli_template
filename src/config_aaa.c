@@ -291,50 +291,23 @@ void cmd_aaa_author(const char *cmd)
 	}
 }
 
-const char *users[7] = { "root", "admin", "ppp", "uucp", "upload", "nobody", NULL };
+
 
 void add_user(const char *cmd) /* aaa username <user> password [hash] <pass> *//* tinylogin */
 {
 	arglist *args;
-	char buffer[256];
-	int i;
 
 	args = librouter_make_args(cmd);
-	for (i = 0; users[i]; i++) {
-		if (strcmp(users[i], args->argv[2]) == 0) {
-			librouter_destroy_args(args);
-			printf("%% Invalid user!\n");
-			return;
-		}
-	}
-	snprintf(buffer, 255, "/bin/deluser %s >/dev/null 2>/dev/null", args->argv[2]);
-	system(buffer);
-	if (args->argc == 6)
-		snprintf(buffer, 255, "/bin/adduser %s -c '%s' >/dev/null 2>/dev/null",
-		                args->argv[2], args->argv[5]);
-	else
-		snprintf(buffer, 255, "/bin/adduser %s -p '%s' >/dev/null 2>/dev/null",
-		                args->argv[2], args->argv[4]);
-	system(buffer);
+	librouter_pam_add_user(args->argv[2], args->argv[4]);
 	librouter_destroy_args(args);
 }
 
 void del_user(const char *cmd) /* no aaa username <user> *//* tinylogin */
 {
-	int i;
 	arglist *args;
-	char buffer[256];
 
 	args = librouter_make_args(cmd);
-	for (i = 0; users[i]; i++) {
-		if (strcmp(users[i], args->argv[3]) == 0) {
-			librouter_destroy_args(args);
-			printf("%% Invalid user!\n");
-			return;
-		}
-	}
-	snprintf(buffer, 255, "/bin/deluser %s >/dev/null 2>/dev/null", args->argv[3]);
-	system(buffer);
+	librouter_pam_del_user(args->argv[3]);
 	librouter_destroy_args(args);
 }
 
