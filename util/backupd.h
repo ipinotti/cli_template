@@ -24,9 +24,6 @@
 #define bkpd_dbgb(x,...)
 #endif
 
-
-
-
 #define BACKUPD_PID_FILE	"/var/run/backupd.pid"
 #define BACKUPD_CONF_FILE 	"/etc/backupd/backupd.conf"
 
