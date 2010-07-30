@@ -53,8 +53,8 @@ enum {
 /* 1 second */
 };
 
-static char * backupd_intf_to_kernel_intf(char *interface)
-{
+static char * backupd_intf_to_kernel_intf(char *interface){
+
 	char * intf_k;
 
 	/* adaptação da função librouter_device_to_linux_cmdline, pois a entrada da mesma
@@ -63,11 +63,13 @@ static char * backupd_intf_to_kernel_intf(char *interface)
 	intf_k = librouter_device_to_linux_cmdline(interface);
 	strcat(intf_k, &interface[strlen((const char *) interface) - 1]);
 
+	bkpd_dbgb("interface in = %s || intf_k = %s\n\n",interface, intf_k);
+
 	return intf_k;
 }
 
-static int in_cksum(unsigned short *buf, int sz)
-{
+static int in_cksum(unsigned short *buf, int sz){
+
 	int nleft = sz;
 	int sum = 0;
 	unsigned short *w = buf;
@@ -89,8 +91,8 @@ static int in_cksum(unsigned short *buf, int sz)
 	return ans;
 }
 
-static int ping(char *ipaddr, char *device)
-{
+static int ping(char *ipaddr, char *device){
+
 	struct sockaddr_in pingaddr;
 	struct icmp *pkt;
 	int pingsock, c, i, ret = 0;
@@ -172,8 +174,8 @@ static int ping(char *ipaddr, char *device)
 	return ret;
 }
 
-static void daemonize(void)
-{
+static void daemonize(void){
+
 	pid_t pid, sid;
 
 	/* already a daemon */
@@ -231,8 +233,8 @@ static void daemonize(void)
  * @bckp_conf Pointer to linked list of configurations
  * @ret void
  */
-static void clear_config(struct bckp_conf_t * bckp_conf)
-{
+static void clear_config(struct bckp_conf_t * bckp_conf){
+
 	struct bckp_conf_t * conf = bckp_conf;
 
 	while (conf != NULL) {
@@ -259,8 +261,8 @@ static void clear_config(struct bckp_conf_t * bckp_conf)
  *
  * @ret Pointer to linked list of configs
  */
-static struct bckp_conf_t * get_config(void)
-{
+static struct bckp_conf_t * get_config(void){
+
 	FILE *fd;
 	char line[128];
 	enum bckp_config_field next_field = FIELD_INTF; /* For parser, begin at interface field */
@@ -407,7 +409,7 @@ static void alarm_handler(int sig)
 static int pppd_spawn(struct bckp_conf_t *conf)
 {
 
-	struct bckp_conf_t *bckp_save_pid;
+	struct bckp_conf_t *bckp_save_pid = NULL;
 	pid_t pid;
 	int m3g_index = -1;
 
@@ -464,11 +466,184 @@ static int pppd_spawn(struct bckp_conf_t *conf)
 	return 1;
 }
 
-static void do_backup(void)
-{
-	struct bckp_conf_t *bckp_conf, *bckp_buff, *bckp_save_pid;
+
+
+static void do_state_shutdown(struct bckp_conf_t *bckp_conf){
+
+	struct bckp_conf_t *bckp_save_pid = NULL;
+
+	if ( (bckp_conf->shutdown) && (bckp_conf->pppd_pid != (int)NULL) ){
+		/* Mata processo PPPD */
+		kill(bckp_conf->pppd_pid,SIGTERM);
+		usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
+		waitpid(bckp_conf->pppd_pid,NULL,0);
+
+		bckp_conf->pppd_pid = (int)NULL;
+
+		for (bckp_save_pid = bc; bckp_save_pid != NULL; bckp_save_pid = bckp_save_pid->next){
+			if ( strcmp(bckp_conf->intf_name, bckp_save_pid->intf_name) == 0 )
+				bckp_save_pid->pppd_pid = bckp_conf->pppd_pid;
+		}
+
+		clear_config(bckp_save_pid);
+	}
+
+	bckp_conf->state = STATE_NOBACKUP;
+}
+
+static void do_state_nobackup(struct bckp_conf_t *bckp_conf){
+
+	if ( (!bckp_conf->is_backup) && (!bckp_conf->shutdown) && (bckp_conf->pppd_pid == (int)NULL) )
+		bckp_conf->state = STATE_CONNECT;
+	else
+		bckp_conf->state = STATE_SIMCHECK;
+}
+
+static void do_state_simcheck(struct bckp_conf_t *bckp_conf){
+
+	struct bckp_conf_t *bckp_save_pid = NULL;
+
+	if ( (!bckp_conf->shutdown) && (!strcmp(bckp_conf->intf_name, "ppp0")) && (bckp_conf->pppd_pid != (int)NULL) ){
+		if (librouter_modem3g_sim_order_is_enable()){
+			if (!librouter_dev_exists(bckp_conf->intf_name)){
+				if( (librouter_dev_get_link(bckp_conf->intf_name) != 1)){
+
+					/* Mata processo PPPD sem conexão */
+					kill(bckp_conf->pppd_pid,SIGTERM);
+					usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
+					waitpid(bckp_conf->pppd_pid,NULL,0);
+
+					bckp_conf->pppd_pid = (int)NULL;
+
+					for (bckp_save_pid = bc; bckp_save_pid != NULL; bckp_save_pid = bckp_save_pid->next){
+						if ( strcmp(bckp_conf->intf_name, bckp_save_pid->intf_name) == 0 )
+							bckp_save_pid->pppd_pid = bckp_conf->pppd_pid;
+					}
+					clear_config(bckp_save_pid);
+
+					/* Realiza o switch entre MAIN SIM e BACKUP SIM, sempre adquire
+					 * o inverso do configurado anteriormente */
+					sim_temp_m3g0 = !sim_temp_m3g0;
+
+					/* Realiza a troca de SIM card no hardware */
+					librouter_modem3g_sim_card_set(sim_temp_m3g0);
+
+					/* Grava dados do SIM backup no script chat */
+					librouter_modem3g_sim_set_all_info_inchat(sim_temp_m3g0,0);
+
+					/* Realiza conexão com dados do SIM backup */
+					pppd_spawn(bckp_conf);
+
+				}
+			}
+		}
+	}
+
+	bckp_conf->state = STATE_WAITING;
+	clear_config(bckp_save_pid);
+
+}
+
+static void do_state_waiting(struct bckp_conf_t *bckp_conf){
+
+	if(!bckp_conf->shutdown){
+
+		/* Test if back up is enabled */
+		if (!bckp_conf->is_backup){
+			bckp_conf->state = STATE_SHUTDOWN;
+			return;
+		}
+		else{
+			if (bckp_conf->method == BCKP_METHOD_PING) {
+				/* Test if main interface is up */
+				if ( ping(bckp_conf->ping_address, backupd_intf_to_kernel_intf(bckp_conf->main_intf_name)) ) {
+					if(bckp_conf->pppd_pid != (int)NULL){
+						bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
+						bkpd_dbgb("PING OK na MAIN_INTF e m3g ON com pid %d\n",bckp_conf->pppd_pid);
+					}
+					else
+						bckp_conf->state = STATE_SHUTDOWN;
+
+					bkpd_dbgb("PING OK -- %s\n",bckp_conf->ping_address);
+
+				}
+				else{
+					bckp_conf->state = STATE_CONNECT;
+					bkpd_dbgb("PING FAIL -- %s\n",bckp_conf->ping_address);
+				}
+			}
+			else
+				if (bckp_conf->method == BCKP_METHOD_LINK) {
+					if ( librouter_dev_get_link(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name)) ){
+						if(bckp_conf->pppd_pid != (int)NULL){
+							bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
+							bkpd_dbgb("LINK OK na MAIN_INTF e m3g ON com pid %d\n",bckp_conf->pppd_pid);
+						}
+						else
+							bckp_conf->state = STATE_SHUTDOWN;
+
+						bkpd_dbgb("LINK OK\n");
+					}
+					else{
+						bckp_conf->state = STATE_CONNECT;
+						bkpd_dbgb("LINK Fail\n");
+					}
+				}
+		}
+	}
+	else
+		bckp_conf->state = STATE_SHUTDOWN;
+
+
+}
+
+static void do_state_main_intf_restablished(struct bckp_conf_t *bckp_conf){
+
+	struct bckp_conf_t *bckp_save_pid = NULL;
+
+	if( (!bckp_conf->shutdown) && (bckp_conf->is_backup) && (bckp_conf->pppd_pid != (int)NULL) ){
+		kill(bckp_conf->pppd_pid,SIGTERM);
+		usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
+		waitpid(bckp_conf->pppd_pid,NULL,0);
+
+		bckp_conf->pppd_pid = (int)NULL;
+
+		for (bckp_save_pid = bc; bckp_save_pid != NULL; bckp_save_pid = bckp_save_pid->next){
+			if ( strcmp(bckp_conf->intf_name, bckp_save_pid->intf_name) == 0 )
+				bckp_save_pid->pppd_pid = bckp_conf->pppd_pid;
+		}
+		clear_config(bckp_save_pid);
+
+	}
+	bckp_conf->state = STATE_SHUTDOWN;
+
+	clear_config(bckp_save_pid);
+
+}
+
+static void do_state_connect(struct bckp_conf_t *bckp_conf){
+
+	if ( (!bckp_conf->shutdown) && (bckp_conf->pppd_pid == (int)NULL) ){
+		bkpd_dbg("Before pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
+
+		if (!strcmp(bckp_conf->intf_name, "ppp0")){
+			sim_temp_m3g0 = librouter_modem3g_sim_order_get_mainsim();
+			librouter_modem3g_sim_card_set(librouter_modem3g_sim_order_get_mainsim());
+		}
+
+		pppd_spawn(bckp_conf);
+
+		bkpd_dbg("After pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
+	}
+
+	bckp_conf->state = STATE_SHUTDOWN;
+}
+
+
+static void do_backup(void){
+
+	struct bckp_conf_t *bckp_conf;
 	bkpd_dbg("do_backup... bc is %p\n", bc);
-	bckp_buff = bc;
 	int tty_check = -1;
 
 	for (bckp_conf = bc; bckp_conf != NULL; bckp_conf = bckp_conf->next) {
@@ -491,203 +666,72 @@ static void do_backup(void)
   		/* Main state machine */
 		switch (bckp_conf->state) {
 
+			/* shutdown ON */
+			case STATE_SHUTDOWN:
+				bkpd_dbgb("-- STATE SHUTDOWN  -- %s\n\n",bckp_conf->intf_name);
 
-		/* shutdown ON */
-		case STATE_SHUTDOWN:
-			bkpd_dbgb("-- STATE SHUTDOWN  -- %s\n\n",bckp_conf->intf_name);
+				do_state_shutdown(bckp_conf);
 
-			if ( (bckp_conf->shutdown) && (bckp_conf->pppd_pid != (int)NULL) ){
+				break;
 
-				/* Mata processo PPPD */
-				kill(bckp_conf->pppd_pid,SIGTERM);
-				usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
-				waitpid(bckp_conf->pppd_pid,NULL,0);
+			/* backup disabled */
+			case STATE_NOBACKUP:
+				bkpd_dbgb("-- STATE NOBACKUP  -- %s\n\n",bckp_conf->intf_name);
 
-				bckp_conf->pppd_pid = (int)NULL;
+				do_state_nobackup(bckp_conf);
 
-				for (bckp_save_pid = bc; bckp_save_pid != NULL; bckp_save_pid = bckp_save_pid->next){
-					if ( strcmp(bckp_conf->intf_name, bckp_save_pid->intf_name) == 0 )
-						bckp_save_pid->pppd_pid = bckp_conf->pppd_pid;
-				}
+				break;
 
-				clear_config(bckp_save_pid);
-			}
+			/* We must monitor the M3G0 interface status to check
+			 * if the backup SIM CARD must be enabled*/
+			case STATE_SIMCHECK:
+				bkpd_dbgb("-- STATE SIMCHECK  -- %s\n\n",bckp_conf->intf_name);
 
-			bckp_conf->state = STATE_NOBACKUP;
+				do_state_simcheck(bckp_conf);
 
-			break;
+				break;
 
+			/* Waiting state: We must monitor the main interface status to check
+			 * if the backup interface must be enabled */
+			case STATE_WAITING:
+				bkpd_dbgb("-- STATE WAITING   -- %s\n\n",bckp_conf->intf_name);
 
-		/* backup disabled */
-		case STATE_NOBACKUP:
-			bkpd_dbgb("-- STATE NOBACKUP  -- %s\n\n",bckp_conf->intf_name);
+				do_state_waiting(bckp_conf);
 
-			if ( (!bckp_conf->is_backup) && (!bckp_conf->shutdown) && (bckp_conf->pppd_pid == (int)NULL) )
-				bckp_conf->state = STATE_CONNECT;
-			else
-				bckp_conf->state = STATE_SIMCHECK;
+				break;
 
-			break;
+			/* Must check whether the main interface link has been reestablished */
+			case STATE_MAIN_INTF_RESTABLISHED:
+				bkpd_dbgb("-- STATE RECONNECT -- %s\n\n",bckp_conf->intf_name);
 
+				do_state_main_intf_restablished(bckp_conf);
 
-		/* We must monitor the M3G0 interface status to check
-		 * if the backup SIM CARD must be enabled*/
-		case STATE_SIMCHECK:
-			bkpd_dbgb("-- STATE SIMCHECK  -- %s\n\n",bckp_conf->intf_name);
+				break;
 
-			if ( (!bckp_conf->shutdown) && (!strcmp(bckp_conf->intf_name, "ppp0")) && (bckp_conf->pppd_pid != (int)NULL) ){
-				if (librouter_modem3g_sim_order_is_enable()){
-					if (!librouter_dev_exists(bckp_conf->intf_name)){
-						if( (librouter_dev_get_link(bckp_conf->intf_name) != 1)){
+			/* Power on the backup link m3G */
+			case STATE_CONNECT:
+				bkpd_dbgb("-- STATE CONNECT   -- %s\n\n",bckp_conf->intf_name);
 
-							/* Mata processo PPPD sem conexão */
-							kill(bckp_conf->pppd_pid,SIGTERM);
-							usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
-							waitpid(bckp_conf->pppd_pid,NULL,0);
+				do_state_connect(bckp_conf);
 
-							bckp_conf->pppd_pid = (int)NULL;
+				break;
 
-							for (bckp_save_pid = bc; bckp_save_pid != NULL; bckp_save_pid = bckp_save_pid->next){
-								if ( strcmp(bckp_conf->intf_name, bckp_save_pid->intf_name) == 0 )
-									bckp_save_pid->pppd_pid = bckp_conf->pppd_pid;
-							}
-							clear_config(bckp_save_pid);
-
-							/* Realiza o switch entre MAIN SIM e BACKUP SIM, sempre adquire
-							 * o inverso do configurado anteriormente */
-							sim_temp_m3g0 = !sim_temp_m3g0;
-
-							/* Realiza a troca de SIM card no hardware */
-							librouter_modem3g_sim_card_set(sim_temp_m3g0);
-
-							/* Grava dados do SIM backup no script chat */
-							librouter_modem3g_sim_set_all_info_inchat(sim_temp_m3g0,0);
-
-							/* Realiza conexão com dados do SIM backup */
-							pppd_spawn(bckp_conf);
-
-						}
-					}
-				}
-			}
-
-			bckp_conf->state = STATE_WAITING;
-
-			break;
-
-
-		/* Waiting state: We must monitor the main interface status to check
-		 * if the backup interface must be enabled */
-		case STATE_WAITING:
-			bkpd_dbgb("-- STATE WAITING   -- %s\n\n",bckp_conf->intf_name);
-
-
-			if(!bckp_conf->shutdown){
-
-				/* Test if back up is enabled */
-				if (!bckp_conf->is_backup){
-					bckp_conf->state = STATE_SHUTDOWN;
-					continue;
-				}
-				else{
-					if (bckp_conf->method == BCKP_METHOD_PING) {
-						/* Test if main interface is up */
-						if ( ping(bckp_conf->ping_address, backupd_intf_to_kernel_intf(bckp_conf->main_intf_name)) ) {
-							if(bckp_conf->pppd_pid != (int)NULL){
-								bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
-								bkpd_dbgb("PING OK na MAIN_INTF e m3g ON com pid %d\n",bckp_conf->pppd_pid);
-							}
-							else
-								bckp_conf->state = STATE_SHUTDOWN;
-
-							bkpd_dbgb("PING OK -- %s\n",bckp_conf->ping_address);
-
-						}
-						else{
-							bckp_conf->state = STATE_CONNECT;
-							bkpd_dbgb("PING FAIL -- %s\n",bckp_conf->ping_address);
-						}
-					}
-					else
-						if (bckp_conf->method == BCKP_METHOD_LINK) {
-							if ( librouter_dev_get_link(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name)) ){
-								if(bckp_conf->pppd_pid != (int)NULL){
-									bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
-									bkpd_dbgb("LINK OK na MAIN_INTF e m3g ON com pid %d\n",bckp_conf->pppd_pid);
-								}
-								else
-									bckp_conf->state = STATE_SHUTDOWN;
-
-								bkpd_dbgb("LINK OK\n");
-							}
-							else{
-								bckp_conf->state = STATE_CONNECT;
-								bkpd_dbgb("LINK Fail\n");
-							}
-						}
-				}
-			}
-			else
-				bckp_conf->state = STATE_SHUTDOWN;
-
-			break;
-
-
-		/* Must check whether the main interface link has been reestablished */
-		case STATE_MAIN_INTF_RESTABLISHED:
-			bkpd_dbgb("-- STATE RECONNECT -- %s\n\n",bckp_conf->intf_name);
-
-			if( (!bckp_conf->shutdown) && (bckp_conf->is_backup) && (bckp_conf->pppd_pid != (int)NULL) ){
-				kill(bckp_conf->pppd_pid,SIGTERM);
-				usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
-				waitpid(bckp_conf->pppd_pid,NULL,0);
-
-				bckp_conf->pppd_pid = (int)NULL;
-
-				for (bckp_save_pid = bc; bckp_save_pid != NULL; bckp_save_pid = bckp_save_pid->next){
-					if ( strcmp(bckp_conf->intf_name, bckp_save_pid->intf_name) == 0 )
-						bckp_save_pid->pppd_pid = bckp_conf->pppd_pid;
-				}
-				clear_config(bckp_save_pid);
-
-			}
-			bckp_conf->state = STATE_SHUTDOWN;
-
-			break;
-
-
-		/* Power on the backup link m3G */
-		case STATE_CONNECT:
-			bkpd_dbgb("-- STATE CONNECT   -- %s\n\n",bckp_conf->intf_name);
-
-			if ( (!bckp_conf->shutdown) && (bckp_conf->pppd_pid == (int)NULL) ){
-				bkpd_dbg("Before pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
-
-				if (!strcmp(bckp_conf->intf_name, "ppp0")){
-					sim_temp_m3g0 = librouter_modem3g_sim_order_get_mainsim();
-					librouter_modem3g_sim_card_set(librouter_modem3g_sim_order_get_mainsim());
-				}
-
-				pppd_spawn(bckp_conf);
-
-				bkpd_dbg("After pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
-			}
-
-			bckp_conf->state = STATE_SHUTDOWN;
-
-			break;
-
-
-		default:
-			break;
+			default:
+				break;
 
 		}
 
 
 	}
+
 	bckp_conf=NULL;
-	bckp_save_pid=NULL;
+
 }
+
+
+
+
+
 
 int main(int argc, char **argv)
 {
