@@ -61,7 +61,7 @@ void pprintf(const char *fmt, ...)
 			fflush(stdout);
 			canon_off();
 			echo_off();
-			cish_timeout = cish_cfg->terminal_timeout;
+			cish_timeout = router_cfg->terminal_timeout;
 			key = fgetc(stdin);
 			cish_timeout = 0;
 			echo_on();

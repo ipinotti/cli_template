@@ -7,7 +7,7 @@
 #include <librouter/options.h>
 #include <librouter/acl.h>
 #include <librouter/args.h>
-#include <librouter/cish_defines.h>
+#include <librouter/config_mapper.h>
 #include <librouter/config_fetcher.h>
 #include <librouter/device.h>
 #include <librouter/typedefs.h>

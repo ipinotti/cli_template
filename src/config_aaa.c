@@ -83,13 +83,13 @@ void cmd_aaa_authen(const char *cmd)
 	}
 
 	if (no || none) {
-		if (!librouter_pam_config_mode(cish_cfg, AAA_AUTH_NONE, 1, filename)) {
+		if (!librouter_pam_config_mode(AAA_AUTH_NONE, filename)) {
 			printf("%% Not possible to execute command with success\n");
 			librouter_destroy_args_din(&exec_line_args);
 			return;
 		}
 	} else if (!strcmp(exec_line_args[4], "local")) {
-		if (!librouter_pam_config_mode(cish_cfg, AAA_AUTH_LOCAL, 1, filename)) {
+		if (!librouter_pam_config_mode(AAA_AUTH_LOCAL, filename)) {
 			printf("%% Not possible to execute command with success\n");
 			librouter_destroy_args_din(&exec_line_args);
 			return;
@@ -107,9 +107,8 @@ void cmd_aaa_authen(const char *cmd)
 		fclose(server);
 
 		if (!librouter_pam_config_mode(
-		                cish_cfg,
 		                (exec_line_args_len == 7 ? AAA_AUTH_RADIUS_LOCAL : AAA_AUTH_RADIUS),
-		                1, filename)) {
+		                filename)) {
 			printf("%% Not possible to execute command with success\n");
 			librouter_destroy_args_din(&exec_line_args);
 			return;
@@ -128,9 +127,8 @@ void cmd_aaa_authen(const char *cmd)
 		fclose(server);
 
 		if (!librouter_pam_config_mode(
-		                cish_cfg,
 		                (exec_line_args_len == 7 ? AAA_AUTH_TACACS_LOCAL : AAA_AUTH_TACACS),
-		                1, filename)) {
+		                filename)) {
 			printf("%% Not possible to execute command with success\n");
 			librouter_destroy_args_din(&exec_line_args);
 			return;
@@ -154,7 +152,7 @@ void cmd_aaa_acct(const char *cmd)
 			return;
 		}
 		if (!strcmp(exec_line_args[0], "no") || !strcmp(exec_line_args[4], "none")) {
-			if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_NONE, 1, FILE_PAM_GENERIC)) {
+			if (!librouter_pam_config_mode(AAA_ACCT_NONE, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
 				librouter_destroy_args_din(&exec_line_args);
 				return;
@@ -170,7 +168,7 @@ void cmd_aaa_acct(const char *cmd)
 				return;
 			}
 			fclose(server);
-			if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS, 1, FILE_PAM_GENERIC)) {
+			if (!librouter_pam_config_mode(AAA_ACCT_TACACS, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
 				librouter_destroy_args_din(&exec_line_args);
 				return;
@@ -184,14 +182,14 @@ void cmd_aaa_acct(const char *cmd)
 		}
 		if (!strcmp(exec_line_args[0], "no")) {
 			if (!strcmp(exec_line_args[4], "1")) {
-				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
+				if (!librouter_pam_config_mode(AAA_ACCT_TACACS_NO_CMD_1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[4], "15")) {
-				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
+				if (!librouter_pam_config_mode(AAA_ACCT_TACACS_NO_CMD_15,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					librouter_destroy_args_din(&exec_line_args);
@@ -200,14 +198,14 @@ void cmd_aaa_acct(const char *cmd)
 			}
 		} else if (!strcmp(exec_line_args[5], "none")) {
 			if (!strcmp(exec_line_args[3], "1")) {
-				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_1, 1,
+				if (!librouter_pam_config_mode(AAA_ACCT_TACACS_NO_CMD_1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[3], "15")) {
-				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_NO_CMD_15, 1,
+				if (!librouter_pam_config_mode(AAA_ACCT_TACACS_NO_CMD_15,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					librouter_destroy_args_din(&exec_line_args);
@@ -227,14 +225,14 @@ void cmd_aaa_acct(const char *cmd)
 			fclose(server);
 
 			if (!strcmp(exec_line_args[3], "1")) {
-				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_CMD_1, 1,
+				if (!librouter_pam_config_mode(AAA_ACCT_TACACS_CMD_1,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					librouter_destroy_args_din(&exec_line_args);
 					return;
 				}
 			} else if (!strcmp(exec_line_args[3], "15")) {
-				if (!librouter_pam_config_mode(cish_cfg, AAA_ACCT_TACACS_CMD_15, 1,
+				if (!librouter_pam_config_mode(AAA_ACCT_TACACS_CMD_15,
 				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					librouter_destroy_args_din(&exec_line_args);
@@ -260,7 +258,7 @@ void cmd_aaa_author(const char *cmd)
 
 		/* NO COMMAND */
 		if (!strcmp(exec_line_args[0], "no") || !strcmp(exec_line_args[4], "none")) {
-			if (!librouter_pam_config_mode(cish_cfg, AAA_AUTHOR_NONE, 1, FILE_PAM_GENERIC)) {
+			if (!librouter_pam_config_mode(AAA_AUTHOR_NONE, FILE_PAM_GENERIC)) {
 				printf("%% Not possible to execute command with success\n");
 				librouter_destroy_args_din(&exec_line_args);
 				return;
@@ -278,9 +276,8 @@ void cmd_aaa_author(const char *cmd)
 				}
 				fclose(server);
 				if (!librouter_pam_config_mode(
-				                cish_cfg,
 				                (exec_line_args_len == 7 ? AAA_AUTHOR_TACACS_LOCAL : AAA_AUTHOR_TACACS),
-				                1, FILE_PAM_GENERIC)) {
+				                FILE_PAM_GENERIC)) {
 					printf("%% Not possible to execute command with success\n");
 					librouter_destroy_args_din(&exec_line_args);
 					return;
@@ -313,54 +310,40 @@ void del_user(const char *cmd) /* no aaa username <user> *//* tinylogin */
 
 void add_radiusserver(const char *cmd) /* radius-server host <ipaddr> [key <secret> [timeout <1-1000>]] */
 {
-	int i;
 	arglist *args;
-	FILE *server;
+	struct auth_server server;
+	int ret;
+
+	memset(&server, 0, sizeof(server));
 
 	args = librouter_make_args(cmd);
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (cish_cfg->radius[i].ip_addr[0] == 0 || !strncmp(cish_cfg->radius[i].ip_addr,
-		                args->argv[2], 16)) {
-			strncpy(cish_cfg->radius[i].ip_addr, args->argv[2], 16);
-			if (args->argc >= 5)
-				strncpy(cish_cfg->radius[i].authkey, args->argv[4],
-				                MAX_SERVER_AUTH_KEY);
-			else
-				strcpy(cish_cfg->radius[i].authkey, "");
-			if (args->argc == 7)
-				cish_cfg->radius[i].timeout = atoi(args->argv[6]);
-			else
-				cish_cfg->radius[i].timeout = 0;
-			break;
-		}
-	}
-	if (i == MAX_SERVERS) {
-		printf("%% Maximum servers reached!\n");
+
+	if (args->argc < 3) {
+		printf("%% Wrong number of arguments\n");
 		librouter_destroy_args(args);
 		return;
 	}
-	if ((server = fopen(FILE_RADDB_SERVER, "w"))) {
-		for (i = 0; i < MAX_SERVERS; i++) {
-			if (cish_cfg->radius[i].ip_addr[0]) { /* server[:port] secret [timeout] */
-				if (cish_cfg->radius[i].authkey[0])
-					fprintf(server, "%s\t%s\t%d\n",
-					                cish_cfg->radius[i].ip_addr,
-					                cish_cfg->radius[i].authkey,
-					                cish_cfg->radius[i].timeout);
-				else
-					fprintf(server, "%s\n", cish_cfg->radius[i].ip_addr);
-			}
-		}
-		fclose(server);
-	}
+
+	server.ipaddr = args->argv[2];
+
+	if (args->argc > 3)
+		server.key = args->argv[4];
+
+	if (args->argc > 5)
+		server.timeout = atoi(args->argv[6]);
+
+	ret = librouter_pam_add_radius_server(&server);
+	if (ret == -1)
+		printf("%% Maximum number of servers reached!\n");
 	librouter_destroy_args(args);
 }
 
 void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
 {
-	int i;
-	FILE *server;
 	arglist *args;
+	struct auth_server server;
+
+	memset(&server, 0, sizeof(server));
 
 	args = librouter_make_args(cmd);
 
@@ -373,87 +356,53 @@ void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
 		return;
 	}
 
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (args->argc == 4) {
-			if (!strncmp(cish_cfg->radius[i].ip_addr, args->argv[3], 16)) {
-				cish_cfg->radius[i].ip_addr[0] = 0;
-				break;
-			}
-		} else
-			cish_cfg->radius[i].ip_addr[0] = 0;
-	}
-	if (i == MAX_SERVERS && args->argc == 4) {
-		printf("%% Server not found!\n");
-		librouter_destroy_args(args);
-		return;
-	}
-	if ((server = fopen(FILE_RADDB_SERVER, "w"))) {
-		for (i = 0; i < MAX_SERVERS; i++) {
-			if (cish_cfg->radius[i].ip_addr[0]) { /* server[:port] secret [timeout] */
-				if (cish_cfg->radius[i].authkey[0])
-					fprintf(server, "%s\t%s\t%d\n",
-					                cish_cfg->radius[i].ip_addr,
-					                cish_cfg->radius[i].authkey,
-					                cish_cfg->radius[i].timeout);
-				else
-					fprintf(server, "%s\n", cish_cfg->radius[i].ip_addr);
-			}
-		}
-		fclose(server);
-	}
+	if (args->argc == 3) {
+		server.ipaddr = args->argv[3];
+		librouter_pam_del_radius_server(&server);
+	} else
+		librouter_pam_del_radius_server(NULL); /* Delete all servers */
+
 	librouter_destroy_args(args);
 }
 
+
+
 void add_tacacsserver(const char *cmd) /* tacacs-server host <ipaddr> key <secret> [timeout <1-1000>] */
 {
-	int i;
 	arglist *args;
-	FILE *server;
+	struct auth_server server;
+	int ret;
+
+	memset(&server, 0, sizeof(server));
 
 	args = librouter_make_args(cmd);
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (cish_cfg->tacacs[i].ip_addr[0] == 0 || !strncmp(cish_cfg->tacacs[i].ip_addr,
-		                args->argv[2], 16)) {
-			strncpy(cish_cfg->tacacs[i].ip_addr, args->argv[2], 16);
-			if (args->argc >= 5)
-				strncpy(cish_cfg->tacacs[i].authkey, args->argv[4],
-				                MAX_SERVER_AUTH_KEY);
-			else
-				strcpy(cish_cfg->tacacs[i].authkey, "");
-			if (args->argc == 7)
-				cish_cfg->tacacs[i].timeout = atoi(args->argv[6]);
-			else
-				cish_cfg->tacacs[i].timeout = 0;
-			break;
-		}
-	}
-	if (i == MAX_SERVERS) {
-		printf("%% Maximum servers reached!\n");
+
+	if (args->argc < 3) {
+		printf("%% Wrong number of arguments\n");
 		librouter_destroy_args(args);
 		return;
 	}
-	if ((server = fopen(FILE_TACDB_SERVER, "w"))) {
-		for (i = 0; i < MAX_SERVERS; i++) {
-			if (cish_cfg->tacacs[i].ip_addr[0]) { /* server[:port] secret [timeout] */
-				if (cish_cfg->tacacs[i].authkey[0])
-					fprintf(server, "%s\t%s\t%d\n",
-					                cish_cfg->tacacs[i].ip_addr,
-					                cish_cfg->tacacs[i].authkey,
-					                cish_cfg->tacacs[i].timeout);
-				else
-					fprintf(server, "%s\n", cish_cfg->tacacs[i].ip_addr);
-			}
-		}
-		fclose(server);
-	}
+
+	server.ipaddr = args->argv[2];
+
+	if (args->argc > 3)
+		server.key = args->argv[4];
+
+	if (args->argc > 5)
+		server.timeout = atoi(args->argv[6]);
+
+	ret = librouter_pam_add_tacacs_server(&server);
+	if (ret == -1)
+		printf("%% Maximum number of servers reached!\n");
 	librouter_destroy_args(args);
 }
 
 void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
 {
-	int i;
-	FILE *server;
 	arglist *args;
+	struct auth_server server;
+
+	memset(&server, 0, sizeof(server));
 
 	args = librouter_make_args(cmd);
 
@@ -481,33 +430,11 @@ void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
 		return;
 	}
 
-	for (i = 0; i < MAX_SERVERS; i++) {
-		if (args->argc == 4) {
-			if (!strncmp(cish_cfg->tacacs[i].ip_addr, args->argv[3], 16)) {
-				cish_cfg->tacacs[i].ip_addr[0] = 0;
-				break;
-			}
-		} else
-			cish_cfg->tacacs[i].ip_addr[0] = 0;
-	}
-	if (i == MAX_SERVERS && args->argc == 4) {
-		printf("%% Server not found!\n");
-		librouter_destroy_args(args);
-		return;
-	}
-	if ((server = fopen(FILE_TACDB_SERVER, "w"))) {
-		for (i = 0; i < MAX_SERVERS; i++) {
-			if (cish_cfg->tacacs[i].ip_addr[0]) { /* server[:port] secret [timeout] */
-				if (cish_cfg->tacacs[i].authkey[0])
-					fprintf(server, "%s\t%s\t%d\n",
-					                cish_cfg->tacacs[i].ip_addr,
-					                cish_cfg->tacacs[i].authkey,
-					                cish_cfg->tacacs[i].timeout);
-				else
-					fprintf(server, "%s\n", cish_cfg->tacacs[i].ip_addr);
-			}
-		}
-		fclose(server);
-	}
+	if (args->argc == 3) {
+		server.ipaddr = args->argv[3];
+		librouter_pam_del_tacacs_server(&server);
+	} else
+		librouter_pam_del_tacacs_server(NULL); /* Delete all servers */
+
 	librouter_destroy_args(args);
 }

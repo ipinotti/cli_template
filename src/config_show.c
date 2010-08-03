@@ -896,7 +896,7 @@ void show_running_config(const char *cmdline)
 	printf("Building configuration...\n");
 
 	/* Write config to f descriptor */
-	if (librouter_config_write(TMP_CFG_FILE, cish_cfg) < 0) {
+	if (librouter_config_write(TMP_CFG_FILE, router_cfg) < 0) {
 		fprintf(stderr, "%% Can't build configuration\n");
 		return;
 	}
@@ -1048,7 +1048,7 @@ void cmd_copy(const char *cmdline)
 	case 'r':
 		printf("Building configuration...\n");
 
-		if (librouter_config_write(TMP_CFG_FILE, cish_cfg) < 0) {
+		if (librouter_config_write(TMP_CFG_FILE, router_cfg) < 0) {
 			fprintf(stderr, "%% Can't build configuration\n");
 			librouter_destroy_args(args);
 			return;

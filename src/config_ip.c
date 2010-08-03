@@ -540,7 +540,7 @@ void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
 	delete_module(buf);
 	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
-	cish_cfg->nat_helper_ftp_ports[0] = 0;
+	router_cfg->nat_helper_ftp_ports[0] = 0;
 	if (!no && args->argc == 6) {
 		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null",
 		                args->argv[3], args->argv[5]);
@@ -548,13 +548,13 @@ void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
 		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null",
 		                args->argv[3], args->argv[5]);
 		system(buf);
-		strncpy(cish_cfg->nat_helper_ftp_ports, args->argv[5], 48);
+		strncpy(router_cfg->nat_helper_ftp_ports, args->argv[5], 48);
 	} else if (!no && args->argc == 4) {
 		snprintf(buf, 127, "modprobe ip_conntrack_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
 		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
-		strcpy(cish_cfg->nat_helper_ftp_ports, "21"); /* netfilter_ipv4/ip_conntrack_ftp.h:#define FTP_PORT      21 */
+		strcpy(router_cfg->nat_helper_ftp_ports, "21"); /* netfilter_ipv4/ip_conntrack_ftp.h:#define FTP_PORT      21 */
 	}
 	librouter_destroy_args(args);
 }
@@ -575,7 +575,7 @@ void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
 	delete_module(buf);
 	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
-	cish_cfg->nat_helper_irc_ports[0] = 0;
+	router_cfg->nat_helper_irc_ports[0] = 0;
 	if (!no && args->argc == 6) {
 		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null",
 		                args->argv[3], args->argv[5]);
@@ -583,13 +583,13 @@ void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
 		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null",
 		                args->argv[3], args->argv[5]);
 		system(buf);
-		strncpy(cish_cfg->nat_helper_irc_ports, args->argv[5], 48);
+		strncpy(router_cfg->nat_helper_irc_ports, args->argv[5], 48);
 	} else if (!no && args->argc == 4) {
 		snprintf(buf, 127, "modprobe ip_conntrack_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
 		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
-		strcpy(cish_cfg->nat_helper_irc_ports, "6667"); /* netfilter_ipv4/ip_conntrack_irc.h:#define IRC_PORT      6667 */
+		strcpy(router_cfg->nat_helper_irc_ports, "6667"); /* netfilter_ipv4/ip_conntrack_irc.h:#define IRC_PORT      6667 */
 	}
 	librouter_destroy_args(args);
 }
@@ -610,7 +610,7 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 	delete_module(buf);
 	sprintf(buf, "ip_conntrack_%s", args->argv[no ? 4 : 3]);
 	delete_module(buf);
-	cish_cfg->nat_helper_tftp_ports[0] = 0;
+	router_cfg->nat_helper_tftp_ports[0] = 0;
 	if (!no && args->argc == 6) {
 		snprintf(buf, 127, "modprobe ip_conntrack_%s ports=%s >/dev/null 2>/dev/null",
 		                args->argv[3], args->argv[5]);
@@ -618,13 +618,13 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 		snprintf(buf, 127, "modprobe ip_nat_%s ports=%s >/dev/null 2>/dev/null",
 		                args->argv[3], args->argv[5]);
 		system(buf);
-		strncpy(cish_cfg->nat_helper_tftp_ports, args->argv[5], 48);
+		strncpy(router_cfg->nat_helper_tftp_ports, args->argv[5], 48);
 	} else if (!no && args->argc == 4) {
 		snprintf(buf, 127, "modprobe ip_conntrack_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
 		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
-		strcpy(cish_cfg->nat_helper_tftp_ports, "69"); /* netfilter_ipv4/ip_conntrack_tftp.h:#define TFTP_PORT 69 */
+		strcpy(router_cfg->nat_helper_tftp_ports, "69"); /* netfilter_ipv4/ip_conntrack_tftp.h:#define TFTP_PORT 69 */
 	}
 	librouter_destroy_args(args);
 }

@@ -28,7 +28,7 @@ void enable(const char *cmdline)
 	char *crypt_passwd;
 	int   authentication_pending = 1;
 
-	strncpy (secret, cish_cfg->enable_secret, 16);
+	strncpy (secret, router_cfg->enable_secret, 16);
 	if (!strlen (secret))
 	{
 		fprintf(stderr, "%% WARNING: No enable secret set\n");
@@ -42,7 +42,7 @@ void enable(const char *cmdline)
 		passwd[0] = 0;
 
 		echo_off();
-		cish_timeout = cish_cfg->terminal_timeout;
+		cish_timeout = router_cfg->terminal_timeout;
 		fgets(passwd, 16, stdin);
 		cish_timeout = 0;
 		echo_on();
@@ -145,15 +145,15 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 
 	if (args->argc == 4) { /* store hash! */
 		if (strcmp(args->argv[1], "enable") == 0) {
-			strncpy(cish_cfg->enable_secret, args->argv[3], 15);
-			cish_cfg->enable_secret[14] = 0;
-			set_http_secret(cish_cfg->enable_secret);
-			set_upload_secret(cish_cfg->enable_secret);
+			strncpy(router_cfg->enable_secret, args->argv[3], 15);
+			router_cfg->enable_secret[14] = 0;
+			set_http_secret(router_cfg->enable_secret);
+			set_upload_secret(router_cfg->enable_secret);
 		}
 		else {
-			strncpy(cish_cfg->login_secret, args->argv[3], 15);
-			cish_cfg->login_secret[14] = 0;
-			set_admin_secret(cish_cfg->login_secret);
+			strncpy(router_cfg->login_secret, args->argv[3], 15);
+			router_cfg->login_secret[14] = 0;
+			set_admin_secret(router_cfg->login_secret);
 		}
 	}
 	else {
@@ -161,7 +161,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 			printf("Enter new password  : ");
 			fflush(stdout);
 			echo_off();
-			cish_timeout = cish_cfg->terminal_timeout;
+			cish_timeout = router_cfg->terminal_timeout;
 			fgets(in_passwd, 16, stdin);
 			/* Descarta possivel lixo que tenha ficado no stdin */
 			if( strchr(in_passwd, '\n') == NULL ) {
@@ -188,7 +188,7 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 		printf("Enter password again: ");
 		fflush(stdout);
 		echo_off();
-		cish_timeout = cish_cfg->terminal_timeout;
+		cish_timeout = router_cfg->terminal_timeout;
 		fgets(in_passwd_validate, 16, stdin);
 		cish_timeout = 0;
 		echo_on();
@@ -209,15 +209,15 @@ void setsecret(const char *cmdline) /* secret enable|login [hash cryptedpassword
 			crp = crypt(in_passwd, in_hash);
 			if (crp && strlen (crp)) {
 				if (strcmp(args->argv[1], "enable") == 0) {
-					strncpy(cish_cfg->enable_secret, crp, 15);
-					cish_cfg->enable_secret[14] = 0;
-					set_http_secret(cish_cfg->enable_secret);
-					set_upload_secret(cish_cfg->enable_secret);
+					strncpy(router_cfg->enable_secret, crp, 15);
+					router_cfg->enable_secret[14] = 0;
+					set_http_secret(router_cfg->enable_secret);
+					set_upload_secret(router_cfg->enable_secret);
 				}
 				else {
-					strncpy(cish_cfg->login_secret, crp, 15);
-					cish_cfg->login_secret[14] = 0;
-					set_admin_secret(cish_cfg->login_secret);
+					strncpy(router_cfg->login_secret, crp, 15);
+					router_cfg->login_secret[14] = 0;
+					set_admin_secret(router_cfg->login_secret);
 				}
 			}
 			else
@@ -232,11 +232,11 @@ void set_nosecret(const char *cmdline) /* no secret enable|login */
 	arglist	*args = librouter_make_args(cmdline);
 
 	if (strcmp(args->argv[2], "enable") == 0) {
-		cish_cfg->enable_secret[0] = 0;
-		set_http_secret(cish_cfg->enable_secret);
+		router_cfg->enable_secret[0] = 0;
+		set_http_secret(router_cfg->enable_secret);
 		set_upload_secret(NULL);
 	} else {
-		cish_cfg->login_secret[0] = 0;
+		router_cfg->login_secret[0] = 0;
 		set_admin_secret(NULL);
 	}
 	librouter_destroy_args (args);

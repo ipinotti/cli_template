@@ -41,7 +41,7 @@
 /* local function prototypes */
 
 /* global variables */
-cish_config *cish_cfg;
+struct router_config *router_cfg;
 cish_command *completion_root;
 cish_command *command_root;
 int _cish_loggedin;
@@ -66,7 +66,7 @@ void process_cish_exit(void)
 {
 	syslog(LOG_INFO, "session closed from %s", _cish_source);
 	closelog();
-	librouter_config_munmap_cfg(cish_cfg);
+	librouter_config_munmap_cfg(router_cfg);
 }
 
 static int _on_nfs(void)
@@ -166,9 +166,9 @@ int main(int argc, char *argv[])
 	_cish_source = "console";
 	openlog("config", LOG_CONS | LOG_PID, LOG_USER);
 
-	/* Map CISH configuration */
-	cish_cfg = librouter_config_mmap_cfg();
-	if (cish_cfg == NULL)
+	/* Map router configuration */
+	router_cfg = librouter_config_mmap_cfg();
+	if (router_cfg == NULL)
 		exit(-1);
 
 	save_termios();
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 
 	alarm(1);
 
-	terminal_lines = cish_cfg->terminal_lines;
+	terminal_lines = router_cfg->terminal_lines;
 
 	syslog(LOG_INFO, "session opened from %s", _cish_source);
 
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
 		_print_current_menu();
 
 		strcat(prompt, _cish_enable ? "#" : ">");
-		cish_timeout = cish_cfg->terminal_timeout;
+		cish_timeout = router_cfg->terminal_timeout;
 		prompt_printed = 1; /* Enable CR on debug log! */
 
 		line = readline(prompt);
@@ -553,7 +553,7 @@ int user_getc(FILE *stream)
 	int result;
 	unsigned char c;
 
-	cish_timeout = cish_cfg->terminal_timeout;
+	cish_timeout = router_cfg->terminal_timeout;
 
 	while (1) {
 		result = read(fileno(stream), &c, sizeof(unsigned char));
@@ -752,13 +752,13 @@ int cish_questionmark(int count, int KEY)
 }
 
 /* ==============================================================================
- * cish_config_changed
+ * _config_changed
  *
  * Compares running and startup configuration and, in case they are different,
  * asks if user wants to save running config.
  * ============================================================================== */
 
-int cish_config_changed(void)
+static int _config_changed(void)
 {
 	FILE *f_running, *f_flash;
 	struct stat run_stat, flash_stat;
@@ -766,7 +766,7 @@ int cish_config_changed(void)
 	int ret = 0;
 
 	/* Writes running config */
-	if (librouter_config_write(TMP_CFG_FILE, cish_cfg) < 0)
+	if (librouter_config_write(TMP_CFG_FILE, router_cfg) < 0)
 		return -1;
 
 	/* Load configuration fron flash */
@@ -1425,7 +1425,7 @@ void term_length(const char *cmd)
 
 	args = librouter_make_args(cmd);
 
-	terminal_lines = cish_cfg->terminal_lines = atoi(args->argv[2]);
+	terminal_lines = router_cfg->terminal_lines = atoi(args->argv[2]);
 
 	librouter_destroy_args(args);
 }
@@ -1436,7 +1436,7 @@ void term_timeout(const char *cmd)
 
 	args = librouter_make_args(cmd);
 
-	cish_timeout = cish_cfg->terminal_timeout = atoi(args->argv[2]);
+	cish_timeout = router_cfg->terminal_timeout = atoi(args->argv[2]);
 
 	librouter_destroy_args(args);
 }
@@ -1531,7 +1531,7 @@ void reload(const char *cmd)
 	int in;
 	struct termios initial_settings, new_settings;
 
-	cish_timeout = cish_cfg->terminal_timeout;
+	cish_timeout = router_cfg->terminal_timeout;
 	fflush(stdout);
 
 	/* Flushes stdin */
@@ -1548,7 +1548,7 @@ void reload(const char *cmd)
 	tcsetattr(0, TCSANOW, &initial_settings);
 
 	/* Check if configuration has changed and should be saved */
-	cish_config_changed();
+	_config_changed();
 
 	/* Question for saving configuration? */
 	printf("Proceed with reload? [confirm]");
@@ -1580,7 +1580,7 @@ void reload_in(const char *cmd) /* reload in [1-60] */
 
 	args = librouter_make_args(cmd);
 	timeout = atoi(args->argv[2]);
-	cish_timeout = cish_cfg->terminal_timeout;
+	cish_timeout = router_cfg->terminal_timeout;
 	printf("Reload scheduled in %d minutes\n", timeout);
 	printf("Proceed with reload? [confirm]");
 	fflush(stdout);
