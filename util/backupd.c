@@ -32,15 +32,14 @@
 
 #include "backupd.h"
 
-#define NUM_INTF_3G		2
-#define PPPD_BIN_FILE 		"/bin/pppd"
+#define PPPD_BIN_FILE 	"/bin/pppd"
 
 static const char * M3G_0_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-0", NULL};
 static const char * M3G_1_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-1", NULL};
 static const char * M3G_2_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-2", NULL};
 
 static struct bckp_conf_t *bc; /* the only global variable for config. intf.*/
-static int sim_temp_m3g0 = 0;
+static int sim_temp_m3g0 = 0; /* global variable for store current SIM in MG30 */
 
 enum {
 	DEFDATALEN = 56,
