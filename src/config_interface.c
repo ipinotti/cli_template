@@ -924,11 +924,12 @@ void backup_interface(const char *cmdline){
  	char * interface = malloc(24);
  	char * intf_return = malloc(24);
  	int check = -1;
+
  	args = librouter_make_args(cmdline);
 
-	main_interface = args->argv[1];
- 	strcat(main_interface,args->argv[2]);
- 	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
+	sprintf(main_interface,"%s%s",args->argv[1], args->argv[2]);
+
+	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
  	if (librouter_dev_exists((char *)interface)){
 		printf("\n%% Error on set backup interface");
