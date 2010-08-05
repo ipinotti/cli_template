@@ -923,21 +923,19 @@ void backup_interface(const char *cmdline){
  	char * main_interface = malloc(24);
  	char * interface = malloc(24);
  	char * intf_return = malloc(24);
- 	char intf[3];
  	int check = -1;
  	args = librouter_make_args(cmdline);
-	sprintf(intf,"ppp%d",interface_major);
 
-	if (librouter_dev_exists((char *)intf)){
+	main_interface = args->argv[1];
+ 	strcat(main_interface,args->argv[2]);
+ 	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
+
+ 	if (librouter_dev_exists((char *)interface)){
 		printf("\n%% Error on set backup interface");
 		printf("\n%% It is necessary to shutdown %s%d interface first", interface_edited->cish_string,interface_major);
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
-
- 	main_interface = args->argv[1];
- 	strcat(main_interface,args->argv[2]);
- 	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
 
  	if ( !librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR,main_interface, intf_return) ){
  		check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"yes");
@@ -960,10 +958,9 @@ void backup_interface(const char *cmdline){
  		}
  	}
  	else{
- 		printf("\n%% The interface is already with a backup connection by %s", intf_return);
+ 		printf("\n%% The interface is already with a backup connection by %s", librouter_device_from_linux_cmdline(intf_return));
  		printf("\n%% Settings could not be applied\n\n");
  	}
-
 
 end:
  	main_interface = NULL;
@@ -1066,11 +1063,11 @@ end:
 
 void interface_modem3g_sim_card_select(const char *cmdline){
 	arglist * args;
-	int main_intf = -1;
+	int main_sim = -1;
 	struct sim_conf * sim = malloc(sizeof(struct sim_conf));
 	char intf[3];
 	args = librouter_make_args(cmdline);
-	main_intf = atoi(args->argv[1]);
+	main_sim = atoi(args->argv[1]);
 	sprintf(intf,"ppp%d",interface_major);
 
 	if (librouter_dev_exists((char *)intf)){
@@ -1082,7 +1079,7 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 	}
 
 	if (args->argc >= 3){
-		if (main_intf == atoi(args->argv[2])){
+		if (main_sim == atoi(args->argv[2])){
 			printf("\n%% Wrong input - same SIM card for <MAIN> interface and <BACKUP> interface");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
@@ -1102,7 +1099,7 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 		}
 	}
 
-	sim->sim_num = main_intf;
+	sim->sim_num = main_sim;
 
 	if(librouter_modem3g_sim_order_set_mainsim(sim->sim_num) < 0){
 		printf("\n%% Error on set SIM card order");
