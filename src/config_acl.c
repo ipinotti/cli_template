@@ -44,15 +44,11 @@ void do_accesslist(const char *cmdline)
 			for (i = 7, found = 0; i < args->argc; i++) {
 				if (strcmp(args->argv[i], "flags") == 0) {
 					if (++i < args->argc) {
-						if (strcasecmp(args->argv[i],
-						                "syn") == 0) {
+						if (strcasecmp(args->argv[i], "syn") == 0) {
 							found = 1;
 							break;
-						} else if ((p = strchr(
-						                args->argv[i],
-						                '/')) != NULL) {
-							if (strstr(p, "SYN")
-							                != NULL) {
+						} else if ((p = strchr(args->argv[i], '/')) != NULL) {
+							if (strstr(p, "SYN") != NULL) {
 								found = 1;
 								break;
 							}
@@ -62,9 +58,8 @@ void do_accesslist(const char *cmdline)
 			}
 
 			if (found == 0) {
-				fprintf(stderr,
-				                "%% Invalid command, you should also "
-					                "include flags argument with bit SYN in test!\n");
+				fprintf(stderr, "%% Invalid command, you should also "
+					"include flags argument with bit SYN in test!\n");
 				librouter_destroy_args(args);
 				return;
 			}
@@ -98,8 +93,7 @@ void do_accesslist(const char *cmdline)
 	else if (strcmp(args->argv[crsr], "tcpmss") == 0)
 		acl.action = acl_tcpmss;
 	else {
-		fprintf(stderr,
-		                "%% Illegal action type, use accept, drop, reject, log or tcpmss\n");
+		fprintf(stderr, "%% Illegal action type, use accept, drop, reject, log or tcpmss\n");
 		librouter_destroy_args(args);
 		return;
 	}
@@ -138,16 +132,12 @@ void do_accesslist(const char *cmdline)
 			}
 			acl.icmp_type = args->argv[crsr];
 			++crsr;
-			if (strcmp(acl.icmp_type, "destination-unreachable")
-			                == 0 || strcmp(acl.icmp_type,
-			                "redirect") == 0 || strcmp(
-			                acl.icmp_type, "time-exceeded") == 0
-			                || strcmp(acl.icmp_type,
-			                                "parameter-problem")
-			                                == 0) {
+			if (strcmp(acl.icmp_type, "destination-unreachable") == 0 || strcmp(
+			                acl.icmp_type, "redirect") == 0 || strcmp(acl.icmp_type,
+			                "time-exceeded") == 0 || strcmp(acl.icmp_type,
+			                "parameter-problem") == 0) {
 				if (crsr >= args->argc) {
-					fprintf(stderr,
-					                "%% Missing icmp type code\n");
+					fprintf(stderr, "%% Missing icmp type code\n");
 					librouter_destroy_args(args);
 					return;
 				}
@@ -183,8 +173,7 @@ void do_accesslist(const char *cmdline)
 			librouter_destroy_args(args);
 			return;
 		}
-		sprintf(acl.src_address, "%s/%i ", args->argv[crsr],
-		                acl.src_cidr);
+		sprintf(acl.src_address, "%s/%i ", args->argv[crsr], acl.src_cidr);
 		crsr += 2;
 	}
 	if (crsr >= args->argc) {
@@ -255,14 +244,13 @@ void do_accesslist(const char *cmdline)
 			librouter_destroy_args(args);
 			return;
 		}
-		if (!librouter_ip_is_valid_port(args->argv[crsr + 1]) || !librouter_ip_is_valid_port(
-		                args->argv[crsr + 2])) {
+		if (!librouter_ip_is_valid_port(args->argv[crsr + 1])
+		                || !librouter_ip_is_valid_port(args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			librouter_destroy_args(args);
 			return;
 		}
-		sprintf(acl.src_portrange, "%s:%s ", args->argv[crsr + 1],
-		                args->argv[crsr + 2]);
+		sprintf(acl.src_portrange, "%s:%s ", args->argv[crsr + 1], args->argv[crsr + 2]);
 		crsr += 3;
 	} else {
 		acl.src_portrange[0] = 0;
@@ -286,8 +274,7 @@ void do_accesslist(const char *cmdline)
 			librouter_destroy_args(args);
 			return;
 		}
-		sprintf(acl.dst_address, "%s/%i ", args->argv[crsr],
-		                acl.dst_cidr);
+		sprintf(acl.dst_address, "%s/%i ", args->argv[crsr], acl.dst_cidr);
 		crsr += 2;
 	}
 	if (crsr >= args->argc) {
@@ -355,14 +342,13 @@ void do_accesslist(const char *cmdline)
 			librouter_destroy_args(args);
 			return;
 		}
-		if (!librouter_ip_is_valid_port(args->argv[crsr + 1]) || !librouter_ip_is_valid_port(
-		                args->argv[crsr + 2])) {
+		if (!librouter_ip_is_valid_port(args->argv[crsr + 1])
+		                || !librouter_ip_is_valid_port(args->argv[crsr + 2])) {
 			fprintf(stderr, "%% Ivalid argument\n");
 			librouter_destroy_args(args);
 			return;
 		}
-		sprintf(acl.dst_portrange, "%s:%s ", args->argv[crsr + 1],
-		                args->argv[crsr + 2]);
+		sprintf(acl.dst_portrange, "%s:%s ", args->argv[crsr + 1], args->argv[crsr + 2]);
 		crsr += 3;
 	} else {
 		acl.dst_portrange[0] = 0;
@@ -398,8 +384,7 @@ void do_accesslist(const char *cmdline)
 	/* Se a acao for TCPMSS, entao somos obrigados a ter na linha de comando o argumento 'flags' */
 	if (acl.action == acl_tcpmss) {
 		if (!acl.flags) {
-			fprintf(stderr,
-			                "%% For use 'tcpmss' you must define 'flags'\n");
+			fprintf(stderr, "%% For use 'tcpmss' you must define 'flags'\n");
 			librouter_destroy_args(args);
 			return;
 		}
@@ -443,8 +428,7 @@ void do_accesslist_mac(const char *cmdline)
 	else if (!strcmp(args->argv[crsr], "log"))
 		action = acl_log;
 	else {
-		fprintf(stderr,
-		                "%% Illegal action type, use accept, drop, reject, log or tcpmss\n");
+		fprintf(stderr, "%% Illegal action type, use accept, drop, reject, log or tcpmss\n");
 		librouter_destroy_args(args);
 		return;
 	}
@@ -479,7 +463,7 @@ void do_accesslist_mac(const char *cmdline)
 		break;
 	case acl_tcpmss:
 		break;
-	} DEBUG_CMD(cmd);
+	}DEBUG_CMD(cmd);
 	system(cmd);
 	librouter_destroy_args(args);
 }
@@ -592,8 +576,7 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 		DEBUG_CMD(buf);
 		system(buf);
 
-		sprintf(buf, "/bin/iptables -A FORWARD -i %s -j %s", dev,
-		                listno);
+		sprintf(buf, "/bin/iptables -A FORWARD -i %s -j %s", dev, listno);
 
 		DEBUG_CMD(buf);
 		system(buf);
@@ -604,8 +587,7 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 		DEBUG_CMD(buf);
 		system(buf);
 
-		sprintf(buf, "/bin/iptables -A FORWARD -o %s -j %s", dev,
-		                listno);
+		sprintf(buf, "/bin/iptables -A FORWARD -o %s -j %s", dev, listno);
 
 		DEBUG_CMD(buf);
 		system(buf);
@@ -638,15 +620,13 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 	}
 	if ((chain == chain_in) || (chain == chain_both)) {
 		if (librouter_acl_matched_exists(listno, dev, 0, "INPUT")) {
-			sprintf(buf, "/bin/iptables -D INPUT -i %s -j %s", dev,
-			                listno);
+			sprintf(buf, "/bin/iptables -D INPUT -i %s -j %s", dev, listno);
 
 			DEBUG_CMD(buf);
 			system(buf);
 		}
 		if (librouter_acl_matched_exists(listno, dev, 0, "FORWARD")) {
-			sprintf(buf, "/bin/iptables -D FORWARD -i %s -j %s",
-			                dev, listno);
+			sprintf(buf, "/bin/iptables -D FORWARD -i %s -j %s", dev, listno);
 
 			DEBUG_CMD(buf);
 			system(buf);
@@ -654,15 +634,13 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 	}
 	if ((chain == chain_out) || (chain == chain_both)) {
 		if (librouter_acl_matched_exists(listno, 0, dev, "OUTPUT")) {
-			sprintf(buf, "/bin/iptables -D OUTPUT -o %s -j %s",
-			                dev, listno);
+			sprintf(buf, "/bin/iptables -D OUTPUT -o %s -j %s", dev, listno);
 
 			DEBUG_CMD(buf);
 			system(buf);
 		}
 		if (librouter_acl_matched_exists(listno, 0, dev, "FORWARD")) {
-			sprintf(buf, "/bin/iptables -D FORWARD -o %s -j %s",
-			                dev, listno);
+			sprintf(buf, "/bin/iptables -D FORWARD -o %s -j %s", dev, listno);
 
 			DEBUG_CMD(buf);
 			system(buf);
