@@ -801,18 +801,18 @@ void interface_weight(const char *cmdline) /* weight <2-1024> */
 #endif
 
 #ifdef OPTION_MODEM3G
-void interface_modem3g_set_apn(const char *cmdline){
-
+void interface_modem3g_set_apn(const char *cmdline)
+{
 	arglist * args;
 	int check = -1;
-	char * apn = NULL;
+	char * apn = malloc (256);
 
 	args = librouter_make_args(cmdline);
 	apn = args->argv[2];
 
 	check = librouter_modem3g_set_apn(apn, interface_major);
 
-	if (check == -1){
+	if (check < 0){
 		printf("\n%% Error on set APN");
 		printf("\n%% Settings could not be applied\n\n");
 	}
@@ -820,17 +820,16 @@ void interface_modem3g_set_apn(const char *cmdline){
 	else
 		printf("\nAPN stored\n\n");
 #endif
-
+	apn = NULL;
+	free (apn);
 	librouter_destroy_args(args);
-
-	apn=NULL;
 }
 
-void interface_modem3g_set_password(const char *cmdline){
-
+void interface_modem3g_set_password(const char *cmdline)
+{
 	arglist * args;
 	int check = -1;
-	char * password = NULL;
+	char * password = malloc (256);
 
 	args = librouter_make_args(cmdline);
 
@@ -838,7 +837,7 @@ void interface_modem3g_set_password(const char *cmdline){
 
 	check = librouter_modem3g_set_password(password, interface_major);
 
-	if (check == -1){
+	if (check < 0){
 		printf("\n%% Error on set password");
 		printf("\n%% Settings could not be applied\n\n");
 	}
@@ -846,17 +845,16 @@ void interface_modem3g_set_password(const char *cmdline){
 	else
 		printf("\nPassword stored\n\n");
 #endif
-
+	password = NULL;
+	free(password);
 	librouter_destroy_args(args);
-
-	password=NULL;
 }
 
-void interface_modem3g_set_username(const char *cmdline){
-
+void interface_modem3g_set_username(const char *cmdline)
+{
 	arglist * args;
 	int check = -1;
-	char * username=NULL;
+	char * username = malloc (256);
 
 	args = librouter_make_args(cmdline);
 
@@ -864,7 +862,7 @@ void interface_modem3g_set_username(const char *cmdline){
 
 	check = librouter_modem3g_set_username(username, interface_major);
 
-	if (check == -1){
+	if (check < 0){
 		printf("\n%% Error on set username");
 		printf("\n%% Settings could not be applied\n\n");
 	}
@@ -872,18 +870,17 @@ void interface_modem3g_set_username(const char *cmdline){
 	else
 		printf("\nUsername stored\n\n");
 #endif
-
+	username = NULL;
+	free(username);
 	librouter_destroy_args(args);
-
-	username=NULL;
 }
 
-void backup_interface_shutdown(const char *cmdline){
-
- 	char * interface = malloc(24);
+void backup_interface_shutdown(const char *cmdline)
+{
+ 	char * interface = malloc(16);
  	int check = -1;
 
- 	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
+ 	snprintf(interface,16,"%s%d", interface_edited->linux_string,interface_major);
 
  	check = librouter_ppp_backupd_set_param_infile(interface,SHUTD_STR,"yes");
  	if (check < 0){
@@ -917,21 +914,20 @@ end:
 	free (interface);
 }
 
-void backup_interface(const char *cmdline){
-
+void backup_interface(const char *cmdline)
+{
  	arglist * args;
- 	char * main_interface = malloc(24);
- 	char * interface = malloc(24);
- 	char * intf_return = malloc(24);
+ 	char * main_interface = malloc(16);
+ 	char * interface = malloc(16);
+ 	char * intf_return = malloc(16);
  	int check = -1;
 
  	args = librouter_make_args(cmdline);
 
-	sprintf(main_interface,"%s%s",args->argv[1], args->argv[2]);
+	snprintf(main_interface, 16, "%s%s", args->argv[1], args->argv[2]);
+	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
-	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
-
- 	if (librouter_dev_exists((char *)interface)){
+ 	if (librouter_dev_exists(interface)){
 		printf("\n%% Error on set backup interface");
 		printf("\n%% It is necessary to shutdown %s%d interface first", interface_edited->cish_string,interface_major);
 		printf("\n%% Settings could not be applied\n\n");
@@ -964,26 +960,25 @@ void backup_interface(const char *cmdline){
  	}
 
 end:
+	librouter_destroy_args(args);
  	main_interface = NULL;
  	interface = NULL;
  	intf_return = NULL;
- 	librouter_destroy_args(args);
  	free (main_interface);
  	free (interface);
  	free (intf_return);
 }
 
-void backup_method_set_ping (const char *cmdline){
-
+void backup_method_set_ping (const char *cmdline)
+{
 	arglist * args;
-	char * interface = malloc(24);
-	char * ping=NULL;
+	char * interface = malloc(16);
+	char * ping = malloc(16);
 	int check = -1;
-
 	args = librouter_make_args(cmdline);
 	ping = args->argv[2];
 
- 	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
+ 	snprintf(interface,16,"%s%d", interface_edited->linux_string,interface_major);
 
 	if ( !librouter_ppp_backupd_verif_param_byintf_infile(interface, BCKUP_STR, "yes") ){
 
@@ -991,7 +986,6 @@ void backup_method_set_ping (const char *cmdline){
 		if (check < 0){
 			printf("\n%% Error on set backup method - ping");
 			printf("\n%% Settings could not be applied\n\n");
-
 			goto end;
 		}
 		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,ping);
@@ -1017,15 +1011,16 @@ end:
 	librouter_destroy_args(args);
  	ping=NULL;
  	interface = NULL;
+ 	free(ping);
  	free(interface);
 }
 
-void backup_method_set_link (const char *cmdline){
-
+void backup_method_set_link (const char *cmdline)
+{
 	int check = -1;
-	char * interface = malloc(24);
+	char * interface = malloc(16);
 
-	snprintf(interface,24,"%s%d", interface_edited->linux_string,interface_major);
+	snprintf(interface,16,"%s%d", interface_edited->linux_string,interface_major);
 
 	if ( !librouter_ppp_backupd_verif_param_byintf_infile(interface,BCKUP_STR, "yes") ){
 
@@ -1057,26 +1052,25 @@ void backup_method_set_link (const char *cmdline){
 end:
 	interface=NULL;
 	free(interface);
-
-
 }
 
 
-void interface_modem3g_sim_card_select(const char *cmdline){
+void interface_modem3g_sim_card_select(const char *cmdline)
+{
 	arglist * args;
 	int main_sim = -1;
 	struct sim_conf * sim = malloc(sizeof(struct sim_conf));
-	char intf[3];
+	char * interface = malloc(16);
 	args = librouter_make_args(cmdline);
 	main_sim = atoi(args->argv[1]);
-	sprintf(intf,"ppp%d",interface_major);
 
-	if (librouter_dev_exists((char *)intf)){
+	snprintf(interface,16,"%s%d", interface_edited->linux_string,interface_major);
+
+	if (librouter_dev_exists(interface)){
 		printf("\n%% Error on set SIM card order");
 		printf("\n%% It is necessary to shutdown %s%d interface first", interface_edited->cish_string, interface_major);
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
-
 	}
 
 	if (args->argc >= 3){
@@ -1133,16 +1127,19 @@ void interface_modem3g_sim_card_select(const char *cmdline){
 
 end:
 	librouter_destroy_args(args);
+	interface=NULL;
+	free(interface);
 	if (sim)
 		free(sim);
 }
 
-void interface_modem3g_btin_set_info(const char *cmdline){
+void interface_modem3g_btin_set_info(const char *cmdline)
+{
 	arglist * args;
 	int check = -1;
 	int sim;
-	char * value = NULL;
-	char * field = NULL;
+	char * value = malloc(256);
+	char * field = malloc(16);
 
 	args = librouter_make_args(cmdline);
 
@@ -1153,7 +1150,7 @@ void interface_modem3g_btin_set_info(const char *cmdline){
 
 	check = librouter_modem3g_sim_set_info_infile(sim, field, value);
 
-	if (check == -1){
+	if (check < 0){
 		printf("\n%% Error on set %s",field);
 		printf("\n%% Settings could not be applied\n\n");
 	}
@@ -1162,9 +1159,12 @@ void interface_modem3g_btin_set_info(const char *cmdline){
 		printf("\n%s stored\n\n",field);
 #endif
 
-	librouter_destroy_args(args);
 	value = NULL;
 	field = NULL;
+	free(value);
+	free(field);
+	librouter_destroy_args(args);
+
 }
 
 
