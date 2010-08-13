@@ -38,8 +38,9 @@ static const char * M3G_0_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-0",
 static const char * M3G_1_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-1", NULL};
 static const char * M3G_2_CONFIG_FILE [] = {PPPD_BIN_FILE, "call", "modem-3g-2", NULL};
 
-static struct bckp_conf_t *bc; /* the only global variable for config. intf.*/
+static struct bckp_conf_t *bc; /* global variable for config. intf.*/
 static int sim_temp_m3g0 = 0; /* global variable for store current SIM in MG30 */
+static int flag_reload = 0; /* global variable for store flag for reload config from file */
 
 enum {
 	DEFDATALEN = 56,
@@ -276,6 +277,8 @@ static struct bckp_conf_t * get_config(void){
 		exit(-1);
 	}
 
+	bkpd_dbgb("\tREFAZENDO PARSING - GET_CONFIG\n\n");
+
 	while (fgets(line, sizeof(line), fd) != NULL) {
 		switch (next_field) {
 		case FIELD_INTF:
@@ -371,7 +374,7 @@ static struct bckp_conf_t * get_config(void){
 	return bckp_conf; /* Return first alloc'ed config structure */
 }
 
-static void usr_handler(int sig)
+static void reload_config(void)
 {
 	/* Reload configuration */
 	struct bckp_conf_t *bckp_conf, *bckp_buff_bc, *bc_new;
@@ -390,6 +393,13 @@ static void usr_handler(int sig)
 	bc = bc_new;
 	clear_config(bckp_conf);
 	clear_config(bckp_buff_bc);
+}
+
+
+static void usr_handler(int sig)
+{
+	flag_reload = 1;
+	return;
 }
 
 static void hup_handler(int sig)
@@ -647,6 +657,9 @@ static void do_backup(void){
 
 	for (bckp_conf = bc; bckp_conf != NULL; bckp_conf = bckp_conf->next) {
 
+		/* FIXME [dev_num+1] devido a numeração do arquivo no sistema começar em 1 e nao em 0 */
+  		tty_check = librouter_usb_device_is_modem((atoi(&bckp_conf->intf_name[3])+1));
+
 		bkpd_dbg("---------------------------\n");
 		bkpd_dbg("Backup configuration\n");
 		bkpd_dbg("\tInterface is %s\n", bckp_conf->intf_name);
@@ -654,13 +667,17 @@ static void do_backup(void){
 		bkpd_dbg("\tBackup is %s\n", bckp_conf->is_backup ? "Enabled" : "Disabled");
 		bkpd_dbg("\tPid is %d\n", (int)bckp_conf->pppd_pid);
 		bkpd_dbg("\tNext is %p\n", bckp_conf->next);
+  		bkpd_dbg("\ttty check = %d\n",tty_check);
   		bkpd_dbg("---------------------------\n\n");
 
-  		tty_check = librouter_usb_device_is_modem((atoi(&bckp_conf->intf_name[3])+1)); /* FIXME [dev_num+1] devido a numeração do arquivo no sistema começar em 1 e nao em 0 */
-  		bkpd_dbg("tty check = %d  -- %s\n\n",tty_check, bckp_conf->intf_name);
 
   		if (!tty_check) /* se não apresentar modem na porta, a interface é ignorada pela maquina de estados */
   			continue;
+
+
+		bkpd_dbgb("DEV EXISTS -> %d\n",librouter_dev_exists(bckp_conf->intf_name));
+		bkpd_dbgb("DEV GET LINK -> %d\n\n",librouter_dev_get_link(bckp_conf->intf_name));
+
 
   		/* Main state machine */
 		switch (bckp_conf->state) {
@@ -789,6 +806,10 @@ int main(int argc, char **argv)
 	while (1) {
 		sleep(1);
 		bkpd_dbg("Main loop ...\n");
+		if (flag_reload){
+			flag_reload = 0;
+			reload_config();
+		}
 		do_backup();
 	}
 

@@ -8,7 +8,7 @@
 #ifndef BACKUPD_H_
 #define BACKUPD_H_
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #define bkpd_dbg(x,...) \
 		syslog(LOG_INFO,  "%s : %d => "x, __FUNCTION__, __LINE__, ##__VA_ARGS__)
