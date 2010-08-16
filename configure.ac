@@ -21,10 +21,12 @@ AC_CHECK_LIB(ncurses, tgetent,, exit)
 AC_CHECK_LIB(pam, pam_get_data,, exit)
 AC_CHECK_LIB(pam_misc, pam_misc_setenv,, exit)
 AC_CHECK_LIB(crypto, RSA_public_encrypt,, exit)
+AC_CHECK_LIB(iptc,iptc_init,, exit)
 AC_CHECK_LIB(netsnmp, snmpv3_store,, exit)
 AC_CHECK_LIB(router, librouter_acl_apply,, exit)
 AC_CHECK_LIB(readline, rl_on_new_line,, exit)
 AC_CHECK_LIB(routersnmp, librouter_snmp_get_contact,, exit)
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/file.h sys/ioctl.h sys/mount.h sys/socket.h sys/time.h syslog.h termios.h unistd.h])
