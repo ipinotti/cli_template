@@ -1883,6 +1883,7 @@ void show_modem3g_apn(const char *cmdline)
 #endif
 
 	free(apn);
+	apn=NULL;
 
 }
 
@@ -1903,6 +1904,7 @@ void show_modem3g_username(const char *cmdline)
 #endif
 
 	free (username);
+	username=NULL;
 
 }
 
@@ -1923,6 +1925,7 @@ void show_modem3g_password(const char *cmdline)
 #endif
 
 	free (password);
+	password=NULL;
 
 }
 #endif

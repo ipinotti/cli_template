@@ -387,13 +387,26 @@ cish_command CMD_CONFIG_INTERFACE_TXQUEUELEN[] = {
 // interface m3G
 
 #ifdef OPTION_MODEM3G
-cish_command CMD_CONFIG_INTERFACE_M3G_PASS_SET[] = {
+
+cish_command CMD_CONFIG_INTERFACE_M3G_NO_IP[] = {
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+
+cish_command CMD_CONFIG_INTERFACE_M3G_IP[] = {
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+
+cish_command CMD_CONFIG_INTERFACE_M3G_USB_PASS_SET[] = {
 	{"<text>", "Password for login on ISP", NULL, interface_modem3g_set_password, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_M3G_USB_PASS[] = {
-	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_PASS_SET, NULL, 1, MSK_NORMAL},
+	{"set", "Set access point name (address of ISP)", CMD_CONFIG_INTERFACE_M3G_USB_PASS_SET, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show password of ISP (address of ISP)", NULL, show_modem3g_password, 1, MSK_NORMAL},
 #endif
@@ -450,6 +463,7 @@ cish_command CMD_BACKUP_METHOD [] = {
 cish_command CMD_CONFIG_INTERFACE_M3G_NO[] = {
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
 	{"backup-interface", "Shutdown backup over a given interface", NULL, backup_interface_shutdown, 1, MSK_NORMAL},
+	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_M3G_NO_IP, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -459,6 +473,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB[] = {
 	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USB_PASS, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_M3G_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
@@ -534,6 +549,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
 	{"sim-order", "Set order of SIM Cards for backup - <MAIN> <BACKUP>", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_M3G_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL

@@ -70,9 +70,6 @@ extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
 extern cish_command CMD_CONFIG_INTERFACE_LOOPBACK[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL[];
-#ifdef OPTION_MODEM3G
-extern cish_command CMD_CONFIG_INTERFACE_M3G_USB[];
-#endif
 
 /* Routing Protocols */
 extern cish_command CMD_CONFIG_ROUTER_RIP[];

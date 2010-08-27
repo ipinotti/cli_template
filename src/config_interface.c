@@ -805,7 +805,7 @@ void interface_modem3g_set_apn(const char *cmdline)
 {
 	arglist * args;
 	int check = -1;
-	char * apn = malloc (256);
+	char * apn;
 
 	args = librouter_make_args(cmdline);
 	apn = args->argv[2];
@@ -821,7 +821,6 @@ void interface_modem3g_set_apn(const char *cmdline)
 		printf("\nAPN stored\n\n");
 #endif
 	apn = NULL;
-	free (apn);
 	librouter_destroy_args(args);
 }
 
@@ -829,7 +828,7 @@ void interface_modem3g_set_password(const char *cmdline)
 {
 	arglist * args;
 	int check = -1;
-	char * password = malloc (256);
+	char * password;
 
 	args = librouter_make_args(cmdline);
 
@@ -846,7 +845,6 @@ void interface_modem3g_set_password(const char *cmdline)
 		printf("\nPassword stored\n\n");
 #endif
 	password = NULL;
-	free(password);
 	librouter_destroy_args(args);
 }
 
@@ -854,7 +852,7 @@ void interface_modem3g_set_username(const char *cmdline)
 {
 	arglist * args;
 	int check = -1;
-	char * username = malloc (256);
+	char * username;
 
 	args = librouter_make_args(cmdline);
 
@@ -871,7 +869,6 @@ void interface_modem3g_set_username(const char *cmdline)
 		printf("\nUsername stored\n\n");
 #endif
 	username = NULL;
-	free(username);
 	librouter_destroy_args(args);
 }
 
@@ -960,20 +957,20 @@ void backup_interface(const char *cmdline)
  	}
 
 end:
-	librouter_destroy_args(args);
- 	main_interface = NULL;
- 	interface = NULL;
- 	intf_return = NULL;
- 	free (main_interface);
+  	free (intf_return);
+	free (main_interface);
  	free (interface);
- 	free (intf_return);
+ 	intf_return=NULL;
+ 	main_interface=NULL;
+ 	interface=NULL;
+	librouter_destroy_args(args);
 }
 
 void backup_method_set_ping (const char *cmdline)
 {
 	arglist * args;
 	char * interface = malloc(16);
-	char * ping = malloc(16);
+	char * ping;
 	int check = -1;
 	args = librouter_make_args(cmdline);
 	ping = args->argv[2];
@@ -1008,11 +1005,10 @@ void backup_method_set_ping (const char *cmdline)
 	}
 
 end:
+	ping=NULL;
+	free(interface);
+	interface=NULL;
 	librouter_destroy_args(args);
- 	ping=NULL;
- 	interface = NULL;
- 	free(ping);
- 	free(interface);
 }
 
 void backup_method_set_link (const char *cmdline)
@@ -1050,8 +1046,8 @@ void backup_method_set_link (const char *cmdline)
 	}
 
 end:
-	interface=NULL;
 	free(interface);
+	interface=NULL;
 }
 
 
@@ -1126,11 +1122,11 @@ void interface_modem3g_sim_card_select(const char *cmdline)
 	}
 
 end:
-	librouter_destroy_args(args);
-	interface=NULL;
 	free(interface);
-	if (sim)
-		free(sim);
+	interface=NULL;
+	free(sim);
+	sim=NULL;
+	librouter_destroy_args(args);
 }
 
 void interface_modem3g_btin_set_info(const char *cmdline)
@@ -1138,8 +1134,8 @@ void interface_modem3g_btin_set_info(const char *cmdline)
 	arglist * args;
 	int check = -1;
 	int sim;
-	char * value = malloc(256);
-	char * field = malloc(16);
+	char * value;
+	char * field;
 
 	args = librouter_make_args(cmdline);
 
@@ -1161,10 +1157,7 @@ void interface_modem3g_btin_set_info(const char *cmdline)
 
 	value = NULL;
 	field = NULL;
-	free(value);
-	free(field);
 	librouter_destroy_args(args);
-
 }
 
 
