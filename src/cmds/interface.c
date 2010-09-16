@@ -390,12 +390,14 @@ cish_command CMD_CONFIG_INTERFACE_TXQUEUELEN[] = {
 
 cish_command CMD_CONFIG_INTERFACE_M3G_NO_IP[] = {
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 
 cish_command CMD_CONFIG_INTERFACE_M3G_IP[] = {
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
