@@ -642,9 +642,11 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	int running = conf->running;
 	librouter_usb_dev * usbdev = malloc(sizeof(librouter_usb_dev));
 
-	/* Get interface index */
+	/* Get interface index --> ex: ppp0 -> 0*/
 	serial_no = atoi(osdev + strlen(PPPDEV));
-	usbdev->port = serial_no+1; /* FIXME porta+1 pois não existe usb3g builtin */
+	/* Get usb port from interface index */
+	usbdev->port = librouter_usb_get_realport_by_aliasport(serial_no);
+
 
 	/* Get config PPP ;
 	 * Get USB description ;
@@ -678,13 +680,13 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 	free (apn);
 
-	if ( (!lusb_descriptor) && (lusb_tty_verify) )
+	if ( (!lusb_descriptor) && (lusb_tty_verify != -1) )
 		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d\n",
 				usbdev->product_str,
 				usbdev->manufacture_str,
 				usbdev->port);
 	else
-		if ( (!lusb_descriptor) && (!lusb_tty_verify) )
+		if ( (!lusb_descriptor) && (lusb_tty_verify < 0) )
 			fprintf(out, "  USB device connected, but not a modem.\n");
 		else
 			fprintf(out, "  No USB device connected.\n");

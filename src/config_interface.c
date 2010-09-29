@@ -199,7 +199,7 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 
 	if (strstr(dev,"ppp") != NULL){
 		/* [interface_major+1] devido a numeração do arquivo começar em 1 e nao em 0 */
-		if (!librouter_usb_device_is_modem(interface_major+1)){
+		if (librouter_usb_device_is_modem( librouter_usb_get_realport_by_aliasport(interface_major) ) < 0){
 			printf("\n%% The interface is not connected or is not a modem");
 			printf("\n%% Settings couldn't be applied at this moment\n\n");
 		}
@@ -220,8 +220,7 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
 
 	if (strstr(dev,"ppp") != NULL){
-		/* [interface_major+1] devido a numeração do arquivo começar em 1 e nao em 0 */
-		if (!librouter_usb_device_is_modem(interface_major+1)){
+		if (librouter_usb_device_is_modem( librouter_usb_get_realport_by_aliasport(interface_major) ) < 0){
 			printf("\n%% The interface is not connected or is not a modem");
 			printf("\n%% Settings couldn't be applied at this moment\n\n");
 		}

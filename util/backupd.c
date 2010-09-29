@@ -657,8 +657,7 @@ static void do_backup(void){
 
 	for (bckp_conf = bc; bckp_conf != NULL; bckp_conf = bckp_conf->next) {
 
-		/* FIXME [dev_num+1] devido a numeração do arquivo no sistema começar em 1 e nao em 0 */
-  		tty_check = librouter_usb_device_is_modem((atoi(&bckp_conf->intf_name[3])+1));
+  		tty_check = librouter_usb_device_is_modem( librouter_usb_get_realport_by_aliasport((atoi(&bckp_conf->intf_name[3]))) );
 
 		bkpd_dbg("---------------------------\n");
 		bkpd_dbg("Backup configuration\n");
@@ -671,7 +670,7 @@ static void do_backup(void){
   		bkpd_dbg("---------------------------\n\n");
 
 
-  		if (!tty_check) /* se não apresentar modem na porta, a interface é ignorada pela maquina de estados */
+  		if (tty_check < 0) /* se não apresentar modem na porta, a interface é ignorada pela maquina de estados */
   			continue;
 
 
