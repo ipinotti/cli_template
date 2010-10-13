@@ -545,42 +545,34 @@ static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 
 static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 {
-	int phy_status = librouter_lan_get_status(conf->name);
+	struct lan_status st;
+	int phy_status = librouter_lan_get_status(conf->name, &st);
+
+	if (phy_status < 0) {
+		fprintf(out, "Could not fetch %s status\n", conf->name);
+		return;
+	}
 
 	if (conf->mac[0])
 		fprintf(out, "  Hardware address is %s\n", conf->mac);
 
 	if (conf->running) {
-		int bmcr, pgsr, pssr;
-
-		bmcr = librouter_lan_get_phy_reg(conf->name, MII_BMCR);
-		if (bmcr & BMCR_ANENABLE) {
+		if (st.autoneg)
 			fprintf(out, "  Auto-sense");
-			if (phy_status & PHY_STAT_ANC) {
-				switch (phy_status & PHY_STAT_SPMASK) {
-				case PHY_STAT_10HDX:
-					fprintf(out, " 10Mbps, Half-Duplex");
-					break;
-				case PHY_STAT_10FDX:
-					fprintf(out, " 10Mbps, Full-Duplex");
-					break;
-				case PHY_STAT_100HDX:
-					fprintf(out, " 100Mbps, Half-Duplex");
-					break;
-				case PHY_STAT_100FDX:
-					fprintf(out, " 100Mbps, Full-Duplex");
-					break;
-				}
-			} else {
-				fprintf(out, " waiting...");
-			}
-		} else {
+		else
 			fprintf(out, "  Forced");
-			fprintf(out, " %sMbps, %s-Duplex", (bmcr & BMCR_SPEED100) ? "100" : "10",
-			                (bmcr & BMCR_FULLDPLX) ? "Full" : "Half");
 
-		}
+		fprintf(out, " %dMbps, ", st.speed);
 
+		if (st.duplex)
+			fprintf(out, " Full-Duplex");
+		else
+			fprintf(out, " Half-Duplex");
+
+		fprintf(out, "\n");
+	}
+
+#if 0 /* TODO Show more PHY information */
 		if (phy_status & PHY_STAT_FAULT) {
 			fprintf(out, ", Remote Fault Detect!\n");
 		} else {
@@ -615,10 +607,12 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 #else
 			fprintf (out, "\n");
 #endif
+
 		} else {
 			fprintf(out, "\n");
 		}
 	}
+#endif
 }
 
 static void __dump_loopback_status(FILE *out, struct interface_conf *conf)
