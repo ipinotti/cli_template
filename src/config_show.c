@@ -553,7 +553,15 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 	if (conf->running) {
 		int bmcr, pgsr, pssr;
 
-		bmcr = librouter_lan_get_phy_reg(conf->name, MII_BMCR);
+
+		/* FIXME HACK para evitar que eth1 faça requisição do PHY, devido a MOD no kernel */
+		if (!strcmp(conf->name,"eth1"))
+			bmcr = 1;
+		else
+			bmcr = librouter_lan_get_phy_reg(conf->name, MII_BMCR);
+
+
+
 		if (bmcr & BMCR_ANENABLE) {
 			fprintf(out, "  Auto-sense");
 			if (phy_status & PHY_STAT_ANC) {
@@ -587,8 +595,19 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 			fprintf(out, "\n");
 		}
 
-		pgsr = librouter_lan_get_phy_reg(conf->name, MII_ADM7001_PGSR);
-		pssr = librouter_lan_get_phy_reg(conf->name, MII_ADM7001_PSSR);
+
+
+		/* FIXME HACK para evitar que eth1 faça requisição do PHY, devido a MOD no kernel */
+		if (!strcmp(conf->name,"eth1")){
+			pgsr = 1;
+			pssr = 1;
+		}
+		else{
+			pgsr = librouter_lan_get_phy_reg(conf->name, MII_ADM7001_PGSR);
+			pssr = librouter_lan_get_phy_reg(conf->name, MII_ADM7001_PSSR);
+		}
+
+
 
 		if (pgsr & MII_ADM7001_PGSR_XOVER) {
 			fprintf(out, "  Cable MDIX");
@@ -788,8 +807,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		__dump_intf_ipaddr_status(out, &conf);
 		__dump_intf_secondary_ipaddr_status(out, &conf);
 
-			if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype == ARPHRD_IPGRE || conf.linktype == ARPHRD_PPP))
-				fprintf(out, "  Peer address is %s\n", ip.ippeer);
+		if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype == ARPHRD_IPGRE || conf.linktype == ARPHRD_PPP))
+			fprintf(out, "  Peer address is %s\n", ip.ippeer);
 
 		if (conf.linktype == ARPHRD_PPP && conf.running)
 			fprintf(out, "  MTU is %i bytes\n", conf.mtu);
@@ -802,8 +821,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		switch (conf.linktype) {
 #ifdef OPTION_PPP
-			case ARPHRD_PPP:
-				__dump_ppp_status(out, &conf);
+		case ARPHRD_PPP:
+			__dump_ppp_status(out, &conf);
 			break;
 #endif
 		case ARPHRD_ETHER:

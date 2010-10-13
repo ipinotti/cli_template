@@ -53,6 +53,18 @@ enum {
 /* 1 second */
 };
 
+static void wait_for_dev_goesdown(struct bckp_conf_t *bckp_conf){
+
+	while (1){
+		if (librouter_dev_exists(bckp_conf->intf_name) != 1)
+			break;
+		bkpd_dbgb("WAITING FOR DEVICE GOES DOWN\n");
+		sleep (1); /* necessario para dar tempo de retorno apos efetuar o kill */
+	}
+	sleep(1);
+
+	return;
+}
 static char * backupd_intf_to_kernel_intf(char *interface){
 
 	char * intf_k;
@@ -484,7 +496,9 @@ static void do_state_shutdown(struct bckp_conf_t *bckp_conf){
 	if ( (bckp_conf->shutdown) && (bckp_conf->pppd_pid != (int)NULL) ){
 		/* Mata processo PPPD */
 		kill(bckp_conf->pppd_pid,SIGTERM);
-		usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
+
+		wait_for_dev_goesdown(bckp_conf);
+
 		waitpid(bckp_conf->pppd_pid,NULL,0);
 
 		bckp_conf->pppd_pid = (int)NULL;
@@ -498,6 +512,7 @@ static void do_state_shutdown(struct bckp_conf_t *bckp_conf){
 	}
 
 	bckp_conf->state = STATE_NOBACKUP;
+
 }
 
 static void do_state_nobackup(struct bckp_conf_t *bckp_conf){
@@ -519,8 +534,12 @@ static void do_state_simcheck(struct bckp_conf_t *bckp_conf){
 
 					/* Mata processo PPPD sem conexão */
 					kill(bckp_conf->pppd_pid,SIGTERM);
-					usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
+
+					wait_for_dev_goesdown(bckp_conf);
+
 					waitpid(bckp_conf->pppd_pid,NULL,0);
+
+					sleep(2);
 
 					bckp_conf->pppd_pid = (int)NULL;
 
@@ -612,7 +631,9 @@ static void do_state_main_intf_restablished(struct bckp_conf_t *bckp_conf){
 
 	if( (!bckp_conf->shutdown) && (bckp_conf->is_backup) && (bckp_conf->pppd_pid != (int)NULL) ){
 		kill(bckp_conf->pppd_pid,SIGTERM);
-		usleep(500); /* necessario para dar tempo de retorno apos efetuar o kill */
+
+		wait_for_dev_goesdown(bckp_conf);
+
 		waitpid(bckp_conf->pppd_pid,NULL,0);
 
 		bckp_conf->pppd_pid = (int)NULL;
@@ -632,12 +653,19 @@ static void do_state_main_intf_restablished(struct bckp_conf_t *bckp_conf){
 
 static void do_state_connect(struct bckp_conf_t *bckp_conf){
 
+	int ret;
+
 	if ( (!bckp_conf->shutdown) && (bckp_conf->pppd_pid == (int)NULL) ){
 		bkpd_dbg("Before pppd spawn - %s com pid %d\n", bckp_conf->intf_name, bckp_conf->pppd_pid);
 
 		if (!strcmp(bckp_conf->intf_name, "ppp0")){
 			sim_temp_m3g0 = librouter_modem3g_sim_order_get_mainsim();
-			librouter_modem3g_sim_card_set(librouter_modem3g_sim_order_get_mainsim());
+			ret = librouter_modem3g_sim_card_set(librouter_modem3g_sim_order_get_mainsim());
+
+			if ( ret < 0 ){
+				syslog(LOG_ERR,"%% Error on set SIM CARD (Built-in 3G Module) for connection");
+				return;
+			}
 		}
 
 		pppd_spawn(bckp_conf);

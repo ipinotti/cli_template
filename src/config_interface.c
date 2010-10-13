@@ -1115,10 +1115,10 @@ void interface_modem3g_sim_card_select(const char *cmdline)
 		goto end;
 	}
 
-	if(librouter_modem3g_sim_card_set(sim->sim_num) < 0){
-		printf("\n%% Error on set SIM card");
-		printf("\n%% Settings could not be applied\n\n");
-	}
+	/* Removido " librouter_modem3g_sim_card_set(sim->sim_num) " devido a aplicação da mesma diretiva
+	 * no backupd quando o modulo vai ser conectado
+	 */
+
 
 end:
 	free(interface);
