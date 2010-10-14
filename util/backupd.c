@@ -664,6 +664,7 @@ static void do_state_connect(struct bckp_conf_t *bckp_conf){
 
 			if ( ret < 0 ){
 				syslog(LOG_ERR,"%% Error on set SIM CARD (Built-in 3G Module) for connection");
+				bckp_conf->state = STATE_SHUTDOWN;
 				return;
 			}
 		}
