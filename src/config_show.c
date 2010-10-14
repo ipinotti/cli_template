@@ -546,15 +546,23 @@ static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 {
 	struct lan_status st;
-	int phy_status = librouter_lan_get_status(conf->name, &st);
+	int phy_status;
 
+	if (conf->mac[0])
+		fprintf(out, "  Hardware address is %s\n", conf->mac);
+
+#ifdef CONFIG_DIGISTAR_3G
+	if (!strcmp(conf->name, "eth1")){
+		syslog(LOG_DEBUG,"Ignored REG_PHY_DATA for %s", conf->name);
+		return;
+	}
+#endif
+
+	phy_status = librouter_lan_get_status(conf->name, &st);
 	if (phy_status < 0) {
 		fprintf(out, "Could not fetch %s status\n", conf->name);
 		return;
 	}
-
-	if (conf->mac[0])
-		fprintf(out, "  Hardware address is %s\n", conf->mac);
 
 	if (conf->running) {
 
