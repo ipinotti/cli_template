@@ -750,14 +750,13 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		cish_dev = librouter_device_convert_os(conf.name, conf_format ? 0 : 1);
 		cish_dbg("cish_dev : %s\n", cish_dev);
 
-		/* Check if only one interface is needed */
-		if (intf && strcasecmp(conf.name, intf)){
-			continue;
-		}
-
 		if (cish_dev == NULL)
 			continue; /* ignora dev nao usado pelo cish */
 
+		/* Check if only one interface is needed */
+		if (intf && strcasecmp(cish_dev, intf)){
+			continue;
+		}
 
 		cish_dbg("Device found : %s\n", cish_dev);
 
