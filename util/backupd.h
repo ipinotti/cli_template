@@ -16,7 +16,7 @@
 #define bkpd_dbg(x,...)
 #endif
 
-#define DEBUGB
+//#define DEBUGB
 #ifdef DEBUGB
 #define bkpd_dbgb(x,...) \
 		printf("%s : %d => "x, __FUNCTION__, __LINE__, ##__VA_ARGS__)
