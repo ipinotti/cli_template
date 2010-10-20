@@ -695,16 +695,18 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	free (apn);
 
 	if ( (!lusb_descriptor) && (lusb_tty_verify != -1) )
-		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d\n",
+		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d",
 				usbdev->product_str,
 				usbdev->manufacture_str,
 				usbdev->port);
 	else
 		if ( (!lusb_descriptor) && (lusb_tty_verify < 0) )
-			fprintf(out, "  USB device connected, but not a modem.\n");
+			fprintf(out, "  USB device connected, but not a modem.");
 		else
-			fprintf(out, "  No USB device connected.\n");
+			fprintf(out, "  No USB device connected.");
 
+	if (!cfg.up)
+		fprintf(out, "\n");
 
 	free(usbdev);
 
