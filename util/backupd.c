@@ -602,7 +602,7 @@ static void do_state_waiting(struct bckp_conf_t *bckp_conf){
 			}
 			else
 				if (bckp_conf->method == BCKP_METHOD_LINK) {
-					if ( librouter_dev_get_link(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name)) ){
+					if ( librouter_dev_get_link_running( backupd_intf_to_kernel_intf(bckp_conf->main_intf_name)) ){
 						if(bckp_conf->pppd_pid != (int)NULL){
 							bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
 							bkpd_dbgb("LINK OK na MAIN_INTF e m3g ON com pid %d\n",bckp_conf->pppd_pid);

@@ -27,7 +27,6 @@
 
 #ifdef OPTION_MODEM3G
 #include <librouter/modem3G.h>
-#include "../../cish/util/backupd.h" /*FIXME*/
 #endif
 
 extern int _cish_booting;
