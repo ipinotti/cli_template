@@ -12,7 +12,7 @@ cish_command CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT[] = {
 };
 
 cish_command CMD_CONFIG_NO_AAA_AUTHENTICATION[] = {
-	{"login", "Set authentication lists for logins.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
+	{"cli", "Set authentication lists for logins.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
 	{"web", "Set authentication lists for web.", CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -50,8 +50,15 @@ cish_command CMD_CONFIG_NO_AAA_ACCT[] = {
 
 cish_command CMD_CONFIG_NO_AAA[] = {
 	{"authentication", "Authentication configurations parameters", CMD_CONFIG_NO_AAA_AUTHENTICATION, NULL, 1, MSK_NORMAL},
+
+#ifdef OPTION_AA_Authorization
 	{"authorization", "Authorization configurations parameters", CMD_CONFIG_NO_AAA_AUTHOR, NULL, 1, MSK_NORMAL},
+#endif
+
+#ifdef OPTION_AA_Accounting
 	{"accounting", "Accounting configurations parameters", CMD_CONFIG_NO_AAA_ACCT, NULL, 1, MSK_NORMAL},
+#endif
+
 	{"username", "Establish User Name Authentication", CMD_CONFIG_NO_AAA_USERNAME, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -99,7 +106,7 @@ cish_command CMD_CONFIG_AAA_AUTHEN_DEFAULT[] = {
 
 
 cish_command CMD_CONFIG_AAA_AUTHENTICATION[] = {
-	{"login", "Set authentication lists for logins.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
+	{"cli", "Set authentication lists for logins.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
 	{"web", "Set authentication lists for web.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -185,9 +192,16 @@ cish_command CMD_CONFIG_AAA_AUTHOR[] = {
 };
 
 cish_command CMD_CONFIG_AAA[] = {
+#ifdef OPTION_AA_Accounting
 	{"accounting", "Accounting configurations parameters", CMD_CONFIG_AAA_ACCT, NULL, 1, MSK_NORMAL},
+#endif
+
 	{"authentication", "Authentication configurations parameters", CMD_CONFIG_AAA_AUTHENTICATION, NULL, 1, MSK_NORMAL},
+
+#ifdef OPTION_AA_Authorization
 	{"authorization", "Authorization configurations parameters", CMD_CONFIG_AAA_AUTHOR, NULL, 1, MSK_NORMAL},
+#endif
+
 	{"username", "Establish User Name Authentication", CMD_CONFIG_AAA_USERNAME, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
