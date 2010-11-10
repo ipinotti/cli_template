@@ -57,13 +57,26 @@ cish_command CMD_IPSEC_CONNECTION_LR_ADDR_FQDN[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{"1-1", "Ethernet interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_IPSEC_CONNECTION_INTERFACE_M3G[] = {
+	{"0-2", "Modem 3G interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
 cish_command CMD_IPSEC_CONNECTION_INTERFACE[] = {
+#ifdef OPTION_NO_WAN
+	{"m3G", "Modem 3G interface", CMD_IPSEC_CONNECTION_INTERFACE_M3G, NULL, 1, MSK_NORMAL},
+#else
+#ifndef OPTION_MODEM3G
 	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET, NULL, 1, MSK_NORMAL},
+#else
+	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET, NULL, 1, MSK_NORMAL},
+	{"m3G", "Modem 3G interface", CMD_IPSEC_CONNECTION_INTERFACE_M3G, NULL, 1, MSK_NORMAL},
+#endif
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -158,7 +171,12 @@ cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_ADDRESS[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", NULL, l2tp_ppp_unnumbered, 1, MSK_NORMAL},
+	{"0-1", "Ethernet interface number", NULL, l2tp_ppp_unnumbered, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_M3G[] = {
+	{"0-2", "Modem 3G interface number", NULL, l2tp_ppp_unnumbered, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -168,8 +186,11 @@ cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_LOOPBACK[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED[] = {
-	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_LOOPBACK, NULL, 1, MSK_NORMAL},
-	{"loopback", "Loopback interface", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET, NULL, 1, MSK_NORMAL},
+	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET, NULL, 1, MSK_NORMAL},
+	{"loopback", "Loopback interface", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_LOOPBACK, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_MODEM3G
+	{"m3G", "Modem 3G interface", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_M3G, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -429,7 +450,11 @@ cish_command CMD_CRYPTO_L2TP_POOL1[] = {
 };
 
 cish_command CMD_CRYPTO_L2TP_POOL_ETHERNET[] = {
-	{"0-0", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */
+#ifdef OPTION_NO_WAN
+	{"1-1", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */
+#else
+	{"0-1", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 

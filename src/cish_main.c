@@ -38,6 +38,8 @@
 #include "terminal_echo.h"
 #include "cish_tacplus.h" /* TAC_PLUS_PRIV_LVL */
 
+#define DEFAULT_ETHERNET_WAN 1 /* default ethernet port for WAN*/
+
 /* local function prototypes */
 
 /* global variables */
@@ -193,8 +195,11 @@ int main(int argc, char *argv[])
 	set_model_vpn_cmds(1);
 
 	/* Ethernet 0 and 1 */
+#ifdef OPTION_NO_WAN
+	set_model_ethernet_cmds("0-0");
+#else
 	set_model_ethernet_cmds("0-1");
-
+#endif
 	/* Begin at root */
 	command_root = CMD;
 
@@ -393,15 +398,15 @@ void config_file(const char *f)
 #ifdef CONFIG_DEVELOPMENT
 				if (_on_nfs()) {
 					if (command_root == CMD_CONFIG_INTERFACE_ETHERNET
-					                && interface_major == 0) {
+					                && interface_major == DEFAULT_ETHERNET_WAN) {
 						if (strstr(line, "ip address") != NULL) {
 							syslog(LOG_INFO,
-							                "%% NFS Boot: skipping ethernet 0 ip configuration\n");
+							                "%% NFS Boot: skipping ethernet ip configuration\n");
 							continue; /* skip ip address config when using NFS */
 						}
 						if (strstr(line, "shutdown") != NULL) {
 							syslog(LOG_INFO,
-							                "%% NFS Boot: skipping ethernet 0 disable\n");
+							                "%% NFS Boot: skipping ethernet disable\n");
 							continue; /* do not shutdown interface as well */
 						}
 					}

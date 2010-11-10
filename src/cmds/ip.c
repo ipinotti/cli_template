@@ -83,7 +83,7 @@ cish_command CMD_IP_ICMP[] = {
 
 #ifdef OPTION_SMCROUTE
 cish_command CMD_IP_MROUTE8_ETHERNET[] = {
-	{"0-0", "Interface number", NULL, ip_mroute, 1, MSK_NORMAL},
+	{"1-1", "Interface number", NULL, ip_mroute, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -104,7 +104,7 @@ cish_command CMD_IP_MROUTE6[] = {
 };
 
 cish_command CMD_IP_MROUTE5_ETHERNET[] = {
-	{"0-0", "Interface number", CMD_IP_MROUTE6, NULL, 1, MSK_NORMAL},
+	{"1-1", "Interface number", CMD_IP_MROUTE6, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -142,7 +142,7 @@ cish_command CMD_IP_ROUTE5[] = {
 };
 
 cish_command CMD_IP_ROUTE4_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{"1-1", "Ethernet interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -157,7 +157,9 @@ cish_command CMD_IP_ROUTE4_TUNNEL[] = {
 };
 
 cish_command CMD_IP_ROUTE3[] = {
+#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_IP_ROUTE4_ETHERNET, NULL, 1, MSK_NORMAL},
+#endif
 	{"loopback", "Loopback interface", CMD_IP_ROUTE4_LOOPBACK, NULL, 1, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_IP_ROUTE4_TUNNEL, NULL, 1, MSK_NORMAL},
 	{"<ipaddress>", "Forwarding router's address", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
@@ -489,7 +491,7 @@ cish_command CMD_IP_PIM_CAND_BSR_PRIORITY[] = {
 };
 
 cish_command CMD_IP_PIM_CAND_BSR_INTF_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", CMD_IP_PIM_CAND_BSR_PRIORITY, pim_bsr_candidate, 0, MSK_NORMAL},
+	{"1-1", "Ethernet interface number", CMD_IP_PIM_CAND_BSR_PRIORITY, pim_bsr_candidate, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -499,7 +501,9 @@ cish_command CMD_IP_PIM_CAND_BSR_INTF_SERIAL[] = {
 };
 
 cish_command CMD_IP_PIM_CAND_BSR_INTF[] = {
+#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_IP_PIM_CAND_BSR_INTF_ETHERNET, NULL, 0, MSK_NORMAL},
+#endif
 	{"serial", "Serial interface", CMD_IP_PIM_CAND_BSR_INTF_SERIAL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -532,7 +536,7 @@ cish_command CMD_IP_PIM_CAND_RP_PRIORITY[] = {
 };
 
 cish_command CMD_IP_PIM_CAND_RP_INTF_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", CMD_IP_PIM_CAND_RP_PRIORITY, pim_rp_candidate, 0, MSK_NORMAL},
+	{"1-1", "Ethernet interface number", CMD_IP_PIM_CAND_RP_PRIORITY, pim_rp_candidate, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -542,7 +546,9 @@ cish_command CMD_IP_PIM_CAND_RP_INTF_SERIAL[] = {
 };
 
 cish_command CMD_IP_PIM_CAND_RP_INTF[] = {
+#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_IP_PIM_CAND_RP_INTF_ETHERNET, NULL, 0, MSK_NORMAL},
+#endif
 	{"serial", "Serial interface", CMD_IP_PIM_CAND_RP_INTF_SERIAL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };

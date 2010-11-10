@@ -197,7 +197,7 @@ cish_command CMD_CLEAR_INTERFACE_AUX_[] = {
 };
 
 cish_command CMD_CLEAR_INTERFACE_ETHERNET_[] = {
-	{"0-0", "Ethernet interface number", NULL, clear_counters, 0, MSK_NORMAL},
+	{"1-1", "Ethernet interface number", NULL, clear_counters, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -208,6 +208,11 @@ cish_command CMD_CLEAR_INTERFACE_LOOPBACK_[] = {
 
 cish_command CMD_CLEAR_INTERFACE_TUNNEL_[] = {
 	{"0-9", "Tunnel interface number", NULL, clear_counters, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CLEAR_INTERFACE_M3G_[] = {
+	{"0-2", "Modem 3G interface number", NULL, clear_counters, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -224,6 +229,9 @@ cish_command CMD_CLEAR_INTERFACE[] = {
 	{"ethernet", "Ethernet interface", CMD_CLEAR_INTERFACE_ETHERNET_, NULL, 1, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_CLEAR_INTERFACE_LOOPBACK_, NULL, 1, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_CLEAR_INTERFACE_TUNNEL_, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_MODEM3G
+	{"m3G", "Modem 3G interface", CMD_CLEAR_INTERFACE_M3G_, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_IPSEC
 	{"crypto", "IPSec tunnel", CMD_CLEAR_CRYPTO_TUNNEL_, clear_counters, 1, MSK_VPN},
 #endif

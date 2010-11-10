@@ -11,7 +11,7 @@ char EXTSCRIPT[1024];
 cish_command CEXT = {EXTCMD, EXTSCRIPT, NULL, NULL, 0};
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_[] = {
-	{"0-0", "Ethernet interface number", NULL, config_interface, 0, MSK_NORMAL},
+	{"0-1", "Ethernet interface number", NULL, config_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
