@@ -57,7 +57,7 @@ cish_command CMD_ROUTER_RIP_NETWORK_MASK[] = {
 };
 
 cish_command CMD_ROUTER_RIP_INTERFACE_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", NULL, rip_execute_router_cmd, 1},
+	{"1-1", "Ethernet interface number", NULL, rip_execute_router_cmd, 1},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -72,7 +72,9 @@ cish_command CMD_ROUTER_RIP_INTERFACE_TUNNEL[] = {
 };
 
 cish_command CMD_ROUTER_RIP_NETWORK[] = {
+#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_ROUTER_RIP_INTERFACE_ETHERNET, NULL, 1},
+#endif
 	{"loopback", "Loopback interface", CMD_ROUTER_RIP_INTERFACE_LOOPBACK, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_ROUTER_RIP_INTERFACE_TUNNEL, NULL, 1},
 	{"<ipaddress>", "Network address", CMD_ROUTER_RIP_NETWORK_MASK, NULL, 1},
@@ -314,7 +316,7 @@ cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE1[] = {
 };
 
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1},
+	{"1-1", "Ethernet interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1},
 	{NULL, NULL, NULL, NULL}
 };
 
@@ -329,7 +331,9 @@ cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_TUNNEL[] = {
 };
 
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE[] = {
+#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET, NULL, 1},
+#endif
 	{"loopback", "Loopback interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_LOOPBACK, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_TUNNEL, NULL, 1},
 	{NULL, NULL, NULL, NULL}
@@ -1042,7 +1046,7 @@ cish_command CMD_SHOW_OSPF_NEIGHBOR[] = {
 };
 
 cish_command CMD_SHOW_OSPF_INTERFACE_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", NULL, show_ip_ospf, 1},
+	{"1-1", "Ethernet interface number", NULL, show_ip_ospf, 1},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1057,7 +1061,9 @@ cish_command CMD_SHOW_OSPF_INTERFACE_TUNNEL[] = {
 };
 
 cish_command CMD_SHOW_OSPF_INTERFACE[] = {
+#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_SHOW_OSPF_INTERFACE_ETHERNET, NULL, 1},
+#endif
 	{"loopback", "Loopback interface", CMD_SHOW_OSPF_INTERFACE_LOOPBACK, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_SHOW_OSPF_INTERFACE_TUNNEL, NULL, 1},
 	{NULL,NULL,NULL,NULL,0}
@@ -1315,7 +1321,7 @@ cish_command CMD_ROUTER_BGP_NEIGHBOR_DEF_ORIG[] = {
 };
 
 cish_command CMD_BGP_INTERFACE_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", NULL, bgp_execute_router_cmd, 1},
+	{"1-1", "Ethernet interface number", NULL, bgp_execute_router_cmd, 1},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1330,7 +1336,9 @@ cish_command CMD_BGP_INTERFACE_TUNNEL[] = {
 };
 
 cish_command CMD_ROUTER_BGP_NEIGHBOR_UPDATE_SOURCE[] = {
+#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_BGP_INTERFACE_ETHERNET, NULL, 1},
+#endif
 	{"loopback", "Loopback interface", CMD_BGP_INTERFACE_LOOPBACK, NULL, 1},
 	{"tunnel", "Tunnel interface", CMD_BGP_INTERFACE_TUNNEL, NULL, 1},
 	{NULL,NULL,NULL,NULL,0}

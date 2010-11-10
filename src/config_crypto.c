@@ -1228,16 +1228,18 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 
 	args = librouter_make_args(cmd);
 	dev = librouter_device_convert(args->argv[4], atoi(args->argv[5]), -1);
-	if (!strncmp(dev, "loopback", strlen("loopback")))
-		librouter_ip_interface_get_ip_addr(dev, addr, mask);
-	else
+
+	if (!strncmp(dev, "eth", strlen("eth")))
 		librouter_ip_ethernet_ip_addr(dev, addr, mask);
+	else
+		librouter_ip_interface_get_ip_addr(dev, addr, mask);
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	strncpy(cfg.ip_addr, addr, 16);
 	cfg.ip_addr[15] = 0;
+
 	/* Quando for interface loopbackX, ip_unnumbered recebe X+2 */
-	if (!strncmp(dev, "loopback", strlen("loopback")))
+	if (!strncmp(dev, "lo", strlen("lo")))
 		cfg.ip_unnumbered = atoi(args->argv[5]) + 2;
 	else
 		cfg.ip_unnumbered = atoi(args->argv[5]);

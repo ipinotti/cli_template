@@ -442,7 +442,11 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB_APN[] = {
 };
 
 cish_command CMD_BACKUP_INTERFACE_ETHERNET[] = {
+#ifdef OPTION_NO_WAN
+	{"0-0", "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
+#else
 	{"0-1", "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -969,7 +973,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_AUX[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
+	{"1-1", "Ethernet interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -988,10 +992,20 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_TUNNEL[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_M3G[] = {
+	{"0-2", "Modem 3G interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC[] = {
 	{"aux", "Aux interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_AUX, NULL, 1, MSK_AUX},
+#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET, NULL, 1, MSK_NORMAL},
+#endif
 	{"loopback", "Loopback interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_LOOPBACK, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_MODEM3G
+	{"m3G", "Modem 3G interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_M3G, NULL, 1, MSK_NORMAL},
+#endif
 	{"serial", "Serial interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_SERIAL, NULL, 1, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_TUNNEL, NULL, 1, MSK_NORMAL},
 	{"<ipaddress>", "Source IP address", NULL, tunnel_source, 1, MSK_NORMAL},

@@ -189,8 +189,11 @@ int main(int argc, char *argv[])
 	set_model_vpn_cmds(1);
 
 	/* Ethernet 0 and 1 */
+#ifdef OPTION_NO_WAN
+	set_model_ethernet_cmds("0-0");
+#else
 	set_model_ethernet_cmds("0-1");
-
+#endif
 	/* Begin at root */
 	command_root = CMD;
 
