@@ -107,11 +107,17 @@ static int _print_current_menu()
 #endif
 		{ CMD_CONFIG_INTERFACE_ETHERNET, "(config-if-ethernet-"},
 		{ CMD_CONFIG_INTERFACE_ETHERNET_VLAN, "(config-if-ethernet-"},
+#ifdef OPTION_MANAGED_ETHSWITCH
+		{ CMD_CONFIG_INTERFACE_ETH_SW, "(config-if-eth-switch-port-"},
+#endif
 		{ CMD_CONFIG_INTERFACE_LOOPBACK, "(config-if-loopback-"},
 		{ CMD_CONFIG_INTERFACE_TUNNEL, "(config-if-tunnel-"},
 #ifdef OPTION_MODEM3G
 		{ CMD_CONFIG_INTERFACE_M3G_USB, "(config-if-m3G-"},
 		{ CMD_CONFIG_INTERFACE_M3G_BTIN, "(config-if-m3G-"},
+#endif
+#ifdef OPTION_EFM
+		{ CMD_CONFIG_INTERFACE_EFM, "(config-if-efm-"},
 #endif
 #ifdef OPTION_IPSEC
 		{ CMD_CONFIG_CRYPTO, "(config-crypto)"},

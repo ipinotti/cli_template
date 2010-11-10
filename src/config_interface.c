@@ -37,20 +37,20 @@ int interface_minor = -1;
 
 void config_interface_done(const char *cmdline)
 {
-	command_root=CMD_CONFIGURE;
+	command_root = CMD_CONFIGURE;
 	interface_major = -1;
 	interface_minor = -1;
 }
 
 int validate_interface_minor(void)
 {
-	switch(interface_edited->type) {
-		case eth:
-			if(librouter_vlan_exists(interface_major, interface_minor))
-				return 0; // ok
-			break;
-		default:
-			break;
+	switch (interface_edited->type) {
+	case eth:
+		if (librouter_vlan_exists(interface_major, interface_minor))
+			return 0; // ok
+		break;
+	default:
+		break;
 	}
 	return -1; // subinterface invalida
 }
@@ -58,30 +58,29 @@ int validate_interface_minor(void)
 void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 {
 	arglist *args;
-	int no=0;
+	int no = 0;
 	char *major, *minor, *dev;
 	char device[32], sub[16];
 
-	args=librouter_make_args(cmdline);
+	args = librouter_make_args(cmdline);
 	if (strcmp(args->argv[0], "no") == 0)
-		no=1;
+		no = 1;
 	strncpy(device, args->argv[no ? 2 : 1], 31);
-	device[31]=0;
+	device[31] = 0;
 	strncpy(sub, args->argv[no ? 3 : 2], 15);
-	sub[15]=0;
+	sub[15] = 0;
 	librouter_destroy_args(args);
 
-	if ((interface_edited=librouter_device_get_family_by_name(device, str_cish))) {
+	if ((interface_edited = librouter_device_get_family_by_name(device, str_cish))) {
 
-		major=sub;
-		minor=strchr(major, '.');
-		if (minor) *minor++ = 0;
-		interface_major=atoi(major);
+		major = sub;
+		minor = strchr(major, '.');
 		if (minor)
-		{
-			interface_minor=atoi(minor);
-			if (validate_interface_minor() < 0)
-			{
+			*minor++ = 0;
+		interface_major = atoi(major);
+		if (minor) {
+			interface_minor = atoi(minor);
+			if (validate_interface_minor() < 0) {
 				fprintf(stderr, "%% Invalid interface number.\n");
 				return;
 			}
@@ -89,45 +88,48 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			interface_minor = -1;
 		}
 
-		switch(interface_edited->type) {
-			case eth:
-				if (interface_minor == -1) {
-					command_root=CMD_CONFIG_INTERFACE_ETHERNET;
-				} else {
-					command_root=CMD_CONFIG_INTERFACE_ETHERNET_VLAN;
-				}
-				break;
-			case lo:
-				command_root=CMD_CONFIG_INTERFACE_LOOPBACK;
-				break;
-			case tun:
-				dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-				if (no) {
-					librouter_tunnel_del(dev);
-				} else {
-					librouter_tunnel_add(dev);
-					command_root=CMD_CONFIG_INTERFACE_TUNNEL;
-				}
-				free(dev);
-				break;
+		switch (interface_edited->type) {
+		case eth:
+			if (interface_minor == -1) {
+				command_root = CMD_CONFIG_INTERFACE_ETHERNET;
+			} else {
+				command_root = CMD_CONFIG_INTERFACE_ETHERNET_VLAN;
+			}
+			break;
+		case lo:
+			command_root = CMD_CONFIG_INTERFACE_LOOPBACK;
+			break;
+		case tun:
+			dev = librouter_device_convert(interface_edited->cish_string,
+			                interface_major, interface_minor);
+			if (no) {
+				librouter_tunnel_del(dev);
+			} else {
+				librouter_tunnel_add(dev);
+				command_root = CMD_CONFIG_INTERFACE_TUNNEL;
+			}
+			free(dev);
+			break;
 #ifdef OPTION_MODEM3G
-			case ppp:
-				if (interface_major == 0)
-					command_root=CMD_CONFIG_INTERFACE_M3G_BTIN;
-				else
-					command_root=CMD_CONFIG_INTERFACE_M3G_USB;
-				break;
+		case ppp:
+			if (interface_major == 0)
+				command_root = CMD_CONFIG_INTERFACE_M3G_BTIN;
+			else
+				command_root = CMD_CONFIG_INTERFACE_M3G_USB;
+			break;
 #endif
-			default:
-				break;
+#ifdef OPTION_EFM
+		case efm:
+			command_root = CMD_CONFIG_INTERFACE_EFM;
+			break;
+#endif
+		default:
+			break;
 		}
-	}
-	else {
+	} else {
 		fprintf(stderr, "%% Unknown device type.\n");
 	}
 }
-
-
 
 void interface_txqueue(const char *cmdline)
 {
@@ -135,7 +137,7 @@ void interface_txqueue(const char *cmdline)
 	int val;
 	char *dev;
 
-	args=librouter_make_args(cmdline);
+	args = librouter_make_args(cmdline);
 	val = atoi(args->argv[1]);
 #if 0 /* Use value from command definition! */
 	if ((val<2) || (val>256))
@@ -145,7 +147,8 @@ void interface_txqueue(const char *cmdline)
 		return;
 	}
 #endif
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	librouter_dev_set_qlen(dev, val);
 	librouter_destroy_args(args);
 	free(dev);
@@ -155,12 +158,16 @@ void interface_description(const char *cmd)
 {
 	char *description, *dev;
 
-	dev=librouter_device_convert (interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	description = (char *) cmd;
-	while (*description == ' ') ++description;
-	description = strchr (description, ' ');
-	if (!description) return;
-	while (*description == ' ') ++description;
+	while (*description == ' ')
+		++description;
+	description = strchr(description, ' ');
+	if (!description)
+		return;
+	while (*description == ' ')
+		++description;
 	librouter_dev_add_description(dev, description);
 	free(dev);
 }
@@ -169,7 +176,8 @@ void interface_no_description(const char *cmd)
 {
 	char *dev;
 
-	dev=librouter_device_convert (interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	librouter_dev_del_description(dev);
 	free(dev);
 }
@@ -182,7 +190,8 @@ void interface_mtu(const char *cmdline)
 
 	args = librouter_make_args(cmdline);
 	val = atoi(args->argv[1]);
-	dev = librouter_device_convert (interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	librouter_dev_set_mtu(dev, val);
 	librouter_destroy_args(args);
 	free(dev);
@@ -192,13 +201,15 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 {
 	char *dev;
 
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 
 	librouter_qos_tc_remove_all(dev);
 
-	if (strstr(dev,"ppp") != NULL){
+	if (strstr(dev, "ppp") != NULL) {
 		/* [interface_major+1] devido a numeração do arquivo começar em 1 e nao em 0 */
-		if (librouter_usb_device_is_modem( librouter_usb_get_realport_by_aliasport(interface_major) ) < 0){
+		if (librouter_usb_device_is_modem(librouter_usb_get_realport_by_aliasport(
+		                interface_major)) < 0) {
 			printf("\n%% The interface is not connected or is not a modem");
 			printf("\n%% Settings couldn't be applied at this moment\n\n");
 		}
@@ -215,28 +226,29 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 	char *dev;
 	dev_family *fam;
 
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
 
-	if (strstr(dev,"ppp") != NULL){
-		if (librouter_usb_device_is_modem( librouter_usb_get_realport_by_aliasport(interface_major) ) < 0){
+	if (strstr(dev, "ppp") != NULL) {
+		if (librouter_usb_device_is_modem(librouter_usb_get_realport_by_aliasport(
+		                interface_major)) < 0) {
 			printf("\n%% The interface is not connected or is not a modem");
 			printf("\n%% Settings couldn't be applied at this moment\n\n");
 		}
 
 	}
 
-
 	librouter_dev_set_link_up(dev); /* UP */
 
 	if (fam) {
-		switch(fam->type) {
-			case eth:
-				librouter_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
-				librouter_qos_tc_insert_all(dev);
-				break;
-			default:
-				break;
+		switch (fam->type) {
+		case eth:
+			librouter_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
+			librouter_qos_tc_insert_all(dev);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -254,10 +266,11 @@ void interface_ipaddr(const char *cmdline) /* ip address <address> <mask> */
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=librouter_make_args(cmdline);
-	addr=args->argv[2];
-	mask=args->argv[3];
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	args = librouter_make_args(cmdline);
+	addr = args->argv[2];
+	mask = args->argv[3];
 	librouter_ip_interface_set_addr(dev, addr, mask); /* preserve alias addresses */
 	librouter_destroy_args(args);
 	free(dev);
@@ -268,10 +281,11 @@ void interface_ipaddr_secondary(const char *cmdline) /* ip address <address> <ma
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=librouter_make_args(cmdline);
-	addr=args->argv[2];
-	mask=args->argv[3];
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	args = librouter_make_args(cmdline);
+	addr = args->argv[2];
+	mask = args->argv[3];
 	librouter_ip_interface_set_addr_secondary(dev, addr, mask);
 	librouter_destroy_args(args);
 	free(dev);
@@ -282,10 +296,11 @@ void interface_no_ipaddr_secondary(const char *cmdline) /* no ip address <addres
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=librouter_make_args(cmdline);
-	addr=args->argv[3];
-	mask=args->argv[4];
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	args = librouter_make_args(cmdline);
+	addr = args->argv[3];
+	mask = args->argv[4];
 	librouter_ip_interface_set_no_addr_secondary(dev, addr, mask);
 	librouter_destroy_args(args);
 	free(dev);
@@ -295,20 +310,21 @@ void interface_no_ipaddr(const char *cmdline) /* no ip address */
 {
 	char *dev;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	librouter_ip_interface_set_no_addr(dev);
 	free(dev);
 }
 
-void interface_ethernet_ipaddr_dhcp (const char *cmdline) /* ip address dhcp */
+void interface_ethernet_ipaddr_dhcp(const char *cmdline) /* ip address dhcp */
 {
 	char *dev, daemon_dhcpc[32];
 
-	dev = librouter_device_convert (interface_edited->cish_string, interface_major,
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	sprintf (daemon_dhcpc, DHCPC_DAEMON, dev);
+	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
 	librouter_exec_daemon (daemon_dhcpc); /* inittab: #i:34:respawn:/bin/udhcpc -i ethernet0 >/dev/null 2>/dev/null */
-	free (dev);
+	free(dev);
 }
 
 void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mask> */
@@ -318,23 +334,24 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 	ppp_config cfg;
 	char daemon_dhcpc[32];
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
 	if (librouter_exec_check_daemon(daemon_dhcpc))
 		librouter_kill_daemon(daemon_dhcpc); /* !!! dhcp x ppp unumbered */
 
-	args=librouter_make_args(cmdline);
-	addr=args->argv[2];
-	mask=args->argv[3];
+	args = librouter_make_args(cmdline);
+	addr = args->argv[2];
+	mask = args->argv[3];
 	librouter_ip_ethernet_set_addr(dev, addr, mask); /* preserve alias addresses */
 
 	// Verifica se o ip unnumbered relaciona a ethernet com a serial
 	librouter_ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
 	if (cfg.ip_unnumbered == interface_major) {
 		strncpy(cfg.ip_addr, addr, 16); // Atualiza cfg com os dados da ethernet
-		cfg.ip_addr[15]=0;
+		cfg.ip_addr[15] = 0;
 		strncpy(cfg.ip_mask, mask, 16);
-		cfg.ip_mask[15]=0;
+		cfg.ip_mask[15] = 0;
 		librouter_ppp_set_config(0, &cfg); // Atualiza as configuracoes da serial
 	}
 
@@ -347,10 +364,11 @@ void interface_ethernet_ipaddr_secondary(const char *cmdline) /* ip address <add
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=librouter_make_args(cmdline);
-	addr=args->argv[2];
-	mask=args->argv[3];
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	args = librouter_make_args(cmdline);
+	addr = args->argv[2];
+	mask = args->argv[3];
 	librouter_ip_ethernet_set_addr_secondary(dev, addr, mask);
 	librouter_destroy_args(args);
 	free(dev);
@@ -361,10 +379,11 @@ void interface_ethernet_no_ipaddr_secondary(const char *cmdline) /* no ip addres
 	arglist *args;
 	char *addr, *mask, *dev;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	args=librouter_make_args(cmdline);
-	addr=args->argv[3];
-	mask=args->argv[4];
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	args = librouter_make_args(cmdline);
+	addr = args->argv[3];
+	mask = args->argv[4];
 	librouter_ip_ethernet_set_no_addr_secondary(dev, addr, mask);
 	librouter_destroy_args(args);
 	free(dev);
@@ -375,7 +394,8 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 	char *dev;
 	char daemon_dhcpc[32];
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
 	if (librouter_exec_check_daemon(daemon_dhcpc))
 		librouter_kill_daemon(daemon_dhcpc);
@@ -390,23 +410,24 @@ void interface_fec_cfg(const char *cmdline) /* speed 10|100 half|full */
 	int speed100 = -1, duplex = -1;
 
 	args = librouter_make_args(cmdline);
-	if(args->argc == 3) {
-		if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor))) {
+	if (args->argc == 3) {
+		if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+		                interface_minor))) {
 			if (strncmp(dev, "ethernet", 8) == 0) {
 				/* Speed */
-				if(strcmp(args->argv[1], "10") == 0)
+				if (strcmp(args->argv[1], "10") == 0)
 					speed100 = 0;
-				else if(strcmp(args->argv[1], "100") == 0)
+				else if (strcmp(args->argv[1], "100") == 0)
 					speed100 = 1;
 				/* Duplex */
-				if(strcmp(args->argv[2], "half") == 0)
+				if (strcmp(args->argv[2], "half") == 0)
 					duplex = 0;
-				else if(strcmp(args->argv[2], "full") == 0)
+				else if (strcmp(args->argv[2], "full") == 0)
 					duplex = 1;
-				if(speed100 < 0 || duplex < 0)
+				if (speed100 < 0 || duplex < 0)
 					printf("%% Sintax error!\n");
 				else {
-					if(librouter_fec_config_link(dev, speed100, duplex) < 0)
+					if (librouter_fec_config_link(dev, speed100, duplex) < 0)
 						printf("%% Not possible to set PHY parameters\n");
 				}
 			}
@@ -424,9 +445,10 @@ void interface_fec_autonegotiation(const char *cmdline) /* speed auto */
 	if (_cish_booting)
 		return;
 #endif
-	if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor))) {
+	if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor))) {
 		if (strncmp(dev, "ethernet", 8) == 0) {
-			if(librouter_fec_autonegotiate_link(dev) < 0)
+			if (librouter_fec_autonegotiate_link(dev) < 0)
 				printf("%% Not possible to set PHY parameters\n");
 		}
 		free(dev);
@@ -443,7 +465,7 @@ void interface_sppp_ipaddr(const char *cmdline) /* ip address [local] [remote] [
 	local=args->argv[2];
 	remote=args->argv[3];
 	if (args->argc > 4) mask=args->argv[4];
-		else mask=NULL;
+	else mask=NULL;
 
 	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
 	librouter_ip_addr_flush(dev);
@@ -476,8 +498,9 @@ void tunnel_destination(const char *cmdline) /* [no] tunnel destination <ipaddre
 	arglist *args;
 	char *dev;
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		librouter_tunnel_change(dev, TUNNEL_DESTINATION, NULL);
 	} else {
@@ -492,8 +515,9 @@ void tunnel_key(const char *cmdline) /* [no] tunnel key <key> */
 	arglist *args;
 	char *dev;
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		librouter_tunnel_change(dev, TUNNEL_KEY, NULL);
 	} else {
@@ -508,8 +532,9 @@ void tunnel_mode(const char *cmdline) /* tunnel mode gre|ipip */
 	arglist *args;
 	char *dev;
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	if (strcmp(args->argv[2], "gre") == 0) {
 		librouter_tunnel_mode(dev, IPPROTO_GRE);
 	} else if (strcmp(args->argv[2], "ipip") == 0) {
@@ -525,8 +550,9 @@ void tunnel_source_interface(const char *cmdline) /* tunnel source <intf> <sub> 
 	arglist *args;
 	char *dev, source[32];
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	strncpy(source, args->argv[2], 31);
 	strncat(source, args->argv[3], 31);
 	if (strcmp(dev, source) == 0) {
@@ -543,8 +569,9 @@ void tunnel_source(const char *cmdline) /* [no] tunnel source <ipaddress> */
 	arglist *args;
 	char *dev;
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		librouter_tunnel_change(dev, TUNNEL_SOURCE, NULL);
 	} else {
@@ -560,8 +587,9 @@ void tunnel_checksum(const char *cmdline) /* [no] tunnel checksum */
 	char *dev;
 	int i;
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		librouter_tunnel_change(dev, TUNNEL_CHECKSUM, NULL);
 	} else {
@@ -577,8 +605,9 @@ void tunnel_pmtu(const char *cmdline) /* [no] tunnel path-mtu-discovery */
 	char *dev;
 	int i;
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		librouter_tunnel_change(dev, TUNNEL_PMTU, NULL);
 	} else {
@@ -594,8 +623,9 @@ void tunnel_sequence(const char *cmdline) /* [no] tunnel sequence-datagrams */
 	char *dev;
 	int i;
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		librouter_tunnel_change(dev, TUNNEL_SEQUENCE, NULL);
 	} else {
@@ -610,8 +640,9 @@ void tunnel_ttl(const char *cmdline) /* [no] tunnel ttl <0-255> */
 	arglist *args;
 	char *dev;
 
-	args=librouter_make_args(cmdline);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	if (strcmp(args->argv[0], "no") == 0) {
 		librouter_tunnel_change(dev, TUNNEL_TTL, NULL);
 	} else {
@@ -647,7 +678,7 @@ void do_bandwidth(const char *cmdline)
 {
 	char *dev;
 	arglist *args;
-	unsigned int bw=0;
+	unsigned int bw = 0;
 
 	args = librouter_make_args(cmdline);
 
@@ -659,10 +690,13 @@ void do_bandwidth(const char *cmdline)
 
 	/* Check if it is bps, kbps or mbps */
 	bw = atoi(args->argv[1]);
-	if (strcasestr(args->argv[1],"kbps")) bw *= 1024;
-	else if (strcasestr(args->argv[1],"mbps")) bw *= 1048576;
+	if (strcasestr(args->argv[1], "kbps"))
+		bw *= 1024;
+	else if (strcasestr(args->argv[1], "mbps"))
+		bw *= 1048576;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	librouter_qos_config_interface_bw(dev, bw);
 	free(dev);
 	librouter_destroy_args(args);
@@ -673,7 +707,7 @@ void do_max_reserved_bw(const char *cmdline)
 {
 	char *dev;
 	arglist *args;
-	unsigned char reserved_bw=0;
+	unsigned char reserved_bw = 0;
 
 	args = librouter_make_args(cmdline);
 
@@ -684,7 +718,8 @@ void do_max_reserved_bw(const char *cmdline)
 	}
 
 	reserved_bw = atoi(args->argv[1]);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 	librouter_qos_config_reserved_bw(dev, reserved_bw);
 	free(dev);
 	return;
@@ -701,8 +736,9 @@ void do_service_policy(const char *cmdline)
 		librouter_destroy_args(args);
 		return;
 	}
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	librouter_qos_apply_policy(dev,args->argv[1]);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	librouter_qos_apply_policy(dev, args->argv[1]);
 	free(dev);
 	return;
 }
@@ -712,8 +748,9 @@ void no_service_policy(const char *cmdline)
 	char *dev;
 	intf_qos_cfg_t *intf_cfg;
 
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
-	librouter_qos_get_interface_config (dev, &intf_cfg);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	librouter_qos_get_interface_config(dev, &intf_cfg);
 	if (intf_cfg)
 		intf_cfg->pname[0] = 0; /* clean policy-map */
 	librouter_qos_release_config(intf_cfg);
@@ -729,9 +766,10 @@ void interface_snmptrap(const char *cmd)
 {
 	char *dev;
 
-	if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor)))
-	{
-		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev, "serial", 6))
+	if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor))) {
+		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev,
+		                "serial", 6))
 			librouter_snmp_add_dev_trap(dev);
 		free(dev);
 	}
@@ -741,9 +779,10 @@ void interface_no_snmptrap(const char *cmd)
 {
 	char *dev;
 
-	if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor)))
-	{
-		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev, "serial", 6))
+	if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor))) {
+		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev,
+		                "serial", 6))
 			librouter_snmp_del_dev_trap(dev);
 		free(dev);
 	}
@@ -792,7 +831,7 @@ void interface_weight(const char *cmdline) /* weight <2-1024> */
 		dev = (char *)malloc(2+1+1);
 		sprintf(dev, "%s%d", SERIALDEV_PPP, interface_major); /* 'sx?' */
 	} else
-		librouter_dev_set_weight(dev, val);
+	librouter_dev_set_weight(dev, val);
 	librouter_destroy_args(args);
 	free(dev);
 }
@@ -810,13 +849,13 @@ void interface_modem3g_set_apn(const char *cmdline)
 
 	check = librouter_modem3g_set_apn(apn, interface_major);
 
-	if (check < 0){
+	if (check < 0) {
 		printf("\n%% Error on set APN");
 		printf("\n%% Settings could not be applied\n\n");
 	}
 #ifdef DEBUG_M3G
 	else
-		printf("\nAPN stored\n\n");
+	printf("\nAPN stored\n\n");
 #endif
 	apn = NULL;
 	librouter_destroy_args(args);
@@ -834,13 +873,13 @@ void interface_modem3g_set_password(const char *cmdline)
 
 	check = librouter_modem3g_set_password(password, interface_major);
 
-	if (check < 0){
+	if (check < 0) {
 		printf("\n%% Error on set password");
 		printf("\n%% Settings could not be applied\n\n");
 	}
 #ifdef DEBUG_M3G
 	else
-		printf("\nPassword stored\n\n");
+	printf("\nPassword stored\n\n");
 #endif
 	password = NULL;
 	librouter_destroy_args(args);
@@ -858,13 +897,13 @@ void interface_modem3g_set_username(const char *cmdline)
 
 	check = librouter_modem3g_set_username(username, interface_major);
 
-	if (check < 0){
+	if (check < 0) {
 		printf("\n%% Error on set username");
 		printf("\n%% Settings could not be applied\n\n");
 	}
 #ifdef DEBUG_M3G
 	else
-		printf("\nUsername stored\n\n");
+	printf("\nUsername stored\n\n");
 #endif
 	username = NULL;
 	librouter_destroy_args(args);
@@ -872,99 +911,99 @@ void interface_modem3g_set_username(const char *cmdline)
 
 void backup_interface_shutdown(const char *cmdline)
 {
- 	char * interface = malloc(16);
- 	int check = -1;
+	char * interface = malloc(16);
+	int check = -1;
 
- 	snprintf(interface,16,"%s%d", interface_edited->linux_string,interface_major);
-
- 	check = librouter_ppp_backupd_set_param_infile(interface,SHUTD_STR,"yes");
- 	if (check < 0){
- 		printf("\n%% Error on set backup interface shutdown");
-		printf("\n%% Settings could not be applied\n\n");
- 		goto end;
- 	}
-
- 	check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"no");
- 	if (check < 0){
- 		printf("\n%% Error on set backup interface shutdown");
-		printf("\n%% Settings could not be applied\n\n");
- 		goto end;
- 	}
-
- 	check = librouter_ppp_backupd_set_param_infile(interface,MAIN_INTF_STR,"");
- 	if (check < 0){
- 		printf("\n%% Error on set backup interface shutdown");
-		printf("\n%% Settings could not be applied\n\n");
- 		goto end;
- 	}
-
-   	check = librouter_ppp_reload_backupd();
- 	if (check < 0){
- 		printf("\n%% Error on set backup interface shutdown - (reload configs)\n");
-		printf("\n%% Settings could not be applied\n\n");
- 		goto end;
- 	}
-
-end:
-	free (interface);
-}
-
-void backup_interface(const char *cmdline)
-{
- 	arglist * args;
- 	char * main_interface = malloc(16);
- 	char * interface = malloc(16);
- 	char * intf_return = malloc(16);
- 	int check = -1;
-
- 	args = librouter_make_args(cmdline);
-
-	snprintf(main_interface, 16, "%s%s", args->argv[1], args->argv[2]);
 	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
- 	if (librouter_dev_exists(interface)){
-		printf("\n%% Error on set backup interface");
-		printf("\n%% It is necessary to shutdown %s%d interface first", interface_edited->cish_string,interface_major);
+	check = librouter_ppp_backupd_set_param_infile(interface, SHUTD_STR, "yes");
+	if (check < 0) {
+		printf("\n%% Error on set backup interface shutdown");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
- 	if ( !librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR,main_interface, intf_return) ){
- 		check = librouter_ppp_backupd_set_param_infile(interface,BCKUP_STR,"yes");
- 		if (check < 0){
- 			printf("\n%% Error on set backup interface");
-			printf("\n%% Settings could not be applied\n\n");
- 			goto end;
- 		}
- 		check = librouter_ppp_backupd_set_param_infile(interface,MAIN_INTF_STR,main_interface);
- 		if (check < 0){
- 			printf("\n%% Error on set backup interface");
-			printf("\n%% Settings could not be applied\n\n");
- 			goto end;
- 		}
- 		check = librouter_ppp_reload_backupd();
- 		if (check < 0){
- 			printf("\n%% Error on set backup interface - (reload configs.)");
-			printf("\n%% Settings could not be applied\n\n");
- 			goto end;
- 		}
- 	}
- 	else{
- 		printf("\n%% The interface is already with a backup connection by %s", librouter_device_from_linux_cmdline(intf_return));
- 		printf("\n%% Settings could not be applied\n\n");
- 	}
+	check = librouter_ppp_backupd_set_param_infile(interface, BCKUP_STR, "no");
+	if (check < 0) {
+		printf("\n%% Error on set backup interface shutdown");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
 
-end:
-  	free (intf_return);
-	free (main_interface);
- 	free (interface);
- 	intf_return=NULL;
- 	main_interface=NULL;
- 	interface=NULL;
+	check = librouter_ppp_backupd_set_param_infile(interface, MAIN_INTF_STR, "");
+	if (check < 0) {
+		printf("\n%% Error on set backup interface shutdown");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+
+	check = librouter_ppp_reload_backupd();
+	if (check < 0) {
+		printf("\n%% Error on set backup interface shutdown - (reload configs)\n");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+
+	end: free(interface);
+}
+
+void backup_interface(const char *cmdline)
+{
+	arglist * args;
+	char * main_interface = malloc(16);
+	char * interface = malloc(16);
+	char * intf_return = malloc(16);
+	int check = -1;
+
+	args = librouter_make_args(cmdline);
+
+	snprintf(main_interface, 16, "%s%s", args->argv[1], args->argv[2]);
+	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
+
+	if (librouter_dev_exists(interface)) {
+		printf("\n%% Error on set backup interface");
+		printf("\n%% It is necessary to shutdown %s%d interface first",
+		                interface_edited->cish_string, interface_major);
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+
+	if (!librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR, main_interface, intf_return)) {
+		check = librouter_ppp_backupd_set_param_infile(interface, BCKUP_STR, "yes");
+		if (check < 0) {
+			printf("\n%% Error on set backup interface");
+			printf("\n%% Settings could not be applied\n\n");
+			goto end;
+		}
+		check = librouter_ppp_backupd_set_param_infile(interface, MAIN_INTF_STR,
+		                main_interface);
+		if (check < 0) {
+			printf("\n%% Error on set backup interface");
+			printf("\n%% Settings could not be applied\n\n");
+			goto end;
+		}
+		check = librouter_ppp_reload_backupd();
+		if (check < 0) {
+			printf("\n%% Error on set backup interface - (reload configs.)");
+			printf("\n%% Settings could not be applied\n\n");
+			goto end;
+		}
+	} else {
+		printf("\n%% The interface is already with a backup connection by %s",
+		                librouter_device_from_linux_cmdline(intf_return));
+		printf("\n%% Settings could not be applied\n\n");
+	}
+
+	end: free(intf_return);
+	free(main_interface);
+	free(interface);
+	intf_return = NULL;
+	main_interface = NULL;
+	interface = NULL;
 	librouter_destroy_args(args);
 }
 
-void backup_method_set_ping (const char *cmdline)
+void backup_method_set_ping(const char *cmdline)
 {
 	arglist * args;
 	char * interface = malloc(16);
@@ -973,81 +1012,76 @@ void backup_method_set_ping (const char *cmdline)
 	args = librouter_make_args(cmdline);
 	ping = args->argv[2];
 
- 	snprintf(interface,16,"%s%d", interface_edited->linux_string,interface_major);
+	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
-	if ( !librouter_ppp_backupd_verif_param_byintf_infile(interface, BCKUP_STR, "yes") ){
+	if (!librouter_ppp_backupd_verif_param_byintf_infile(interface, BCKUP_STR, "yes")) {
 
-		check = librouter_ppp_backupd_set_param_infile(interface,METHOD_STR,"ping");
-		if (check < 0){
+		check = librouter_ppp_backupd_set_param_infile(interface, METHOD_STR, "ping");
+		if (check < 0) {
 			printf("\n%% Error on set backup method - ping");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
-		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,ping);
-		if (check < 0){
+		check = librouter_ppp_backupd_set_param_infile(interface, PING_ADDR_STR, ping);
+		if (check < 0) {
 			printf("\n%% Error on set backup method - ping");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 		check = librouter_ppp_reload_backupd();
-		if (check < 0){
+		if (check < 0) {
 			printf("\n%% Error on set backup method - ping - (reload configs.)");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
-	}
-	else{
+	} else {
 		printf("\n%% The interface is already backing up");
 		printf("\n%% It is necessary to shutdown backup first");
 		printf("\n%% Settings could not be applied\n\n");
 	}
 
-end:
-	ping=NULL;
+	end: ping = NULL;
 	free(interface);
-	interface=NULL;
+	interface = NULL;
 	librouter_destroy_args(args);
 }
 
-void backup_method_set_link (const char *cmdline)
+void backup_method_set_link(const char *cmdline)
 {
 	int check = -1;
 	char * interface = malloc(16);
 
-	snprintf(interface,16,"%s%d", interface_edited->linux_string,interface_major);
+	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
-	if ( !librouter_ppp_backupd_verif_param_byintf_infile(interface,BCKUP_STR, "yes") ){
+	if (!librouter_ppp_backupd_verif_param_byintf_infile(interface, BCKUP_STR, "yes")) {
 
-		check = librouter_ppp_backupd_set_param_infile(interface,METHOD_STR,"link");
-		if (check < 0){
+		check = librouter_ppp_backupd_set_param_infile(interface, METHOD_STR, "link");
+		if (check < 0) {
 			printf("\n%% Error on set backup method - link");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
-		check = librouter_ppp_backupd_set_param_infile(interface,PING_ADDR_STR,"");
-		if (check < 0){
+		check = librouter_ppp_backupd_set_param_infile(interface, PING_ADDR_STR, "");
+		if (check < 0) {
 			printf("\n%% Error on set backup method - link");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 		check = librouter_ppp_reload_backupd();
-		if (check < 0){
+		if (check < 0) {
 			printf("\n%% Error on set backup method - link - (reload configs.)");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
-	}
-	else{
+	} else {
 		printf("\n%% The interface is already backing up");
 		printf("\n%% It is necessary to shutdown backup first");
 		printf("\n%% Settings could not be applied\n\n");
 	}
 
-end:
-	free(interface);
-	interface=NULL;
+	end: free(interface);
+	interface = NULL;
 }
-
 
 void interface_modem3g_sim_card_select(const char *cmdline)
 {
@@ -1058,30 +1092,31 @@ void interface_modem3g_sim_card_select(const char *cmdline)
 	args = librouter_make_args(cmdline);
 	main_sim = atoi(args->argv[1]);
 
-	snprintf(interface,16,"%s%d", interface_edited->linux_string,interface_major);
+	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
-	if (librouter_dev_exists(interface)){
+	if (librouter_dev_exists(interface)) {
 		printf("\n%% Error on set SIM card order");
-		printf("\n%% It is necessary to shutdown %s%d interface first", interface_edited->cish_string, interface_major);
+		printf("\n%% It is necessary to shutdown %s%d interface first",
+		                interface_edited->cish_string, interface_major);
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
-	if (args->argc >= 3){
-		if (main_sim == atoi(args->argv[2])){
-			printf("\n%% Wrong input - same SIM card for <MAIN> interface and <BACKUP> interface");
+	if (args->argc >= 3) {
+		if (main_sim == atoi(args->argv[2])) {
+			printf(
+			                "\n%% Wrong input - same SIM card for <MAIN> interface and <BACKUP> interface");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
 
-		if (librouter_modem3g_sim_order_set_enable(1) < 0){
+		if (librouter_modem3g_sim_order_set_enable(1) < 0) {
 			printf("\n%% Error on set SIM card order - enable backup sim");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
-	}
-	else{
-		if (librouter_modem3g_sim_order_set_enable(0) < 0){
+	} else {
+		if (librouter_modem3g_sim_order_set_enable(0) < 0) {
 			printf("\n%% Error on set SIM card order - disable backup sim");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
@@ -1090,25 +1125,25 @@ void interface_modem3g_sim_card_select(const char *cmdline)
 
 	sim->sim_num = main_sim;
 
-	if(librouter_modem3g_sim_order_set_mainsim(sim->sim_num) < 0){
+	if (librouter_modem3g_sim_order_set_mainsim(sim->sim_num) < 0) {
 		printf("\n%% Error on set SIM card order");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
-	if(librouter_modem3g_sim_get_info_fromfile(sim) < 0){
+	if (librouter_modem3g_sim_get_info_fromfile(sim) < 0) {
 		printf("\n%% Error on set SIM card order - retrieving information");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
-	if(!strcmp(sim->apn,"")){
+	if (!strcmp(sim->apn, "")) {
 		printf("\n%% Missing APN address");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
-	if(librouter_modem3g_set_all_info_inchat(sim,interface_major) <0){
+	if (librouter_modem3g_set_all_info_inchat(sim, interface_major) < 0) {
 		printf("\n%% Error on set configuration");
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
@@ -1118,12 +1153,10 @@ void interface_modem3g_sim_card_select(const char *cmdline)
 	 * no backupd quando o modulo vai ser conectado
 	 */
 
-
-end:
-	free(interface);
-	interface=NULL;
+	end: free(interface);
+	interface = NULL;
 	free(sim);
-	sim=NULL;
+	sim = NULL;
 	librouter_destroy_args(args);
 }
 
@@ -1141,22 +1174,44 @@ void interface_modem3g_btin_set_info(const char *cmdline)
 	field = args->argv[2];
 	value = args->argv[4];
 
-
 	check = librouter_modem3g_sim_set_info_infile(sim, field, value);
 
-	if (check < 0){
-		printf("\n%% Error on set %s",field);
+	if (check < 0) {
+		printf("\n%% Error on set %s", field);
 		printf("\n%% Settings could not be applied\n\n");
 	}
 #ifdef DEBUG_M3G
 	else
-		printf("\n%s stored\n\n",field);
+	printf("\n%s stored\n\n",field);
 #endif
 
 	value = NULL;
 	field = NULL;
 	librouter_destroy_args(args);
 }
+#endif /* OPTION_MODEM3G */
 
+#ifdef OPTION_EFM
+void interface_efm_set_mode(const char *cmdline)
+{
+	arglist *args;
+	int mode;
 
-#endif
+	args = librouter_make_args(cmdline);
+
+	if (args->argc != 2) {
+		printf("%% Wrong number of arguments\n");
+		return;
+	}
+
+	if (!strcmp(args->argv[1], "cpe"))
+		mode = 1;
+	else
+		mode = 0;
+
+	if (librouter_efm_set_mode(mode)) {
+		printf("%% Could not set DSP mode\n");
+	}
+}
+
+#endif /* OPTION_EFM */
