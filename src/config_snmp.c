@@ -8,162 +8,6 @@
 #include "commands.h"
 #include "pprintf.h"
 
-cish_command CMD_CONFIG_SNMP_TEXT[] = { { "<text>", "", CMD_CONFIG_SNMP_TEXT,
-                snmp_text, 1, MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_COM_2[] = { { "rw",
-                "Read-write access with this community string", NULL,
-                snmp_community, 1, MSK_NORMAL }, { "ro",
-                "Read-only access with this community string", NULL,
-                snmp_community, 1, MSK_NORMAL }, { "<enter>", "", NULL, NULL,
-                1, MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_COM[] = { { "<text>", "SNMP Community string",
-                CMD_CONFIG_SNMP_COM_2, snmp_community, 1, MSK_NORMAL }, { NULL,
-                NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_TRAPSINK_COMMUNITY[] = {
-                { "<text>", "Traps manager community", NULL, snmp_trapsink, 1,
-                                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_TRAPSINK[] = { { "<ipaddress>",
-                "Traps destination host", CMD_CONFIG_SNMP_TRAPSINK_COMMUNITY,
-                NULL, 1, MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_USER_SECLEVEL_PRIVPROTO_TYPE[] = { { "des",
-                "DES privacy", NULL, snmp_user, 1, MSK_NORMAL }, { "aes",
-                "AES privacy", NULL, snmp_user, 1, MSK_NORMAL }, { NULL, NULL,
-                NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_USER_SECLEVEL_PRIVPROTO[] = { { "privproto",
-                "Privacy protocol",
-                CMD_CONFIG_SNMP_USER_SECLEVEL_PRIVPROTO_TYPE, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_USER_SECLEVEL_AUTHPROTO_TYPE[] = {
-{ "md5", "MD5 authentication", CMD_CONFIG_SNMP_USER_SECLEVEL_PRIVPROTO, NULL,
-                1, MSK_NORMAL }, { "sha", "SHA authentication",
-                CMD_CONFIG_SNMP_USER_SECLEVEL_PRIVPROTO, NULL, 1, MSK_NORMAL },
-                { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_USER_SECLEVEL_AUTHPROTO[] = { { "authproto",
-                "Authentication protocol",
-                CMD_CONFIG_SNMP_USER_SECLEVEL_AUTHPROTO_TYPE, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_USER_SECLEVEL_AUTHPROTO_1_TYPE[] = {
-{ "md5", "MD5 authentication", NULL, snmp_user, 1, MSK_NORMAL }, { "sha",
-                "SHA authentication", NULL, snmp_user, 1, MSK_NORMAL },
-                { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_USER_SECLEVEL_AUTHPROTO_1[] = { { "authproto",
-                "Authentication protocol",
-                CMD_CONFIG_SNMP_USER_SECLEVEL_AUTHPROTO_1_TYPE, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command
-                CMD_CONFIG_SNMP_USER_SECLEVEL[] = { { "noauthnopriv",
-                                "No authentication and no privacy", NULL,
-                                snmp_user, 1, MSK_NORMAL }, { "authnopriv",
-                                "Authentication without privacy",
-                                CMD_CONFIG_SNMP_USER_SECLEVEL_AUTHPROTO_1,
-                                NULL, 1, MSK_NORMAL }, { "authpriv",
-                                "Authentication with privacy",
-                                CMD_CONFIG_SNMP_USER_SECLEVEL_AUTHPROTO, NULL,
-                                1, MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_USER_RW[] = { { "rw",
-                "Read-write access with this user",
-                CMD_CONFIG_SNMP_USER_SECLEVEL, NULL, 1, MSK_NORMAL }, { "ro",
-                "Read-only access with this user",
-                CMD_CONFIG_SNMP_USER_SECLEVEL, NULL, 1, MSK_NORMAL }, { NULL,
-                NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_USER[] = { { "<text>", "User name",
-                CMD_CONFIG_SNMP_USER_RW, NULL, 1, MSK_NORMAL }, { NULL, NULL,
-                NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_VERSION_2_1[] = { { "1", "Enable SNMP v1", NULL,
-                snmp_version, 1, MSK_NORMAL }, { "<enter>", "", NULL, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_VERSION_1_2[] = { { "2", "Enable SNMP v2c", NULL,
-                snmp_version, 1, MSK_NORMAL }, { "<enter>", "", NULL, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_VERSION_1_3[] = { { "3", "Enable SNMP v3", NULL,
-                snmp_version, 1, MSK_NORMAL }, { "<enter>", "", NULL, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_VERSION_1[] = { { "2", "Enable SNMP v2c",
-                CMD_CONFIG_SNMP_VERSION_1_3, snmp_version, 1, MSK_NORMAL }, {
-                "3", "Enable SNMP v3", CMD_CONFIG_SNMP_VERSION_1_2,
-                snmp_version, 1, MSK_NORMAL }, { "<enter>", "", NULL, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_VERSION_2[] = { { "1", "Enable SNMP v1",
-                CMD_CONFIG_SNMP_VERSION_1_3, snmp_version, 1, MSK_NORMAL }, {
-                "3", "Enable SNMP v3", CMD_CONFIG_SNMP_VERSION_2_1,
-                snmp_version, 1, MSK_NORMAL }, { "<enter>", "", NULL, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_VERSION_3[] = { { "1", "Enable SNMP v1",
-                CMD_CONFIG_SNMP_VERSION_1_2, snmp_version, 1, MSK_NORMAL }, {
-                "2", "Enable SNMP v2c", CMD_CONFIG_SNMP_VERSION_2_1,
-                snmp_version, 1, MSK_NORMAL }, { "<enter>", "", NULL, NULL, 1,
-                MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP_VERSION[] = { { "1", "Enable SNMP v1",
-                CMD_CONFIG_SNMP_VERSION_1, snmp_version, 1, MSK_NORMAL }, {
-                "2", "Enable SNMP v2c", CMD_CONFIG_SNMP_VERSION_2,
-                snmp_version, 1, MSK_NORMAL }, { "3", "Enable SNMP v3",
-                CMD_CONFIG_SNMP_VERSION_3, snmp_version, 1, MSK_NORMAL }, {
-                NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_SNMP[] = { { "community", "Set community string",
-                CMD_CONFIG_SNMP_COM, NULL, 1, MSK_NORMAL }, { "contact",
-                "Set system contact information", CMD_CONFIG_SNMP_TEXT,
-                snmp_text, 1, MSK_NORMAL }, { "location",
-                "Set system location information", CMD_CONFIG_SNMP_TEXT,
-                snmp_text, 1, MSK_NORMAL }, { "trapsink",
-                "Set trapsink addresses", CMD_CONFIG_SNMP_TRAPSINK, NULL, 1,
-                MSK_NORMAL }, { "user", "SNMP v3 users management",
-                CMD_CONFIG_SNMP_USER, NULL, 1, MSK_NORMAL }, { "version",
-                "Enable SNMP; SNMP protocol versions enable",
-                CMD_CONFIG_SNMP_VERSION, NULL, 1, MSK_NORMAL }, { NULL, NULL,
-                NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_NO_SNMP_COM_2[] = { { "rw",
-                "Read-write access with this community string", NULL,
-                snmp_no_community, 1, MSK_NORMAL }, { "ro",
-                "Read-only access with this community string", NULL,
-                snmp_no_community, 1, MSK_NORMAL }, { "<enter>", "", NULL,
-                NULL, 1, MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_NO_SNMP_COM[] = { { "<text>", "SNMP Community string",
-                CMD_CONFIG_NO_SNMP_COM_2, snmp_no_community, 1, MSK_NORMAL }, {
-                NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_NO_SNMP_TRAPSINK[] = {
-                { "<ipaddress>", "Traps destination host", NULL,
-                                snmp_no_trapsink, 1, MSK_NORMAL }, { NULL,
-                                NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_NO_SNMP_USER[] = { { "<text>", "User name", NULL,
-                snmp_user, 1, MSK_NORMAL }, { "<enter>",
-                "Remove all SNMP v3 users", NULL, NULL, 1, MSK_NORMAL }, {
-                NULL, NULL, NULL, NULL, 0 } };
-
-cish_command CMD_CONFIG_NO_SNMP[] = { { "community", "Remove a community",
-                CMD_CONFIG_NO_SNMP_COM, NULL, 1, MSK_NORMAL }, { "contact",
-                "Unset system contact information", NULL, snmp_text, 1,
-                MSK_NORMAL }, { "location",
-                "Unset system location information", NULL, snmp_text, 1,
-                MSK_NORMAL }, { "trapsink", "Remove trapsink addresses",
-                CMD_CONFIG_NO_SNMP_TRAPSINK, NULL, 1, MSK_NORMAL }, { "user",
-                "Remove SNMP v3 user", CMD_CONFIG_NO_SNMP_USER, snmp_user, 1,
-                MSK_NORMAL }, { "<enter>", "Disable SNMP server", NULL, NULL,
-                1, MSK_NORMAL }, { NULL, NULL, NULL, NULL, 0 } };
 
 void snmp_community(const char *cmd)
 {
@@ -291,8 +135,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			if ((n = librouter_snmp_list_users(&list)) > 0) {
 				for (i = (n - 1); i >= 0; i--) {
 					if (list[i] != NULL) {
-						if (librouter_snmp_remove_user(list[i])
-						                < 0)
+						if (librouter_snmp_remove_user(list[i]) < 0)
 							printf(
 							                "%% Not possible to remove user '%s'\n",
 							                list[i]);
@@ -306,8 +149,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 
 		case 4:
 			if (librouter_snmp_remove_user(args->argv[3]) < 0)
-				printf("%% Not possible to remove user '%s'\n",
-				                args->argv[3]);
+				printf("%% Not possible to remove user '%s'\n", args->argv[3]);
 			break;
 		}
 		break;
@@ -315,10 +157,8 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 	default: /* Adicao de usuario */
 		switch (args->argc) {
 		case 5:
-			if (librouter_snmp_add_user(args->argv[2], ((strcmp(
-			                args->argv[3], "rw") == 0) ? 1 : 0),
-			                args->argv[4], NULL, NULL, NULL, NULL)
-			                < 0)
+			if (librouter_snmp_add_user(args->argv[2], ((strcmp(args->argv[3], "rw")
+			                == 0) ? 1 : 0), args->argv[4], NULL, NULL, NULL, NULL) < 0)
 				printf("%% Not possible to add user\n");
 			break;
 
@@ -329,8 +169,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			librouter_str_read_password(1, authpasswd, 31);
 			printf("\n");
 			if (strlen(authpasswd) < 8) {
-				printf(
-				                "%% Password too short. (minimum 8 characters)!\n");
+				printf("%% Password too short. (minimum 8 characters)!\n");
 				librouter_destroy_args(args);
 				return;
 			}
@@ -343,9 +182,8 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 				librouter_destroy_args(args);
 				return;
 			}
-			if (librouter_snmp_add_user(args->argv[2], ((strcmp(
-			                args->argv[3], "rw") == 0) ? 1 : 0),
-			                args->argv[4], args->argv[6], NULL,
+			if (librouter_snmp_add_user(args->argv[2], ((strcmp(args->argv[3], "rw")
+			                == 0) ? 1 : 0), args->argv[4], args->argv[6], NULL,
 			                authpasswd, NULL) < 0)
 				printf("%% Not possible to add user\n");
 			break;
@@ -358,8 +196,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			librouter_str_read_password(1, authpasswd, 31);
 			printf("\n");
 			if (strlen(authpasswd) < 8) {
-				printf(
-				                "%% Password too short. (minimum 8 characters)!\n");
+				printf("%% Password too short. (minimum 8 characters)!\n");
 				librouter_destroy_args(args);
 				return;
 			}
@@ -378,8 +215,7 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 			librouter_str_read_password(1, privpasswd, 31);
 			printf("\n");
 			if (strlen(privpasswd) < 8) {
-				printf(
-				                "%% Password too short. (minimum 8 characters)!\n");
+				printf("%% Password too short. (minimum 8 characters)!\n");
 				librouter_destroy_args(args);
 				return;
 			}
@@ -392,11 +228,9 @@ void snmp_user(const char *cmd) /* [no] snmp-server user <username> <rw | ro> <a
 				librouter_destroy_args(args);
 				return;
 			}
-			if (librouter_snmp_add_user(args->argv[2], ((strcmp(
-			                args->argv[3], "rw") == 0) ? 1 : 0),
-			                args->argv[4], args->argv[6],
-			                args->argv[8], authpasswd, privpasswd)
-			                < 0)
+			if (librouter_snmp_add_user(args->argv[2], ((strcmp(args->argv[3], "rw")
+			                == 0) ? 1 : 0), args->argv[4], args->argv[6],
+			                args->argv[8], authpasswd, privpasswd) < 0)
 				printf("%% Not possible to add user\n");
 			break;
 
@@ -423,38 +257,22 @@ void show_snmp_users(const char *cmd) /* show snmp users */
 				if ((n = librouter_parse_args_din(buf, &argl)) >= 2) {
 					if (strcmp(argl[0], "createUser") == 0) {
 						if (first == 0) {
-							printf(
-							                "SNMP v3 users:\n");
+							printf("SNMP v3 users:\n");
 							first = 1;
 						}
 						argl[n - 1][0] = ' ';
-						printf("   '%s'%s", argl[1],
-						                argl[n - 1]);
+						printf("   '%s'%s", argl[1], argl[n - 1]);
 						if (n >= 4) {
-							if (strcasecmp(argl[2],
-							                "md5")
-							                == 0)
-								printf(
-								                " Auth MD5");
-							else if (strcasecmp(
-							                argl[2],
-							                "sha")
-							                == 0)
-								printf(
-								                " Auth SHA");
+							if (strcasecmp(argl[2], "md5") == 0)
+								printf(" Auth MD5");
+							else if (strcasecmp(argl[2], "sha") == 0)
+								printf(" Auth SHA");
 						}
 						if (n >= 6) {
-							if (strcasecmp(argl[4],
-							                "DES")
-							                == 0)
-								printf(
-								                " Privacy DES");
-							else if (strcasecmp(
-							                argl[4],
-							                "AES")
-							                == 0)
-								printf(
-								                " Privacy AES");
+							if (strcasecmp(argl[4], "DES") == 0)
+								printf(" Privacy DES");
+							else if (strcasecmp(argl[4], "AES") == 0)
+								printf(" Privacy AES");
 						}
 						printf("\n");
 					}
@@ -468,6 +286,7 @@ void show_snmp_users(const char *cmd) /* show snmp users */
 	}
 }
 
+#ifdef OPTION_SNMP_VERSION_SELECT
 void snmp_version(const char *cmd)
 {
 	int i;
@@ -494,4 +313,18 @@ void snmp_version(const char *cmd)
 	/* De qualquer forma colocamos o agente SNMP em execucao */
 	librouter_snmp_start();
 }
+#endif /* OPTION_SNMP_VERSION_SELECT */
 
+void snmp_enable(const char *cmd)
+{
+	arglist *args;
+
+	args = librouter_make_args(cmd);
+
+	if (!strcmp(args->argv[0],"no"))
+		librouter_snmp_stop();
+	else
+		librouter_snmp_start();
+
+	librouter_destroy_args(args);
+}

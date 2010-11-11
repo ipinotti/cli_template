@@ -18,5 +18,5 @@ libcmds_la_SOURCES = \
 	rmon.c \
 	root.c \
 	router.c \
-	show.c
-	
+	show.c \
+	snmp.c

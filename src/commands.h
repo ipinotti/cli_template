@@ -408,6 +408,7 @@ void ntp_sync(const char *);
 void no_ntp_sync(const char *);
 
 void dump_snmp(FILE *, int);
+void snmp_enable(const char *);
 void snmp_community(const char *);
 void snmp_text(const char *);
 void snmp_no_community(const char *);
