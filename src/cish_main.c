@@ -209,6 +209,7 @@ int main(int argc, char *argv[])
 
 			librouter_nv_load_ssh_secret(SSH_KEY_FILE);
 			librouter_nv_load_ntp_secret(NTP_KEY_FILE);
+			librouter_snmp_load_prepare_users();
 
 			size = librouter_nv_load_configuration(STARTUP_CFG_FILE);
 
