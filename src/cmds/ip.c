@@ -196,7 +196,7 @@ cish_command CMD_IP_HTTPS[] = {
 #endif
 
 cish_command CMD_IP_SSH_KEY_RSA[] = {
-	{"512-2048", "Length in bits (multiple of 8)", NULL, ssh_generate_rsa_key, 1, MSK_NORMAL},
+	{"768-2048", "Length in bits (multiple of 8)", NULL, ssh_generate_rsa_key, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

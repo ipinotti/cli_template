@@ -650,7 +650,7 @@ void no_ssh_server(const char *cmd)
 #endif
 }
 
-void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 512-2048 */
+void ssh_generate_rsa_key(const char *cmd) /* ip ssh key rsa 768-2048 */
 {
 	arglist *args;
 
