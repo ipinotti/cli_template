@@ -175,4 +175,9 @@ extern cish_command CMD_FIRMWARE[];
 /* NTP */
 extern cish_command CMD_NO_NTP[];
 
+/* Bridge */
+extern cish_command CMD_SHOW_BRIDGE[];
+extern cish_command CMD_CONFIG_BRIDGE[];
+extern cish_command CMD_CONFIG_NO_BRIDGE[];
+
 #endif /* _COMMANDTREE_H */

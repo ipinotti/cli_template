@@ -490,12 +490,6 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-
-
-
-
-
-
 cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_APN_SET[] = {
 	{"<text>", "APN(address of ISP)", NULL, interface_modem3g_btin_set_info, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -568,11 +562,18 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
 
 #endif
 
+/***********************/
+/* Ethernet Interfaces */
+/***********************/
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_BRIDGE[] = {
+	{"1-1", "Assign an interface to a Bridge Group", NULL, interface_ethernet_no_bridgegroup, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
-
-
-
-// interface ethernet
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE[] = {
+	{"1-1", "Assign an interface to a Bridge Group", NULL, interface_ethernet_bridgegroup, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP3[] = {
 	{"secondary", "Make this IP address a secondary address", NULL, interface_ethernet_ipaddr_secondary, 1, MSK_NORMAL},
@@ -626,6 +627,9 @@ cish_command CMD_CONFIG_INTERFACE_NO_SNMPTRAP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[] = {
+#ifdef OPTION_BRIDGE
+	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
@@ -680,6 +684,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SPEED[] = {
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
+#ifdef OPTION_BRIDGE
+	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
@@ -835,6 +842,9 @@ cish_command CMD_CONFIG_VLAN_NO_COS[] = {
 #endif /* CONFIG_VLAN_COS */
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[] = {
+#ifdef OPTION_BRIDGE
+	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP, NULL, 1, MSK_NORMAL},
 #ifdef CONFIG_VLAN_COS
@@ -850,6 +860,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[] = {
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[] = {
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_BRIDGE
+	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Interface IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP, NULL, 1, MSK_NORMAL},

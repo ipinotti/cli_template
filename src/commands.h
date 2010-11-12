@@ -8,6 +8,7 @@
 #include <librouter/options.h>
 #include <librouter/acl.h>
 #include <librouter/args.h>
+#include <librouter/bridge.h>
 #include <librouter/config_mapper.h>
 #include <librouter/config_fetcher.h>
 #include <librouter/device.h>
@@ -561,10 +562,6 @@ void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
 void config_interface_done(const char *);
-
-
-
-
 
 void do_bandwidth(const char *);
 void do_max_reserved_bw(const char *);

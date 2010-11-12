@@ -5,6 +5,7 @@ noinst_LTLIBRARIES = libcmds.la
 libcmds_la_SOURCES = \
 	aaa.c \
 	acl.c \
+	bridge.c \
 	configure.c \
 	crypto.c \
 	debug.c \
