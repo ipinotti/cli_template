@@ -127,6 +127,9 @@ cish_command CMD_CONFIG_NO[] = {
 	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_NO_AAA, NULL, 1, MSK_NORMAL},
 	{"access-list","Remove access-list", CMD_NO_ACL, NULL, 1, MSK_NORMAL},
 	{"arp", "Unset a static ARP entry", CMD_NO_ARP_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_BRIDGE
+	{"bridge", "Bridging Group", CMD_CONFIG_NO_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
 	{"chatscript", "Reset a chatscript", CMD_CONFIG_NO_CHATSCRIPT, NULL, 1, MSK_NORMAL},
 	{"interface","Interface Configuration", CMD_CONFIG_NO_INTERFACE, NULL, 1, MSK_NORMAL},
 	{"ip","IPv4 Configuration", CMD_NO_IP, NULL, 1, MSK_NORMAL},
@@ -308,6 +311,9 @@ cish_command CMD_CONFIGURE[] = {
 	{"access-list","Set an ACL", CMD_CONFACL1, NULL, 1, MSK_NORMAL},
 	{"access-policy", "Set default access policy", CMD_CONFACLPOL, NULL, 1, MSK_NORMAL},
 	{"arp", "Set a static ARP entry", CMD_ARP_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_BRIDGE
+	{"bridge", "Bridging Group", CMD_CONFIG_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
 	{"chatscript", "Set a chatscript line", CMD_CONFIG_CHATSCRIPT, NULL, 1, MSK_NORMAL},
 	{"clock","Manage the system clock", CMD_CONFIGURE_CLOCK, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_IPSEC

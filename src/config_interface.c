@@ -119,7 +119,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			break;
 #endif
 #ifdef OPTION_EFM
-		case efm:
+			case efm:
 			command_root = CMD_CONFIG_INTERFACE_EFM;
 			break;
 #endif
@@ -400,6 +400,83 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 	if (librouter_exec_check_daemon(daemon_dhcpc))
 		librouter_kill_daemon(daemon_dhcpc);
 	librouter_ip_ethernet_set_no_addr(dev);
+	free(dev);
+}
+
+void interface_ethernet_bridgegroup(const char *cmdline)
+{
+	arglist *args;
+	char brname[32], addr[32], mask[32];
+	char *dev;
+
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+
+	/* Do we have a bridge interface already? */
+	strcpy(brname, BRIDGE_NAME);
+	strcat(brname, args->argv[1]);
+	if (!librouter_br_exists(brname)) {
+		printf("%% bridge group %s does not exist\n", args->argv[1]);
+		return;
+	}
+
+	/* Is this interface part of this bridge already? */
+	if (librouter_br_checkif(brname, dev)) {
+		printf("%% interface already assigned to bridge group %s\n", args->argv[1]);
+		goto bridgegroup_done;
+	}
+
+	/* Save ethernet IP address/mask */
+	librouter_ip_interface_get_ip_addr(dev, addr, mask);
+
+	/* Remove IP configuration from interface */
+	librouter_ip_interface_set_no_addr(dev); /* flush */
+
+	/* Add interface to bridge */
+	librouter_br_addif(brname, dev);
+#if 0
+	/* Set bridge IP address with the one from ethernet 0 */
+	set_interface_ip_addr(brname, addr, mask); /* bridge use ethernet ip address */
+#endif
+
+bridgegroup_done:
+	librouter_destroy_args(args);
+	free(dev);
+}
+
+void interface_ethernet_no_bridgegroup(const char *cmdline)
+{
+	arglist *args;
+	char brname[32], addr[32], mask[32];
+	char *dev;
+
+	args = librouter_make_args(cmdline);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+
+	/* Do we have a bridge interface? */
+	strcpy(brname, BRIDGE_NAME);
+	strcat(brname, args->argv[2]);
+	if (!librouter_br_exists(brname))
+		goto no_bridgegroup_done;
+
+	/* Is this interface part of this bridge? */
+	if (!librouter_br_checkif(brname, dev))
+		goto no_bridgegroup_done;
+
+	librouter_ip_interface_get_ip_addr(brname, addr, mask);
+
+	librouter_ip_interface_set_no_addr(brname); /* flush */
+
+	/* Remove interface from bridge */
+	librouter_br_delif(brname, dev);
+
+#if 0
+	// Restaura a configura IP da ethernet
+	set_interface_ip_addr(dev, addr, mask); /* Recover ip address from bridge */
+#endif
+
+no_bridgegroup_done:
+	librouter_destroy_args(args);
 	free(dev);
 }
 
@@ -1205,9 +1282,9 @@ void interface_efm_set_mode(const char *cmdline)
 	}
 
 	if (!strcmp(args->argv[1], "cpe"))
-		mode = 1;
+	mode = 1;
 	else
-		mode = 0;
+	mode = 0;
 
 	if (librouter_efm_set_mode(mode)) {
 		printf("%% Could not set DSP mode\n");
