@@ -145,7 +145,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP1[] = {
 
 #ifdef OPTION_PIMD
 cish_command CMD_CONFIG_INTERFACE_IP_PIM[] = {
+#ifdef OPTION_PIMD_DENSE
 	{"dense-mode", "Enable PIM dense-mode operation", NULL, pim_dense_mode, 1, MSK_NORMAL},
+#endif
 	{"sparse-mode", "Enable PIM sparse-mode operation", NULL, pim_sparse_mode, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
@@ -1065,7 +1067,9 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC[] = {
 #ifdef OPTION_MODEM3G
 	{"m3G", "Modem 3G interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_M3G, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_SERIAL
 	{"serial", "Serial interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_SERIAL, NULL, 1, MSK_NORMAL},
+#endif
 	{"tunnel", "Tunnel interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_TUNNEL, NULL, 1, MSK_NORMAL},
 	{"<ipaddress>", "Source IP address", NULL, tunnel_source, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}

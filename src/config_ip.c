@@ -729,7 +729,10 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 
 void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 {
-	int dense, sparse;
+#ifdef OPTION_PIMD_DENSE
+	int dense;
+#endif
+	int sparse;
 	char *dev;
 	arglist *args;
 
@@ -746,19 +749,24 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 			goto clean;
 		}
 #endif
+#ifdef OPTION_PIMD_DENSE
 		dense = librouter_pim_dense_phyint(0, dev);
 		if (dense < 2 && librouter_exec_check_daemon(PIMD_DAEMON))
 			librouter_kill_daemon(PIMD_DAEMON);
+#endif
+
 		sparse = librouter_pim_sparse_phyint(1, dev);
 	}
 
 	if (sparse < 2) {
 		if (librouter_exec_check_daemon(PIMS_DAEMON))
 			librouter_kill_daemon(PIMS_DAEMON);
-	} else {
+	}
+	else {
 		if (!librouter_exec_check_daemon(PIMS_DAEMON))
 			librouter_exec_daemon(PIMS_DAEMON);
 	}
+
 	clean: librouter_destroy_args(args);
 	free(dev);
 }

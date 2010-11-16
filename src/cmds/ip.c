@@ -94,7 +94,9 @@ cish_command CMD_IP_MROUTE8_SERIAL[] = {
 
 cish_command CMD_IP_MROUTE7[] = {
 	{"ethernet", "Ethernet interface", CMD_IP_MROUTE8_ETHERNET, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_SERIAL
 	{"serial", "Serial interface", CMD_IP_MROUTE8_SERIAL, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -115,7 +117,9 @@ cish_command CMD_IP_MROUTE5_SERIAL[] = {
 
 cish_command CMD_IP_MROUTE4[] = {
 	{"ethernet", "Ethernet interface", CMD_IP_MROUTE5_ETHERNET, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_SERIAL
 	{"serial", "Serial interface", CMD_IP_MROUTE5_SERIAL, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -504,7 +508,9 @@ cish_command CMD_IP_PIM_CAND_BSR_INTF[] = {
 #ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_IP_PIM_CAND_BSR_INTF_ETHERNET, NULL, 0, MSK_NORMAL},
 #endif
+#ifdef OPTION_SERIAL
 	{"serial", "Serial interface", CMD_IP_PIM_CAND_BSR_INTF_SERIAL, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -549,7 +555,9 @@ cish_command CMD_IP_PIM_CAND_RP_INTF[] = {
 #ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_IP_PIM_CAND_RP_INTF_ETHERNET, NULL, 0, MSK_NORMAL},
 #endif
+#ifdef OPTION_SERIAL
 	{"serial", "Serial interface", CMD_IP_PIM_CAND_RP_INTF_SERIAL, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
