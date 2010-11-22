@@ -1039,7 +1039,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_LOOPBACK[] = {
-	{"0-4", "Loopback interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
+	{"0-0", "Loopback interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 

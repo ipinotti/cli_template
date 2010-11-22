@@ -202,7 +202,7 @@ cish_command CMD_CLEAR_INTERFACE_ETHERNET_[] = {
 };
 
 cish_command CMD_CLEAR_INTERFACE_LOOPBACK_[] = {
-	{"0-4", "Loopback interface number", NULL, clear_counters, 0, MSK_NORMAL},
+	{"0-0", "Loopback interface number", NULL, clear_counters, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

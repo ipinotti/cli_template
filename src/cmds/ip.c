@@ -151,7 +151,7 @@ cish_command CMD_IP_ROUTE4_ETHERNET[] = {
 };
 
 cish_command CMD_IP_ROUTE4_LOOPBACK[] = {
-	{"0-4", "Loopback interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{"0-0", "Loopback interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -609,9 +609,11 @@ cish_command CMD_IP_TCP_KEEPALIVE_IDLE[] = {
 
 cish_command CMD_IP_TCP[] = {
 	{"ecn", "Enable Explicit Congestion Notification", NULL, ip_param, 1, MSK_NORMAL},
+#ifdef OPTION_KEEPALIVE
 	{"keepalive_intvl", "Keepalive probe interval time", CMD_IP_TCP_KEEPALIVE_INTVL, NULL, 1, MSK_NORMAL},
 	{"keepalive_probes", "Keepalive probe retries", CMD_IP_TCP_KEEPALIVE_PROBES, NULL, 1, MSK_NORMAL},
 	{"keepalive_time", "Keepalive idle timer", CMD_IP_TCP_KEEPALIVE_IDLE, NULL, 1, MSK_NORMAL},
+#endif
 	{"syncookies", "Enable syn cookies", NULL, ip_param, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };

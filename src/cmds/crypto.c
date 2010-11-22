@@ -181,7 +181,7 @@ cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_M3G[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_LOOPBACK[] = {
-	{"0-4", "Loopback interface number", NULL, l2tp_ppp_unnumbered, 1, MSK_NORMAL},
+	{"0-0", "Loopback interface number", NULL, l2tp_ppp_unnumbered, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

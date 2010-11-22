@@ -573,7 +573,7 @@ void show_ip_rip(const char *cmdline)
 {
 	FILE *f;
 	char buf[1024];
-
+#ifdef 0
 	f = librouter_quagga_rip_show_cmd("show ip protocols");
 	if (!f)
 		return;
@@ -585,6 +585,7 @@ void show_ip_rip(const char *cmdline)
 		}
 	}
 	fclose(f);
+#endif
 
 	f = librouter_quagga_rip_show_cmd(cmdline); /* show ip rip */
 	if (!f)

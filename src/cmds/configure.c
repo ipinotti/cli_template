@@ -16,7 +16,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_[] = {
-	{"0-4", "Loopback interface number", NULL, config_interface, 0, MSK_NORMAL},
+	{"0-0", "Loopback interface number", NULL, config_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
