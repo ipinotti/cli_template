@@ -444,11 +444,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB_APN[] = {
 };
 
 cish_command CMD_BACKUP_INTERFACE_ETHERNET[] = {
-#ifdef OPTION_NO_WAN
 	{"0-0", "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
-#else
-	{"0-1", "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
-#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1096,7 +1092,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_M3G[] = {
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC[] = {
 	{"aux", "Aux interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_AUX, NULL, 1, MSK_AUX},
-#ifndef OPTION_NO_WAN
+#ifdef OPTION_ETHERNET_WAN
 	{"ethernet", "Ethernet interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET, NULL, 1, MSK_NORMAL},
 #endif
 	{"loopback", "Loopback interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_LOOPBACK, NULL, 1, MSK_NORMAL},

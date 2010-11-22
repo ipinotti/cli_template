@@ -67,7 +67,7 @@ cish_command CMD_IPSEC_CONNECTION_INTERFACE_M3G[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_INTERFACE[] = {
-#ifdef OPTION_NO_WAN
+#ifdef OPTION_ETHERNET_WAN
 	{"m3G", "Modem 3G interface", CMD_IPSEC_CONNECTION_INTERFACE_M3G, NULL, 1, MSK_NORMAL},
 #else
 #ifndef OPTION_MODEM3G
@@ -450,7 +450,7 @@ cish_command CMD_CRYPTO_L2TP_POOL1[] = {
 };
 
 cish_command CMD_CRYPTO_L2TP_POOL_ETHERNET[] = {
-#ifdef OPTION_NO_WAN
+#ifdef OPTION_ETHERNET_WAN
 	{"1-1", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */
 #else
 	{"0-1", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */

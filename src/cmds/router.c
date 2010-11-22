@@ -73,9 +73,7 @@ cish_command CMD_ROUTER_RIP_INTERFACE_TUNNEL[] = {
 };
 
 cish_command CMD_ROUTER_RIP_NETWORK[] = {
-#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_ROUTER_RIP_INTERFACE_ETHERNET, NULL, 1, MSK_RIP},
-#endif
 	{"loopback", "Loopback interface", CMD_ROUTER_RIP_INTERFACE_LOOPBACK, NULL, 1, MSK_RIP},
 	{"tunnel", "Tunnel interface", CMD_ROUTER_RIP_INTERFACE_TUNNEL, NULL, 1, MSK_RIP},
 	{"<ipaddress>", "Network address", CMD_ROUTER_RIP_NETWORK_MASK, NULL, 1, MSK_RIP},
@@ -332,9 +330,7 @@ cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_TUNNEL[] = {
 };
 
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE[] = {
-#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET, NULL, 1, MSK_OSPF},
-#endif
 	{"loopback", "Loopback interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_LOOPBACK, NULL, 1, MSK_OSPF},
 	{"tunnel", "Tunnel interface", CMD_ROUTER_OSPF_PASSIVE_INTERFACE_TUNNEL, NULL, 1, MSK_OSPF},
 	{NULL, NULL, NULL, NULL}
@@ -1062,9 +1058,7 @@ cish_command CMD_SHOW_OSPF_INTERFACE_TUNNEL[] = {
 };
 
 cish_command CMD_SHOW_OSPF_INTERFACE[] = {
-#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_SHOW_OSPF_INTERFACE_ETHERNET, NULL, 1, MSK_OSPF},
-#endif
 	{"loopback", "Loopback interface", CMD_SHOW_OSPF_INTERFACE_LOOPBACK, NULL, 1, MSK_OSPF},
 	{"tunnel", "Tunnel interface", CMD_SHOW_OSPF_INTERFACE_TUNNEL, NULL, 1, MSK_OSPF},
 	{NULL,NULL,NULL,NULL,0}
@@ -1337,9 +1331,7 @@ cish_command CMD_BGP_INTERFACE_TUNNEL[] = {
 };
 
 cish_command CMD_ROUTER_BGP_NEIGHBOR_UPDATE_SOURCE[] = {
-#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_BGP_INTERFACE_ETHERNET, NULL, 1, MSK_BGP},
-#endif
 	{"loopback", "Loopback interface", CMD_BGP_INTERFACE_LOOPBACK, NULL, 1, MSK_BGP},
 	{"tunnel", "Tunnel interface", CMD_BGP_INTERFACE_TUNNEL, NULL, 1, MSK_BGP},
 	{NULL,NULL,NULL,NULL,0}

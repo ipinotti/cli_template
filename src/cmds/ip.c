@@ -161,9 +161,7 @@ cish_command CMD_IP_ROUTE4_TUNNEL[] = {
 };
 
 cish_command CMD_IP_ROUTE3[] = {
-#ifndef OPTION_NO_WAN
 	{"ethernet", "Ethernet interface", CMD_IP_ROUTE4_ETHERNET, NULL, 1, MSK_NORMAL},
-#endif
 	{"loopback", "Loopback interface", CMD_IP_ROUTE4_LOOPBACK, NULL, 1, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_IP_ROUTE4_TUNNEL, NULL, 1, MSK_NORMAL},
 	{"<ipaddress>", "Forwarding router's address", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
@@ -505,7 +503,7 @@ cish_command CMD_IP_PIM_CAND_BSR_INTF_SERIAL[] = {
 };
 
 cish_command CMD_IP_PIM_CAND_BSR_INTF[] = {
-#ifndef OPTION_NO_WAN
+#ifdef OPTION_ETHERNET_WAN
 	{"ethernet", "Ethernet interface", CMD_IP_PIM_CAND_BSR_INTF_ETHERNET, NULL, 0, MSK_NORMAL},
 #endif
 #ifdef OPTION_SERIAL
@@ -552,7 +550,7 @@ cish_command CMD_IP_PIM_CAND_RP_INTF_SERIAL[] = {
 };
 
 cish_command CMD_IP_PIM_CAND_RP_INTF[] = {
-#ifndef OPTION_NO_WAN
+#ifdef OPTION_ETHERNET_WAN
 	{"ethernet", "Ethernet interface", CMD_IP_PIM_CAND_RP_INTF_ETHERNET, NULL, 0, MSK_NORMAL},
 #endif
 #ifdef OPTION_SERIAL
