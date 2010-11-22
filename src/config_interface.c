@@ -38,6 +38,7 @@ extern int _cish_booting;
 dev_family *interface_edited;
 int interface_major = -1;
 int interface_minor = -1;
+#ifdef OPTION_MANAGED_SWITCH
 int switch_port = -1;
 
 void config_interface_switch_port_done(const char *cmdline)
@@ -64,6 +65,7 @@ void config_interface_switch_port(const char *cmdline)
 	switch_port = port;
 	command_root = CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT;
 }
+#endif /* OPTION_MANAGED_SWITCH */
 
 void config_interface_done(const char *cmdline)
 {

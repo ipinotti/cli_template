@@ -135,20 +135,22 @@ static int _print_current_menu()
 		}
 	}
 
+#ifdef OPTION_MANAGED_SWITCH
 	/* Add exceptions here */
 	if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT) {
 		if (switch_port >= 0) {
 			snprintf(buf, sizeof(buf), "%d)", switch_port);
 			strcat(prompt, buf);
 		}
-	}
-	else if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN){
+	} else
+#endif
+	if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN) {
 		if (interface_minor >= 0) {
 			snprintf(buf, sizeof(buf), "%d.%d)", interface_major, interface_minor);
 			strcat(prompt, buf);
 		}
 	}
-	else if (command_root == CMD_IPSEC_CONNECTION_CHILDREN){
+	else if (command_root == CMD_IPSEC_CONNECTION_CHILDREN) {
 		if (strlen(dynamic_ipsec_menu_name) > 0) {
 			strcat(prompt, dynamic_ipsec_menu_name);
 			strcat(prompt, ")");
