@@ -65,6 +65,16 @@ void set_model_vpn_cmds(int enable)
 		_cish_mask &= ~MSK_VPN;
 }
 
+void set_model_switch_cmds(void)
+{
+	int enable = librouter_ksz8863_probe();
+
+	if (enable == 1)
+		_cish_mask |= MSK_MANAGED_SWITCH;
+	else
+		_cish_mask &= ~MSK_MANAGED_SWITCH;
+}
+
 extern cish_command CMD_SHOW_INTERFACE_ETHERNET[];
 #ifdef OPTION_SMCROUTE
 extern cish_command CMD_IP_MROUTE8_ETHERNET[];
@@ -83,8 +93,16 @@ extern cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET[];
 extern cish_command CMD_CLEAR_INTERFACE_ETHERNET_[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[];
 
-void set_model_ethernet_cmds(const char *name)
+void set_model_ethernet_cmds(int num_ifaces)
 {
+	static char name[8];
+
+	sprintf(name, "0-%d", num_ifaces-1);
+
+#ifdef DEBUG
+	printf("Settings ethernet interface number : %s\n", name);
+#endif
+
 	/* commandtree.c */
 	CMD_SHOW_INTERFACE_ETHERNET[0].name=name;
 #ifdef OPTION_SMCROUTE

@@ -22,6 +22,7 @@ extern char buf[1024];
 extern dev_family  *interface_edited;
 extern int interface_major;
 extern int interface_minor;
+extern int switch_port;
 
 typedef void cish_function(const char *);
 
@@ -54,6 +55,11 @@ enum cish_mask {
 	MSK_X25MAP = 0x00002000,
 	MSK_V35 = 0x00004000, /* V35 specific commands */
 	MSK_V28 = 0x00008000,
+	MSK_MANAGED_SWITCH = 0x00010000,
+	MSK_BRIDGE = 0x00020000,
+	MSK_IPROUTER = 0x00040000,
+	MSK_ENABLE = 0x00080000,
+	MSK_BOOTING = 0x00100000,
 };
 
 /* Global Commands */
@@ -70,6 +76,7 @@ extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
 extern cish_command CMD_CONFIG_INTERFACE_LOOPBACK[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[];
 
 /* Routing Protocols */
 extern cish_command CMD_CONFIG_ROUTER_RIP[];

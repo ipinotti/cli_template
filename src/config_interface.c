@@ -29,11 +29,41 @@
 #include <librouter/modem3G.h>
 #endif
 
+#ifdef OPTION_MANAGED_SWITCH
+#include <librouter/ksz8863.h>
+#endif
+
 extern int _cish_booting;
 
 dev_family *interface_edited;
 int interface_major = -1;
 int interface_minor = -1;
+int switch_port = -1;
+
+void config_interface_switch_port_done(const char *cmdline)
+{
+	switch_port = -1;
+	command_root = CMD_CONFIG_INTERFACE_ETHERNET;
+}
+
+void config_interface_switch_port(const char *cmdline)
+{
+	arglist *args;
+	int port;
+
+	args = librouter_make_args(cmdline);
+
+	port = atoi(args->argv[1]);
+
+	if (port < 0 || port > 2) {
+		printf("%% Invalid port\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	switch_port = port;
+	command_root = CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT;
+}
 
 void config_interface_done(const char *cmdline)
 {
@@ -1292,3 +1322,68 @@ void interface_efm_set_mode(const char *cmdline)
 }
 
 #endif /* OPTION_EFM */
+
+#ifdef OPTION_MANAGED_SWITCH
+
+void interface_traffic_shape(const char *cmdline)
+{
+	arglist *args;
+	int prio, rate;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no")) {
+		prio = atoi(args->argv[2]);
+		librouter_ksz8863_set_egress_rate_limit(switch_port, prio, 0);
+	} else {
+		prio = atoi(args->argv[1]);
+		rate = atoi(args->argv[2]);
+		if (rate < 1000)
+			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate/64)*64);
+		else
+			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate/1000);
+		librouter_ksz8863_set_egress_rate_limit(interface_major, prio, rate);
+	}
+	librouter_destroy_args(args);
+}
+
+void interface_rate_limit(const char *cmdline)
+{
+	arglist *args;
+	int prio, rate;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no")) {
+		prio = atoi(args->argv[2]);
+		librouter_ksz8863_set_ingress_rate_limit(switch_port, prio, 0);
+	} else {
+		prio = atoi(args->argv[1]);
+		rate = atoi(args->argv[2]);
+		if (rate < 1000)
+			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate/64)*64);
+		else
+			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate/1000);
+		librouter_ksz8863_set_ingress_rate_limit(switch_port, prio, rate);
+	}
+	librouter_destroy_args(args);
+}
+
+void interface_vlan_default(const char *cmdline)
+{
+	arglist *args;
+
+	args = librouter_make_args(cmdline);
+
+
+	if (!strcmp(args->argv[0], "no"))
+		librouter_ksz8863_set_default_vid(switch_port, 0);
+	else
+		librouter_ksz8863_set_default_vid(switch_port, atoi(args->argv[1]));
+
+	librouter_destroy_args(args);
+	return;
+}
+
+
+#endif /* OPTION_MANAGED_SWITCH */

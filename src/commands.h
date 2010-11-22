@@ -54,6 +54,10 @@
 #include <librouter/ssh.h>
 #include <librouter/vlan.h>
 
+#ifdef OPTION_MANAGED_SWITCH
+#include <librouter/ksz8863.h>
+#endif
+
 #define DEBUG
 #ifdef DEBUG
 #define cish_dbg(x,...) \
@@ -119,7 +123,8 @@ void set_bgp_interface_cmds(int enable);
 void set_model_aux_cmds(int enable);
 void set_model_qos_cmds(int enable);
 void set_model_vpn_cmds(int enable);
-void set_model_ethernet_cmds(const char *);
+void set_model_switch_cmds(void);
+void set_model_ethernet_cmds(int num_ifaces);
 void set_model_serial_cmds(const char *);
 void disable_exc_cmds(void);
 void config_router(const char *);
@@ -561,7 +566,14 @@ void interface_ethernet_ipxnet(const char *);
 void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
+
+void interface_vlan_default(const char *);
+void interface_rate_limit(const char *);
+void interface_traffic_shape(const char *);
+
 void config_interface_done(const char *);
+void config_interface_switch_port(const char *);
+void config_interface_switch_port_done(const char *);
 
 void do_bandwidth(const char *);
 void do_max_reserved_bw(const char *);

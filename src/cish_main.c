@@ -109,8 +109,8 @@ static int _print_current_menu()
 #endif
 		{ CMD_CONFIG_INTERFACE_ETHERNET, "(config-if-ethernet-"},
 		{ CMD_CONFIG_INTERFACE_ETHERNET_VLAN, "(config-if-ethernet-"},
-#ifdef OPTION_MANAGED_ETHSWITCH
-		{ CMD_CONFIG_INTERFACE_ETH_SW, "(config-if-eth-switch-port-"},
+#ifdef OPTION_MANAGED_SWITCH
+		{ CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT, "(config-if-eth-switch-port-"},
 #endif
 		{ CMD_CONFIG_INTERFACE_LOOPBACK, "(config-if-loopback-"},
 		{ CMD_CONFIG_INTERFACE_TUNNEL, "(config-if-tunnel-"},
@@ -136,19 +136,28 @@ static int _print_current_menu()
 	}
 
 	/* Add exceptions here */
-	if (interface_minor >= 0) {
-		snprintf(buf, sizeof(buf), "%d.%d)", interface_major, interface_minor);
-		strcat(prompt, buf);
-	} else if (interface_major >= 0) {
-		snprintf(buf, sizeof(buf), "%d)", interface_major);
-		strcat(prompt, buf);
+	if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT) {
+		if (switch_port >= 0) {
+			snprintf(buf, sizeof(buf), "%d)", switch_port);
+			strcat(prompt, buf);
+		}
 	}
-
-	if (command_root == CMD_IPSEC_CONNECTION_CHILDREN) /* ipsec connection names dynamic menus */
-	{
+	else if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN){
+		if (interface_minor >= 0) {
+			snprintf(buf, sizeof(buf), "%d.%d)", interface_major, interface_minor);
+			strcat(prompt, buf);
+		}
+	}
+	else if (command_root == CMD_IPSEC_CONNECTION_CHILDREN){
 		if (strlen(dynamic_ipsec_menu_name) > 0) {
 			strcat(prompt, dynamic_ipsec_menu_name);
 			strcat(prompt, ")");
+		}
+	}
+	else {
+		if (interface_major >= 0) {
+			snprintf(buf, sizeof(buf), "%d)", interface_major);
+			strcat(prompt, buf);
 		}
 	}
 
@@ -193,13 +202,12 @@ int main(int argc, char *argv[])
 	/* Enable QoS and VPN */
 	set_model_qos_cmds(1);
 	set_model_vpn_cmds(1);
-
-	/* Ethernet 0 and 1 */
-#ifdef OPTION_NO_WAN
-	set_model_ethernet_cmds("0-0");
-#else
-	set_model_ethernet_cmds("0-1");
+	/* FIXME Read HW ID or something to enable this */
+#ifdef OPTION_MANAGED_SWITCH
+	set_model_switch_cmds();
 #endif
+	set_model_ethernet_cmds(OPTION_NUM_ETHERNET_IFACES);
+
 	/* Begin at root */
 	command_root = CMD;
 
