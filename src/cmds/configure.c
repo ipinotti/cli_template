@@ -130,7 +130,9 @@ cish_command CMD_CONFIG_NO[] = {
 #ifdef OPTION_BRIDGE
 	{"bridge", "Bridging Group", CMD_CONFIG_NO_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_SERIAL
 	{"chatscript", "Reset a chatscript", CMD_CONFIG_NO_CHATSCRIPT, NULL, 1, MSK_NORMAL},
+#endif
 	{"interface","Interface Configuration", CMD_CONFIG_NO_INTERFACE, NULL, 1, MSK_NORMAL},
 	{"ip","IPv4 Configuration", CMD_NO_IP, NULL, 1, MSK_NORMAL},
 	{"key","Authentication key management (RIP)", CMD_CONFIG_KEY, NULL, 1, MSK_RIP},
@@ -314,7 +316,9 @@ cish_command CMD_CONFIGURE[] = {
 #ifdef OPTION_BRIDGE
 	{"bridge", "Bridging Group", CMD_CONFIG_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_SERIAL
 	{"chatscript", "Set a chatscript line", CMD_CONFIG_CHATSCRIPT, NULL, 1, MSK_NORMAL},
+#endif
 	{"clock","Manage the system clock", CMD_CONFIGURE_CLOCK, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_IPSEC
 	{"crypto","Manage cryptographic tunnels", NULL, cd_crypto_dir, 1, MSK_VPN},
