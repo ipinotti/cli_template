@@ -63,7 +63,7 @@ cish_command CMD_ROUTER_RIP_INTERFACE_ETHERNET[] = {
 };
 
 cish_command CMD_ROUTER_RIP_INTERFACE_LOOPBACK[] = {
-	{"0-4", "Loopback interface number", NULL, rip_execute_router_cmd, 1, MSK_RIP},
+	{"0-0", "Loopback interface number", NULL, rip_execute_router_cmd, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

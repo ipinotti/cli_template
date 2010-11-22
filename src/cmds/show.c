@@ -12,7 +12,7 @@ cish_command CMD_SHOW_INTERFACE_ETHERNET[] = {
 };
 
 cish_command CMD_SHOW_INTERFACE_LOOPBACK[] = {
-	{"0-4", "Loopback interface number", NULL, show_interfaces, 0, MSK_NORMAL},
+	{"0-0", "Loopback interface number", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
