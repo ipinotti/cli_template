@@ -16,7 +16,6 @@
 #include "cish_main.h"
 #include "pprintf.h"
 
-
 #ifdef OPTION_IPSEC
 
 char dynamic_ipsec_menu_name[MAX_CONN_NAME + 1] = " ";
@@ -146,14 +145,11 @@ static void refresh_dynamic_ipsec_menus(void)
 	int i, j;
 
 	for (i = CMDS_BEF_LIST; i < (MAX_CONN + CMDS_BEF_LIST); i++) {
-		if (!CMD_IPSEC_CONNECTION_ADD[i].name
-		                && CMD_IPSEC_CONNECTION_ADD[i + 1].name) {
-			CMD_IPSEC_CONNECTION_ADD[i].name
-			                = CMD_IPSEC_CONNECTION_ADD[i + 1].name;
+		if (!CMD_IPSEC_CONNECTION_ADD[i].name && CMD_IPSEC_CONNECTION_ADD[i + 1].name) {
+			CMD_IPSEC_CONNECTION_ADD[i].name = CMD_IPSEC_CONNECTION_ADD[i + 1].name;
 			CMD_IPSEC_CONNECTION_ADD[i].children
 			                = CMD_IPSEC_CONNECTION_ADD[i + 1].children;
-			CMD_IPSEC_CONNECTION_ADD[i].func
-			                = CMD_IPSEC_CONNECTION_ADD[i + 1].func;
+			CMD_IPSEC_CONNECTION_ADD[i].func = CMD_IPSEC_CONNECTION_ADD[i + 1].func;
 			CMD_IPSEC_CONNECTION_ADD[i].privilege
 			                = CMD_IPSEC_CONNECTION_ADD[i + 1].privilege;
 			CMD_IPSEC_CONNECTION_ADD[i + 1].name = NULL;
@@ -161,12 +157,10 @@ static void refresh_dynamic_ipsec_menus(void)
 			CMD_IPSEC_CONNECTION_ADD[i + 1].func = NULL;
 			CMD_IPSEC_CONNECTION_ADD[i + 1].privilege = 1000;
 			j = i - CMDS_BEF_LIST;
-			CMD_CRYPTO_IPSEC_NO_CONN[j].name
-			                = CMD_CRYPTO_IPSEC_NO_CONN[j + 1].name;
+			CMD_CRYPTO_IPSEC_NO_CONN[j].name = CMD_CRYPTO_IPSEC_NO_CONN[j + 1].name;
 			CMD_CRYPTO_IPSEC_NO_CONN[j].children
 			                = CMD_CRYPTO_IPSEC_NO_CONN[j + 1].children;
-			CMD_CRYPTO_IPSEC_NO_CONN[j].func
-			                = CMD_CRYPTO_IPSEC_NO_CONN[j + 1].func;
+			CMD_CRYPTO_IPSEC_NO_CONN[j].func = CMD_CRYPTO_IPSEC_NO_CONN[j + 1].func;
 			CMD_CRYPTO_IPSEC_NO_CONN[j].privilege
 			                = CMD_CRYPTO_IPSEC_NO_CONN[j + 1].privilege;
 			CMD_CRYPTO_IPSEC_NO_CONN[j + 1].name = NULL;
@@ -203,35 +197,23 @@ int eval_connections_menus(int add_del, char *name)
 		CMD_IPSEC_CONNECTION_ADD[i].privilege = 1;
 		// prepare del node
 		CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].name = p;
-		CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].help
-		                = "User connection";
-		CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].func
-		                = del_ipsec_conn;
+		CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].help = "User connection";
+		CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].func = del_ipsec_conn;
 		CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].privilege = 1;
 	} else { // del name
 		for (i = CMDS_BEF_LIST; i < (MAX_CONN + CMDS_BEF_LIST); i++) {
 			if (CMD_IPSEC_CONNECTION_ADD[i].name != NULL) {
-				if (!strcmp(CMD_IPSEC_CONNECTION_ADD[i].name,
-				                name)) {
-					free(
-					                (char *) CMD_IPSEC_CONNECTION_ADD[i].name);
+				if (!strcmp(CMD_IPSEC_CONNECTION_ADD[i].name, name)) {
+					free((char *) CMD_IPSEC_CONNECTION_ADD[i].name);
 					CMD_IPSEC_CONNECTION_ADD[i].name = NULL;
 					CMD_IPSEC_CONNECTION_ADD[i].help = NULL;
 					CMD_IPSEC_CONNECTION_ADD[i].func = NULL;
-					CMD_IPSEC_CONNECTION_ADD[i].privilege
-					                = 1000;
+					CMD_IPSEC_CONNECTION_ADD[i].privilege = 1000;
 					// remove del node
-					CMD_CRYPTO_IPSEC_NO_CONN[i
-					                - CMDS_BEF_LIST].name
-					                = NULL;
-					CMD_CRYPTO_IPSEC_NO_CONN[i
-					                - CMDS_BEF_LIST].help
-					                = NULL;
-					CMD_CRYPTO_IPSEC_NO_CONN[i
-					                - CMDS_BEF_LIST].func
-					                = NULL;
-					CMD_CRYPTO_IPSEC_NO_CONN[i
-					                - CMDS_BEF_LIST].privilege
+					CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].name = NULL;
+					CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].help = NULL;
+					CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].func = NULL;
+					CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].privilege
 					                = 1000;
 					refresh_dynamic_ipsec_menus();
 					return 0;
@@ -249,11 +231,10 @@ void ipsec_autoreload(const char *cmd) /* [no] auto-reload [60-3600] */
 
 	args = librouter_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0)
-		librouter_str_replace_string_in_file(FILE_IPSEC_CONF,
-		                STRING_IPSEC_AUTORELOAD, "0");
+		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_AUTORELOAD, "0");
 	else
-		librouter_str_replace_string_in_file(FILE_IPSEC_CONF,
-		                STRING_IPSEC_AUTORELOAD, args->argv[1]);
+		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_AUTORELOAD,
+		                args->argv[1]);
 	librouter_destroy_args(args);
 }
 
@@ -263,11 +244,9 @@ void ipsec_nat_traversal(const char *cmd) /* [no] nat-traversal */
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 2)
-		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_NAT,
-		                "no");
+		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_NAT, "no");
 	else
-		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_NAT,
-		                "yes");
+		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_NAT, "yes");
 	librouter_destroy_args(args);
 }
 
@@ -277,8 +256,7 @@ void ipsec_overridemtu(const char *cmd) /* [no] overridemtu [64-1460] */
 
 	args = librouter_make_args(cmd);
 	if (strcmp(args->argv[0], "no") == 0)
-		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_OMTU,
-		                "0");
+		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_OMTU, "0");
 	else
 		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_OMTU,
 		                args->argv[1]);
@@ -305,8 +283,7 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 		}
 		if (*list != NULL) {
 			list_ini = list;
-			for (i = 0, go_out = 0, count = 0; *list != NULL && i
-			                < MAX_CONN; i++, list++, count++) {
+			for (i = 0, go_out = 0, count = 0; *list != NULL && i < MAX_CONN; i++, list++, count++) {
 				if (strcmp(args->argv[3], *list) == 0)
 					go_out++;
 				free(*list);
@@ -314,34 +291,29 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 			free(list_ini);
 			if (go_out) {
 				if (!_cish_booting)
-					printf(
-					                "%% Connection with name %s already exists!\n",
+					printf("%% Connection with name %s already exists!\n",
 					                args->argv[3]);
 				goto free_args;
 			}
 			// Teste do numero de conexoes
 			if (count >= MAX_CONN) {
-				printf(
-				                "%% You have reached the max number of connections!\n");
+				printf("%% You have reached the max number of connections!\n");
 				goto free_args;
 			}
 		}
 		// Adicao da conexao
 		if (create_conf_conn_file(args->argv[3]) < 0) {
-			printf(
-			                "%% Not possible to add ipsec connection name!\n");
+			printf("%% Not possible to add ipsec connection name!\n");
 			goto free_args;
 		}
 		// Atualizacao do arquivo /etc/ipsec.conf
 		if (update_ipsec_conf(args->argv[3], 1) < 0) {
-			printf(
-			                "%% Not possible to add ipsec connection name!\n");
+			printf("%% Not possible to add ipsec connection name!\n");
 			goto free_args;
 		}
 		// Atualizacao do arquivo /etc/ipsec.secrets
 		if (update_ipsec_secrets(args->argv[3], 1) < 0) {
-			printf(
-			                "%% Not possible to add ipsec connection name!\n");
+			printf("%% Not possible to add ipsec connection name!\n");
 			goto free_args;
 		}
 		if (eval_connections_menus(1, args->argv[3]) < 0) {
@@ -365,8 +337,7 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 			goto free_args;
 		}
 		if (remove_conn_files(args->argv[3]) < 0) {
-			printf(
-			                "%% Not possible to del ipsec connection files!\n");
+			printf("%% Not possible to del ipsec connection files!\n");
 			goto free_args;
 		}
 		if (eval_connections_menus(0, args->argv[3]) < 0)
@@ -415,8 +386,7 @@ void generate_rsa_key(const char *cmd)
 				if (*list) {
 					ret = librouter_ipsec_get_auth(*list, buf);
 					if (ret == RSA)
-						librouter_ipsec_create_secrets_file(*list,
-						                1, NULL);
+						librouter_ipsec_create_secrets_file(*list, 1, NULL);
 					free(*list);
 				}
 			}
@@ -442,8 +412,7 @@ void config_crypto_done(const char *cmd)
 			// remove del node
 			CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].name = NULL;
 			CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].func = NULL;
-			CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].privilege
-			                = 1000;
+			CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].privilege = 1000;
 		}
 	}
 	command_root = CMD_CONFIGURE;
@@ -482,22 +451,19 @@ void ipsec_set_secret_key(const char *cmd) /* authby secret password */
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
-		if (librouter_ipsec_create_secrets_file(dynamic_ipsec_menu_name, 0,
-		                args->argv[2]) < 0) {
-			printf(
-			                "%% Not possible to set secret authentication type\n");
+		if (librouter_ipsec_create_secrets_file(dynamic_ipsec_menu_name, 0, args->argv[2])
+		                < 0) {
+			printf("%% Not possible to set secret authentication type\n");
 			goto free_args;
 		}
 		if (librouter_ipsec_set_auth(dynamic_ipsec_menu_name, SECRET) < 0) {
-			printf(
-			                "%% Not possible to set secret authentication type\n");
+			printf("%% Not possible to set secret authentication type\n");
 			goto free_args;
 		}
 		// se o link estiver ativo, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf(
-			                "%% Not possible to set secret authentication type\n");
+			printf("%% Not possible to set secret authentication type\n");
 			goto free_args;
 		}
 		if (ret > 0)
@@ -513,22 +479,18 @@ void ipsec_authby_rsa(const char *cmd)
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 2) {
-		if (librouter_ipsec_create_secrets_file(dynamic_ipsec_menu_name, 1, NULL)
-		                < 0) {
-			printf(
-			                "%% Not possible to set RSA authentication type\n");
+		if (librouter_ipsec_create_secrets_file(dynamic_ipsec_menu_name, 1, NULL) < 0) {
+			printf("%% Not possible to set RSA authentication type\n");
 			goto free_args;
 		}
 		if (librouter_ipsec_set_auth(dynamic_ipsec_menu_name, RSA) < 0) {
-			printf(
-			                "%% Not possible to set RSA authentication type\n");
+			printf("%% Not possible to set RSA authentication type\n");
 			goto free_args;
 		}
 		// se o link estiver ativo, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf(
-			                "%% Not possible to set RSA authentication type\n");
+			printf("%% Not possible to set RSA authentication type\n");
 			goto free_args;
 		}
 		if (ret > 0)
@@ -574,18 +536,16 @@ void set_esp_hash(const char *cmd)
 		}
 		break;
 	case 2:
-		if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, args->argv[1], NULL)
-		                < 0) {
-			printf("%% Not possible to set cypher to %s\n",
-			                args->argv[1]);
+		if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, args->argv[1], NULL) < 0) {
+			printf("%% Not possible to set cypher to %s\n", args->argv[1]);
 			goto free_args;
 		}
 		break;
 	case 3:
-		if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, args->argv[1],
-		                args->argv[2]) < 0) {
-			printf("%% Not possible to set cypher to %s/%s\n",
-			                args->argv[1], args->argv[2]);
+		if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, args->argv[1], args->argv[2])
+		                < 0) {
+			printf("%% Not possible to set cypher to %s/%s\n", args->argv[1],
+			                args->argv[2]);
 			goto free_args;
 		}
 		break;
@@ -649,15 +609,13 @@ void clear_ipsec_id(const char *cmd) /* no local/remote id */
 		else
 			ret = librouter_ipsec_set_remote_id(dynamic_ipsec_menu_name, "");
 		if (ret < 0) {
-			printf("%% Not possible to clear %s id\n",
-			                args->argv[1]);
+			printf("%% Not possible to clear %s id\n", args->argv[1]);
 			goto free_args;
 		}
 		// se o link estiver ativo, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to clear %s id\n",
-			                args->argv[1]);
+			printf("%% Not possible to clear %s id\n", args->argv[1]);
 			goto free_args;
 		}
 		if (ret > 0)
@@ -680,53 +638,43 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 			ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name,
 			                STRING_DEFAULTROUTE);
 			if (ret < 0) {
-				printf(
-				                "%% Not possible to set %s address to default-route\n",
+				printf("%% Not possible to set %s address to default-route\n",
 				                args->argv[0]);
 				goto free_args;
 			}
-		} else if (local && args->argc == 5 && !strncmp(args->argv[2],
-		                "interface", 9)) {
-			sprintf(tp, "%%%s%s", args->argv[3], args->argv[4]);
+		} else if (local && args->argc == 5 && !strncmp(args->argv[2], "interface", 9)) {
+			dev_family *fam = librouter_device_get_family_by_name(args->argv[3], str_cish);
+			sprintf(tp, "%%%s%s", fam->linux_string, args->argv[4]);
 			ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name, tp);
 			if (ret < 0) {
-				printf(
-				                "%% Not possible to set %s address to interface %s\n",
+				printf("%% Not possible to set %s address to interface %s\n",
 				                args->argv[0], args->argv[3]);
 				goto free_args;
 			}
 		} else if (!local && !strncmp(args->argv[2], "any", 3)) {
-			ret = librouter_ipsec_set_remote_addr(dynamic_ipsec_menu_name,
-			                STRING_ANY);
+			ret = librouter_ipsec_set_remote_addr(dynamic_ipsec_menu_name, STRING_ANY);
 			if (ret < 0) {
-				printf(
-				                "%% Not possible to set %s address to any\n",
-				                args->argv[0]);
+				printf("%% Not possible to set %s address to any\n", args->argv[0]);
 				goto free_args;
 			}
-		} else if (args->argc == 4 && (!strncmp(args->argv[2], "ip", 2)
-		                || !strncmp(args->argv[2], "fqdn", 4))) {
+		} else if (args->argc == 4 && (!strncmp(args->argv[2], "ip", 2) || !strncmp(
+		                args->argv[2], "fqdn", 4))) {
 			if (strlen(args->argv[3]) < 200)
 				strcpy(tp, args->argv[3]);
 			else {
-				printf("%% Not possible to set %s address\n",
-				                args->argv[0]);
+				printf("%% Not possible to set %s address\n", args->argv[0]);
 				goto free_args;
 			}
 			if (local)
-				ret = librouter_ipsec_set_local_addr(
-				                dynamic_ipsec_menu_name, tp);
+				ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name, tp);
 			else
-				ret = librouter_ipsec_set_remote_addr(
-				                dynamic_ipsec_menu_name, tp);
+				ret = librouter_ipsec_set_remote_addr(dynamic_ipsec_menu_name, tp);
 			if (ret < 0) {
 				if (!strncmp(args->argv[2], "ip", 2))
-					printf(
-					                "%% Not possible to set %s ip address\n",
+					printf("%% Not possible to set %s ip address\n",
 					                args->argv[0]);
 				else
-					printf(
-					                "%% Not possible to set %s fqdn address\n",
+					printf("%% Not possible to set %s fqdn address\n",
 					                args->argv[0]);
 				goto free_args;
 			}
@@ -735,8 +683,7 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 		// se o link estiver ativo, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to set %s address\n",
-			                args->argv[0]);
+			printf("%% Not possible to set %s address\n", args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
@@ -753,21 +700,19 @@ void set_ipsec_nexthop(const char *cmd)
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[0], "local", 5))
-			ret = librouter_ipsec_set_nexthop_inf(LOCAL,
-			                dynamic_ipsec_menu_name, args->argv[2]);
+			ret = librouter_ipsec_set_nexthop_inf(LOCAL, dynamic_ipsec_menu_name,
+			                args->argv[2]);
 		else
-			ret = librouter_ipsec_set_nexthop_inf(REMOTE,
-			                dynamic_ipsec_menu_name, args->argv[2]);
+			ret = librouter_ipsec_set_nexthop_inf(REMOTE, dynamic_ipsec_menu_name,
+			                args->argv[2]);
 		if (ret < 0) {
-			printf("%% Not possible to set %s nexthop\n",
-			                args->argv[0]);
+			printf("%% Not possible to set %s nexthop\n", args->argv[0]);
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to set %s nexthop\n",
-			                args->argv[0]);
+			printf("%% Not possible to set %s nexthop\n", args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
@@ -784,21 +729,17 @@ void clear_ipsec_nexthop(const char *cmd) /* no local/remote nexthop */
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[1], "local", 5))
-			ret = librouter_ipsec_set_nexthop_inf(LOCAL,
-			                dynamic_ipsec_menu_name, "");
+			ret = librouter_ipsec_set_nexthop_inf(LOCAL, dynamic_ipsec_menu_name, "");
 		else
-			ret = librouter_ipsec_set_nexthop_inf(REMOTE,
-			                dynamic_ipsec_menu_name, "");
+			ret = librouter_ipsec_set_nexthop_inf(REMOTE, dynamic_ipsec_menu_name, "");
 		if (ret < 0) {
-			printf("%% Not possible to clear %s nexthop\n",
-			                args->argv[1]);
+			printf("%% Not possible to clear %s nexthop\n", args->argv[1]);
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to clear %s nexthop\n",
-			                args->argv[1]);
+			printf("%% Not possible to clear %s nexthop\n", args->argv[1]);
 			goto free_args;
 		}
 		if (ret > 0)
@@ -814,17 +755,15 @@ void set_ipsec_remote_rsakey(const char *cmd) /* remote rsakey [publickey] */
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
-		if (librouter_ipsec_set_rsakey(dynamic_ipsec_menu_name,
-		                STRING_IPSEC_R_RSAKEY, args->argv[2]) < 0) {
-			printf("%% Not possible to set %s rsakey\n",
-			                args->argv[0]);
+		if (librouter_ipsec_set_rsakey(dynamic_ipsec_menu_name, STRING_IPSEC_R_RSAKEY,
+		                args->argv[2]) < 0) {
+			printf("%% Not possible to set %s rsakey\n", args->argv[0]);
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to set %s rsakey\n",
-			                args->argv[0]);
+			printf("%% Not possible to set %s rsakey\n", args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
@@ -840,17 +779,15 @@ void clear_ipsec_remote_rsakey(const char *cmd) /* no local/remote rsakey */
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
-		if (librouter_ipsec_set_rsakey(dynamic_ipsec_menu_name,
-		                STRING_IPSEC_R_RSAKEY, "") < 0) {
-			printf("%% Not possible to clear %s rsakey\n",
-			                args->argv[1]);
+		if (librouter_ipsec_set_rsakey(dynamic_ipsec_menu_name, STRING_IPSEC_R_RSAKEY, "")
+		                < 0) {
+			printf("%% Not possible to clear %s rsakey\n", args->argv[1]);
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to clear %s rsakey\n",
-			                args->argv[1]);
+			printf("%% Not possible to clear %s rsakey\n", args->argv[1]);
 			goto free_args;
 		}
 		if (ret > 0)
@@ -867,23 +804,19 @@ void set_ipsec_subnet(const char *cmd)
 	args = librouter_make_args(cmd);
 	if (args->argc == 4) {
 		if (!strncmp(args->argv[0], "local", 5))
-			ret = librouter_ipsec_set_subnet_inf(LOCAL,
-			                dynamic_ipsec_menu_name, args->argv[2],
-			                args->argv[3]);
+			ret = librouter_ipsec_set_subnet_inf(LOCAL, dynamic_ipsec_menu_name,
+			                args->argv[2], args->argv[3]);
 		else
-			ret = librouter_ipsec_set_subnet_inf(REMOTE,
-			                dynamic_ipsec_menu_name, args->argv[2],
-			                args->argv[3]);
+			ret = librouter_ipsec_set_subnet_inf(REMOTE, dynamic_ipsec_menu_name,
+			                args->argv[2], args->argv[3]);
 		if (ret < 0) {
-			printf("%% Not possible to set %s subnet\n",
-			                args->argv[0]);
+			printf("%% Not possible to set %s subnet\n", args->argv[0]);
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to set %s subnet\n",
-			                args->argv[0]);
+			printf("%% Not possible to set %s subnet\n", args->argv[0]);
 			goto free_args;
 		}
 		if (ret > 0)
@@ -900,21 +833,20 @@ void clear_ipsec_subnet(const char *cmd) /* no local/remote subnet */
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
 		if (!strncmp(args->argv[1], "local", 5))
-			ret = librouter_ipsec_set_subnet_inf(LOCAL,
-			                dynamic_ipsec_menu_name, "", "");
+			ret
+			                = librouter_ipsec_set_subnet_inf(LOCAL,
+			                                dynamic_ipsec_menu_name, "", "");
 		else
-			ret = librouter_ipsec_set_subnet_inf(REMOTE,
-			                dynamic_ipsec_menu_name, "", "");
+			ret = librouter_ipsec_set_subnet_inf(REMOTE, dynamic_ipsec_menu_name, "",
+			                "");
 		if (ret < 0) {
-			printf("%% Not possible to clear %s subnet\n",
-			                args->argv[1]);
+			printf("%% Not possible to clear %s subnet\n", args->argv[1]);
 			goto free_args;
 		}
 		// se o link estiver up, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to clear %s subnet\n",
-			                args->argv[1]);
+			printf("%% Not possible to clear %s subnet\n", args->argv[1]);
 			goto free_args;
 		}
 		if (ret > 0)
@@ -973,8 +905,7 @@ void set_ipsec_l2tp_protoport(const char *cmd) /* [no] l2tp protoport [SP1|SP2] 
 		if (!strcmp(args->argv[0], "no"))
 			librouter_ipsec_set_protoport(dynamic_ipsec_menu_name, NULL);
 		else
-			librouter_ipsec_set_protoport(dynamic_ipsec_menu_name,
-			                args->argv[2]);
+			librouter_ipsec_set_protoport(dynamic_ipsec_menu_name, args->argv[2]);
 		// se o link estiver up, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
@@ -1048,35 +979,25 @@ void check_initial_conn(void)
 			for (i = 0; i < MAX_CONN; i++) {
 				if (*list != NULL) {
 					for (j = CMDS_BEF_LIST;; j++) {
-						if (CMD_IPSEC_CONNECTION_ADD[j].name
-						                == NULL) {
-							if ((p = malloc(strlen(
-							                *list)
-							                + 1))
-							                == NULL)
+						if (CMD_IPSEC_CONNECTION_ADD[j].name == NULL) {
+							if ((p = malloc(strlen(*list) + 1)) == NULL)
 								break;
 							strcpy(p, *list);
 							list++;
-							CMD_IPSEC_CONNECTION_ADD[j].name
-							                = p;
+							CMD_IPSEC_CONNECTION_ADD[j].name = p;
 							CMD_IPSEC_CONNECTION_ADD[j].help
 							                = "User connection";
 							CMD_IPSEC_CONNECTION_ADD[j].func
 							                = cd_connection_dir;
-							CMD_IPSEC_CONNECTION_ADD[j].privilege
-							                = 1;
+							CMD_IPSEC_CONNECTION_ADD[j].privilege = 1;
 							// prepare del node
-							CMD_CRYPTO_IPSEC_NO_CONN[j
-							                - CMDS_BEF_LIST].name
+							CMD_CRYPTO_IPSEC_NO_CONN[j - CMDS_BEF_LIST].name
 							                = p;
-							CMD_CRYPTO_IPSEC_NO_CONN[j
-							                - CMDS_BEF_LIST].help
+							CMD_CRYPTO_IPSEC_NO_CONN[j - CMDS_BEF_LIST].help
 							                = "User connection";
-							CMD_CRYPTO_IPSEC_NO_CONN[j
-							                - CMDS_BEF_LIST].func
+							CMD_CRYPTO_IPSEC_NO_CONN[j - CMDS_BEF_LIST].func
 							                = del_ipsec_conn;
-							CMD_CRYPTO_IPSEC_NO_CONN[j
-							                - CMDS_BEF_LIST].privilege
+							CMD_CRYPTO_IPSEC_NO_CONN[j - CMDS_BEF_LIST].privilege
 							                = 1;
 							break;
 						}
@@ -1091,7 +1012,6 @@ void check_initial_conn(void)
 		}
 	}
 }
-
 
 /*************************************** L2TP ********************************************/
 
