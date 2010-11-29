@@ -102,9 +102,7 @@ void set_model_ethernet_cmds(int num_ifaces)
 
 	sprintf(name, "0-%d", num_ifaces - 1);
 
-#ifdef DEBUG
-	printf("Setting ethernet interface number : %s\n", name);
-#endif
+	cish_dbg("Setting ethernet interface number : %s\n", name);
 
 	/* commandtree.c */
 	CMD_SHOW_INTERFACE_ETHERNET[0].name = name;
