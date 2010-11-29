@@ -58,8 +58,8 @@
 #include <librouter/ksz8863.h>
 #endif
 
-#define DEBUG
-#ifdef DEBUG
+//#define CISH_DEBUG
+#ifdef CISH_DEBUG
 #define cish_dbg(x,...) \
 		syslog(LOG_INFO, "%s : %d => "x , __FUNCTION__, __LINE__, ##__VA_ARGS__);
 #else
