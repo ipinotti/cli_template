@@ -677,6 +677,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SPEED[] = {
 	{"auto", "Enable auto-negotiation mode", NULL, interface_fec_autonegotiation, 1, MSK_NORMAL},
 	{"10", "Force 10 Mbps operation", CMD_CONFIG_INTERFACE_ETHERNET_SPEED1, NULL, 1, MSK_NORMAL},
 	{"100", "Force 100 Mbps operation", CMD_CONFIG_INTERFACE_ETHERNET_SPEED1, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_GIGAETHERNET
+	{"1000", "Force 1000 Mbps operation", CMD_CONFIG_INTERFACE_ETHERNET_SPEED1, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
