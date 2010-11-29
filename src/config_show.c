@@ -706,6 +706,14 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 }
 #endif /* OPTION_PPP */
 
+int intf_cmp(const void *a, const void *b)
+{
+	char *t1 = * (char * const *) a;
+	char *t2 = * (char * const *) b;
+
+	return strcmp(t1, t2);
+}
+
 void dump_interfaces(FILE *out, int conf_format, char *intf)
 {
 	int i;
@@ -716,6 +724,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	struct interface_conf conf;
 	struct intf_info info;
 	char *intf_list[MAX_NUM_LINKS];
+	int num_of_ifaces = 0;
 
 	/* Get interface names */
 	librouter_ip_get_if_list(&info);
@@ -723,13 +732,17 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		intf_list[i] = info.link[i].ifname;
 	}
 
+	/* Get number of interfaces and sort them by name */
+	for (i = 0; intf_list[i][0] != '\0'; i++, num_of_ifaces++);
+	qsort(&intf_list[0], num_of_ifaces, sizeof(char *), intf_cmp);
+
 #if 0
 	int vlan_cos=NONE_TO_COS;
 #endif
 
 	cish_dbg("Fetching configuration ...\n");
 
-	for (i = 0; intf_list[i][0] != '\0'; i++) {
+	for (i = 0; i < num_of_ifaces; i++) {
 
 		cish_dbg("%s\n", intf_list[i]);
 
