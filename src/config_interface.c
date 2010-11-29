@@ -442,7 +442,8 @@ void interface_ethernet_bridgegroup(const char *cmdline)
 	char *dev;
 
 	args = librouter_make_args(cmdline);
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 
 	/* Do we have a bridge interface already? */
 	strcpy(brname, BRIDGE_NAME);
@@ -471,8 +472,7 @@ void interface_ethernet_bridgegroup(const char *cmdline)
 	set_interface_ip_addr(brname, addr, mask); /* bridge use ethernet ip address */
 #endif
 
-bridgegroup_done:
-	librouter_destroy_args(args);
+	bridgegroup_done: librouter_destroy_args(args);
 	free(dev);
 }
 
@@ -483,7 +483,8 @@ void interface_ethernet_no_bridgegroup(const char *cmdline)
 	char *dev;
 
 	args = librouter_make_args(cmdline);
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	                interface_minor);
 
 	/* Do we have a bridge interface? */
 	strcpy(brname, BRIDGE_NAME);
@@ -507,39 +508,36 @@ void interface_ethernet_no_bridgegroup(const char *cmdline)
 	set_interface_ip_addr(dev, addr, mask); /* Recover ip address from bridge */
 #endif
 
-no_bridgegroup_done:
-	librouter_destroy_args(args);
+	no_bridgegroup_done: librouter_destroy_args(args);
 	free(dev);
 }
 
-void interface_fec_cfg(const char *cmdline) /* speed 10|100 half|full */
+void interface_fec_cfg(const char *cmdline) /* speed 10|100|1000 half|full */
 {
 	char *dev;
 	arglist *args;
-	int speed100 = -1, duplex = -1;
+	int speed = -1, duplex = -1;
 
 	args = librouter_make_args(cmdline);
 	if (args->argc == 3) {
 		if ((dev = librouter_device_convert(interface_edited->cish_string, interface_major,
 		                interface_minor))) {
-			if (strncmp(dev, "ethernet", 8) == 0) {
-				/* Speed */
-				if (strcmp(args->argv[1], "10") == 0)
-					speed100 = 0;
-				else if (strcmp(args->argv[1], "100") == 0)
-					speed100 = 1;
-				/* Duplex */
-				if (strcmp(args->argv[2], "half") == 0)
-					duplex = 0;
-				else if (strcmp(args->argv[2], "full") == 0)
-					duplex = 1;
-				if (speed100 < 0 || duplex < 0)
-					printf("%% Sintax error!\n");
-				else {
-					if (librouter_fec_config_link(dev, speed100, duplex) < 0)
-						printf("%% Not possible to set PHY parameters\n");
-				}
+
+			/* Speed */
+			speed = atoi(args->argv[1]);
+
+			/* Duplex */
+			if (strcmp(args->argv[2], "half") == 0)
+				duplex = 0;
+			else if (strcmp(args->argv[2], "full") == 0)
+				duplex = 1;
+			if (speed < 0 || duplex < 0)
+				printf("%% Sintax error!\n");
+			else {
+				if (librouter_fec_config_link(dev, speed, duplex) < 0)
+					printf("%% Not possible to set PHY parameters\n");
 			}
+
 			free(dev);
 		}
 	}
@@ -1058,10 +1056,10 @@ void backup_interface_shutdown(const char *cmdline)
 
 void backup_interface(const char *cmdline)
 {
-	arglist * args;
-	char * main_interface = malloc(16);
-	char * interface = malloc(16);
-	char * intf_return = malloc(16);
+	arglist *args;
+	char *main_interface = malloc(16);
+	char *interface = malloc(16);
+	char *intf_return = malloc(16);
 	int check = -1;
 
 	args = librouter_make_args(cmdline);
@@ -1077,38 +1075,40 @@ void backup_interface(const char *cmdline)
 		goto end;
 	}
 
-	if (!librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR, main_interface, intf_return)) {
-		check = librouter_ppp_backupd_set_param_infile(interface, BCKUP_STR, "yes");
-		if (check < 0) {
-			printf("\n%% Error on set backup interface");
+	if (librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR, main_interface, intf_return)) {
+		/* Already applied in another 3G interface ? */
+		if (strcmp(intf_return, interface)) {
+			printf("\n%% The interface is already with a backup connection by %s",
+			                librouter_device_from_linux_cmdline(intf_return));
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
-		check = librouter_ppp_backupd_set_param_infile(interface, MAIN_INTF_STR,
-		                main_interface);
-		if (check < 0) {
-			printf("\n%% Error on set backup interface");
-			printf("\n%% Settings could not be applied\n\n");
-			goto end;
-		}
-		check = librouter_ppp_reload_backupd();
-		if (check < 0) {
-			printf("\n%% Error on set backup interface - (reload configs.)");
-			printf("\n%% Settings could not be applied\n\n");
-			goto end;
-		}
-	} else {
-		printf("\n%% The interface is already with a backup connection by %s",
-		                librouter_device_from_linux_cmdline(intf_return));
-		printf("\n%% Settings could not be applied\n\n");
 	}
 
-	end: free(intf_return);
+	check = librouter_ppp_backupd_set_param_infile(interface, BCKUP_STR, "yes");
+	if (check < 0) {
+		printf("\n%% Error on set backup interface");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+	check = librouter_ppp_backupd_set_param_infile(interface, MAIN_INTF_STR, main_interface);
+	if (check < 0) {
+		printf("\n%% Error on set backup interface");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+	check = librouter_ppp_reload_backupd();
+	if (check < 0) {
+		printf("\n%% Error on set backup interface - (reload configs.)");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+
+
+end:
+	free(intf_return);
 	free(main_interface);
 	free(interface);
-	intf_return = NULL;
-	main_interface = NULL;
-	interface = NULL;
 	librouter_destroy_args(args);
 }
 
@@ -1341,9 +1341,11 @@ void interface_traffic_shape(const char *cmdline)
 		prio = atoi(args->argv[1]);
 		rate = atoi(args->argv[2]);
 		if (rate < 1000)
-			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate/64)*64);
+			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate
+			                / 64) * 64);
 		else
-			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate/1000);
+			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
+			                / 1000);
 		librouter_ksz8863_set_egress_rate_limit(interface_major, prio, rate);
 	}
 	librouter_destroy_args(args);
@@ -1363,9 +1365,11 @@ void interface_rate_limit(const char *cmdline)
 		prio = atoi(args->argv[1]);
 		rate = atoi(args->argv[2]);
 		if (rate < 1000)
-			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate/64)*64);
+			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate
+			                / 64) * 64);
 		else
-			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate/1000);
+			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
+			                / 1000);
 		librouter_ksz8863_set_ingress_rate_limit(switch_port, prio, rate);
 	}
 	librouter_destroy_args(args);
@@ -1377,7 +1381,6 @@ void interface_vlan_default(const char *cmdline)
 
 	args = librouter_make_args(cmdline);
 
-
 	if (!strcmp(args->argv[0], "no"))
 		librouter_ksz8863_set_default_vid(switch_port, 0);
 	else
@@ -1386,6 +1389,5 @@ void interface_vlan_default(const char *cmdline)
 	librouter_destroy_args(args);
 	return;
 }
-
 
 #endif /* OPTION_MANAGED_SWITCH */
