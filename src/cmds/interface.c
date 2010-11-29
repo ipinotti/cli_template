@@ -564,12 +564,12 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
 /* Ethernet Interfaces */
 /***********************/
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_BRIDGE[] = {
-	{"1-1", "Assign an interface to a Bridge Group", NULL, interface_ethernet_no_bridgegroup, 1, MSK_NORMAL},
+	{"0-15", "Assign an interface to a Bridge Group", NULL, interface_ethernet_no_bridgegroup, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE[] = {
-	{"1-1", "Assign an interface to a Bridge Group", NULL, interface_ethernet_bridgegroup, 1, MSK_NORMAL},
+	{"0-15", "Assign an interface to a Bridge Group", NULL, interface_ethernet_bridgegroup, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

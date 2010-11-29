@@ -145,6 +145,9 @@ cish_command CMD_SHOW[] = {
 	{"access-lists", "List access lists", CMD_SHOW_ACL, show_accesslists, 1, MSK_NORMAL},
 	{"arp", "ARP table", NULL, show_arp, 0, MSK_NORMAL},
 	{"clock", "System clock", NULL, show_clock, 0, MSK_NORMAL},
+#ifdef OPTION_BRIDGE
+	{"bridge", "Show bridge group", CMD_SHOW_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_IPSEC
 	{"crypto", "VPN tunnels", CMD_SHOW_CRYPTO, show_crypto, 1, MSK_VPN},
 #endif
