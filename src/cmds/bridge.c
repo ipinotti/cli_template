@@ -15,7 +15,7 @@
 
 #ifdef OPTION_BRIDGE
 cish_command CMD_SHOW_BRIDGE[] = {
-	{"1-1", "Bridge Group number", NULL, bridge_show, 1, MSK_NORMAL},
+	{"0-15", "Bridge Group number", NULL, bridge_show, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -61,7 +61,7 @@ cish_command CMD_CONFIG_BRIDGE2[] = {
 };
 
 cish_command CMD_CONFIG_BRIDGE[] = {
-	{"1-1", "Bridge Group number for Bridging", CMD_CONFIG_BRIDGE2, NULL, 1, MSK_NORMAL},
+	{"0-15", "Bridge Group number for Bridging", CMD_CONFIG_BRIDGE2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -72,7 +72,7 @@ cish_command CMD_CONFIG_NO_BRIDGE2[] = {
 };
 
 cish_command CMD_CONFIG_NO_BRIDGE[] = {
-	{"1-1", "Bridge Group number for Bridging", CMD_CONFIG_NO_BRIDGE2, bridge_no, 1, MSK_NORMAL},
+	{"0-15", "Bridge Group number for Bridging", CMD_CONFIG_NO_BRIDGE2, bridge_no, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 

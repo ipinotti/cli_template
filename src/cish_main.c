@@ -210,6 +210,11 @@ int main(int argc, char *argv[])
 #endif
 	set_model_ethernet_cmds(OPTION_NUM_ETHERNET_IFACES);
 
+#ifdef OPTION_BRIDGE
+	/* initialize bridging */
+	librouter_br_initbr();
+#endif
+
 	/* Begin at root */
 	command_root = CMD;
 
