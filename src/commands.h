@@ -236,6 +236,7 @@ void no_pim_dense_server(const char *cmd);
 void pim_sparse_server(const char *cmd);
 void no_pim_sparse_server(const char *cmd);
 void pim_sparse_mode(const char *cmd);
+void pim_sparse_mode_intf(const char *cmd);
 void pim_dense_mode(const char *cmd);
 void pim_bsr_candidate(const char *cmd);
 void pim_rp_address(const char *cmd);

@@ -432,6 +432,7 @@ cish_command CMD_NO_IP_PIM[] = {
 #endif
 	{"rp-address", "PIM RP-address (Rendezvous Point)", NULL, pim_rp_address, 1, MSK_NORMAL},
 	{"rp-candidate", "To be a PIMv2 RP candidate", NULL, pim_rp_candidate, 1, MSK_NORMAL},
+	{"sparse-mode", "Disable PIM Sparse Mode", NULL, pim_sparse_mode, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
@@ -566,6 +567,7 @@ cish_command CMD_IP_PIM[] = {
 #endif
 	{"rp-address", "PIM RP-address (Rendezvous Point)", CMD_IP_PIM_RP_ADDRESS, NULL, 1, MSK_NORMAL},
 	{"rp-candidate", "To be a PIMv2 RP candidate", CMD_IP_PIM_CAND_RP_INTF, NULL, 1, MSK_NORMAL},
+	{"sparse-mode", "Enable PIM Sparse Mode", NULL, pim_sparse_mode, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif

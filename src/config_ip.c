@@ -19,10 +19,12 @@
 #include <linux/if_arp.h>
 #include <syslog.h>
 
+#include "options.h"
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
 #include "cish_main.h"
+#include "dhcp.h"
 
 int get_procip_val(const char *);
 
@@ -252,8 +254,7 @@ void dhcp_server_dns(const char *cmd)
 		printf("%% Could not set DNS server\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
-
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 	free(args);
 }
 
@@ -289,7 +290,7 @@ void dhcp_server_leasetime(const char *cmd)
 	}
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 
 	free(args);
 }
@@ -309,7 +310,7 @@ void dhcp_server_domainname(const char *cmd)
 		printf("%% Could not set Domain Name\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 
 	free(args);
 }
@@ -330,7 +331,7 @@ void dhcp_server_nbns(const char *cmd)
 		printf("%% Could not set NetBIOS Name Server\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 
 	free(args);
 }
@@ -351,7 +352,7 @@ void dhcp_server_nbdd(const char *cmd)
 		printf("%% Could not set NetBIOS Datagram Distribution server\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 
 	free(args);
 }
@@ -389,7 +390,7 @@ void dhcp_server_nbnt(const char *cmd)
 		printf("%% Could not set NetBIOS node type\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 
 	free(args);
 }
@@ -411,7 +412,7 @@ void dhcp_server_default_router(const char *cmd)
 		printf("%% Could not set default router\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 
 	free(args);
 }
@@ -430,7 +431,7 @@ void dhcp_server_pool(const char *cmd)
 		printf("%% Could not set pool\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 
 	free(args);
 }
@@ -449,7 +450,7 @@ void dhcp_server_network(const char *cmd)
 		printf("%% Could not set network\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, 0); /* FIXME Only Ethernet 0 */
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
 
 	free(args);
 }
@@ -708,7 +709,7 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 			goto clean;
 		}
 #endif
-		sparse = librouter_pim_sparse_phyint(0, dev);
+		sparse = librouter_pim_sparse_phyint(0, dev, 0 , 0);
 		/* Kill pimsd if it is running */
 		if (sparse < 2 && librouter_exec_check_daemon(PIMS_DAEMON))
 			librouter_kill_daemon(PIMS_DAEMON);
@@ -729,10 +730,49 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 
 void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 {
+	arglist *args;
+	int enabled_intf = 0, i;
+	args = librouter_make_args(cmd);
+	dev_family *fam;
+	char *dev=malloc(16);
+
+	fam = librouter_device_get_family_by_type(eth);
+
+	if (args->argc == 4 && !strcmp(args->argv[0], "no")){
+		if (librouter_exec_check_daemon(PIMS_DAEMON)){
+			librouter_kill_daemon(PIMS_DAEMON);
+			librouter_pim_sparse_enable(0);
+		}
+	}
+	else {
+		for (i=0; i < OPTION_NUM_ETHERNET_IFACES; i++){
+			snprintf(dev,16,"%s%d",fam->linux_string,i);
+			enabled_intf = enabled_intf || librouter_pim_sparse_verify_intf_enable(dev);
+		}
+
+		if (enabled_intf){
+			if (!librouter_exec_check_daemon(PIMS_DAEMON)){
+				librouter_exec_daemon(PIMS_DAEMON);
+				librouter_pim_sparse_enable(1);
+			}
+		}
+		else {
+			printf("\n%% Interface ethernet PIM configuration must be applied first");
+			printf("\n%% Settings could not be applied\n\n");
+		}
+	}
+
+	librouter_destroy_args(args);
+	free(dev);
+	dev=NULL;
+}
+
+void pim_sparse_mode_intf(const char *cmd) /* [no] ip pim sparse-mode */
+{
 #ifdef OPTION_PIMD_DENSE
-	int dense;
+	int dense = 0;
 #endif
-	int sparse;
+	int sparse = 0;
 	char *dev;
 	arglist *args;
 
@@ -741,7 +781,7 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 	args = librouter_make_args(cmd);
 
 	if (args->argc == 4 && !strcmp(args->argv[0], "no"))
-		sparse = librouter_pim_sparse_phyint(0, dev);
+		sparse = librouter_pim_sparse_phyint(0, dev, 0, 0); /*(remove, dev, NULL, NULL)*/
 	else {
 #ifdef OPTION_SMCROUTE
 		if (librouter_exec_check_daemon(SMC_DAEMON)) {
@@ -755,17 +795,16 @@ void pim_sparse_mode(const char *cmd) /* [no] ip pim sparse-mode */
 			librouter_kill_daemon(PIMD_DAEMON);
 #endif
 
-		sparse = librouter_pim_sparse_phyint(1, dev);
+		if (args->argc == 3)
+			sparse = librouter_pim_sparse_phyint(1, dev, 0, 0); /*(add, dev, NULL, NULL) - default config*/
+		else
+			if (args->argc == 7)
+				sparse = librouter_pim_sparse_phyint(1, dev, atoi(args->argv[4]), atoi(args->argv[6])); /*(add, dev, preference, metric) - custom config*/
+
 	}
 
-	if (sparse < 2) {
-		if (librouter_exec_check_daemon(PIMS_DAEMON))
-			librouter_kill_daemon(PIMS_DAEMON);
-	}
-	else {
-		if (!librouter_exec_check_daemon(PIMS_DAEMON))
-			librouter_exec_daemon(PIMS_DAEMON);
-	}
+	if (sparse < 0)
+		syslog(LOG_ERR,"Problem with PIM conf file");
 
 	clean: librouter_destroy_args(args);
 	free(dev);
@@ -779,9 +818,9 @@ void pim_bsr_candidate(const char *cmd) /* [no] ip pim bsr-candidate <ethernet|s
 	if (!strcmp(args->argv[0], "no"))
 		librouter_pim_sparse_bsr_candidate(0, NULL, NULL, NULL);
 	else if (args->argc == 5)
-		librouter_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], NULL);
+		librouter_pim_sparse_bsr_candidate(1, librouter_device_to_linux_cmdline(args->argv[3]), args->argv[4], NULL);
 	else if (args->argc == 7)
-		librouter_pim_sparse_bsr_candidate(1, args->argv[3], args->argv[4], args->argv[6]);
+		librouter_pim_sparse_bsr_candidate(1, librouter_device_to_linux_cmdline(args->argv[3]), args->argv[4], args->argv[6]);
 	librouter_destroy_args(args);
 }
 
@@ -805,12 +844,12 @@ void pim_rp_candidate(const char *cmd) /* [no] ip pim rp-candidate <ethernet|ser
 	if (!strcmp(args->argv[0], "no"))
 		librouter_pim_sparse_rp_candidate(0, NULL, NULL, NULL, NULL);
 	else if (args->argc == 5)
-		librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], NULL, NULL);
+		librouter_pim_sparse_rp_candidate(1, librouter_device_to_linux_cmdline(args->argv[3]), args->argv[4], NULL, NULL);
 	else if (args->argc == 7)
-		librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6],
+		librouter_pim_sparse_rp_candidate(1, librouter_device_to_linux_cmdline(args->argv[3]), args->argv[4], args->argv[6],
 		                NULL);
 	else if (args->argc == 9)
-		librouter_pim_sparse_rp_candidate(1, args->argv[3], args->argv[4], args->argv[6],
+		librouter_pim_sparse_rp_candidate(1, librouter_device_to_linux_cmdline(args->argv[3]), args->argv[4], args->argv[6],
 		                args->argv[8]);
 	librouter_destroy_args(args);
 }

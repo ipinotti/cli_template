@@ -144,13 +144,44 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP1[] = {
 };
 
 #ifdef OPTION_PIMD
+
+cish_command CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_METR[] = {
+	{"1-5000", "Smaller is better", NULL, pim_sparse_mode_intf, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_2[] = {
+	{"metric", "Set interface's value in an election", CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_METR, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_PREF[] = {
+	{"1-5000", "Smaller is better", CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_1[] = {
+	{"preference", "Set interface's value in an election", CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_PREF, NULL, 1, MSK_NORMAL},
+	{"<enter>", "Default configuration for Preference and Metric ", NULL, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
 cish_command CMD_CONFIG_INTERFACE_IP_PIM[] = {
 #ifdef OPTION_PIMD_DENSE
 	{"dense-mode", "Enable PIM dense-mode operation", NULL, pim_dense_mode, 1, MSK_NORMAL},
 #endif
-	{"sparse-mode", "Enable PIM sparse-mode operation", NULL, pim_sparse_mode, 1, MSK_NORMAL},
+	{"sparse-mode", "Enable PIM sparse-mode operation", CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_1, pim_sparse_mode_intf, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+
+cish_command CMD_CONFIG_INTERFACE_IP_PIM_NO[] = {
+#ifdef OPTION_PIMD_DENSE
+	{"dense-mode", "Enable PIM dense-mode operation", NULL, pim_dense_mode, 1, MSK_NORMAL},
+#endif
+	{"sparse-mode", "Enable PIM sparse-mode operation", NULL, pim_sparse_mode_intf, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
 #endif
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP[] = {
@@ -160,7 +191,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP[] = {
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
 	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF_NO, NULL, 1, MSK_OSPF},
 #ifdef OPTION_PIMD
-	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
+	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM_NO, NULL, 1, MSK_NORMAL},
 #endif
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
