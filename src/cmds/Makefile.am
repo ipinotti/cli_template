@@ -11,6 +11,7 @@ libcmds_la_SOURCES = \
 	debug.c \
 	ip.c \
 	interface.c \
+	switch.c \
 	keychain.c \
 	mark.c \
 	nat.c \

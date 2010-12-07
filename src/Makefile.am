@@ -15,10 +15,10 @@ cish_SOURCES = \
 	config_debug.c \
 	config_mangle.c \
 	config_exit.c \
-	config_interface.h \
 	config_ip.c \
 	config_show.c \
 	config_interface.c \
+	config_switch.c \
 	config_bridge.c \
 	config_snmp.c \
 	config_vlan.c \

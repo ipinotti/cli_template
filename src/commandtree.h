@@ -187,4 +187,11 @@ extern cish_command CMD_SHOW_BRIDGE[];
 extern cish_command CMD_CONFIG_BRIDGE[];
 extern cish_command CMD_CONFIG_NO_BRIDGE[];
 
+/* Managed Switch (KSZ8863) */
+extern cish_command CMD_CONFIG_INTERFACE_ETH_SW_PORT_[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[];
+extern cish_command CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO[];
+extern cish_command CMD_CONFIG_INTERFACE_ETH_SW_GENERAL[];
+
 #endif /* _COMMANDTREE_H */
