@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <syslog.h>
 
-#include <linux/config.h>
+#include <linux/autoconf.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>

@@ -1,7 +1,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <linux/config.h>
+#include <linux/autoconf.h>
 
 #include "commands.h"
 #include "commandtree.h"
@@ -67,16 +67,10 @@ cish_command CMD_IPSEC_CONNECTION_INTERFACE_M3G[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_INTERFACE[] = {
-#ifdef OPTION_ETHERNET_WAN
-	{"m3G", "Modem 3G interface", CMD_IPSEC_CONNECTION_INTERFACE_M3G, NULL, 1, MSK_NORMAL},
-#else
-#ifndef OPTION_MODEM3G
-	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET, NULL, 1, MSK_NORMAL},
-#else
-	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_MODEM3G
 	{"m3G", "Modem 3G interface", CMD_IPSEC_CONNECTION_INTERFACE_M3G, NULL, 1, MSK_NORMAL},
 #endif
-#endif
+	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

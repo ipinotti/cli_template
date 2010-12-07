@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <linux/config.h>
+#include <linux/autoconf.h>
 #include <linux/if.h>
 #include <linux/netdevice.h>
 #include <netinet/in.h>

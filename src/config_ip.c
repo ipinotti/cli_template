@@ -15,7 +15,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/socket.h>
-#include <linux/config.h>
+#include <linux/autoconf.h>
 #include <linux/if_arp.h>
 #include <syslog.h>
 
