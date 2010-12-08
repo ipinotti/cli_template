@@ -422,29 +422,35 @@ void show_ip_dns(const char *cmdline)
 	char addr[16];
 	unsigned int i;
 
-	printf("IP domain lookup is currently %sabled\n", librouter_dns_domain_lookup_enabled() ? "en" : "dis");
-	printf("DNS relay is currently %sabled\n", librouter_exec_check_daemon(DNS_DAEMON) ? "en" : "dis");
+	printf("IP domain lookup is currently %sabled\n",
+	                librouter_dns_domain_lookup_enabled() ? "en" : "dis");
+	printf("DNS relay is currently %sabled\n",
+	                librouter_exec_check_daemon(DNS_DAEMON) ? "en" : "dis");
 
 	/* Lista servidores DNS estaticos */
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i, addr) < 0)
+		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i,
+		                addr) < 0)
 			break;
 		printf("Static ip name-server %s\n", addr);
 	}
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i, addr) < 0)
+		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i,
+		                addr) < 0)
 			break;
 		printf("Static ip name-server %s (inactive)\n", addr);
 	}
 
 	/* Lista servidores DNS dinamicos */
 	for (i = 0;; i++) {
-		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i, addr) < 0)
+		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i,
+		                addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s\n", addr);
 	}
 	for (i = 0;; i++) {
-		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i, addr) < 0)
+		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i,
+		                addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s (inactive)\n", addr);
 	}
@@ -539,6 +545,9 @@ static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 	if (ip->ipaddr[0])
 		fprintf(out, "  Internet address is %s %s\n", ip->ipaddr, ip->ipmask);
 
+	if (ip->ippeer[0])
+		fprintf(out, "  Peer address is %s\n", ip->ippeer);
+
 	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
 	;
 }
@@ -576,56 +585,52 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 	}
 
 #if 0 /* TODO Show more PHY information */
-		if (phy_status & PHY_STAT_FAULT) {
-			fprintf(out, ", Remote Fault Detect!\n");
-		} else {
-			fprintf(out, "\n");
-		}
+	if (phy_status & PHY_STAT_FAULT) {
+		fprintf(out, ", Remote Fault Detect!\n");
+	} else {
+		fprintf(out, "\n");
+	}
 
+	/* FIXME HACK para evitar que eth1 faça requisição do PHY, devido a MOD no kernel */
+	if (!strcmp(conf->name,"eth1")) {
+		pgsr = 1;
+		pssr = 1;
+	}
+	else {
+		pgsr = librouter_lan_get_phy_reg(conf->name, MII_ADM7001_PGSR);
+		pssr = librouter_lan_get_phy_reg(conf->name, MII_ADM7001_PSSR);
+	}
 
-
-		/* FIXME HACK para evitar que eth1 faça requisição do PHY, devido a MOD no kernel */
-		if (!strcmp(conf->name,"eth1")){
-			pgsr = 1;
-			pssr = 1;
-		}
-		else{
-			pgsr = librouter_lan_get_phy_reg(conf->name, MII_ADM7001_PGSR);
-			pssr = librouter_lan_get_phy_reg(conf->name, MII_ADM7001_PSSR);
-		}
-
-
-
-		if (pgsr & MII_ADM7001_PGSR_XOVER) {
-			fprintf(out, "  Cable MDIX");
-		} else {
-			fprintf(out, "  Cable MDI");
-		}
-		if (pssr & MII_ADM7001_PSSR_SPD) {
-			if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xab)
-				fprintf(out, ", length over 140m");
-			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xa2)
-				fprintf(out, ", length over 120m");
-			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x9a)
-				fprintf(out, ", length over 100m");
-			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x94)
-				fprintf(out, ", length over 80m");
-			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x22)
-				fprintf(out, ", length over 60m");
-			else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x1a)
-				fprintf(out, ", length over 40m");
-			else
-				fprintf(out, ", length below 40m");
+	if (pgsr & MII_ADM7001_PGSR_XOVER) {
+		fprintf(out, "  Cable MDIX");
+	} else {
+		fprintf(out, "  Cable MDI");
+	}
+	if (pssr & MII_ADM7001_PSSR_SPD) {
+		if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xab)
+		fprintf(out, ", length over 140m");
+		else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0xa2)
+		fprintf(out, ", length over 120m");
+		else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x9a)
+		fprintf(out, ", length over 100m");
+		else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x94)
+		fprintf(out, ", length over 80m");
+		else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x22)
+		fprintf(out, ", length over 60m");
+		else if ((pgsr & MII_ADM7001_PGSR_CBLEN) > 0x1a)
+		fprintf(out, ", length over 40m");
+		else
+		fprintf(out, ", length below 40m");
 #ifdef CONFIG_DEVELOPMENT
-			fprintf(out, " (cblen=%d)\n", pgsr & MII_ADM7001_PGSR_CBLEN);
+		fprintf(out, " (cblen=%d)\n", pgsr & MII_ADM7001_PGSR_CBLEN);
 #else
-			fprintf (out, "\n");
+		fprintf (out, "\n");
 #endif
 
-		} else {
-			fprintf(out, "\n");
-		}
+	} else {
+		fprintf(out, "\n");
 	}
+}
 #endif
 }
 
@@ -643,18 +648,15 @@ static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
 static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config cfg;
-	struct ip_t ip;
 	char *osdev = conf->name;
-	int serial_no=0, lusb_descriptor=-1, lusb_tty_verify=-1;
+	int serial_no = 0, lusb_descriptor = -1, lusb_tty_verify = -1;
 	char * apn = malloc(100);
-	int running = conf->running;
 	librouter_usb_dev * usbdev = malloc(sizeof(librouter_usb_dev));
 
 	/* Get interface index --> ex: ppp0 -> 0*/
 	serial_no = atoi(osdev + strlen(PPPDEV));
 	/* Get usb port from interface index */
 	usbdev->port = librouter_usb_get_realport_by_aliasport(serial_no);
-
 
 	/* Get config PPP ;
 	 * Get USB description ;
@@ -663,41 +665,22 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	lusb_descriptor = librouter_usb_get_descriptor(usbdev);
 	lusb_tty_verify = librouter_usb_device_is_modem(usbdev->port);
 
-
-	if (cfg.ip_addr[0]) {strncpy(ip.ipaddr, cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
-	if (cfg.ip_mask[0]) {strncpy(ip.ipmask, cfg.ip_mask, 16); printf("TESTE CFG MASK\n\n"); ip.ipmask[15]=0;}
-	if (cfg.ip_peer_addr[0]) {strncpy(ip.ippeer, cfg.ip_peer_addr, 16); ip.ippeer[15]=0;}
-	if (cfg.dial_on_demand && !running) { /* filtra enderecos aleatorios atribuidos pelo pppd */
-		ip.ipaddr[0]=0;
-		ip.ippeer[0]=0;
-	}
-
-
-	if (cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
-	fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", cfg.ip_unnumbered, ip.ipaddr);
-	else if (ip.ipaddr[0])
-		fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
-
-
 	fprintf(out, "  Encapsulation PPP");
 
-	if (!librouter_modem3g_get_apn (apn, serial_no))
+	if (!librouter_modem3g_get_apn(apn, serial_no))
 		fprintf(out, ", APN is \"%s\"\n", apn);
 	else
 		printf(" Error - reading APN\n");
 
-	free (apn);
+	free(apn);
 
-	if ( (!lusb_descriptor) && (lusb_tty_verify != -1) )
-		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d",
-				usbdev->product_str,
-				usbdev->manufacture_str,
-				usbdev->port);
+	if ((!lusb_descriptor) && (lusb_tty_verify != -1))
+		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d", usbdev->product_str,
+		                usbdev->manufacture_str, usbdev->port);
+	else if ((!lusb_descriptor) && (lusb_tty_verify < 0))
+		fprintf(out, "  USB device connected, but not a modem.");
 	else
-		if ( (!lusb_descriptor) && (lusb_tty_verify < 0) )
-			fprintf(out, "  USB device connected, but not a modem.");
-		else
-			fprintf(out, "  No USB device connected.");
+		fprintf(out, "  No USB device connected.");
 
 	free(usbdev);
 
@@ -708,8 +691,8 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 
 int intf_cmp(const void *a, const void *b)
 {
-	char *t1 = * (char * const *) a;
-	char *t2 = * (char * const *) b;
+	char *t1 = *(char * const *) a;
+	char *t2 = *(char * const *) b;
 
 	return strcmp(t1, t2);
 }
@@ -733,7 +716,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	}
 
 	/* Get number of interfaces and sort them by name */
-	for (i = 0; intf_list[i][0] != '\0'; i++, num_of_ifaces++);
+	for (i = 0; intf_list[i][0] != '\0'; i++, num_of_ifaces++)
+		;
 	qsort(&intf_list[0], num_of_ifaces, sizeof(char *), intf_cmp);
 
 #if 0
@@ -760,7 +744,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			continue; /* ignora dev nao usado pelo cish */
 
 		/* Check if only one interface is needed */
-		if (intf && strcasecmp(cish_dev, intf)){
+		if (intf && strcasecmp(cish_dev, intf)) {
 			continue;
 		}
 
@@ -768,7 +752,6 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		if (strncmp(conf.name, "ipsec", 5) == 0)
 			conf.linktype = ARPHRD_TUNNEL6; /* !!! change crypto-? linktype (temp!) */
-
 
 #if 0
 		switch (conf.linktype) {
@@ -790,7 +773,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 #endif
 
 		/* Ignore loopback that are down */
-		if ( (conf.linktype == ARPHRD_LOOPBACK && !conf.running) ){
+		if ((conf.linktype == ARPHRD_LOOPBACK && !conf.running)) {
 			continue;
 		}
 
@@ -807,7 +790,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		__dump_intf_ipaddr_status(out, &conf);
 		__dump_intf_secondary_ipaddr_status(out, &conf);
 
-		if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype == ARPHRD_IPGRE || conf.linktype == ARPHRD_PPP))
+		if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype
+		                == ARPHRD_IPGRE || conf.linktype == ARPHRD_PPP))
 			fprintf(out, "  Peer address is %s\n", ip.ippeer);
 
 		if (conf.linktype == ARPHRD_PPP && conf.running)
@@ -847,16 +831,13 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			break;
 		}
 
-
 		/* Se dispositivo 3G USB não estiver presente no sistema, ou sem ppp ativo,
 		 * Description não será apresentado
 		 */
-		if (conf.linktype == ARPHRD_PPP && !conf.running){
+		if (conf.linktype == ARPHRD_PPP && !conf.running) {
 			fprintf(out, "\n");
 			continue;
 		}
-
-
 
 		fprintf(out, "     %lu packets input, %lu bytes\n", st->rx_packets, st->rx_bytes);
 		fprintf(
@@ -864,7 +845,6 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		                "     %lu input errors, %lu dropped, %lu overruns, %lu frame, %lu crc, %lu fifo\n",
 		                st->rx_errors, st->rx_dropped, st->rx_over_errors,
 		                st->rx_frame_errors, st->rx_crc_errors, st->rx_fifo_errors);
-
 
 #ifdef CONFIG_DEVELOPMENT
 		fprintf(out, "     %lu length, %lu missed\n", st->rx_length_errors,
@@ -974,10 +954,10 @@ void show_level_running_config(const char *cmdline)
 		dump_crypto(f);
 #endif
 	} else if ((command_root == CMD_CONFIG_INTERFACE_ETHERNET)
-	                || (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
-	                || (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
-	                || (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
-	                || (command_root == CMD_CONFIG_INTERFACE_M3G_USB)) {
+			|| (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
+			|| (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
+			|| (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
+			|| (command_root == CMD_CONFIG_INTERFACE_M3G_USB)) {
 
 		char *intf = librouter_device_convert(interface_edited->cish_string,
 				interface_major, interface_minor);
@@ -1094,7 +1074,7 @@ void cmd_copy(const char *cmdline)
 		char *s;
 
 		sprintf(buf, "/bin/tftp -g -l %s -r %s %s 2> "
-		        TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE,filename, host);
+		TMP_TFTP_OUTPUT_FILE, TFTP_CFG_FILE, filename, host);
 
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
@@ -1141,7 +1121,8 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename,host);
+		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename,
+		                host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
@@ -1331,7 +1312,8 @@ static int show_conn_specific(char *name, int state)
 					;
 				if (strlen(p) > 0) {
 					strcpy(mask, p);
-					if (librouter_quagga_classic_to_cidr(addr_l, mask, cidr_l) != 0)
+					if (librouter_quagga_classic_to_cidr(addr_l, mask, cidr_l)
+					                != 0)
 						cidr_l[0] = '\0';
 				}
 			}
@@ -1386,7 +1368,8 @@ static int show_conn_specific(char *name, int state)
 					;
 				if (strlen(p) > 0) {
 					strcpy(mask, p);
-					if (librouter_quagga_classic_to_cidr(addr_r, mask, cidr_r) != 0)
+					if (librouter_quagga_classic_to_cidr(addr_r, mask, cidr_r)
+					                != 0)
 						cidr_r[0] = '\0';
 				}
 			}
@@ -1752,8 +1735,7 @@ void show_dumpleases(const char *cmdline)
 	char filename[64];
 	FILE *tf;
 
-	for (i = 0; i < MAX_LAN_INTF; i++)
-	{
+	for (i = 0; i < MAX_LAN_INTF; i++) {
 		if (librouter_udhcpd_kick_by_eth(i) == 0) {
 			sprintf(filename, FILE_DHCPDLEASES, i);
 			tf = fopen(filename, "r");
@@ -1886,68 +1868,66 @@ void show_vrrp(const char *cmdline)
 }
 #endif
 
-
-
 #ifdef OPTION_MODEM3G
 void show_modem3g_apn(const char *cmdline)
 {
-	int check=0;
-	char * apn=malloc(256);
-	check = librouter_modem3g_get_apn(apn,interface_major);
-	if (check == -1){
+	int check = 0;
+	char * apn = malloc(256);
+	check = librouter_modem3g_get_apn(apn, interface_major);
+	if (check == -1) {
 		printf("Error on show APN\n");
 		free(apn);
 		return;
 	}
 
 #ifdef DEBUG
-	printf("\nAPN: %s  \n\n",apn);
+	printf("\nAPN: %s  \n\n", apn);
 #endif
 
 	free(apn);
-	apn=NULL;
+	apn = NULL;
 
 }
 
 void show_modem3g_username(const char *cmdline)
 {
-	int check=0;
-	char * username=malloc(256);
+	int check = 0;
+	char * username = malloc(256);
 
 	check = librouter_modem3g_get_username(username, interface_major);
 	if (check == -1) {
 		printf("Error on show username\n");
-		free (username);
+		free(username);
 		return;
 	}
 
 #ifdef DEBUG
-	printf("\nUsername: %s \n\n",username);
+	printf("\nUsername: %s \n\n", username);
 #endif
 
-	free (username);
-	username=NULL;
+	free(username);
+	username = NULL;
 
 }
 
 void show_modem3g_password(const char *cmdline)
 {
-	int check=0;
-	char * password=malloc(256);
+	int check = 0;
+	char * password = malloc(256);
 
 	check = librouter_modem3g_get_password(password, interface_major);
 	if (check == -1) {
 		printf("Error on show password\n");
-		free (password);
+		free(password);
 		return;
 	}
 
 #ifdef DEBUG
-	printf("\nPassword: %s \n\n",password);
+	printf("\nPassword: %s \n\n", password);
 #endif
 
-	free (password);
-	password=NULL;
+	free(password);
+	password = NULL;
 
 }
 #endif
