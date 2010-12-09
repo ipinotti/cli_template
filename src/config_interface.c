@@ -142,6 +142,10 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			}
 			free(dev);
 			break;
+		case pptp:
+			command_root = CMD_CONFIG_INTERFACE_PPTP;
+			break;
+
 #ifdef OPTION_MODEM3G
 		case ppp:
 			if (interface_major == 0)
@@ -1299,6 +1303,101 @@ void interface_modem3g_btin_set_info(const char *cmdline)
 	librouter_destroy_args(args);
 }
 #endif /* OPTION_MODEM3G */
+
+
+
+
+
+/* PPTP */
+
+
+void pptp_set_info(const char *cmd)
+{
+	arglist * args;
+	int check;
+	args = librouter_make_args(cmd);
+
+	if ( strcmp(args->argv[0],"server") ){
+		check = librouter_pptp_analyze_input(args->argv[1]);
+		if (check < 0){
+			printf ("\n %% Error on set configuration!\n");
+			printf (" %% Wrong input! \n");
+			printf (" %% The system do not accept special characters like: .@<>#\\/&* \n");
+			goto end;
+		}
+	}
+
+	check = librouter_pptp_set_config_cli(args->argv[0], args->argv[1]);
+	if (check < 0) {
+		printf("\n%% Error on set %s", args->argv[0]);
+		printf("\n%% Settings could not be applied\n\n");
+	}
+
+end:
+	librouter_destroy_args(args);
+
+}
+
+void pptp_set_no_info(const char *cmd)
+{
+	arglist * args;
+	args = librouter_make_args(cmd);
+	int check=0;
+
+	if ( strcmp(args->argv[0],"no") ){
+		printf("\n%% Error on set no %s", args->argv[1]);
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
+
+	check = librouter_pptp_set_config_cli(args->argv[1],"");
+	if (check < 0) {
+		printf("\n%% Error on set no %s", args->argv[1]);
+		printf("\n%% Settings could not be applied\n\n");
+	}
+
+end:
+	librouter_destroy_args(args);
+}
+
+void pptp_set_mppe(const char *cmd)
+{
+	arglist * args;
+	int check=0;
+	args = librouter_make_args(cmd);
+
+	if ( !strcmp(args->argv[0], "no") )
+		check = librouter_pptp_set_mppe(0);
+	else
+		check = librouter_pptp_set_mppe(1);
+
+	if (check < 0) {
+		printf("\n%% Error on set PPTP MPPE\n");
+		printf("\n%% Settings could not be applied\n\n");
+	}
+
+	librouter_destroy_args(args);
+
+}
+
+void pptp_set_clientmode(const char *cmd)
+{
+	arglist * args;
+	args = librouter_make_args(cmd);
+
+	if ( !strcmp(args->argv[0], "no") )
+		librouter_pptp_set_clientmode(0);
+	else
+		librouter_pptp_set_clientmode(1);
+
+	librouter_destroy_args(args);
+}
+
+/* END PPTP */
+
+
+
+
 
 #ifdef OPTION_EFM
 void interface_efm_set_mode(const char *cmdline)

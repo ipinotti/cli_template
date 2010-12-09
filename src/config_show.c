@@ -36,6 +36,8 @@
 
 #include <librouter/options.h>
 #include <librouter/usb.h>
+#include <librouter/pptp.h>
+#include <librouter/acl.h>
 
 #define PPPDEV "ppp"
 
@@ -640,6 +642,48 @@ static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
 #endif
 
 #ifdef OPTION_PPP
+static void __dump_ppp_pptp_status(FILE *out, struct interface_conf *conf)
+{
+	ppp_config ppp_cfg;
+	pptp_config pptp_cfg;
+	struct ip_t ip;
+	char *osdev = conf->name;
+	int serial_no=0;
+	int running = conf->running;
+
+	/* Get interface index --> ex: ppp0 -> 0*/
+	serial_no = atoi(osdev + strlen(PPPDEV));
+
+	librouter_ppp_get_config(serial_no, &ppp_cfg);
+
+	librouter_pptp_get_config(&pptp_cfg);
+
+	if (ppp_cfg.ip_addr[0]) {strncpy(ip.ipaddr, ppp_cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
+	if (ppp_cfg.ip_mask[0]) {strncpy(ip.ipmask, ppp_cfg.ip_mask, 16); printf("TESTE CFG MASK\n\n"); ip.ipmask[15]=0;}
+	if (ppp_cfg.ip_peer_addr[0]) {strncpy(ip.ippeer, ppp_cfg.ip_peer_addr, 16); ip.ippeer[15]=0;}
+	if (ppp_cfg.dial_on_demand && !running) { /* filtra enderecos aleatorios atribuidos pelo pppd */
+		ip.ipaddr[0]=0;
+		ip.ippeer[0]=0;
+	}
+
+	if (ppp_cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
+		fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", ppp_cfg.ip_unnumbered, ip.ipaddr);
+	else
+		if (ip.ipaddr[0])
+			fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+
+
+	fprintf(out, "  Encapsulation PPP");
+	fprintf(out, ", Server is %s\n", pptp_cfg.server);
+	fprintf(out, "  Username is \"%s\"", pptp_cfg.username);
+	if (strlen(pptp_cfg.domain) > 0)
+		fprintf(out, ", Domain is \"%s\"", pptp_cfg.domain);
+
+	fprintf(out, "\n");
+
+}
+
+
 static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config cfg;
@@ -720,6 +764,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	struct ip_t ip;
 	char *cish_dev;
 	char *description;
+	char pppid[10];
 	struct net_device_stats *st;
 	struct interface_conf conf;
 	struct intf_info info;
@@ -753,8 +798,17 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		st = conf.stats;
 
-		cish_dev = librouter_device_convert_os(conf.name, conf_format ? 0 : 1);
+
+		if  ( (strstr(conf.name, "ppp")) && (strlen(conf.name) >= 5) ){
+			snprintf(pppid,10,"PPTP%c",conf.name[strlen(conf.name)-1]);
+			cish_dev = pppid;
+		}
+		else
+			cish_dev = librouter_device_convert_os(conf.name, conf_format ? 0 : 1);
+
+
 		cish_dbg("cish_dev : %s\n", cish_dev);
+
 
 		if (cish_dev == NULL)
 			continue; /* ignora dev nao usado pelo cish */
@@ -822,7 +876,10 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		switch (conf.linktype) {
 #ifdef OPTION_PPP
 		case ARPHRD_PPP:
-			__dump_ppp_status(out, &conf);
+			if (strstr(cish_dev,"PPTP"))
+				__dump_ppp_pptp_status(out, &conf);
+			else
+				__dump_ppp_status(out, &conf);
 			break;
 #endif
 		case ARPHRD_ETHER:
