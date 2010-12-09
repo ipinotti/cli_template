@@ -7,7 +7,7 @@
 
 #include <dirent.h>
 #include <netdb.h>
-#include <linux/config.h>
+#include <linux/autoconf.h>
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -1180,16 +1180,15 @@ cish_command *expand_token(const char *unexpanded, cish_command *queue, int iter
 					if (strcasecmp(endptr, "bps") == 0)
 						factor = 1;
 					else if (strcasecmp(endptr, "kbps") == 0)
-						factor = 1024;
+						factor = 1000;
 					else if (strcasecmp(endptr, "mbps") == 0)
-						factor = 1048576;
+						factor = 1000000;
 					else if (strcasecmp(endptr, "%") == 0) {
 						factor = 1;
 						per = 1;
 					}
 				}
-				if (factor && (i * factor >= (per ? 1 : 1000)) && (i * factor
-				                <= (per ? 100 : 5056000))) {
+				if (factor && (i * factor >= (per ? 1 : QOS_MIN_BANDWIDTH)) && (i * factor <= (per ? 100 : QOS_MAX_BANDWIDTH))) {
 					if (iteration < 1) {
 						strncpy(EXTCMD, unexpanded, 255);
 						EXTCMD[255] = 0;

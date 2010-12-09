@@ -68,7 +68,8 @@ void set_model_vpn_cmds(int enable)
 #ifdef OPTION_MANAGED_SWITCH
 void set_model_switch_cmds(void)
 {
-	int enable = librouter_ksz8863_probe();
+	//int enable = librouter_ksz8863_probe();
+	int enable = 1;
 
 	if (enable == 1)
 		_cish_mask |= MSK_MANAGED_SWITCH;

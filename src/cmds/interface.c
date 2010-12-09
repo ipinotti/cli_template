@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <linux/config.h>
+#include <linux/autoconf.h>
 
 #include "commands.h"
 #include "commandtree.h"
@@ -731,6 +731,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[] = {
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_MANAGED_SWITCH
+	{"switch-config", "Configure switch advanced settings general to all ports", CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO, NULL, 1, MSK_MANAGED_SWITCH},
+#endif
 	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP, NULL, 1, MSK_VRRP},
@@ -781,39 +784,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SPEED[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-#ifdef OPTION_MANAGED_SWITCH
-cish_command CMD_CONFIG_INTERFACE_ETHERNET_RATE_LIMIT[] = {
-	{"32-65535", "Maximum RX rate in Kbps", NULL, interface_rate_limit, 1, MSK_MANAGED_SWITCH},
-	{NULL,NULL,NULL,NULL}
-};
-
-cish_command CMD_CONFIG_INTERFACE_ETHERNET_TRAFFIC_SHAPE[] = {
-	{"32-65535", "Maximum TX rate in Kbps", NULL, interface_traffic_shape, 1, MSK_MANAGED_SWITCH},
-	{NULL,NULL,NULL,NULL}
-};
-
-cish_command CMD_CONFIG_INTERFACE_ETHERNET_DEFAULT_VID[] = {
-	{"1-4095", "802.1q VID", NULL, interface_vlan_default, 1, MSK_MANAGED_SWITCH},
-	{NULL,NULL,NULL,NULL}
-};
-
-
-cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
-	{"exit", "Exit from interface configuration mode", NULL, config_interface_switch_port_done, 1, MSK_NORMAL},
-	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
-	{"rate-limit", "Storm control configuration", CMD_CONFIG_INTERFACE_ETHERNET_RATE_LIMIT, NULL, 1, MSK_MANAGED_SWITCH},
-	//{"storm-control", "Storm control configuration", CMD_CONFIG_INTERFACE_ETHERNET_STORM, NULL, 1, MSK_MANAGED_SWITCH},
-	{"traffic-shape", "Storm control configuration", CMD_CONFIG_INTERFACE_ETHERNET_TRAFFIC_SHAPE, NULL, 1, MSK_MANAGED_SWITCH},
-	{"vlan-default", "Mark non-tagged packets with VLAN tag", CMD_CONFIG_INTERFACE_ETHERNET_DEFAULT_VID, NULL, 1, MSK_MANAGED_SWITCH},
-	{NULL,NULL,NULL,NULL}
-};
-
-cish_command CMD_CONFIG_INTERFACE_ETH_SW_PORT_[] = {
-	{"0-1", "External switch port", NULL, config_interface_switch_port, 1, MSK_MANAGED_SWITCH},
-	{NULL,NULL,NULL,NULL}
-};
-
-#endif
 cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
 #ifdef OPTION_BRIDGE
@@ -827,7 +797,8 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_NO, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_MANAGED_SWITCH
-	{"switch-port", "Configure advanced settings for an external switch port", CMD_CONFIG_INTERFACE_ETH_SW_PORT_, NULL, 1, MSK_MANAGED_SWITCH},
+	{"switch-config", "Configure switch advanced settings general to all ports", CMD_CONFIG_INTERFACE_ETH_SW_GENERAL, NULL, 1, MSK_MANAGED_SWITCH},
+	{"switch-port", "Configure switch advanced settings specific to an external port", CMD_CONFIG_INTERFACE_ETH_SW_PORT_, NULL, 1, MSK_MANAGED_SWITCH},
 #endif
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"speed", "Configure speed and related commands", CMD_CONFIG_INTERFACE_ETHERNET_SPEED, NULL, 1, MSK_NORMAL},

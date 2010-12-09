@@ -569,10 +569,22 @@ void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
 
-void interface_vlan_default(const char *);
-void interface_rate_limit(const char *);
-void interface_traffic_shape(const char *);
+/* TODO config_switch.c -> create config_switch.h */
+void sw_vlan_default(const char *);
+void sw_ingress_rate_limit(const char *);
+void sw_egress_traffic_shape(const char *);
+void sw_replace_null_vid(const char *);
+void sw_multicast_storm_protect(const char *);
+void sw_enable_wfq(const char *);
+void sw_vlan_entry(const char *);
+void sw_8021q(const char *);
+void sw_8021p(const char *);
+void sw_8021p_prio(const char *);
+void sw_dscp(const char *);
+void sw_dscp_prio(const char *);
+void sw_txqueue_split(const char *);
 
+/* TODO config_interface.c -> create config_interface.h */
 void config_interface_done(const char *);
 void config_interface_switch_port(const char *);
 void config_interface_switch_port_done(const char *);

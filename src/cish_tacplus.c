@@ -1,4 +1,4 @@
-#include <linux/config.h>
+#include <linux/autoconf.h>
 #include <stdio.h>
 #include <sys/mman.h>	/*mmap*/
 #include <dlfcn.h>	/*dlopen, dlsym*/
