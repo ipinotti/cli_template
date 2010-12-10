@@ -542,7 +542,7 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 	acl_chain chain = chain_in;
 	char *listno;
 
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 	args = librouter_make_args(cmdline);
 	listno = args->argv[2];
@@ -606,7 +606,7 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 	acl_chain chain = chain_in;
 	char *listno;
 
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 	args = librouter_make_args(cmdline);
 	listno = args->argv[3];

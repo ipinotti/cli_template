@@ -1869,7 +1869,7 @@ void clear_counters(const char *cmdline)
 		else
 			if_minor = -1;
 
-		interface = librouter_device_convert(if_edited->cish_string, if_major, if_minor);
+		interface = librouter_device_cli_to_linux(if_edited->cish_string, if_major, if_minor);
 		if (librouter_dev_exists(interface)) {
 			clear = librouter_clear_interface_counters(interface);
 		} else {

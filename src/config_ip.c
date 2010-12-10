@@ -37,17 +37,19 @@ void ip_param(const char *cmd)
 	dst_file = (const char *) NULL;
 	dst_val = -1;
 
+#ifdef OPTION_IP_ROUTING
 	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ip_forward"; /* "/proc/sys/net/ipv4/conf/all/forwarding" */
 		dst_val = 1;
-	}
+	} else
+#endif
 #ifdef OPTION_PIMD
-	else if (strncmp(cmd, "ip multicast-routing", 20) == 0) {
+	if (strncmp(cmd, "ip multicast-routing", 20) == 0) {
 		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
 		dst_val = 1;
-	}
+	} else
 #endif
-	else if (strncmp(cmd, "ip pmtu-discovery", 17) == 0) {
+	if (strncmp(cmd, "ip pmtu-discovery", 17) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ip_no_pmtu_disc";
 		dst_val = 0;
 	} else if (strncmp(cmd, "ip default-ttl ", 15) == 0) {
@@ -696,7 +698,7 @@ void pim_dense_mode(const char *cmd) /* [no] ip pim dense-mode */
 	char *dev;
 	arglist *args;
 
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 	args = librouter_make_args(cmd);
 
@@ -776,7 +778,7 @@ void pim_sparse_mode_intf(const char *cmd) /* [no] ip pim sparse-mode */
 	char *dev;
 	arglist *args;
 
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 	args = librouter_make_args(cmd);
 

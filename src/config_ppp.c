@@ -20,7 +20,7 @@ void ppp_shutdown (const char *cmd)
 	if (cfg.up)
 	{
 		cfg.up=0;
-		dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+		dev=librouter_device_cli_to_linux(interface_edited->cish_string, interface_major, interface_minor);
 #ifdef CONFIG_BERLIN_SATROUTER
 		if(!strcmp(dev, "serial0"))
 			system("gpio wan_status off");
@@ -55,7 +55,7 @@ void ppp_noshutdown (const char *cmd)
 		}
 		cfg.up=1;
 		librouter_ppp_set_config(interface_major, &cfg);
-		dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+		dev=librouter_device_cli_to_linux(interface_edited->cish_string, interface_major, interface_minor);
 		librouter_qos_tc_insert_all(dev);
 		free(dev);
 	}
@@ -477,7 +477,7 @@ void ppp_unnumbered (const char *cmd) /* ip unnumbered ethernet 0-x */
 	char *dev;
 
 	args=librouter_make_args(cmd);
-	dev=librouter_device_convert(args->argv[2], atoi(args->argv[3]), -1);
+	dev=librouter_device_cli_to_linux(args->argv[2], atoi(args->argv[3]), -1);
 	librouter_ip_ethernet_ip_addr(dev, addr, mask); // Captura o endere�o e mascara da interface Ethernet
 	librouter_ppp_get_config(interface_major, &cfg); // Armazena em cfg a configuracao da serial
 	strncpy(cfg.ip_addr, addr, 16); //Atualiza cfg com os dados da ethernet

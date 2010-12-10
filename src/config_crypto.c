@@ -1147,7 +1147,7 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 	char *dev;
 
 	args = librouter_make_args(cmd);
-	dev = librouter_device_convert(args->argv[4], atoi(args->argv[5]), -1);
+	dev = librouter_device_cli_to_linux(args->argv[4], atoi(args->argv[5]), -1);
 
 	if (!strncmp(dev, "eth", strlen("eth")))
 		librouter_ip_ethernet_ip_addr(dev, addr, mask);

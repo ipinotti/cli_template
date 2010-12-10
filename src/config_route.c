@@ -54,7 +54,7 @@ void ip_route (const char *cmdline)
 		}
 		if (args->argc == 7) metric=atoi(args->argv[6]);
 		
-		dev = librouter_device_convert (destination, major, minor);
+		dev = librouter_device_cli_to_linux (destination, major, minor);
 		sprintf (string, "-net %s netmask %s dev %s", source_net, source_mask, dev);
 		if (metric) sprintf (string+strlen(string), " %i", metric);
 		free(dev);
@@ -136,7 +136,7 @@ void no_ip_route (const char *cmdline)
 		}
 		if (args->argc == 7) metric=atoi(args->argv[6]);
 		
-		dev = librouter_device_convert (destination, major, minor);
+		dev = librouter_device_cli_to_linux (destination, major, minor);
 		sprintf (string, "-net %s netmask %s dev %s", source_net, source_mask, dev);
 		if (metric) sprintf (string+strlen(string), " %i", metric);
 		free(dev);

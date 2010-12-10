@@ -269,7 +269,7 @@ void zebra_execute_interface_cmd(const char *cmdline)
 	new_cmdline=librouter_zebra_from_linux_cmdline((char*)new_cmdline);
 	librouter_quagga_execute_client("enable", stdout, buf_daemon, 0);
 	librouter_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
-	dev=librouter_device_convert(interface_edited->cish_string, interface_major, interface_minor);
+	dev=librouter_device_cli_to_linux(interface_edited->cish_string, interface_major, interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);
 #ifdef DEBUG_ZEBRA
@@ -335,7 +335,7 @@ void ospf_execute_interface_cmd(const char *cmdline)
 	new_cmdline = librouter_device_to_linux_cmdline((char*) cmdline);
 	librouter_quagga_execute_client("enable", stdout, buf_daemon, 0);
 	librouter_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);
@@ -450,7 +450,7 @@ void rip_execute_interface_cmd(const char *cmdline)
 	new_cmdline = librouter_device_to_linux_cmdline((char*) cmdline);
 	librouter_quagga_execute_client("enable", stdout, buf_daemon, 0);
 	librouter_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 	sprintf(buf, "interface %s", dev);
 	free(dev);

@@ -397,7 +397,7 @@ void show_arp(const char *cmdline)
 					printf("ARPA   ");
 				else
 					pprintf("other  ");
-				cdev = librouter_device_convert_os(osdev, 1);
+				cdev = librouter_device_linux_to_cli(osdev, 1);
 				if (cdev)
 					pprintf("%s", cdev);
 				pprintf("\n");
@@ -737,7 +737,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		st = conf.stats;
 
-		cish_dev = librouter_device_convert_os(conf.name, conf_format ? 0 : 1);
+		cish_dev = librouter_device_linux_to_cli(conf.name, conf_format ? 0 : 1);
 		cish_dbg("cish_dev : %s\n", cish_dev);
 
 		if (cish_dev == NULL)
@@ -959,7 +959,7 @@ void show_level_running_config(const char *cmdline)
 			|| (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
 			|| (command_root == CMD_CONFIG_INTERFACE_M3G_USB)) {
 
-		char *intf = librouter_device_convert(interface_edited->cish_string,
+		char *intf = librouter_device_cli_to_linux(interface_edited->cish_string,
 				interface_major, interface_minor);
 
 		dump_interfaces(f, 1, intf);

@@ -360,7 +360,7 @@ void interface_nat(const char *cmdline) /* ip nat <acl> <in|out> */
 	acl_chain chain = chain_in;
 	char *rulename;
 
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 	args = librouter_make_args(cmdline);
 	rulename = args->argv[2];
@@ -402,7 +402,7 @@ void interface_no_nat(const char *cmdline) /* no ip nat <acl> [in|out] */
 	acl_chain chain = chain_in;
 	char *rulename;
 
-	dev = librouter_device_convert(interface_edited->cish_string, interface_major,
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 	args = librouter_make_args(cmdline);
 	rulename = args->argv[3];
