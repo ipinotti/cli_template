@@ -33,6 +33,8 @@
 #define MAIN_INTF_STR 		"main_interface="
 #define METHOD_STR 		"method="
 #define PING_ADDR_STR 		"ping-address="
+#define DEFAULT_ROUTE_STR	"default-route="
+#define ROUTE_DISTANCE_STR	"default-route-distance="
 
 #define INTF_STR_LEN 		strlen(INTF_STR)
 #define SHUTD_STR_LEN		strlen(SHUTD_STR)
@@ -40,6 +42,8 @@
 #define MAIN_INTF_STR_LEN 	strlen(MAIN_INTF_STR)
 #define METHOD_STR_LEN 		strlen(METHOD_STR)
 #define PING_ADDR_STR_LEN	strlen(PING_ADDR_STR)
+#define DEFAULT_ROUTE_STR_LEN	strlen(DEFAULT_ROUTE_STR)
+#define ROUTE_DISTANCE_STR_LEN	strlen(ROUTE_DISTANCE_STR)
 
 /*
  * Which methodology to use? For now
@@ -57,6 +61,8 @@ enum bckp_config_field {
 	FIELD_MAIN_INTF,
 	FIELD_METHOD,
 	FIELD_PING_ADDR,
+	FIELD_INSTALL_DEFAULT_ROUTE,
+	FIELD_ROUTE_DISTANCE
 };
 
 enum bckp_state {
@@ -78,6 +84,8 @@ struct bckp_conf_t {
 	char ping_address[128];
 	enum bckp_state state;
 	pid_t pppd_pid;
+	int is_default_gateway;
+	int default_route_distance;
 };
 
 #endif /* BACKUPD_H_ */
