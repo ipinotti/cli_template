@@ -143,6 +143,12 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP1[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+
+
+
+
+
+
 #ifdef OPTION_PIMD
 
 cish_command CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_METR[] = {
@@ -418,6 +424,61 @@ cish_command CMD_CONFIG_INTERFACE_TXQUEUELEN[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+
+
+
+
+
+
+/* PPTP Interface */
+
+cish_command CMD_CONFIG_PPTP_SERVER[] = {
+	{"<ipaddress>", "PPTP Server IP Address", NULL, pptp_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_PPTP_DOMAIN[] = {
+	{"<text>", "Authentication Domain Name", NULL, pptp_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_PPTP_USERNAME[] = {
+	{"<text>", "Username for PPTP Connection", NULL, pptp_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_PPTP_PASSWORD[] = {
+	{"<text>", "Password for PPTP Connection", NULL, pptp_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_PPTP[] = {
+	{"server", "Set server IP address", CMD_CONFIG_PPTP_SERVER, NULL, 1, MSK_NORMAL},
+	{"domain", "Set authentication domain name", CMD_CONFIG_PPTP_DOMAIN, NULL, 1, MSK_NORMAL},
+	{"username", "Set username", CMD_CONFIG_PPTP_USERNAME, NULL, 1, MSK_NORMAL},
+	{"password", "Set password", CMD_CONFIG_PPTP_PASSWORD, NULL, 1, MSK_NORMAL},
+	{"mppe", "Set support for MPPE encryption", NULL, pptp_set_mppe, 1, MSK_NORMAL},
+	{"client-mode", "Enable PPTP Client Mode", NULL, pptp_set_clientmode, 1, MSK_NORMAL},
+	{"no", "Reverse a setting",CMD_CONFIG_INTERFACE_PPTP_NO, NULL, 1, MSK_NORMAL},
+	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_PPTP_NO[] = {
+	{"domain", "Remove authentication domain name", NULL, pptp_set_no_info, 1, MSK_NORMAL},
+	{"mppe", "Remove support for MPPE encryption", NULL, pptp_set_mppe, 1, MSK_NORMAL},
+	{"client-mode", "Disable PPTP Client Mode", NULL, pptp_set_clientmode, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+/* End PPTP Interface */
+
+
+
+
+
+
+
 /* 3G Interface */
 #ifdef OPTION_MODEM3G
 
@@ -599,6 +660,12 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
 
 #endif
 
+
+
+
+
+
+
 /***********************/
 /* Ethernet Interfaces */
 /***********************/
@@ -762,6 +829,12 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+
+
+
+
+
+
 /* EFM Interface */
 #ifdef OPTION_EFM
 cish_command CMD_CONFIG_INTERFACE_EFM_MODE[] = {
@@ -804,6 +877,12 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{NULL,NULL,NULL,NULL}
 };
 #endif /* OPTION_EFM */
+
+
+
+
+
+
 
 
 /* VLAN Interface */
@@ -928,6 +1007,12 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+
+
+
+
+
+
 // interface loopback
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP3[] = {
@@ -993,6 +1078,12 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK[] = {
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
+
+
+
+
+
+
 
 /* Tunnel Interface */
 

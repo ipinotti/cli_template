@@ -39,6 +39,11 @@ cish_command CMD_CONFIG_INTERFACE_M3G_[] = {
 };
 #endif
 
+cish_command CMD_CONFIG_INTERFACE_PPTP_[] = {
+	{"0-0", "PPTP interface number", NULL, config_interface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CONFIG_INTERFACE[] = {
 #ifdef OPTION_EFM
 	{"efm", "Ethernet-First-Mile interface", CMD_CONFIG_INTERFACE_EFM_, NULL, 0, MSK_NORMAL},
@@ -49,6 +54,7 @@ cish_command CMD_CONFIG_INTERFACE[] = {
 #ifdef OPTION_MODEM3G
 	{"m3G", "3G interface", CMD_CONFIG_INTERFACE_M3G_, NULL, 0, MSK_NORMAL},
 #endif
+	{"pptp", "PPTP Interface", CMD_CONFIG_INTERFACE_PPTP_, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

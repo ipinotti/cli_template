@@ -40,6 +40,7 @@
 #include <librouter/ppcio.h>
 #include <librouter/md5.h>
 #include <librouter/ps.h>
+#include <librouter/pptp.h>
 
 #ifdef OPTION_MODEM3G
 #include <librouter/modem3G.h>
@@ -703,6 +704,11 @@ void policymap_done(const char *cmdline);
 void no_service_policy(const char *cmdline);
 void do_service_policy(const char *cmdline);
 
+/* PPTP */
+void pptp_set_info(const char *cmd);
+void pptp_set_no_info(const char *cmd);
+void pptp_set_mppe(const char *cmd);
+void pptp_set_clientmode(const char *cmd);
 
 /* 3G Device */
 #ifdef OPTION_MODEM3G

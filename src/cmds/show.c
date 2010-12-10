@@ -28,6 +28,11 @@ cish_command CMD_SHOW_INTERFACE_M3G[] = {
 };
 #endif
 
+cish_command CMD_SHOW_INTERFACE_PPTP[] = {
+	{"0-0", "PPTP interface number", NULL, show_interfaces, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_SHOW_INTERFACES[] = {
 	{"ethernet", "Ethernet interface", CMD_SHOW_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_SHOW_INTERFACE_LOOPBACK, NULL, 0, MSK_NORMAL},
@@ -35,6 +40,7 @@ cish_command CMD_SHOW_INTERFACES[] = {
 #ifdef OPTION_MODEM3G
 	{"m3G", "3G interface", CMD_SHOW_INTERFACE_M3G, NULL, 0, MSK_NORMAL},
 #endif
+	{"pptp", "PPTP interface", CMD_SHOW_INTERFACE_PPTP, NULL, 0, MSK_NORMAL},
 	{"<enter>", "", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };

@@ -128,6 +128,10 @@ extern cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[];
 extern cish_command CMD_CONFIG_INTERFACE_M3G_NO[];
 #endif
 
+/* PPTP */
+extern cish_command CMD_CONFIG_INTERFACE_PPTP[];
+extern cish_command CMD_CONFIG_INTERFACE_PPTP_NO[];
+
 /* Show */
 extern cish_command CMD_SHOW[];
 extern cish_command CMD_SHOW_IP[];
