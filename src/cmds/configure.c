@@ -10,6 +10,13 @@ char EXTCMD[1024];
 char EXTSCRIPT[1024];
 cish_command CEXT = {EXTCMD, EXTSCRIPT, NULL, NULL, 0};
 
+#ifdef OPTION_EFM
+cish_command CMD_CONFIG_INTERFACE_EFM_[] = {
+	{"0-0", "EFM interface number", NULL, config_interface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_[] = {
 	{"0-1", "Ethernet interface number", NULL, config_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -33,6 +40,9 @@ cish_command CMD_CONFIG_INTERFACE_M3G_[] = {
 #endif
 
 cish_command CMD_CONFIG_INTERFACE[] = {
+#ifdef OPTION_EFM
+	{"efm", "Ethernet-First-Mile interface", CMD_CONFIG_INTERFACE_EFM_, NULL, 0, MSK_NORMAL},
+#endif
 	{"ethernet", "Ethernet interface", CMD_CONFIG_INTERFACE_ETHERNET_, NULL, 0, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_CONFIG_INTERFACE_LOOPBACK_, NULL, 0, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_CONFIG_INTERFACE_TUNNEL_, NULL, 0, MSK_NORMAL},

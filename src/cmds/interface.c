@@ -495,10 +495,16 @@ cish_command CMD_BACKUP_METHOD [] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_3G_DEFAULT_GW [] = {
+	{"1-255", "Distance of this route", NULL, interface_modem3g_default_gateway, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CONFIG_INTERFACE_M3G_NO[] = {
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
 	{"backup-interface", "Shutdown backup over a given interface", NULL, backup_interface_shutdown, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_M3G_NO_IP, NULL, 1, MSK_NORMAL},
+	{"default-gateway", "Install default-gateway using this interface when connected", NULL, interface_modem3g_default_gateway, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -508,6 +514,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB[] = {
 	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USB_PASS, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+	{"default-gateway", "Install default-gateway using this interface when connected", CMD_3G_DEFAULT_GW, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_M3G_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
@@ -578,6 +585,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
 	{"sim-order", "Set order of SIM Cards for backup - <MAIN> <BACKUP>", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+	{"default-gateway", "Install default-gateway using this interface when connected", CMD_3G_DEFAULT_GW, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_M3G_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
@@ -762,13 +770,12 @@ cish_command CMD_CONFIG_INTERFACE_EFM_MODE[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[] = {
+cish_command CMD_CONFIG_INTERFACE_EFM_NO[] = {
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
-	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -780,8 +787,8 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
-	{"mode", "Set SHDSL DSP as CO or CPE", CMD_CONFIG_INTERFACE_EFM_MODE, 1, MSK_NORMAL},
-	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_NO, NULL, 1, MSK_NORMAL},
+	{"mode", "Set SHDSL DSP as CO or CPE", CMD_CONFIG_INTERFACE_EFM_MODE, NULL, 1, MSK_NORMAL},
+	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_EFM_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
@@ -789,7 +796,6 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 #endif
-	{"vlan", "Add vlan", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER, NULL, 1, MSK_QOS},
 #ifdef CONFIG_PPC_BD_CONFIG
 	{"rx-ring", "Configure RX ring size", CMD_CONFIG_INTERFACE_ETHERNET_RXRING, NULL, 1, MSK_NORMAL},
 	{"tx-ring", "Configure TX ring size", CMD_CONFIG_INTERFACE_ETHERNET_TXRING, NULL, 1, MSK_NORMAL},

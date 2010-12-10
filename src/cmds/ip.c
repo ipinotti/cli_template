@@ -159,11 +159,20 @@ cish_command CMD_IP_ROUTE4_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#ifdef OPTION_MODEM3G
+cish_command CMD_IP_ROUTE4_3G[] = {
+	{"0-2", "3G interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+#endif
 
 cish_command CMD_IP_ROUTE3[] = {
 	{"ethernet", "Ethernet interface", CMD_IP_ROUTE4_ETHERNET, NULL, 1, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_IP_ROUTE4_LOOPBACK, NULL, 1, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_IP_ROUTE4_TUNNEL, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_MODEM3G
+	{"m3G", "3G Interface", CMD_IP_ROUTE4_3G, NULL, 1, MSK_NORMAL},
+#endif
 	{"<ipaddress>", "Forwarding router's address", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };

@@ -73,6 +73,7 @@ extern cish_command CMD_KEY[];
 
 /* Interfaces */
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
+extern cish_command CMD_CONFIG_INTERFACE_EFM[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
 extern cish_command CMD_CONFIG_INTERFACE_LOOPBACK[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL[];

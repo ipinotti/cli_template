@@ -58,6 +58,10 @@
 #include <librouter/ksz8863.h>
 #endif
 
+#ifdef OPTION_EFM
+#include <librouter/efm.h>
+#endif
+
 //#define CISH_DEBUG
 #ifdef CISH_DEBUG
 #define cish_dbg(x,...) \
@@ -588,6 +592,10 @@ void config_interface_done(const char *);
 void config_interface_switch_port(const char *);
 void config_interface_switch_port_done(const char *);
 
+/* TODO config_interface.c -> perhaps create a file for each interface */
+void interface_efm_set_mode(const char *);
+
+
 void do_bandwidth(const char *);
 void do_max_reserved_bw(const char *);
 void do_service_policy(const char *);
@@ -710,4 +718,5 @@ void backup_method_set_ping (const char *cmdline);
 void backup_method_set_link (const char *cmdline);
 void interface_modem3g_sim_card_select(const char *cmdline);
 void interface_modem3g_btin_set_info(const char *cmdline);
+void interface_modem3g_default_gateway(const char *cmdline);
 #endif
