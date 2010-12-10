@@ -747,7 +747,6 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	struct ip_t ip;
 	char *cish_dev;
 	char *description;
-	char pppid[10];
 	struct net_device_stats *st;
 	struct interface_conf conf;
 	struct intf_info info;
@@ -782,17 +781,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		st = conf.stats;
 
-
-		if  ( (strstr(conf.name, "ppp")) && (strlen(conf.name) >= 5) ){
-			snprintf(pppid,10,"PPTP%c",conf.name[strlen(conf.name)-1]);
-			cish_dev = pppid;
-		}
-		else
-			cish_dev = librouter_device_convert_os(conf.name, conf_format ? 0 : 1);
-
+		cish_dev = librouter_device_convert_os(conf.name, conf_format ? 0 : 1);
 
 		cish_dbg("cish_dev : %s\n", cish_dev);
-
 
 		if (cish_dev == NULL)
 			continue; /* ignora dev nao usado pelo cish */
@@ -860,7 +851,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		switch (conf.linktype) {
 #ifdef OPTION_PPP
 		case ARPHRD_PPP:
-			if (strstr(cish_dev,"PPTP"))
+			if (strstr(cish_dev,"Pptp"))
 				__dump_ppp_pptp_status(out, &conf);
 			else
 				__dump_ppp_status(out, &conf);
