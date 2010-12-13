@@ -760,18 +760,10 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	}
 
 	/* Get number of interfaces and sort them by name */
-	for (i = 0; intf_list[i][0] != '\0'; i++, num_of_ifaces++)
-		;
+	for (i = 0; intf_list[i][0] != '\0'; i++, num_of_ifaces++);
 	qsort(&intf_list[0], num_of_ifaces, sizeof(char *), intf_cmp);
 
-#if 0
-	int vlan_cos=NONE_TO_COS;
-#endif
-
-	cish_dbg("Fetching configuration ...\n");
-
 	for (i = 0; i < num_of_ifaces; i++) {
-
 		cish_dbg("%s\n", intf_list[i]);
 
 		if (librouter_ip_iface_get_config(intf_list[i], &conf, &info) < 0) {
@@ -796,26 +788,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		cish_dbg("Device found : %s\n", cish_dev);
 
 		if (strncmp(conf.name, "ipsec", 5) == 0)
-			conf.linktype = ARPHRD_TUNNEL6; /* !!! change crypto-? linktype (temp!) */
+			conf.linktype = ARPHRD_TUNNEL6; /* !!! FIXME */
 
-#if 0
-		switch (conf.linktype) {
-
-			case ARPHRD_ETHER:
-			phy_status=librouter_lan_get_status(conf.name);
-			running=(up && (phy_status & PHY_STAT_LINK) ? 1 : 0); /* vlan: interface must be up */
-			if (!strncmp(conf.name,"ethernet",8) && strstr(conf.name,".")) /* VLAN */
-			vlan_cos = librouter_vlan_get_cos(conf.name);
-			else
-			vlan_cos = NONE_TO_COS;
-			break;
-			default:
-			running=(link_table[i].flags & IFF_RUNNING) ? 1 : 0;
-			break;
-		}
-#else
 		conf.running = (conf.flags & IFF_RUNNING) ? 1 : 0;
-#endif
 
 		/* Ignore loopback that are down */
 		if ((conf.linktype == ARPHRD_LOOPBACK && !conf.running)) {
