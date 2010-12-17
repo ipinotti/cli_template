@@ -680,9 +680,9 @@ static void __dump_ppp_pppoe_status(FILE *out, struct interface_conf *conf)
 
 
 	fprintf(out, "  Encapsulation PPP");
-	fprintf(out, ", Username is \"%s\"", pppoe_cfg.username);
 	if (strlen(pppoe_cfg.network) > 0)
-		fprintf(out, ", Network is \"%s\"\n", pppoe_cfg.network);
+			fprintf(out, ", Network is \"%s\"", pppoe_cfg.network);
+	fprintf(out, "\n  Username is \"%s\"", pppoe_cfg.username);
 	if (strlen(pppoe_cfg.service_name) > 0)
 			fprintf(out, "  Service name is \"%s\"", pppoe_cfg.service_name);
 	if (strlen(pppoe_cfg.ac_name) > 0)
