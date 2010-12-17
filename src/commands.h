@@ -129,6 +129,10 @@ void set_bgp_interface_cmds(int enable);
 void set_model_aux_cmds(int enable);
 void set_model_qos_cmds(int enable);
 void set_model_vpn_cmds(int enable);
+
+void set_model_cmd_mask(int mask);
+void del_model_cmd_mask(int mask);
+
 void set_model_switch_cmds(void);
 void set_model_ethernet_cmds(int num_ifaces);
 void set_model_serial_cmds(const char *);

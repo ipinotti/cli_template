@@ -60,6 +60,7 @@ enum cish_mask {
 	MSK_IPROUTER = 0x00040000,
 	MSK_ENABLE = 0x00080000,
 	MSK_BOOTING = 0x00100000,
+	MSK_VLAN = 0x00200000,
 };
 
 /* Global Commands */
@@ -122,6 +123,7 @@ extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
+extern cish_command CMD_CONFIG_INTERFACE_EFM_VLAN[];
 #ifdef OPTION_MODEM3G
 extern cish_command CMD_CONFIG_INTERFACE_M3G_USB[];
 extern cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[];
