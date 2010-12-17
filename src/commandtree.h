@@ -123,6 +123,7 @@ extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[];
+extern cish_command CMD_CONFIG_INTERFACE_EFM_VLAN[];
 #ifdef OPTION_MODEM3G
 extern cish_command CMD_CONFIG_INTERFACE_M3G_USB[];
 extern cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[];

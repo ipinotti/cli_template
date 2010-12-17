@@ -121,6 +121,7 @@ static int _print_current_menu()
 		{ CMD_CONFIG_INTERFACE_PPTP, "(config-if-pptp-"},
 #ifdef OPTION_EFM
 		{ CMD_CONFIG_INTERFACE_EFM, "(config-if-efm-"},
+		{ CMD_CONFIG_INTERFACE_EFM_VLAN, "(config-if-efm-"},
 #endif
 #ifdef OPTION_IPSEC
 		{ CMD_CONFIG_CRYPTO, "(config-crypto)"},
@@ -136,8 +137,8 @@ static int _print_current_menu()
 		}
 	}
 
-#ifdef OPTION_MANAGED_SWITCH
 	/* Add exceptions here */
+#ifdef OPTION_MANAGED_SWITCH
 	if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT) {
 		if (switch_port >= 0) {
 			snprintf(buf, sizeof(buf), "%d)", switch_port);
@@ -157,6 +158,20 @@ static int _print_current_menu()
 			strcat(prompt, ")");
 		}
 	}
+#ifdef OPTION_EFM
+	else if (command_root == CMD_CONFIG_INTERFACE_EFM) {
+		if (interface_major >= 0) {
+			snprintf(buf, sizeof(buf), "%d)", interface_major - EFM_INDEX_OFFSET);
+			strcat(prompt, buf);
+		}
+	}
+	else if (command_root == CMD_CONFIG_INTERFACE_EFM_VLAN) {
+		if (interface_minor >= 0) {
+			snprintf(buf, sizeof(buf), "%d.%d)", interface_major - EFM_INDEX_OFFSET, interface_minor);
+			strcat(prompt, buf);
+		}
+	}
+#endif
 	else {
 		if (interface_major >= 0) {
 			snprintf(buf, sizeof(buf), "%d)", interface_major);

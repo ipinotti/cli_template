@@ -711,12 +711,12 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER[] = {
-	{"2-4094", "VLAN number", NULL, vlan_add, 1, MSK_QOS},
+	{"2-4094", "VLAN number", NULL, vlan_add, 1, MSK_VLAN},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER[] = {
-	{"2-4094", "VLAN number", NULL, vlan_del, 1, MSK_QOS},
+	{"2-4094", "VLAN number", NULL, vlan_del, 1, MSK_VLAN},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -816,7 +816,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 #endif
-	{"vlan", "Add vlan", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER, NULL, 1, MSK_QOS},
+	{"vlan", "Add vlan", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER, NULL, 1, MSK_VLAN},
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
 #endif
@@ -828,12 +828,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 #endif
 	{NULL,NULL,NULL,NULL}
 };
-
-
-
-
-
-
 
 /* EFM Interface */
 #ifdef OPTION_EFM
@@ -874,16 +868,10 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"tx-ring", "Configure TX ring size", CMD_CONFIG_INTERFACE_ETHERNET_TXRING, NULL, 1, MSK_NORMAL},
 	{"weight", "Configure interface weight", CMD_CONFIG_INTERFACE_WEIGHT, NULL, 1, MSK_NORMAL},
 #endif
+	{"vlan", "Add vlan", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER, NULL, 1, MSK_VLAN},
 	{NULL,NULL,NULL,NULL}
 };
 #endif /* OPTION_EFM */
-
-
-
-
-
-
-
 
 /* VLAN Interface */
 
@@ -1007,13 +995,32 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+cish_command CMD_CONFIG_INTERFACE_EFM_VLAN[] = {
+	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_BRIDGE
+	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
+	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
+	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
+	{"ip", "Interface IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP, NULL, 1, MSK_NORMAL},
+	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
+	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
+	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
+	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_VRRP
+	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
+#endif
+#ifdef CONFIG_VLAN_COS
+	{"set", "Set QoS values", CMD_CONFIG_VLAN_COS, NULL, 0, MSK_NORMAL},
+#endif
+#ifdef OPTION_SHOWLEVEL
+	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
+	{NULL,NULL,NULL,NULL}
+};
 
-
-
-
-
-
-// interface loopback
+/* Loopback Interface */
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP3[] = {
 	{"secondary", "Make this IP address a secondary address", NULL, interface_no_ipaddr_secondary, 1, MSK_NORMAL},

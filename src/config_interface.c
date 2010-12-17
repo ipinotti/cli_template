@@ -74,13 +74,16 @@ int validate_interface_minor(void)
 {
 	switch (interface_edited->type) {
 	case eth:
+#ifdef OPTION_EFM
+	case efm:
+#endif
 		if (librouter_vlan_exists(interface_major, interface_minor))
-			return 0; // ok
+			return 0;
 		break;
 	default:
 		break;
 	}
-	return -1; // subinterface invalida
+	return -1; /* Invalid Sub-Interface */
 }
 
 void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
@@ -106,26 +109,28 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 		if (minor)
 			*minor++ = 0;
 		interface_major = atoi(major);
-		if (minor) {
+
+		if (minor)
 			interface_minor = atoi(minor);
-			if (validate_interface_minor() < 0) {
-				fprintf(stderr, "%% Invalid interface number.\n");
-				return;
-			}
-		} else {
+		else
 			interface_minor = -1;
-		}
+
 
 		switch (interface_edited->type) {
 		case eth:
-			if (interface_minor == -1) {
+			if (interface_minor == -1)
 				command_root = CMD_CONFIG_INTERFACE_ETHERNET;
-			} else {
+			else {
+				if (validate_interface_minor() < 0)
+					goto subiface_error;
 				command_root = CMD_CONFIG_INTERFACE_ETHERNET_VLAN;
 			}
 			break;
 		case lo:
-			command_root = CMD_CONFIG_INTERFACE_LOOPBACK;
+			if (interface_minor == -1)
+				command_root = CMD_CONFIG_INTERFACE_LOOPBACK;
+			else
+				goto subiface_error;
 			break;
 		case tun:
 			dev = librouter_device_cli_to_linux(interface_edited->cish_string,
@@ -152,7 +157,14 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 #endif
 #ifdef OPTION_EFM
 		case efm:
-			command_root = CMD_CONFIG_INTERFACE_EFM;
+			interface_major += EFM_INDEX_OFFSET;
+			if (interface_minor == -1)
+				command_root = CMD_CONFIG_INTERFACE_EFM;
+			else {
+				if (validate_interface_minor() < 0)
+					goto subiface_error;
+				command_root = CMD_CONFIG_INTERFACE_EFM_VLAN;
+			}
 			break;
 #endif
 		default:
@@ -161,6 +173,14 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 	} else {
 		fprintf(stderr, "%% Unknown device type.\n");
 	}
+
+	return;
+
+subiface_error:
+	fprintf(stderr, "%% Invalid interface number.\n");
+	interface_major = -1;
+	interface_minor = -1;
+	return;
 }
 
 void interface_txqueue(const char *cmdline)
