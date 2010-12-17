@@ -478,6 +478,58 @@ cish_command CMD_CONFIG_INTERFACE_PPTP_NO[] = {
 
 
 
+/* PPPOE Interface */
+
+cish_command CMD_CONFIG_PPPOE_SERVICE_NAME[] = {
+	{"<text>", "Service Name - Most ISPs do not require this", NULL, pppoe_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_PPPOE_AC_NAME[] = {
+	{"<text>", "Access Contractor Name - Most ISPs do not require this", NULL, pppoe_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_PPPOE_USERNAME[] = {
+	{"<text>", "Username for PPPoE Connection", NULL, pppoe_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_PPPOE_PASSWORD[] = {
+	{"<text>", "Password for PPPoE Connection", NULL, pppoe_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_PPPOE_NETWORK[] = {
+	{"<text>", "Domain Network Name", NULL, pppoe_set_info, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_PPPOE[] = {
+	{"service-name", "Set service name", CMD_CONFIG_PPPOE_SERVICE_NAME, NULL, 1, MSK_NORMAL},
+	{"ac-name", "Set access contractor name", CMD_CONFIG_PPPOE_AC_NAME, NULL, 1, MSK_NORMAL},
+	{"username", "Set username", CMD_CONFIG_PPPOE_USERNAME, NULL, 1, MSK_NORMAL},
+	{"password", "Set password", CMD_CONFIG_PPPOE_PASSWORD, NULL, 1, MSK_NORMAL},
+	{"network", "Set authentication domain network name", CMD_CONFIG_PPPOE_NETWORK, NULL, 1, MSK_NORMAL},
+	{"client-mode", "Enable PPPoE Client Mode", NULL, pppoe_set_clientmode, 1, MSK_NORMAL},
+	{"no", "Reverse a setting",CMD_CONFIG_INTERFACE_PPPOE_NO, NULL, 1, MSK_NORMAL},
+	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_PPPOE_NO[] = {
+	{"service-name", "Remove service name", NULL, pppoe_set_no_info, 1, MSK_NORMAL},
+	{"ac-name", "Remove access contractor name", NULL, pppoe_set_no_info, 1, MSK_NORMAL},
+	{"network", "Remove authentication domain network name", NULL, pppoe_set_no_info, 1, MSK_NORMAL},
+	{"client-mode", "Disable PPPoE Client Mode", NULL, pppoe_set_clientmode, 1, MSK_NORMAL},
+	{NULL, NULL, NULL, NULL, 0}
+};
+
+/* End PPPOE Interface */
+
+
+
+
 
 /* 3G Interface */
 #ifdef OPTION_MODEM3G

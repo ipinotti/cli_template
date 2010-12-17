@@ -119,6 +119,7 @@ static int _print_current_menu()
 		{ CMD_CONFIG_INTERFACE_M3G_BTIN, "(config-if-m3G-"},
 #endif
 		{ CMD_CONFIG_INTERFACE_PPTP, "(config-if-pptp-"},
+		{ CMD_CONFIG_INTERFACE_PPPOE, "(config-if-pppoe-"},
 #ifdef OPTION_EFM
 		{ CMD_CONFIG_INTERFACE_EFM, "(config-if-efm-"},
 #endif

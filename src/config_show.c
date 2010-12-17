@@ -647,6 +647,51 @@ static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
 #endif
 
 #ifdef OPTION_PPP
+
+static void __dump_ppp_pppoe_status(FILE *out, struct interface_conf *conf)
+{
+	ppp_config ppp_cfg;
+	pppoe_config pppoe_cfg;
+	struct ip_t ip;
+	char *osdev = conf->name;
+	int serial_no=0;
+	int running = conf->running;
+
+	/* Get interface index --> ex: ppp0 -> 0*/
+	serial_no = atoi(osdev + strlen(PPPDEV));
+
+	librouter_ppp_get_config(serial_no, &ppp_cfg);
+
+	librouter_pppoe_get_config(&pppoe_cfg);
+
+	if (ppp_cfg.ip_addr[0]) {strncpy(ip.ipaddr, ppp_cfg.ip_addr, 16); printf("TESTE CFG IP\n\n"); ip.ipaddr[15]=0;}
+	if (ppp_cfg.ip_mask[0]) {strncpy(ip.ipmask, ppp_cfg.ip_mask, 16); printf("TESTE CFG MASK\n\n"); ip.ipmask[15]=0;}
+	if (ppp_cfg.ip_peer_addr[0]) {strncpy(ip.ippeer, ppp_cfg.ip_peer_addr, 16); ip.ippeer[15]=0;}
+	if (ppp_cfg.dial_on_demand && !running) { /* filtra enderecos aleatorios atribuidos pelo pppd */
+		ip.ipaddr[0]=0;
+		ip.ippeer[0]=0;
+	}
+
+	if (ppp_cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
+		fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", ppp_cfg.ip_unnumbered, ip.ipaddr);
+	else
+		if (ip.ipaddr[0])
+			fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
+
+
+	fprintf(out, "  Encapsulation PPP");
+	fprintf(out, ", Username is \"%s\"", pppoe_cfg.username);
+	if (strlen(pppoe_cfg.network) > 0)
+		fprintf(out, ", Network is \"%s\"\n", pppoe_cfg.network);
+	if (strlen(pppoe_cfg.service_name) > 0)
+			fprintf(out, "  Service name is \"%s\"", pppoe_cfg.service_name);
+	if (strlen(pppoe_cfg.ac_name) > 0)
+			fprintf(out, ", AC name is \"%s\"", pppoe_cfg.ac_name);
+
+	fprintf(out, "\n");
+
+}
+
 static void __dump_ppp_pptp_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config ppp_cfg;
@@ -826,9 +871,13 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		switch (conf.linktype) {
 #ifdef OPTION_PPP
 		case ARPHRD_PPP:
-			if (strstr(cish_dev,"Pptp"))
+			if (strstr(cish_dev, "Pptp"))
 				__dump_ppp_pptp_status(out, &conf);
-			else
+
+			if (strstr(cish_dev, "Pppoe"))
+				__dump_ppp_pppoe_status(out, &conf);
+
+			if (strstr(cish_dev, "M3G"))
 				__dump_ppp_status(out, &conf);
 			break;
 #endif

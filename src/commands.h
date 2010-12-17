@@ -41,6 +41,7 @@
 #include <librouter/md5.h>
 #include <librouter/ps.h>
 #include <librouter/pptp.h>
+#include <librouter/pppoe.h>
 
 #ifdef OPTION_MODEM3G
 #include <librouter/modem3G.h>
@@ -709,6 +710,12 @@ void pptp_set_info(const char *cmd);
 void pptp_set_no_info(const char *cmd);
 void pptp_set_mppe(const char *cmd);
 void pptp_set_clientmode(const char *cmd);
+
+/* PPPOE */
+void pppoe_set_info(const char *cmd);
+void pppoe_set_no_info(const char *cmd);
+void pppoe_set_clientmode(const char *cmd);
+
 
 /* 3G Device */
 #ifdef OPTION_MODEM3G

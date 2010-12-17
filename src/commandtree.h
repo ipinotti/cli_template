@@ -132,6 +132,10 @@ extern cish_command CMD_CONFIG_INTERFACE_M3G_NO[];
 extern cish_command CMD_CONFIG_INTERFACE_PPTP[];
 extern cish_command CMD_CONFIG_INTERFACE_PPTP_NO[];
 
+/* PPPOE */
+extern cish_command CMD_CONFIG_INTERFACE_PPPOE[];
+extern cish_command CMD_CONFIG_INTERFACE_PPPOE_NO[];
+
 /* Show */
 extern cish_command CMD_SHOW[];
 extern cish_command CMD_SHOW_IP[];
