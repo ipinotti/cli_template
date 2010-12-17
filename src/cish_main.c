@@ -179,6 +179,7 @@ int main(int argc, char *argv[])
 	char *bootfile;
 	int retval;
 	int acct_mode; /* command accounting */
+	int cmd_mask;
 
 	umask(066); /* -rw------ */
 
@@ -202,9 +203,16 @@ int main(int argc, char *argv[])
 	set_bgp_interface_cmds(librouter_quagga_bgpd_is_running());
 #endif
 
+#if 0
 	/* Enable QoS and VPN */
 	set_model_qos_cmds(1);
 	set_model_vpn_cmds(1);
+	set_model_vlan_cmds(1);
+#else
+	cmd_mask = MSK_QOS | MSK_VPN | MSK_VLAN;
+	set_model_cmd_mask(cmd_mask);
+#endif
+
 	/* FIXME Read HW ID or something to enable this */
 #ifdef OPTION_MANAGED_SWITCH
 	set_model_switch_cmds();

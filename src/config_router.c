@@ -65,6 +65,24 @@ void set_model_vpn_cmds(int enable)
 		_cish_mask &= ~MSK_VPN;
 }
 
+void set_model_vlan_cmds(int enable)
+{
+	if (enable)
+		_cish_mask |= MSK_VLAN;
+	else
+		_cish_mask &= ~MSK_VLAN;
+}
+
+void set_model_cmd_mask(int mask)
+{
+	_cish_mask |= mask;
+}
+
+void del_model_cmd_mask(int mask)
+{
+	_cish_mask &= ~mask;
+}
+
 #ifdef OPTION_MANAGED_SWITCH
 void set_model_switch_cmds(void)
 {
