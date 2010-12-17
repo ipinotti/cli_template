@@ -60,7 +60,7 @@ cish_command CMD_CONFIG_INTERFACE[] = {
 	{"m3G", "3G interface", CMD_CONFIG_INTERFACE_M3G_, NULL, 0, MSK_NORMAL},
 #endif
 	{"pptp", "PPTP Interface", CMD_CONFIG_INTERFACE_PPTP_, NULL, 0, MSK_NORMAL},
-	{"pppoe", "PPTP Interface", CMD_CONFIG_INTERFACE_PPPOE_, NULL, 0, MSK_NORMAL},
+	{"pppoe", "PPPoE Interface", CMD_CONFIG_INTERFACE_PPPOE_, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

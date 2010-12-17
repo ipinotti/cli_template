@@ -166,6 +166,16 @@ cish_command CMD_IP_ROUTE4_3G[] = {
 };
 #endif
 
+cish_command CMD_IP_ROUTE4_PPTP[] = {
+	{"0-0", "PPTP interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_IP_ROUTE4_PPPOE[] = {
+	{"0-0", "PPPoE interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
 cish_command CMD_IP_ROUTE3[] = {
 	{"ethernet", "Ethernet interface", CMD_IP_ROUTE4_ETHERNET, NULL, 1, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_IP_ROUTE4_LOOPBACK, NULL, 1, MSK_NORMAL},
@@ -173,6 +183,8 @@ cish_command CMD_IP_ROUTE3[] = {
 #ifdef OPTION_MODEM3G
 	{"m3G", "3G Interface", CMD_IP_ROUTE4_3G, NULL, 1, MSK_NORMAL},
 #endif
+	{"pptp", "PPTP Interface", CMD_IP_ROUTE4_PPTP, NULL, 1, MSK_NORMAL},
+	{"pppoe", "PPPoE Interface", CMD_IP_ROUTE4_PPPOE, NULL, 1, MSK_NORMAL},
 	{"<ipaddress>", "Forwarding router's address", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
