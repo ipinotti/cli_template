@@ -113,7 +113,9 @@ extern cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET[];
 #endif
 extern cish_command CMD_CLEAR_INTERFACE_ETHERNET_[];
 extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[];
+#ifdef OPTION_MODEM3G
 extern cish_command CMD_BACKUP_INTERFACE_ETHERNET[];
+#endif
 
 void set_model_ethernet_cmds(int num_ifaces)
 {
@@ -149,7 +151,9 @@ void set_model_ethernet_cmds(int num_ifaces)
 #ifdef OPTION_BGP
 	CMD_BGP_INTERFACE_ETHERNET[0].name = name;
 #endif
+#ifdef OPTION_MODEM3G
 	CMD_BACKUP_INTERFACE_ETHERNET[0].name = name;
+#endif
 }
 
 void config_router(const char *cmdline)
