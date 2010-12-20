@@ -264,6 +264,7 @@ void zebra_execute_cmd(const char *cmdline)
 		return;
 
 	new_cmdline = librouter_device_to_linux_cmdline((char*) cmdline);
+
 	librouter_quagga_execute_client("enable", stdout, buf_daemon, 0);
 	librouter_quagga_execute_client("configure terminal", stdout, buf_daemon, 0);
 #ifdef DEBUG_ZEBRA
