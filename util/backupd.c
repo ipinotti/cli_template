@@ -250,13 +250,11 @@ static void daemonize(void)
 static int check_interface_no_backup(struct bckp_conf_t *bckp_conf)
 {
 	struct bckp_conf_t *bckp_conf_target;
-
 	for (bckp_conf_target = bc; bckp_conf_target != NULL; bckp_conf_target = bckp_conf_target->next) {
 		if (!strcmp(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name), bckp_conf_target->intf_name)){
 			if ( !bckp_conf_target->is_backup && !bckp_conf_target->shutdown )
 				return 1;
 		}
-		return 0;
 	}
 	return 0;
 }
