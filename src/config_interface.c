@@ -827,6 +827,7 @@ void do_bandwidth(const char *cmdline)
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
+
 	librouter_qos_config_interface_bw(dev, bw);
 	free(dev);
 	librouter_destroy_args(args);
