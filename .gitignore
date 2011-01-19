@@ -35,6 +35,7 @@ test/link
 test/transport
 doc/Doxyfile
 doc/doxygen/html
+Debug
 *.o
 .*
 *~
