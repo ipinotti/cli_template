@@ -453,6 +453,8 @@ cish_command CMD_CONFIG_INTERFACE_PPTP[] = {
 	{"password", "Set password", CMD_CONFIG_PPTP_PASSWORD, NULL, 1, MSK_NORMAL},
 	{"mppe", "Set support for MPPE encryption", NULL, pptp_set_mppe, 1, MSK_NORMAL},
 	{"client-mode", "Enable PPTP Client Mode", NULL, pptp_set_clientmode, 1, MSK_NORMAL},
+	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
+	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
 	{"no", "Reverse a setting",CMD_CONFIG_INTERFACE_PPTP_NO, NULL, 1, MSK_NORMAL},
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
@@ -501,6 +503,8 @@ cish_command CMD_CONFIG_INTERFACE_PPPOE[] = {
 	{"password", "Set password", CMD_CONFIG_PPPOE_PASSWORD, NULL, 1, MSK_NORMAL},
 	{"network", "Set authentication domain network name", CMD_CONFIG_PPPOE_NETWORK, NULL, 1, MSK_NORMAL},
 	{"client-mode", "Enable PPPoE Client Mode", NULL, pppoe_set_clientmode, 1, MSK_NORMAL},
+	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
+	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
 	{"no", "Reverse a setting",CMD_CONFIG_INTERFACE_PPPOE_NO, NULL, 1, MSK_NORMAL},
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
@@ -573,7 +577,12 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB_APN[] = {
 };
 
 cish_command CMD_BACKUP_INTERFACE_ETHERNET[] = {
-	{"0-0", "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
+	{"0-1", "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_BACKUP_INTERFACE_M3G[] = {
+	{"1-2", "3G interface number -| 1 == USB1 | 2 == USB2", NULL, backup_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -582,8 +591,14 @@ cish_command CMD_BACKUP_INTERFACE [] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_BACKUP_INTERFACE_USB [] = {
+	{"ethernet", "Ethernet interface", CMD_BACKUP_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
+	{"m3G", "3G interface - USB", CMD_BACKUP_INTERFACE_M3G, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_BACKUP_METHOD_PING [] = {
-	{"<text>", "Address to ping", NULL, backup_method_set_ping, 1, MSK_NORMAL},
+	{"<ipaddress>", "Address to ping", NULL, backup_method_set_ping, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -611,7 +626,9 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB[] = {
 	{"username", "Username for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USB_USER, NULL, 1, MSK_NORMAL},
 	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USB_PASS, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
-	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE_USB, NULL, 1, MSK_NORMAL},
+	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
+	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
 	{"default-gateway", "Install default-gateway using this interface when connected", CMD_3G_DEFAULT_GW, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_M3G_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
@@ -683,6 +700,8 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
 	{"sim-order", "Set order of SIM Cards for backup - <MAIN> <BACKUP>", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
+	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
 	{"default-gateway", "Install default-gateway using this interface when connected", CMD_3G_DEFAULT_GW, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_M3G_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},

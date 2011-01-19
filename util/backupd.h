@@ -8,20 +8,20 @@
 #ifndef BACKUPD_H_
 #define BACKUPD_H_
 
-//#define DEBUG
-#ifdef DEBUG
-#define bkpd_dbg(x,...) \
+//#define DEBUG_BCKP_SYSLOG
+#ifdef DEBUG_BCKP_SYSLOG
+#define bkpd_dbgs(x,...) \
 		syslog(LOG_INFO,  "%s : %d => "x, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
-#define bkpd_dbg(x,...)
+#define bkpd_dbgs(x,...)
 #endif
 
-//#define DEBUGB
-#ifdef DEBUGB
-#define bkpd_dbgb(x,...) \
+//#define DEBUG_BCKP_PRINTF
+#ifdef DEBUG_BCKP_PRINTF
+#define bkpd_dbgp(x,...) \
 		printf("%s : %d => "x, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
-#define bkpd_dbgb(x,...)
+#define bkpd_dbgp(x,...)
 #endif
 
 #define BACKUPD_PID_FILE	"/var/run/backupd.pid"

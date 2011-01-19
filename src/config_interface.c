@@ -19,11 +19,13 @@
 
 #include <librouter/options.h>
 #include <librouter/usb.h>
+#include <librouter/ppp.h>
+#include <librouter/device.h>
+
 #include "commands.h"
 #include "commandtree.h"
 #include "cish_main.h"
 #include "pprintf.h"
-#include <librouter/device.h>
 
 #ifdef OPTION_MODEM3G
 #include <librouter/modem3G.h>
@@ -75,7 +77,7 @@ int validate_interface_minor(void)
 	switch (interface_edited->type) {
 	case eth:
 #ifdef OPTION_EFM
-	case efm:
+		case efm:
 #endif
 		if (librouter_vlan_exists(interface_major, interface_minor))
 			return 0;
@@ -114,7 +116,6 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			interface_minor = atoi(minor);
 		else
 			interface_minor = -1;
-
 
 		switch (interface_edited->type) {
 		case eth:
@@ -159,13 +160,13 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			break;
 #endif
 #ifdef OPTION_EFM
-		case efm:
+			case efm:
 			interface_major += EFM_INDEX_OFFSET;
 			if (interface_minor == -1)
-				command_root = CMD_CONFIG_INTERFACE_EFM;
+			command_root = CMD_CONFIG_INTERFACE_EFM;
 			else {
 				if (validate_interface_minor() < 0)
-					goto subiface_error;
+				goto subiface_error;
 				command_root = CMD_CONFIG_INTERFACE_EFM_VLAN;
 			}
 			break;
@@ -179,8 +180,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 
 	return;
 
-subiface_error:
-	fprintf(stderr, "%% Invalid interface number.\n");
+	subiface_error: fprintf(stderr, "%% Invalid interface number.\n");
 	interface_major = -1;
 	interface_minor = -1;
 	return;
@@ -543,8 +543,8 @@ void interface_fec_cfg(const char *cmdline) /* speed 10|100|1000 half|full */
 
 	args = librouter_make_args(cmdline);
 	if (args->argc == 3) {
-		if ((dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
-		                interface_minor))) {
+		if ((dev = librouter_device_cli_to_linux(interface_edited->cish_string,
+		                interface_major, interface_minor))) {
 
 			/* Speed */
 			speed = atoi(args->argv[1]);
@@ -827,6 +827,7 @@ void do_bandwidth(const char *cmdline)
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
+
 	librouter_qos_config_interface_bw(dev, bw);
 	free(dev);
 	librouter_destroy_args(args);
@@ -1082,7 +1083,9 @@ void backup_interface(const char *cmdline)
 	arglist *args;
 	char *main_interface = malloc(16);
 	char *interface = malloc(16);
+#ifdef AVOID_SAME_BCKP_INTF
 	char *intf_return = malloc(16);
+#endif
 	int check = -1;
 
 	args = librouter_make_args(cmdline);
@@ -1090,7 +1093,7 @@ void backup_interface(const char *cmdline)
 	snprintf(main_interface, 16, "%s%s", args->argv[1], args->argv[2]);
 	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
-	if (librouter_dev_exists(interface)) {
+	if (librouter_dev_exists(interface)){
 		printf("\n%% Error on set backup interface");
 		printf("\n%% It is necessary to shutdown %s%d interface first",
 		                interface_edited->cish_string, interface_major);
@@ -1098,8 +1101,25 @@ void backup_interface(const char *cmdline)
 		goto end;
 	}
 
+	if (!strcmp(interface, librouter_ppp_backupd_intf_to_kernel_intf(main_interface))){
+		printf("\n%% Error on set backup interface");
+		printf("\n%% Settings could not be applied");
+		printf("\n%% The current interface can not backup itself\n\n");
+		goto end;
+	}
+
+	if (librouter_ppp_backupd_verify_m3G_loop_backup(interface, main_interface)){
+		printf("\n%% Error on set backup interface");
+		printf("\n%% Settings could not be applied");
+		printf("\n%% Making a backup loop with 3G interfaces\n\n");
+		goto end;
+	}
+
+#ifdef AVOID_SAME_BCKP_INTF
+//WARNING: Bloco de código retirado para possibilitar duas interfaces backups distintas de monitorar uma mesma interface
+
 	if (librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR, main_interface, intf_return)) {
-		/* Already applied in another 3G interface ? */
+		 Already applied in another 3G interface ?
 		if (strcmp(intf_return, interface)) {
 			printf("\n%% The interface is already with a backup connection by %s",
 			                librouter_device_from_linux_cmdline(intf_return));
@@ -1107,6 +1127,7 @@ void backup_interface(const char *cmdline)
 			goto end;
 		}
 	}
+#endif
 
 	check = librouter_ppp_backupd_set_param_infile(interface, BCKUP_STR, "yes");
 	if (check < 0) {
@@ -1127,9 +1148,10 @@ void backup_interface(const char *cmdline)
 		goto end;
 	}
 
-
 end:
+#ifdef AVOID_SAME_BCKP_INTF
 	free(intf_return);
+#endif
 	free(main_interface);
 	free(interface);
 	librouter_destroy_args(args);
@@ -1340,12 +1362,7 @@ void interface_modem3g_default_gateway(const char *cmdline)
 }
 #endif /* OPTION_MODEM3G */
 
-
-
-
-
 /* PPTP */
-
 
 void pptp_set_info(const char *cmd)
 {
@@ -1353,12 +1370,13 @@ void pptp_set_info(const char *cmd)
 	int check = 0;
 	args = librouter_make_args(cmd);
 
-	if ( strcmp(args->argv[0],"server") ){
+	if (strcmp(args->argv[0], "server")) {
 		check = librouter_pptp_analyze_input(args->argv[1]);
-		if (check < 0){
-			printf ("\n %% Error on set configuration!\n");
-			printf (" %% Wrong input! \n");
-			printf (" %% The system do not accept special characters like: .@<>#\\/&* \n");
+		if (check < 0) {
+			printf("\n %% Error on set configuration!\n");
+			printf(" %% Wrong input! \n");
+			printf(
+			                " %% The system do not accept special characters like: .@<>#\\/&* \n");
 			goto end;
 		}
 	}
@@ -1369,8 +1387,7 @@ void pptp_set_info(const char *cmd)
 		printf("\n%% Settings could not be applied\n\n");
 	}
 
-end:
-	librouter_destroy_args(args);
+	end: librouter_destroy_args(args);
 
 }
 
@@ -1378,31 +1395,30 @@ void pptp_set_no_info(const char *cmd)
 {
 	arglist * args;
 	args = librouter_make_args(cmd);
-	int check=0;
+	int check = 0;
 
-	if ( strcmp(args->argv[0],"no") ){
+	if (strcmp(args->argv[0], "no")) {
 		printf("\n%% Error on set no %s", args->argv[1]);
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
-	check = librouter_pptp_set_config_cli(args->argv[1],"");
+	check = librouter_pptp_set_config_cli(args->argv[1], "");
 	if (check < 0) {
 		printf("\n%% Error on set no %s", args->argv[1]);
 		printf("\n%% Settings could not be applied\n\n");
 	}
 
-end:
-	librouter_destroy_args(args);
+	end: librouter_destroy_args(args);
 }
 
 void pptp_set_mppe(const char *cmd)
 {
 	arglist * args;
-	int check=0;
+	int check = 0;
 	args = librouter_make_args(cmd);
 
-	if ( !strcmp(args->argv[0], "no") )
+	if (!strcmp(args->argv[0], "no"))
 		check = librouter_pptp_set_mppe(0);
 	else
 		check = librouter_pptp_set_mppe(1);
@@ -1421,7 +1437,7 @@ void pptp_set_clientmode(const char *cmd)
 	arglist * args;
 	args = librouter_make_args(cmd);
 
-	if ( !strcmp(args->argv[0], "no") )
+	if (!strcmp(args->argv[0], "no"))
 		librouter_pptp_set_clientmode(0);
 	else
 		librouter_pptp_set_clientmode(1);
@@ -1431,10 +1447,7 @@ void pptp_set_clientmode(const char *cmd)
 
 /* END PPTP */
 
-
-
 /* PPPOE */
-
 
 void pppoe_set_info(const char *cmd)
 {
@@ -1443,10 +1456,10 @@ void pppoe_set_info(const char *cmd)
 	args = librouter_make_args(cmd);
 
 	check = librouter_pppoe_analyze_input(args->argv[1]);
-	if (check < 0){
-		printf ("\n %% Error on set configuration!\n");
-		printf (" %% Wrong input! \n");
-		printf (" %% The system do not accept special characters like: <>#\\/&* \n");
+	if (check < 0) {
+		printf("\n %% Error on set configuration!\n");
+		printf(" %% Wrong input! \n");
+		printf(" %% The system do not accept special characters like: <>#\\/&* \n");
 		goto end;
 	}
 
@@ -1456,8 +1469,7 @@ void pppoe_set_info(const char *cmd)
 		printf("\n%% Settings could not be applied\n\n");
 	}
 
-end:
-	librouter_destroy_args(args);
+	end: librouter_destroy_args(args);
 
 }
 
@@ -1465,22 +1477,21 @@ void pppoe_set_no_info(const char *cmd)
 {
 	arglist * args;
 	args = librouter_make_args(cmd);
-	int check=0;
+	int check = 0;
 
-	if ( strcmp(args->argv[0],"no") ){
+	if (strcmp(args->argv[0], "no")) {
 		printf("\n%% Error on set no %s", args->argv[1]);
 		printf("\n%% Settings could not be applied\n\n");
 		goto end;
 	}
 
-	check = librouter_pppoe_set_config_cli(args->argv[1],"");
+	check = librouter_pppoe_set_config_cli(args->argv[1], "");
 	if (check < 0) {
 		printf("\n%% Error on set no %s", args->argv[1]);
 		printf("\n%% Settings could not be applied\n\n");
 	}
 
-end:
-	librouter_destroy_args(args);
+	end: librouter_destroy_args(args);
 }
 
 void pppoe_set_clientmode(const char *cmd)
@@ -1488,7 +1499,7 @@ void pppoe_set_clientmode(const char *cmd)
 	arglist * args;
 	args = librouter_make_args(cmd);
 
-	if ( !strcmp(args->argv[0], "no") )
+	if (!strcmp(args->argv[0], "no"))
 		librouter_pppoe_set_clientmode(0);
 	else
 		librouter_pppoe_set_clientmode(1);
@@ -1497,9 +1508,6 @@ void pppoe_set_clientmode(const char *cmd)
 }
 
 /* END PPPOE */
-
-
-
 
 #ifdef OPTION_EFM
 void interface_efm_set_mode(const char *cmdline)
