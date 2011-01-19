@@ -424,12 +424,6 @@ cish_command CMD_CONFIG_INTERFACE_TXQUEUELEN[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-
-
-
-
-
-
 /* PPTP Interface */
 
 cish_command CMD_CONFIG_PPTP_SERVER[] = {
@@ -472,11 +466,6 @@ cish_command CMD_CONFIG_INTERFACE_PPTP_NO[] = {
 };
 
 /* End PPTP Interface */
-
-
-
-
-
 
 /* PPPOE Interface */
 
@@ -526,10 +515,6 @@ cish_command CMD_CONFIG_INTERFACE_PPPOE_NO[] = {
 };
 
 /* End PPPOE Interface */
-
-
-
-
 
 /* 3G Interface */
 #ifdef OPTION_MODEM3G
