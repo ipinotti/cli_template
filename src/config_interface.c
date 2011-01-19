@@ -144,13 +144,16 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			}
 			free(dev);
 			break;
+#ifdef OPTION_PPTP
 		case pptp:
 			command_root = CMD_CONFIG_INTERFACE_PPTP;
 			break;
+#endif
+#ifdef OPTION_PPPOE
 		case pppoe:
 			command_root = CMD_CONFIG_INTERFACE_PPPOE;
 			break;
-
+#endif
 #ifdef OPTION_MODEM3G
 		case ppp:
 			if (interface_major == 0)
@@ -1362,8 +1365,7 @@ void interface_modem3g_default_gateway(const char *cmdline)
 }
 #endif /* OPTION_MODEM3G */
 
-/* PPTP */
-
+#ifdef OPTION_PPTP
 void pptp_set_info(const char *cmd)
 {
 	arglist * args;
@@ -1445,10 +1447,9 @@ void pptp_set_clientmode(const char *cmd)
 	librouter_destroy_args(args);
 }
 
-/* END PPTP */
+#endif /* OPTION_PPTP */
 
-/* PPPOE */
-
+#ifdef OPTION_PPPOE
 void pppoe_set_info(const char *cmd)
 {
 	arglist * args;
@@ -1506,8 +1507,7 @@ void pppoe_set_clientmode(const char *cmd)
 
 	librouter_destroy_args(args);
 }
-
-/* END PPPOE */
+#endif /* OPTION_PPPOE */
 
 #ifdef OPTION_EFM
 void interface_efm_set_mode(const char *cmdline)

@@ -425,7 +425,7 @@ cish_command CMD_CONFIG_INTERFACE_TXQUEUELEN[] = {
 };
 
 /* PPTP Interface */
-
+#ifdef OPTION_PPTP
 cish_command CMD_CONFIG_PPTP_SERVER[] = {
 	{"<ipaddress>", "PPTP Server IP Address", NULL, pptp_set_info, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
@@ -466,11 +466,10 @@ cish_command CMD_CONFIG_INTERFACE_PPTP_NO[] = {
 	{"client-mode", "Disable PPTP Client Mode", NULL, pptp_set_clientmode, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
 };
-
-/* End PPTP Interface */
+#endif /* OPTION_PPTP */
 
 /* PPPOE Interface */
-
+#ifdef OPTION_PPPOE
 cish_command CMD_CONFIG_PPPOE_SERVICE_NAME[] = {
 	{"<text>", "Service Name - Most ISPs do not require this", NULL, pppoe_set_info, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
@@ -518,7 +517,7 @@ cish_command CMD_CONFIG_INTERFACE_PPPOE_NO[] = {
 	{NULL, NULL, NULL, NULL, 0}
 };
 
-/* End PPPOE Interface */
+#endif /* OPTION_PPPOE  */
 
 /* 3G Interface */
 #ifdef OPTION_MODEM3G

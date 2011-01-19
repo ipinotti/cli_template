@@ -118,8 +118,12 @@ static int _print_current_menu()
 		{ CMD_CONFIG_INTERFACE_M3G_USB, "(config-if-m3G-"},
 		{ CMD_CONFIG_INTERFACE_M3G_BTIN, "(config-if-m3G-"},
 #endif
+#ifdef OPTION_PPTP
 		{ CMD_CONFIG_INTERFACE_PPTP, "(config-if-pptp-"},
+#endif
+#ifdef OPTION_PPPOE
 		{ CMD_CONFIG_INTERFACE_PPPOE, "(config-if-pppoe-"},
+#endif
 #ifdef OPTION_EFM
 		{ CMD_CONFIG_INTERFACE_EFM, "(config-if-efm-"},
 		{ CMD_CONFIG_INTERFACE_EFM_VLAN, "(config-if-efm-"},
