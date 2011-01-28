@@ -647,7 +647,7 @@ static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
 #endif
 
 #ifdef OPTION_PPP
-
+#ifdef OPTION_PPPOE
 static void __dump_ppp_pppoe_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config ppp_cfg;
@@ -691,7 +691,8 @@ static void __dump_ppp_pppoe_status(FILE *out, struct interface_conf *conf)
 	fprintf(out, "\n");
 
 }
-
+#endif /* OPTION_PPPOE */
+#ifdef OPTION_PPTP
 static void __dump_ppp_pptp_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config ppp_cfg;
@@ -732,7 +733,7 @@ static void __dump_ppp_pptp_status(FILE *out, struct interface_conf *conf)
 	fprintf(out, "\n");
 
 }
-
+#endif /* OPTION_PPTP */
 
 static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 {
@@ -871,11 +872,15 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		switch (conf.linktype) {
 #ifdef OPTION_PPP
 		case ARPHRD_PPP:
+#ifdef OPTION_PPTP
 			if (strstr(cish_dev, "Pptp"))
 				__dump_ppp_pptp_status(out, &conf);
+#endif
 
+#ifdef OPTION_PPPOE
 			if (strstr(cish_dev, "Pppoe"))
 				__dump_ppp_pppoe_status(out, &conf);
+#endif
 
 			if (strstr(cish_dev, "M3G"))
 				__dump_ppp_status(out, &conf);
