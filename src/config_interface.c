@@ -77,7 +77,7 @@ int validate_interface_minor(void)
 	switch (interface_edited->type) {
 	case eth:
 #ifdef OPTION_EFM
-		case efm:
+	case efm:
 #endif
 		if (librouter_vlan_exists(interface_major, interface_minor))
 			return 0;
@@ -145,31 +145,33 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			free(dev);
 			break;
 #ifdef OPTION_PPTP
-		case pptp:
+			case pptp:
 			command_root = CMD_CONFIG_INTERFACE_PPTP;
 			break;
 #endif
 #ifdef OPTION_PPPOE
-		case pppoe:
+			case pppoe:
 			command_root = CMD_CONFIG_INTERFACE_PPPOE;
 			break;
 #endif
 #ifdef OPTION_MODEM3G
 		case ppp:
+#ifdef CONFIG_DIGISTAR_3G
 			if (interface_major == 0)
 				command_root = CMD_CONFIG_INTERFACE_M3G_BTIN;
 			else
+#endif
 				command_root = CMD_CONFIG_INTERFACE_M3G_USB;
 			break;
 #endif
 #ifdef OPTION_EFM
-			case efm:
+		case efm:
 			interface_major += EFM_INDEX_OFFSET;
 			if (interface_minor == -1)
-			command_root = CMD_CONFIG_INTERFACE_EFM;
+				command_root = CMD_CONFIG_INTERFACE_EFM;
 			else {
 				if (validate_interface_minor() < 0)
-				goto subiface_error;
+					goto subiface_error;
 				command_root = CMD_CONFIG_INTERFACE_EFM_VLAN;
 			}
 			break;
@@ -258,9 +260,11 @@ void interface_mtu(const char *cmdline)
 void interface_shutdown(const char *cmdline) /* shutdown */
 {
 	char *dev;
+	dev_family *fam;
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
+	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
 
 	librouter_qos_tc_remove_all(dev);
 
@@ -275,6 +279,15 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 	}
 
 	librouter_dev_set_link_down(dev);
+	switch (fam->type) {
+#ifdef OPTION_EFM
+	case efm:
+		librouter_efm_enable(0);
+		break;
+#endif
+	default:
+		break;
+	}
 
 	free(dev);
 }
@@ -288,14 +301,16 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 	                interface_minor);
 	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
 
-	if (strstr(dev, "ppp") != NULL) {
-		if (librouter_usb_device_is_modem(librouter_usb_get_realport_by_aliasport(
-		                interface_major)) < 0) {
-			printf("\n%% The interface is not connected or is not a modem");
-			printf("\n%% Settings couldn't be applied at this moment\n\n");
+#ifdef OPTION_MODEM3G
+	if (fam->type == ppp) {
+		int p = librouter_usb_get_realport_by_aliasport(interface_major);
+		if (librouter_usb_device_is_modem(p) < 0) {
+			printf("%% The interface is not connected or is not a modem\n");
+			printf("%% Settings couldn't be applied at this moment\n\n");
 		}
 
 	}
+#endif
 
 	librouter_dev_set_link_up(dev); /* UP */
 
@@ -305,6 +320,11 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 			librouter_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
 			librouter_qos_tc_insert_all(dev);
 			break;
+#ifdef OPTION_EFM
+		case efm:
+			librouter_efm_enable(1);
+			break;
+#endif
 		default:
 			break;
 		}
@@ -576,7 +596,7 @@ void interface_fec_autonegotiation(const char *cmdline) /* speed auto */
 
 #ifdef CONFIG_ROOT_NFS
 	if (_cish_booting)
-		return;
+	return;
 #endif
 	if ((dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor))) {
@@ -1096,7 +1116,7 @@ void backup_interface(const char *cmdline)
 	snprintf(main_interface, 16, "%s%s", args->argv[1], args->argv[2]);
 	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
-	if (librouter_dev_exists(interface)){
+	if (librouter_dev_exists(interface)) {
 		printf("\n%% Error on set backup interface");
 		printf("\n%% It is necessary to shutdown %s%d interface first",
 		                interface_edited->cish_string, interface_major);
@@ -1104,14 +1124,14 @@ void backup_interface(const char *cmdline)
 		goto end;
 	}
 
-	if (!strcmp(interface, librouter_ppp_backupd_intf_to_kernel_intf(main_interface))){
+	if (!strcmp(interface, librouter_ppp_backupd_intf_to_kernel_intf(main_interface))) {
 		printf("\n%% Error on set backup interface");
 		printf("\n%% Settings could not be applied");
 		printf("\n%% The current interface can not backup itself\n\n");
 		goto end;
 	}
 
-	if (librouter_ppp_backupd_verify_m3G_loop_backup(interface, main_interface)){
+	if (librouter_ppp_backupd_verify_m3G_loop_backup(interface, main_interface)) {
 		printf("\n%% Error on set backup interface");
 		printf("\n%% Settings could not be applied");
 		printf("\n%% Making a backup loop with 3G interfaces\n\n");
@@ -1119,13 +1139,13 @@ void backup_interface(const char *cmdline)
 	}
 
 #ifdef AVOID_SAME_BCKP_INTF
-//WARNING: Bloco de código retirado para possibilitar duas interfaces backups distintas de monitorar uma mesma interface
+	//WARNING: Bloco de código retirado para possibilitar duas interfaces backups distintas de monitorar uma mesma interface
 
 	if (librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR, main_interface, intf_return)) {
-		 Already applied in another 3G interface ?
+		Already applied in another 3G interface ?
 		if (strcmp(intf_return, interface)) {
 			printf("\n%% The interface is already with a backup connection by %s",
-			                librouter_device_from_linux_cmdline(intf_return));
+					librouter_device_from_linux_cmdline(intf_return));
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
@@ -1151,7 +1171,7 @@ void backup_interface(const char *cmdline)
 		goto end;
 	}
 
-end:
+	end:
 #ifdef AVOID_SAME_BCKP_INTF
 	free(intf_return);
 #endif
@@ -1378,7 +1398,7 @@ void pptp_set_info(const char *cmd)
 			printf("\n %% Error on set configuration!\n");
 			printf(" %% Wrong input! \n");
 			printf(
-			                " %% The system do not accept special characters like: .@<>#\\/&* \n");
+					" %% The system do not accept special characters like: .@<>#\\/&* \n");
 			goto end;
 		}
 	}
@@ -1421,9 +1441,9 @@ void pptp_set_mppe(const char *cmd)
 	args = librouter_make_args(cmd);
 
 	if (!strcmp(args->argv[0], "no"))
-		check = librouter_pptp_set_mppe(0);
+	check = librouter_pptp_set_mppe(0);
 	else
-		check = librouter_pptp_set_mppe(1);
+	check = librouter_pptp_set_mppe(1);
 
 	if (check < 0) {
 		printf("\n%% Error on set PPTP MPPE\n");
@@ -1440,9 +1460,9 @@ void pptp_set_clientmode(const char *cmd)
 	args = librouter_make_args(cmd);
 
 	if (!strcmp(args->argv[0], "no"))
-		librouter_pptp_set_clientmode(0);
+	librouter_pptp_set_clientmode(0);
 	else
-		librouter_pptp_set_clientmode(1);
+	librouter_pptp_set_clientmode(1);
 
 	librouter_destroy_args(args);
 }
@@ -1501,9 +1521,9 @@ void pppoe_set_clientmode(const char *cmd)
 	args = librouter_make_args(cmd);
 
 	if (!strcmp(args->argv[0], "no"))
-		librouter_pppoe_set_clientmode(0);
+	librouter_pppoe_set_clientmode(0);
 	else
-		librouter_pppoe_set_clientmode(1);
+	librouter_pppoe_set_clientmode(1);
 
 	librouter_destroy_args(args);
 }
@@ -1523,9 +1543,9 @@ void interface_efm_set_mode(const char *cmdline)
 	}
 
 	if (!strcmp(args->argv[1], "cpe"))
-	mode = 1;
+		mode = 1;
 	else
-	mode = 0;
+		mode = 0;
 
 	if (librouter_efm_set_mode(mode)) {
 		printf("%% Could not set DSP mode\n");

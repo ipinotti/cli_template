@@ -648,9 +648,14 @@ static void do_state_simcheck(struct bckp_conf_t *bckp_conf)
 	if (bckp_conf->shutdown)
 		return;
 
+#if defined(CONFIG_DIGISTAR_3G)
 	/* Only Built-in modem has SIM card holders */
 	if (strcmp(bckp_conf->intf_name, "ppp0"))
 		return;
+#elif defined(CONFIG_DIGISTAR_EFM)
+	/* No dual SIM support, just quit */
+	return;
+#endif
 
 	/* WTF: No pppd running? */
 	if (bckp_conf->pppd_pid == (int) NULL)
