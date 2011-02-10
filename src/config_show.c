@@ -183,7 +183,7 @@ static int show_logging_file(time_t tm_start, FILE *tf)
 					}
 #ifdef CONFIG_DEVELOPMENT /* Show all lines... */
 					else
-						pprintf("%s %s", date, info);
+					pprintf("%s %s", date, info);
 #endif
 				}
 				last_one_was_printed = 0;
@@ -503,7 +503,7 @@ void show_softnet(const char *cmdline)
 			fgets(tbuf, 255, tf);
 			tbuf[255] = 0;
 			if (strlen(tbuf))
-				pprintf("%s", tbuf);
+			pprintf("%s", tbuf);
 		}
 		fclose(tf);
 	}
@@ -637,6 +637,35 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 #endif
 }
 
+#ifdef OPTION_EFM
+static void __dump_efm_status(FILE *out, struct interface_conf *conf)
+{
+	struct orionplus_stat st[4];
+	int n; /* Number of channels */
+	int i;
+
+	n = librouter_efm_get_num_channels();
+
+	if (librouter_efm_get_status(st) < 0) {
+		printf("%% Could not get EFM status\n");
+		return;
+	}
+
+	printf("  DSP is present : %d channels, %s mode\n", n,
+	                librouter_efm_get_mode() ? "CPE" : "CO");
+	for (i = 0; i < n; i++) {
+		char buf[32];
+
+		librouter_efm_get_channel_state_string(st[i].channel_st, buf, sizeof(buf));
+
+		printf("\tChannel %d is %s. Speed is %d kbps\n", i, buf, st[i].bitrate[0]);
+	}
+
+	/* Continue with the normal ethernet dump */
+	__dump_ethernet_status(out, conf);
+}
+#endif
+
 static void __dump_loopback_status(FILE *out, struct interface_conf *conf)
 {
 }
@@ -648,7 +677,7 @@ static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
 #endif
 
 #ifdef OPTION_PPP
-
+#ifdef OPTION_PPPOE
 static void __dump_ppp_pppoe_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config ppp_cfg;
@@ -674,25 +703,25 @@ static void __dump_ppp_pppoe_status(FILE *out, struct interface_conf *conf)
 	}
 
 	if (ppp_cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
-		fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", ppp_cfg.ip_unnumbered, ip.ipaddr);
+	fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", ppp_cfg.ip_unnumbered, ip.ipaddr);
 	else
-		if (ip.ipaddr[0])
-			fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
-
+	if (ip.ipaddr[0])
+	fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 
 	fprintf(out, "  Encapsulation PPP");
 	if (strlen(pppoe_cfg.network) > 0)
-			fprintf(out, ", Network is \"%s\"", pppoe_cfg.network);
+	fprintf(out, ", Network is \"%s\"", pppoe_cfg.network);
 	fprintf(out, "\n  Username is \"%s\"", pppoe_cfg.username);
 	if (strlen(pppoe_cfg.service_name) > 0)
-			fprintf(out, "  Service name is \"%s\"", pppoe_cfg.service_name);
+	fprintf(out, "  Service name is \"%s\"", pppoe_cfg.service_name);
 	if (strlen(pppoe_cfg.ac_name) > 0)
-			fprintf(out, ", AC name is \"%s\"", pppoe_cfg.ac_name);
+	fprintf(out, ", AC name is \"%s\"", pppoe_cfg.ac_name);
 
 	fprintf(out, "\n");
 
 }
-
+#endif /* OPTION_PPPOE */
+#ifdef OPTION_PPTP
 static void __dump_ppp_pptp_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config ppp_cfg;
@@ -718,22 +747,21 @@ static void __dump_ppp_pptp_status(FILE *out, struct interface_conf *conf)
 	}
 
 	if (ppp_cfg.ip_unnumbered != -1) /* Verifica a flag ip_unnumbered do cfg e exibe a mensagem correta */
-		fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", ppp_cfg.ip_unnumbered, ip.ipaddr);
+	fprintf(out, "  Interface is unnumbered. Using address of ethernet %d (%s)\n", ppp_cfg.ip_unnumbered, ip.ipaddr);
 	else
-		if (ip.ipaddr[0])
-			fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
-
+	if (ip.ipaddr[0])
+	fprintf(out, "  Internet address is %s %s\n", ip.ipaddr, ip.ipmask);
 
 	fprintf(out, "  Encapsulation PPP");
 	fprintf(out, ", Server is %s\n", pptp_cfg.server);
 	fprintf(out, "  Username is \"%s\"", pptp_cfg.username);
 	if (strlen(pptp_cfg.domain) > 0)
-		fprintf(out, ", Domain is \"%s\"", pptp_cfg.domain);
+	fprintf(out, ", Domain is \"%s\"", pptp_cfg.domain);
 
 	fprintf(out, "\n");
 
 }
-
+#endif /* OPTION_PPTP */
 
 static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 {
@@ -758,19 +786,19 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	fprintf(out, "  Encapsulation PPP");
 
 	if (!librouter_modem3g_get_apn(apn, serial_no))
-		fprintf(out, ", APN is \"%s\"\n", apn);
+	fprintf(out, ", APN is \"%s\"\n", apn);
 	else
-		printf(" Error - reading APN\n");
+	printf(" Error - reading APN\n");
 
 	free(apn);
 
 	if ((!lusb_descriptor) && (lusb_tty_verify != -1))
-		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d", usbdev->product_str,
-		                usbdev->manufacture_str, usbdev->port);
+	fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d", usbdev->product_str,
+			usbdev->manufacture_str, usbdev->port);
 	else if ((!lusb_descriptor) && (lusb_tty_verify < 0))
-		fprintf(out, "  USB device connected, but not a modem.");
+	fprintf(out, "  USB device connected, but not a modem.");
 	else
-		fprintf(out, "  No USB device connected.");
+	fprintf(out, "  No USB device connected.");
 
 	free(usbdev);
 
@@ -806,7 +834,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	}
 
 	/* Get number of interfaces and sort them by name */
-	for (i = 0; intf_list[i][0] != '\0'; i++, num_of_ifaces++);
+	for (i = 0; intf_list[i][0] != '\0'; i++, num_of_ifaces++)
+		;
 	qsort(&intf_list[0], num_of_ifaces, sizeof(char *), intf_cmp);
 
 	for (i = 0; i < num_of_ifaces; i++) {
@@ -872,18 +901,27 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		switch (conf.linktype) {
 #ifdef OPTION_PPP
 		case ARPHRD_PPP:
-			if (strstr(cish_dev, "Pptp"))
-				__dump_ppp_pptp_status(out, &conf);
+#ifdef OPTION_PPTP
+		if (strstr(cish_dev, "Pptp"))
+		__dump_ppp_pptp_status(out, &conf);
+#endif
 
-			if (strstr(cish_dev, "Pppoe"))
-				__dump_ppp_pppoe_status(out, &conf);
+#ifdef OPTION_PPPOE
+		if (strstr(cish_dev, "Pppoe"))
+		__dump_ppp_pppoe_status(out, &conf);
+#endif
 
-			if (strstr(cish_dev, "M3G"))
-				__dump_ppp_status(out, &conf);
-			break;
+		if (strstr(cish_dev, "M3G"))
+		__dump_ppp_status(out, &conf);
+		break;
 #endif
 		case ARPHRD_ETHER:
-			__dump_ethernet_status(out, &conf);
+#ifdef OPTION_EFM
+			if (strstr(cish_dev, "Efm"))
+				__dump_efm_status(out, &conf);
+			else
+#endif
+				__dump_ethernet_status(out, &conf);
 			break;
 
 		case ARPHRD_LOOPBACK:
@@ -921,9 +959,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 #ifdef CONFIG_DEVELOPMENT
 		fprintf(out, "     %lu length, %lu missed\n", st->rx_length_errors,
-		                st->rx_missed_errors);
+				st->rx_missed_errors);
 		fprintf(out, "     %lu enable int, %lu max worked\n", st->rx_enable_int,
-		                st->rx_max_worked);
+				st->rx_max_worked);
 
 #endif
 		fprintf(out, "     %lu packets output, %lu bytes\n", st->tx_packets, st->tx_bytes);
@@ -934,10 +972,10 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		                st->tx_carrier_errors, st->tx_fifo_errors);
 #ifdef CONFIG_DEVELOPMENT
 		fprintf(out, "     %lu aborted, %lu heartbeat, %lu window\n",
-		                st->tx_aborted_errors, st->tx_heartbeat_errors,
-		                st->tx_window_errors);
+				st->tx_aborted_errors, st->tx_heartbeat_errors,
+				st->tx_window_errors);
 		fprintf(out, "     %lu enable int, %lu max worked\n", st->tx_enable_int,
-		                st->tx_max_worked);
+				st->tx_max_worked);
 		fprintf(out, "     %lu stopped, %lu restarted\n", st->tx_stopped, st->tx_restarted);
 #endif
 

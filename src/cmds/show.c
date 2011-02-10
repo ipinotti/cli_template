@@ -6,6 +6,14 @@
 #include "commands.h"
 #include "commandtree.h"
 
+
+#ifdef OPTION_EFM
+cish_command CMD_SHOW_INTERFACE_EFM[] = {
+	{"0-0", "EFM interface number", NULL, show_interfaces, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 cish_command CMD_SHOW_INTERFACE_ETHERNET[] = {
 	{"0-1", "Ethernet interface number", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -28,24 +36,35 @@ cish_command CMD_SHOW_INTERFACE_M3G[] = {
 };
 #endif
 
+#ifdef OPTION_PPTP
 cish_command CMD_SHOW_INTERFACE_PPTP[] = {
 	{"0-0", "PPTP interface number", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
+#ifdef OPTION_PPPOE
 cish_command CMD_SHOW_INTERFACE_PPPOE[] = {
 	{"0-0", "PPPoE interface number", NULL, show_interfaces, 0, MSK_NORMAL},
 };
+#endif
 
 cish_command CMD_SHOW_INTERFACES[] = {
+#ifdef OPTION_EFM
+	{"efm", "EFM interface", CMD_SHOW_INTERFACE_EFM, NULL, 0, MSK_NORMAL},
+#endif
 	{"ethernet", "Ethernet interface", CMD_SHOW_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_SHOW_INTERFACE_LOOPBACK, NULL, 0, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_SHOW_INTERFACE_TUNNEL, NULL, 0, MSK_NORMAL},
 #ifdef OPTION_MODEM3G
 	{"m3G", "3G interface", CMD_SHOW_INTERFACE_M3G, NULL, 0, MSK_NORMAL},
 #endif
+#ifdef OPTION_PPTP
 	{"pptp", "PPTP interface", CMD_SHOW_INTERFACE_PPTP, NULL, 0, MSK_NORMAL},
+#endif
+#ifdef OPTION_PPPOE
 	{"pppoe", "PPPoE interface", CMD_SHOW_INTERFACE_PPPOE, NULL, 0, MSK_NORMAL},
+#endif
 	{"<enter>", "", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };

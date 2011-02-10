@@ -119,8 +119,12 @@ static int _print_current_menu()
 		{ CMD_CONFIG_INTERFACE_M3G_USB, "(config-if-m3G-"},
 		{ CMD_CONFIG_INTERFACE_M3G_BTIN, "(config-if-m3G-"},
 #endif
+#ifdef OPTION_PPTP
 		{ CMD_CONFIG_INTERFACE_PPTP, "(config-if-pptp-"},
+#endif
+#ifdef OPTION_PPPOE
 		{ CMD_CONFIG_INTERFACE_PPPOE, "(config-if-pppoe-"},
+#endif
 #ifdef OPTION_EFM
 		{ CMD_CONFIG_INTERFACE_EFM, "(config-if-efm-"},
 		{ CMD_CONFIG_INTERFACE_EFM_VLAN, "(config-if-efm-"},
@@ -439,8 +443,12 @@ void config_file(const char *f)
 				}
 #ifdef CONFIG_DEVELOPMENT
 				if (_on_nfs()) {
+
 					if (command_root == CMD_CONFIG_INTERFACE_ETHERNET
-					                && interface_major == DEFAULT_ETHERNET_WAN) {
+#ifdef CONFIG_DIGISTAR_3G
+					                && interface_major == DEFAULT_ETHERNET_WAN
+#endif
+					) {
 						if (strstr(line, "ip address") != NULL) {
 							syslog(LOG_INFO,
 							                "%% NFS Boot: skipping ethernet ip configuration\n");
