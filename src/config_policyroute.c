@@ -28,37 +28,60 @@ static int route_fill_pbr_struct_from_args(librouter_pbr_struct * pbr, arglist *
 {
 	memset(pbr,0,sizeof(librouter_pbr_struct));
 
-	switch (args->argc){
-		case 7:/*default opt*/
-			sprintf(pbr->table,"%s%s",args->argv[5],args->argv[6]);
-			sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[3],atoi(args->argv[4]),-1));
-			sprintf(pbr->network_opt,"%s",args->argv[1]);
-			break;
-		case 8:/*ipaddr opt*/
-			sprintf(pbr->table,"%s%s",args->argv[6],args->argv[7]);
-			sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[4],atoi(args->argv[5]),-1));
-			sprintf(pbr->network_opt_ipmask,"%s",args->argv[2]);
-			sprintf(pbr->network_opt,"%s",args->argv[1]);
-			break;
+	if (!strcmp(args->argv[1],"default")){
+		switch (args->argc){
+			case 6:/*default opt com via */
+				sprintf(pbr->table,"%s%s",args->argv[4],args->argv[5]);
+				sprintf(pbr->via_ipaddr,"%s",args->argv[3]);
+				sprintf(pbr->network_opt,"%s",args->argv[1]);
+				break;
 
-		case 9:/*default opt com via*/
-			sprintf(pbr->table,"%s%s",args->argv[7],args->argv[8]);
-			sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[5],atoi(args->argv[6]),-1));
-			sprintf(pbr->via_ipaddr,"%s",args->argv[3]);
-			sprintf(pbr->network_opt,"%s",args->argv[1]);
-			break;
+			case 7:/*default opt*/
+				sprintf(pbr->table,"%s%s",args->argv[5],args->argv[6]);
+				sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[3],atoi(args->argv[4]),-1));
+				sprintf(pbr->network_opt,"%s",args->argv[1]);
+				break;
 
-		case 10:/*ipaddr opt com via*/
-			sprintf(pbr->table,"%s%s",args->argv[8],args->argv[9]);
-			sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[6],atoi(args->argv[7]),-1));
-			sprintf(pbr->via_ipaddr,"%s",args->argv[4]);
-			sprintf(pbr->network_opt_ipmask,"%s",args->argv[2]);
-			sprintf(pbr->network_opt,"%s",args->argv[1]);
-			break;
+			case 9:/*default opt com via + dev*/
+				sprintf(pbr->table,"%s%s",args->argv[7],args->argv[8]);
+				sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[5],atoi(args->argv[6]),-1));
+				sprintf(pbr->via_ipaddr,"%s",args->argv[3]);
+				sprintf(pbr->network_opt,"%s",args->argv[1]);
+				break;
 
-		default:
-			return -1;
-			break;
+			default:
+				return -1;
+				break;
+		}
+	}
+	else {
+		switch (args->argc){
+			case 7:/*ipaddr opt com via*/
+				sprintf(pbr->table,"%s%s",args->argv[5],args->argv[6]);
+				sprintf(pbr->via_ipaddr,"%s",args->argv[4]);
+				sprintf(pbr->network_opt_ipmask,"%s",args->argv[2]);
+				sprintf(pbr->network_opt,"%s",args->argv[1]);
+				break;
+
+			case 8:/*ipaddr opt*/
+				sprintf(pbr->table,"%s%s",args->argv[6],args->argv[7]);
+				sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[4],atoi(args->argv[5]),-1));
+				sprintf(pbr->network_opt_ipmask,"%s",args->argv[2]);
+				sprintf(pbr->network_opt,"%s",args->argv[1]);
+				break;
+
+			case 10:/*ipaddr opt com via + dev*/
+				sprintf(pbr->table,"%s%s",args->argv[8],args->argv[9]);
+				sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[6],atoi(args->argv[7]),-1));
+				sprintf(pbr->via_ipaddr,"%s",args->argv[4]);
+				sprintf(pbr->network_opt_ipmask,"%s",args->argv[2]);
+				sprintf(pbr->network_opt,"%s",args->argv[1]);
+				break;
+
+			default:
+				return -1;
+				break;
+		}
 	}
 	return 0;
 }
@@ -67,37 +90,60 @@ static int route_fill_pbr_struct_no_from_args(librouter_pbr_struct * pbr, arglis
 {
 	memset(pbr,0,sizeof(librouter_pbr_struct));
 
-	switch (args->argc){
-		case 8:/*default opt*/
-			sprintf(pbr->table,"%s%s",args->argv[6],args->argv[7]);
-			sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[4],atoi(args->argv[5]),-1));
-			sprintf(pbr->network_opt,"%s",args->argv[2]);
-			break;
-		case 9:/*ipaddr opt*/
-			sprintf(pbr->table,"%s%s",args->argv[7],args->argv[8]);
-			sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[5],atoi(args->argv[6]),-1));
-			sprintf(pbr->network_opt_ipmask,"%s",args->argv[3]);
-			sprintf(pbr->network_opt,"%s",args->argv[2]);
-			break;
+	if (!strcmp(args->argv[2],"default")){
+		switch (args->argc){
+			case 7:/*default opt com via*/
+				sprintf(pbr->table,"%s%s",args->argv[5],args->argv[6]);
+				sprintf(pbr->via_ipaddr,"%s",args->argv[4]);
+				sprintf(pbr->network_opt,"%s",args->argv[2]);
+				break;
 
-		case 10:/*default opt com via*/
-			sprintf(pbr->table,"%s%s",args->argv[8],args->argv[9]);
-			sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[6],atoi(args->argv[7]),-1));
-			sprintf(pbr->via_ipaddr,"%s",args->argv[4]);
-			sprintf(pbr->network_opt,"%s",args->argv[2]);
-			break;
+			case 8:/*default opt*/
+				sprintf(pbr->table,"%s%s",args->argv[6],args->argv[7]);
+				sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[4],atoi(args->argv[5]),-1));
+				sprintf(pbr->network_opt,"%s",args->argv[2]);
+				break;
 
-		case 11:/*ipaddr opt com via*/
-			sprintf(pbr->table,"%s%s",args->argv[9],args->argv[10]);
-			sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[7],atoi(args->argv[8]),-1));
-			sprintf(pbr->via_ipaddr,"%s",args->argv[5]);
-			sprintf(pbr->network_opt_ipmask,"%s",args->argv[3]);
-			sprintf(pbr->network_opt,"%s",args->argv[2]);
-			break;
+			case 10:/*default opt com via + dev*/
+				sprintf(pbr->table,"%s%s",args->argv[8],args->argv[9]);
+				sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[6],atoi(args->argv[7]),-1));
+				sprintf(pbr->via_ipaddr,"%s",args->argv[4]);
+				sprintf(pbr->network_opt,"%s",args->argv[2]);
+				break;
 
-		default:
-			return -1;
-			break;
+			default:
+				return -1;
+				break;
+		}
+	}
+	else {
+		switch (args->argc){
+			case 8:/*ipaddr opt com via*/
+				sprintf(pbr->table,"%s%s",args->argv[6],args->argv[7]);
+				sprintf(pbr->via_ipaddr,"%s",args->argv[5]);
+				sprintf(pbr->network_opt_ipmask,"%s",args->argv[3]);
+				sprintf(pbr->network_opt,"%s",args->argv[2]);
+				break;
+
+			case 9:/*ipaddr opt*/
+				sprintf(pbr->table,"%s%s",args->argv[7],args->argv[8]);
+				sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[5],atoi(args->argv[6]),-1));
+				sprintf(pbr->network_opt_ipmask,"%s",args->argv[3]);
+				sprintf(pbr->network_opt,"%s",args->argv[2]);
+				break;
+
+			case 11:/*ipaddr opt com via + dev*/
+				sprintf(pbr->table,"%s%s",args->argv[9],args->argv[10]);
+				sprintf(pbr->dev,"%s",librouter_device_cli_to_linux(args->argv[7],atoi(args->argv[8]),-1));
+				sprintf(pbr->via_ipaddr,"%s",args->argv[5]);
+				sprintf(pbr->network_opt_ipmask,"%s",args->argv[3]);
+				sprintf(pbr->network_opt,"%s",args->argv[2]);
+				break;
+
+			default:
+				return -1;
+				break;
+		}
 	}
 	return 0;
 }

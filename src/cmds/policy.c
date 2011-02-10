@@ -86,8 +86,14 @@ cish_command CMD_POLICYROUTE_ROUTE_DEV[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_POLICYROUTE_ROUTE_VIA_OPT[] = {
+	{"dev", "Device output", CMD_POLICYROUTE_ROUTE_DEV_NAME, NULL, 1, MSK_NORMAL},
+	{"table", "Route Table", CMD_POLICYROUTE_ROUTE_TABLE_NAME, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_POLICYROUTE_ROUTE_VIA[] = {
-	{"<ipaddress>", "Target IP Address", CMD_POLICYROUTE_ROUTE_DEV, NULL, 1, MSK_NORMAL},
+	{"<ipaddress>", "Target IP Address", CMD_POLICYROUTE_ROUTE_VIA_OPT, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
