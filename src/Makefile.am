@@ -26,6 +26,7 @@ cish_SOURCES = \
 	config_telnet.c \
 	config_rmon.c \
 	config_policymap.c \
+	config_policyroute.c \
 	config_router.c \
 	config_terminal.c \
 	config_crypto.c \

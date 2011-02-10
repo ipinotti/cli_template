@@ -361,6 +361,7 @@ cish_command CMD_CONFIGURE[] = {
 	{"ntp-sync","Set time synchronization", CMD_CONFIG_NTP, NULL, 1, MSK_NORMAL},
 #endif
 	{"policy-map", "Configure QoS Policy Map", CMD_CONFIG_POLICYMAP, NULL, 1, MSK_QOS},
+	{"policy-route", "Configure Policy Route (PBR)", NULL, cd_policyroute_dir, 1, MSK_NORMAL},
 	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_RADIUSSERVER_HOST, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_RMON
 	{"rmon","Set RMON agent configuration", CMD_CONFIG_RMON, NULL, 1, MSK_NORMAL},

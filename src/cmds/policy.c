@@ -6,6 +6,137 @@
 #include "commands.h"
 #include "commandtree.h"
 
+/* POLICY ROUTE - PBR */
+
+cish_command CMD_POLICYROUTE_RULE_TABLENUM[] = {
+	{"0-9", "Table for policy route", NULL, policyroute_rule_set_info, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_RULE_TABLE[] = {
+	{"table", "Table for policy route", CMD_POLICYROUTE_RULE_TABLENUM, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_RULE_MRKNUM[] = {
+	{"1-2000000000", "Mark-Rule Number for policy route", CMD_POLICYROUTE_RULE_TABLE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_TABLE_NAME[] = {
+	{"0-9", "Route Table Number", NULL, policyroute_route_set_info, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_TABLE[] = {
+	{"table", "Route Table", CMD_POLICYROUTE_ROUTE_TABLE_NAME, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_DEV_ETHERNET[] = {
+	{"0-1", "Ethernet interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+#ifdef OPTION_ALL_INTF
+cish_command CMD_POLICYROUTE_ROUTE_DEV_LOOPBACK[] = {
+	{"0-0", "Loopback interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_DEV_TUNNEL[] = {
+	{"0-9", "Tunnel interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+#ifdef OPTION_MODEM3G
+cish_command CMD_POLICYROUTE_ROUTE_DEV_3G[] = {
+	{"0-2", "3G interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+#endif
+
+cish_command CMD_POLICYROUTE_ROUTE_DEV_PPTP[] = {
+	{"0-0", "PPTP interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_DEV_PPPOE[] = {
+	{"0-0", "PPPoE interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+#endif
+
+cish_command CMD_POLICYROUTE_ROUTE_DEV_NAME[] = {
+	{"ethernet", "Ethernet interface", CMD_POLICYROUTE_ROUTE_DEV_ETHERNET , NULL, 1, MSK_NORMAL},
+#ifdef OPTION_ALL_INTF
+	{"loopback", "Loopback interface", CMD_POLICYROUTE_ROUTE_DEV_LOOPBACK, NULL, 1, MSK_NORMAL},
+	{"tunnel", "Tunnel interface", CMD_POLICYROUTE_ROUTE_DEV_TUNNEL, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_MODEM3G
+	{"m3G", "3G Interface", CMD_POLICYROUTE_ROUTE_DEV_3G, NULL, 1, MSK_NORMAL},
+#endif
+	{"pptp", "PPTP Interface", CMD_POLICYROUTE_ROUTE_DEV_PPTP, NULL, 1, MSK_NORMAL},
+	{"pppoe", "PPPoE Interface", CMD_POLICYROUTE_ROUTE_DEV_PPPOE, NULL, 1, MSK_NORMAL},
+#endif
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_DEV[] = {
+	{"dev", "Device output", CMD_POLICYROUTE_ROUTE_DEV_NAME, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_VIA[] = {
+	{"<ipaddress>", "Target IP Address", CMD_POLICYROUTE_ROUTE_DEV, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_OPT[] = {
+	{"dev", "Device output", CMD_POLICYROUTE_ROUTE_DEV_NAME, NULL, 1, MSK_NORMAL},
+	{"via", "Address of the nexthop router", CMD_POLICYROUTE_ROUTE_VIA, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_MASK[] = {
+	{"<netmask>", "IP Network Mask", CMD_POLICYROUTE_ROUTE_OPT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_FLUSH_TABLE_NUM[] = {
+	{"0-9", "Route Table Number", NULL, policyroute_route_flush_table, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_FLUSH_TABLE[] = {
+	{"table", "Route Table", CMD_POLICYROUTE_ROUTE_FLUSH_TABLE_NUM, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICYROUTE_ROUTE_NET[] = {
+	{"<ipaddress>", "Network", CMD_POLICYROUTE_ROUTE_MASK, NULL, 1, MSK_NORMAL},
+	{"default", "Default Path", CMD_POLICYROUTE_ROUTE_OPT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICY_ROUTE_NO[] = {
+	{"rule", "Remove rule for policy route", CMD_POLICYROUTE_RULE_MRKNUM, NULL, 1, MSK_NORMAL},
+	{"route", "Remove route for policy route", CMD_POLICYROUTE_ROUTE_NET, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_POLICY_ROUTE[] = {
+	{"rule", "Add rule for policy route", CMD_POLICYROUTE_RULE_MRKNUM, NULL, 1, MSK_NORMAL},
+	{"route", "Add route for policy route", CMD_POLICYROUTE_ROUTE_NET, NULL, 1, MSK_NORMAL},
+	{"flush", "Empties a routing table", CMD_POLICYROUTE_ROUTE_FLUSH_TABLE, NULL, 1, MSK_NORMAL},
+	{"no","Reverse settings", CMD_POLICY_ROUTE_NO, NULL, 1, MSK_NORMAL},
+	{"exit","Exit from Policy Route (PBR) configuration mode", NULL, policyroute_done, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+
+
+/* POLICY MAP */
+
 cish_command CMD_POLICYMAP_WFQ[] = {
 	{"1-4096", "WFQ hold-queue size", NULL, config_policy_queue, 1, MSK_QOS},
 	{"<enter>", "", NULL, NULL, 1, MSK_QOS},

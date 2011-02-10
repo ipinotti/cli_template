@@ -68,6 +68,23 @@ cish_command CMD_SHOW_NAT[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_SHOW_POLICYROUTE_ROUTES_TABLE[] = {
+	{"0-9", "Number of predefined table", NULL, show_policyroute_routes, 1, MSK_NORMAL},
+	{"main", "Main table", NULL, show_policyroute_routes, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_SHOW_POLICYROUTE_ROUTES[] = {
+	{"table", "Routing Table", CMD_SHOW_POLICYROUTE_ROUTES_TABLE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_SHOW_POLICYROUTE[] = {
+	{"routes", "Defined routes for Policy-Route", CMD_SHOW_POLICYROUTE_ROUTES, NULL, 1, MSK_NORMAL},
+	{"rules", "Defined rules for Policy-Route", NULL, show_policyroute_rules, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_SHOW_IP[] = {
 	{"arp", "ARP table", NULL, show_arp, 0, MSK_NORMAL},
 #ifdef OPTION_BGP
@@ -174,6 +191,7 @@ cish_command CMD_SHOW[] = {
 	{"memory", "Memory statistics", NULL, show_memory, 0, MSK_NORMAL},
 	{"mark-rules", "List MARK rules", CMD_SHOW_MANGLE, show_manglerules, 1, MSK_QOS},
 	{"nat-rules", "List NAT rules", CMD_SHOW_NAT, show_natrules, 1, MSK_NORMAL},
+	{"policy-route", "List Policy-route rules/routes (PBR)", CMD_SHOW_POLICYROUTE, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_NTPD
 	{"ntp", "Show NTP info", CMD_SHOW_NTP, NULL, 1, MSK_NORMAL},
 #endif

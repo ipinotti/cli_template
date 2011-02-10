@@ -116,6 +116,7 @@ extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[];
 #ifdef OPTION_MODEM3G
 extern cish_command CMD_BACKUP_INTERFACE_ETHERNET[];
 #endif
+extern cish_command CMD_POLICYROUTE_ROUTE_DEV_ETHERNET[];
 
 void set_model_ethernet_cmds(int num_ifaces)
 {
@@ -154,6 +155,7 @@ void set_model_ethernet_cmds(int num_ifaces)
 #ifdef OPTION_MODEM3G
 	CMD_BACKUP_INTERFACE_ETHERNET[0].name = name;
 #endif
+	CMD_POLICYROUTE_ROUTE_DEV_ETHERNET[0].name = name;
 }
 
 void config_router(const char *cmdline)

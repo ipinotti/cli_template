@@ -38,6 +38,7 @@
 #include <librouter/usb.h>
 #include <librouter/pptp.h>
 #include <librouter/acl.h>
+#include <librouter/pbr.h>
 
 #define PPPDEV "ppp"
 
@@ -2003,3 +2004,55 @@ void show_modem3g_password(const char *cmdline)
 
 }
 #endif
+
+void show_policyroute_rules(const char *cmdline)
+{
+	char * show_rules_buffer = NULL;
+	int size_show = 0;
+
+	if ((size_show = librouter_pbr_get_show_rules_cli_size()) < 0){
+		printf("Error on show Policy-Route Rules\n");
+		return;
+	}
+
+	show_rules_buffer = malloc(size_show);
+	memset(show_rules_buffer,0,sizeof(show_rules_buffer));
+
+	if (librouter_pbr_get_show_rules_cli(show_rules_buffer) < 0)
+		printf("Error on show Policy-Route Rules\n");
+	else
+		printf("%s\n",show_rules_buffer);
+
+	free (show_rules_buffer);
+}
+
+void show_policyroute_routes(const char *cmdline)
+{
+	arglist *args;
+	args = librouter_make_args(cmdline);
+	char table_name[8];
+	char * show_routes_buffer = NULL;
+	int size_show = 0;
+
+	if (!strcmp(args->argv[4],"main"))
+		sprintf(table_name,"%s",args->argv[4]);
+	else
+		sprintf(table_name,"%s%s",args->argv[3],args->argv[4]);
+
+	if ((size_show = librouter_pbr_get_show_routes_cli_size(table_name)) < 0){
+		printf("Error on show Policy-Route Routes\n");
+		return;
+	}
+
+	show_routes_buffer = malloc(size_show);
+	memset(show_routes_buffer,0,sizeof(show_routes_buffer));
+
+	if (librouter_pbr_get_show_routes_cli(table_name, show_routes_buffer) < 0)
+		printf("Error on show Policy-Route Routes\n");
+	else
+		printf("%s\n",show_routes_buffer);
+
+	free (show_routes_buffer);
+	librouter_destroy_args(args);
+
+}
