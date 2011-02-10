@@ -24,36 +24,6 @@
 #include "cish_main.h"
 #include "pprintf.h"
 
-void policyroute_rule_set_info(const char *cmdline)
-{
-	arglist * args;
-	int check = -1;
-	char table_name[8];
-
-	args = librouter_make_args(cmdline);
-
-	switch (args->argc){
-		case 4:
-			sprintf(table_name,"%s%s",args->argv[2],args->argv[3]);
-			check = librouter_pbr_rule_add(atoi(args->argv[1]),table_name);
-			break;
-		case 5:
-			sprintf(table_name,"%s%s",args->argv[3],args->argv[4]);
-			check = librouter_pbr_rule_del(atoi(args->argv[2]),table_name);
-			break;
-		default:
-			check = -1;
-			break;
-	}
-
-	if (check < 0){
-		printf("\n%% Error on set rule for policy route - PBR");
-		printf("\n%% Settings could not be applied\n\n");
-	}
-
-	librouter_destroy_args(args);
-}
-
 static int route_fill_pbr_struct_from_args(librouter_pbr_struct * pbr, arglist * args)
 {
 	memset(pbr,0,sizeof(librouter_pbr_struct));
@@ -176,6 +146,36 @@ void policyroute_route_set_info(const char *cmdline)
 
 	if (check < 0){
 		printf("\n%% Error on set route for policy route - PBR");
+		printf("\n%% Settings could not be applied\n\n");
+	}
+
+	librouter_destroy_args(args);
+}
+
+void policyroute_rule_set_info(const char *cmdline)
+{
+	arglist * args;
+	int check = -1;
+	char table_name[8];
+
+	args = librouter_make_args(cmdline);
+
+	switch (args->argc){
+		case 4:
+			sprintf(table_name,"%s%s",args->argv[2],args->argv[3]);
+			check = librouter_pbr_rule_add(atoi(args->argv[1]),table_name);
+			break;
+		case 5:
+			sprintf(table_name,"%s%s",args->argv[3],args->argv[4]);
+			check = librouter_pbr_rule_del(atoi(args->argv[2]),table_name);
+			break;
+		default:
+			check = -1;
+			break;
+	}
+
+	if (check < 0){
+		printf("\n%% Error on set rule for policy route - PBR");
 		printf("\n%% Settings could not be applied\n\n");
 	}
 
