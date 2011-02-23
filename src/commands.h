@@ -720,6 +720,15 @@ void pppoe_set_info(const char *cmd);
 void pppoe_set_no_info(const char *cmd);
 void pppoe_set_clientmode(const char *cmd);
 
+/* Policy Route - PBR */
+void policyroute_rule_set_info(const char *cmdline);
+void policyroute_route_set_info(const char *cmdline);
+void policyroute_route_flush_table(const char *cmdline);
+void policyroute_done(const char *cmdline);
+void cd_policyroute_dir(const char *cmdline);
+void show_policyroute_rules(const char *cmdline);
+void show_policyroute_routes(const char *cmdline);
+
 
 /* 3G Device */
 #ifdef OPTION_MODEM3G

@@ -198,6 +198,9 @@ extern cish_command CMD_SHOW_BRIDGE[];
 extern cish_command CMD_CONFIG_BRIDGE[];
 extern cish_command CMD_CONFIG_NO_BRIDGE[];
 
+/* Policy Route - PBR */
+extern cish_command CMD_POLICY_ROUTE[];
+
 /* Managed Switch (KSZ8863) */
 extern cish_command CMD_CONFIG_INTERFACE_ETH_SW_PORT_[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO[];

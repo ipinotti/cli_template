@@ -102,6 +102,7 @@ static int _print_current_menu()
 		{ CMD_KEY, "(config-keychain-key)"},
 		{ CMD_POLICYMAP, "(config-pmap)"},
 		{ CMD_POLICYMAP_MARKRULE, "(config-pmap-markrule)"},
+		{ CMD_POLICY_ROUTE, "(config-proute)"},
 		{ CMD_CONFIG_ROUTER_RIP, "(config-router-rip)"},
 		{ CMD_CONFIG_ROUTER_OSPF, "(config-router-ospf)"},
 #ifdef OPTION_BGP
