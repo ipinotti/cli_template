@@ -449,7 +449,7 @@ void config_file(const char *f)
 					                && interface_major == DEFAULT_ETHERNET_WAN
 #endif
 					) {
-						if (strstr(line, "ip address") != NULL) {
+						if ((strstr(line, "ip address") != NULL) && (strstr(line, "secondary") == NULL)) {
 							syslog(LOG_INFO,
 							                "%% NFS Boot: skipping ethernet ip configuration\n");
 							continue; /* skip ip address config when using NFS */
