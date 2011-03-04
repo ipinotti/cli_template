@@ -33,11 +33,11 @@ void sw_egress_traffic_shape(const char *cmdline)
 	args = librouter_make_args(cmdline);
 
 	if (!strcmp(args->argv[0], "no")) {
-		prio = atoi(args->argv[3]);
+		prio = atoi(args->argv[2]);
 		librouter_ksz8863_set_egress_rate_limit(switch_port, prio, 0);
 	} else {
-		prio = atoi(args->argv[2]);
-		rate = atoi(args->argv[3]);
+		prio = atoi(args->argv[1]);
+		rate = atoi(args->argv[2]);
 		if (rate < 1000)
 			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate
 			                / 64) * 64);
@@ -57,11 +57,11 @@ void sw_ingress_rate_limit(const char *cmdline)
 	args = librouter_make_args(cmdline);
 
 	if (!strcmp(args->argv[0], "no")) {
-		prio = atoi(args->argv[3]);
+		prio = atoi(args->argv[2]);
 		librouter_ksz8863_set_ingress_rate_limit(switch_port, prio, 0);
 	} else {
-		prio = atoi(args->argv[2]);
-		rate = atoi(args->argv[3]);
+		prio = atoi(args->argv[1]);
+		rate = atoi(args->argv[2]);
 		if (rate < 1000)
 			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate
 			                / 64) * 64);

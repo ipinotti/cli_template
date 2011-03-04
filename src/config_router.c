@@ -86,8 +86,7 @@ void del_model_cmd_mask(int mask)
 #ifdef OPTION_MANAGED_SWITCH
 void set_model_switch_cmds(void)
 {
-	//int enable = librouter_ksz8863_probe();
-	int enable = 1;
+	int enable = librouter_ksz8863_probe();
 
 	if (enable == 1)
 		_cish_mask |= MSK_MANAGED_SWITCH;
