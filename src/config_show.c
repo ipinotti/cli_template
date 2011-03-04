@@ -641,9 +641,15 @@ static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
 static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 {
 	struct orionplus_stat st[4];
+	struct orionplus_counters cnt;
 	int n; /* Number of channels */
 	int i;
 
+
+	/*  normal ethernet dump */
+	__dump_ethernet_status(out, conf);
+
+	/* extra DSP information */
 	n = librouter_efm_get_num_channels();
 
 	if (librouter_efm_get_status(st) < 0) {
@@ -651,18 +657,24 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 		return;
 	}
 
-	printf("  DSP is present : %d channels, %s mode\n", n,
+	if (librouter_efm_get_counters(&cnt) < 0) {
+		printf("%% Could not get EFM counters\n");
+		return;
+	}
+
+	printf("  %d channel DSP, %s mode\n", n,
 	                librouter_efm_get_mode() ? "CPE" : "CO");
 	for (i = 0; i < n; i++) {
 		char buf[32];
 
 		librouter_efm_get_channel_state_string(st[i].channel_st, buf, sizeof(buf));
 
-		printf("\tChannel %d is %s. Speed is %d kbps\n", i, buf, st[i].bitrate[0]);
+		printf("  Channel %d is %s. Speed is %d kbps, ", i, buf, st[i].bitrate[0]);
+		printf("CRC: %d SEGA: %d LOSW: %d\n",
+		       cnt.xcvr_cnt[i].crc, cnt.xcvr_cnt[i].sega, cnt.xcvr_cnt[i].losw);
 	}
 
-	/* Continue with the normal ethernet dump */
-	__dump_ethernet_status(out, conf);
+	printf("  General Interface Statistics\n");
 }
 #endif
 
