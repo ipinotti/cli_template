@@ -513,12 +513,13 @@ void interface_ethernet_bridgegroup(const char *cmdline)
 
 	/* Add interface to bridge */
 	librouter_br_addif(brname, dev);
-#if 0
-	/* Set bridge IP address with the one from ethernet 0 */
-	set_interface_ip_addr(brname, addr, mask); /* bridge use ethernet ip address */
-#endif
 
-	bridgegroup_done: librouter_destroy_args(args);
+	/* Set bridge IP address with the one from ethernet 0 */
+	if (!strcmp(dev, "eth0"))
+		librouter_ip_ethernet_set_addr(brname, addr, mask);
+
+bridgegroup_done:
+	librouter_destroy_args(args);
 	free(dev);
 }
 
@@ -549,12 +550,14 @@ void interface_ethernet_no_bridgegroup(const char *cmdline)
 	/* Remove interface from bridge */
 	librouter_br_delif(brname, dev);
 
-#if 0
-	// Restaura a configura IP da ethernet
-	set_interface_ip_addr(dev, addr, mask); /* Recover ip address from bridge */
-#endif
 
-	no_bridgegroup_done: librouter_destroy_args(args);
+	/* Recover ip address from bridge */
+	if (!strcmp(dev, "eth0"))
+		librouter_ip_ethernet_set_addr(dev, addr, mask);
+
+
+no_bridgegroup_done:
+	librouter_destroy_args(args);
 	free(dev);
 }
 

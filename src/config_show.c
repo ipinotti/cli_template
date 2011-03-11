@@ -542,11 +542,18 @@ static void __dump_intf_secondary_ipaddr_status(FILE *out, struct interface_conf
 static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 {
 	struct ip_t *ip = &conf->main_ip;
+	char *dev = librouter_ip_ethernet_get_dev(conf->name); /* ethernet enslaved by bridge? */
 
 	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
-
-	if (ip->ipaddr[0])
-		fprintf(out, "  Internet address is %s %s\n", ip->ipaddr, ip->ipmask);
+	if (!strcmp(conf->name, dev)) {
+		if (ip->ipaddr[0])
+			fprintf(out, "  Internet address is %s %s\n", ip->ipaddr, ip->ipmask);
+	} else {
+		char addr[32], mask[32];
+		librouter_ip_interface_get_ip_addr(dev, addr, mask);
+		if (addr[0])
+			fprintf(out, "  Internet address is %s %s\n", addr, mask);
+	}
 
 	if (ip->ippeer[0])
 		fprintf(out, "  Peer address is %s\n", ip->ippeer);
@@ -846,8 +853,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	}
 
 	/* Get number of interfaces and sort them by name */
-	for (i = 0; intf_list[i][0] != '\0'; i++, num_of_ifaces++)
-		;
+	for (i = 0; intf_list[i][0] != '\0'; i++)
+		 num_of_ifaces++;
 	qsort(&intf_list[0], num_of_ifaces, sizeof(char *), intf_cmp);
 
 	for (i = 0; i < num_of_ifaces; i++) {
@@ -858,14 +865,16 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			continue;
 		}
 
+		/* Ignore the following interfaces: bridge*/
+		if (strstr(conf.name, "bridge"))
+			continue;
+
 		st = conf.stats;
 
 		cish_dev = librouter_device_linux_to_cli(conf.name, conf_format ? 0 : 1);
-
-		cish_dbg("cish_dev : %s\n", cish_dev);
-
 		if (cish_dev == NULL)
 			continue; /* ignora dev nao usado pelo cish */
+		cish_dbg("cish_dev : %s\n", cish_dev);
 
 		/* Check if only one interface is needed */
 		if (intf && strcasecmp(cish_dev, intf)) {
