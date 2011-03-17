@@ -71,7 +71,7 @@ cish_command CMD_CONFIG_SW_VLAN_ENTRY_NO[] = {
 
 
 cish_command CMD_CONFIG_STORM_CTRL[] = {
-	{"1-100", "Bandwidth percentage allowed to broadcast/multicast traffic", NULL, NULL, 1, MSK_MANAGED_SWITCH},
+	{"1-20", "Bandwidth percentage allowed to broadcast/multicast traffic", NULL, sw_broadcast_storm_protect_rate, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -128,7 +128,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO[] = {
 	{"802.1p", "Enable 802.1p packet classification", NULL, sw_8021p, 1, MSK_MANAGED_SWITCH},
 	{"diffserv", "Enable DiffServ packet classification", NULL, sw_dscp, 1, MSK_MANAGED_SWITCH},
 	{"rate-limit", "Storm control configuration", NULL, sw_ingress_rate_limit, 1, MSK_MANAGED_SWITCH},
-	{"storm-control", "Storm control configuration", NULL, NULL, 1, MSK_MANAGED_SWITCH},
+	{"storm-control", "Disable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	{"traffic-shape", "Storm control configuration", NULL, sw_egress_traffic_shape, 1, MSK_MANAGED_SWITCH},
 	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
 	{"vlan-default", "Mark non-tagged packets with VLAN tag", NULL, NULL, 1, MSK_MANAGED_SWITCH},
@@ -141,9 +141,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_MANAGED_SWITCH},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"diffserv", "Enable DiffServ packet classification", NULL, sw_dscp, 1, MSK_MANAGED_SWITCH},
-	{"rate-limit", "Storm control configuration", CMD_CONFIG_RATE_LIMIT, NULL, 1, MSK_MANAGED_SWITCH},
-	{"storm-control", "Storm control configuration", CMD_CONFIG_STORM_CTRL, NULL, 1, MSK_MANAGED_SWITCH},
-	{"traffic-shape", "Storm control configuration", CMD_CONFIG_TRAFFIC_SHAPE, NULL, 1, MSK_MANAGED_SWITCH},
+	{"rate-limit", "Rate limit (RX) configuration", CMD_CONFIG_RATE_LIMIT, NULL, 1, MSK_MANAGED_SWITCH},
+	{"storm-control", "Enable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
+	{"traffic-shape", "Traffic shape (TX) configuration", CMD_CONFIG_TRAFFIC_SHAPE, NULL, 1, MSK_MANAGED_SWITCH},
 	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
 	{"vlan-default", "Mark non-tagged packets with VLAN tag", CMD_CONFIG_DEFAULT_VID, NULL, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
@@ -165,6 +165,7 @@ cish_command CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO[] = {
 
 cish_command CMD_CONFIG_INTERFACE_ETH_SW_GENERAL[] = {
 	{"802.1q", "Enable 802.1q protocol in the switch", NULL, sw_8021q, 1, MSK_MANAGED_SWITCH},
+	{"storm-protect-rate", "Set rate limit for broadcast packets", CMD_CONFIG_STORM_CTRL, NULL, 1, MSK_MANAGED_SWITCH},
 	{"cos-prio", "Class of Service (802.1p) priority configuration", CMD_CONFIG_COS_PRIO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"dscp-prio", "DSCP priority configuration", CMD_CONFIG_DSCP_PRIO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"multicast-storm-protect", "Include multicast in storm-control", NULL, sw_multicast_storm_protect, 1, MSK_MANAGED_SWITCH},
