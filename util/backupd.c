@@ -25,6 +25,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <librouter/options.h>
+#ifdef OPTION_MODEM3G
 #include <librouter/dev.h> /* get_dev_link */
 #include <librouter/usb.h>
 #include <librouter/device.h>
@@ -999,3 +1001,10 @@ int main(int argc, char **argv)
 	unlink(BACKUPD_PID_FILE);
 	exit(0);
 }
+#else /* OPTION_MODEM3G */
+int main(int argc, char **argv)
+{
+	syslog(LOG_INFO, "3G Modem not supported, exiting ...\n");
+	return 0;
+}
+#endif /* OPTION_MODEM3G */
