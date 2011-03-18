@@ -107,6 +107,43 @@ void sw_multicast_storm_protect(const char *cmdline)
 	return;
 }
 
+void sw_broadcast_storm_protect(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	librouter_ksz8863_set_broadcast_storm_protect(enable, switch_port);
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_broadcast_storm_protect_rate(const char *cmdline)
+{
+	arglist *args;
+	int perc = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc < 3) {
+		printf("Wrong number of arguments\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	perc = atoi(args->argv[2]);
+
+	librouter_ksz8863_set_storm_protect_rate(perc);
+
+	librouter_destroy_args(args);
+	return;
+}
+
 void sw_replace_null_vid(const char *cmdline)
 {
 	arglist *args;
@@ -169,18 +206,18 @@ void sw_vlan_entry(const char *cmdline)
 	args = librouter_make_args(cmdline);
 
 	if (!strcmp(args->argv[0], "no")) {
-		vconf.vid = atoi(args->argv[2]);
+		vconf.vid = atoi(args->argv[3]);
 		librouter_ksz8863_del_table(&vconf);
 	} else {
 		vconf.vid = atoi(args->argv[2]);
 		if (strstr(cmdline, "port-1"))
-			vconf.membership |= 1 << 0;
+			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT1_MSK;
 
 		if (strstr(cmdline, "port-2"))
-			vconf.membership |= 1 << 1;
+			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT2_MSK;
 
 		if (strstr(cmdline, "internal"))
-			vconf.membership |= 1 << 2;
+			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT3_MSK;
 
 		librouter_ksz8863_add_table(&vconf);
 	}

@@ -588,6 +588,8 @@ void sw_ingress_rate_limit(const char *);
 void sw_egress_traffic_shape(const char *);
 void sw_replace_null_vid(const char *);
 void sw_multicast_storm_protect(const char *);
+void sw_broadcast_storm_protect(const char *);
+void sw_broadcast_storm_protect_rate(const char *);
 void sw_enable_wfq(const char *);
 void sw_vlan_entry(const char *);
 void sw_8021q(const char *);

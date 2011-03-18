@@ -255,6 +255,9 @@ int main(int argc, char *argv[])
 			librouter_nv_load_ssh_secret(SSH_KEY_FILE);
 			librouter_nv_load_ntp_secret(NTP_KEY_FILE);
 			librouter_snmp_load_prepare_users();
+#if defined(OPTION_EFM) && defined(OPTION_MANAGED_SWITCH)
+			librouter_ksz8863_set_default_config();
+#endif
 
 			size = librouter_nv_load_configuration(STARTUP_CFG_FILE);
 
