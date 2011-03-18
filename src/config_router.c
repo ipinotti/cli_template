@@ -84,6 +84,7 @@ void del_model_cmd_mask(int mask)
 }
 
 #ifdef OPTION_MANAGED_SWITCH
+#ifdef CONFIG_DIGISTAR_EFM
 void set_model_switch_cmds(void)
 {
 	int enable = librouter_ksz8863_probe();
@@ -93,7 +94,21 @@ void set_model_switch_cmds(void)
 	else
 		_cish_mask &= ~MSK_MANAGED_SWITCH;
 }
+
+#else
+void set_model_switch_cmds(void)
+{
+	int enable = librouter_bcm53115s_probe();
+
+	if (enable == 1)
+		_cish_mask |= MSK_MANAGED_SWITCH;
+	else
+		_cish_mask &= ~MSK_MANAGED_SWITCH;
+}
 #endif
+#endif
+
+
 
 extern cish_command CMD_SHOW_INTERFACE_ETHERNET[];
 #ifdef OPTION_SMCROUTE
