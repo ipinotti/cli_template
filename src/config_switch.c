@@ -390,6 +390,43 @@ void sw_vlan_default(const char *cmdline)
 //	return;
 }
 
+void sw_broadcast_storm_protect(const char *cmdline)
+{
+//	arglist *args;
+//	int enable = 1;
+//
+//	args = librouter_make_args(cmdline);
+//
+//	if (!strcmp(args->argv[0], "no"))
+//		enable = 0;
+//
+//	librouter_ksz8863_set_broadcast_storm_protect(enable, switch_port);
+//
+//	librouter_destroy_args(args);
+//	return;
+}
+
+void sw_broadcast_storm_protect_rate(const char *cmdline)
+{
+//	arglist *args;
+//	int perc = 1;
+//
+//	args = librouter_make_args(cmdline);
+//
+//	if (args->argc < 3) {
+//		printf("Wrong number of arguments\n");
+//		librouter_destroy_args(args);
+//		return;
+//	}
+//
+//	perc = atoi(args->argv[2]);
+//
+//	librouter_ksz8863_set_storm_protect_rate(perc);
+//
+//	librouter_destroy_args(args);
+//	return;
+}
+
 void sw_multicast_storm_protect(const char *cmdline)
 {
 //	arglist *args;
