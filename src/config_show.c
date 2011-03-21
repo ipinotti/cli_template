@@ -782,6 +782,7 @@ static void __dump_ppp_pptp_status(FILE *out, struct interface_conf *conf)
 }
 #endif /* OPTION_PPTP */
 
+#ifdef OPTION_MODEM3G
 static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 {
 	ppp_config cfg;
@@ -824,6 +825,8 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	fprintf(out, "\n");
 
 }
+#endif /* OPTION_MODEM3G */
+
 #endif /* OPTION_PPP */
 
 int intf_cmp(const void *a, const void *b)
@@ -931,10 +934,12 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		if (strstr(cish_dev, "Pppoe"))
 		__dump_ppp_pppoe_status(out, &conf);
 #endif
-
+#ifdef OPTION_MODEM3G
 		if (strstr(cish_dev, "M3G"))
 		__dump_ppp_status(out, &conf);
 		break;
+#endif
+
 #endif
 		case ARPHRD_ETHER:
 #ifdef OPTION_EFM
