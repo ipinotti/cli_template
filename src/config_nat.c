@@ -9,6 +9,7 @@
 #include "pprintf.h"
 #include "cish_main.h"
 
+#ifdef OPTION_NAT
 /**
  * is_valid_protocolnumber	Check if network protocol number is valid
  *
@@ -432,3 +433,4 @@ void interface_no_nat(const char *cmdline) /* no ip nat <acl> [in|out] */
 	librouter_destroy_args(args);
 	free(dev);
 }
+#endif /* OPTION_NAT */

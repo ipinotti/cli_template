@@ -6,6 +6,10 @@
 #include "commands.h"
 #include "commandtree.h"
 
+#include <librouter/options.h>
+
+#ifdef OPTION_NAT
+
 cish_command CMD_CONFNAT_TCP_307[] = {
 	{"<port>","Last port number or service name", NULL, do_nat_rule, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -332,3 +336,4 @@ cish_command CMD_CONFNAT1[] = {
 	{"<acl>","NAT rule name", CMD_CONFNAT2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif /* OPTION_NAT */

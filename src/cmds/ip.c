@@ -6,6 +6,7 @@
 #include "commands.h"
 #include "commandtree.h"
 
+#ifdef OPTION_ROUTER
 cish_command CMD_NO_IP_ICMP_IGNORE[] = {
 	{"all", "Stop ignoring all traffic", NULL, no_ip_param, 1, MSK_NORMAL},
 	{"bogus", "Stop ignoring bogus error responses", NULL, no_ip_param, 1, MSK_NORMAL},
@@ -17,6 +18,7 @@ cish_command CMD_NO_IP_ICMP[] = {
 	{"ignore", "Set ignore parameters", CMD_NO_IP_ICMP_IGNORE, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 #ifdef OPTION_HTTP
 cish_command CMD_NO_IP_HTTP[] = {
@@ -47,6 +49,8 @@ cish_command CMD_NO_IP_DHCP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+
+#ifdef OPTION_ROUTER
 cish_command CMD_IP_FRAG_HIGH[] = {
 	{"1-2000000000", "High IP fragment memory threshold (bytes)", NULL, ip_param, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -80,17 +84,20 @@ cish_command CMD_IP_ICMP[] = {
 	{"ignore", "Set ignore parameters", CMD_IP_ICMP_IGNORE, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif /* OPTION_ROUTER */
 
 #ifdef OPTION_SMCROUTE
 cish_command CMD_IP_MROUTE8_ETHERNET[] = {
-	{"1-1", "Interface number", NULL, ip_mroute, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Interface number", NULL, ip_mroute, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
+#ifdef OPTION_SERIAL
 cish_command CMD_IP_MROUTE8_SERIAL[] = {
 	{"0-0", "Interface number", NULL, ip_mroute, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 cish_command CMD_IP_MROUTE7[] = {
 	{"ethernet", "Ethernet interface", CMD_IP_MROUTE8_ETHERNET, NULL, 1, MSK_NORMAL},
@@ -106,7 +113,7 @@ cish_command CMD_IP_MROUTE6[] = {
 };
 
 cish_command CMD_IP_MROUTE5_ETHERNET[] = {
-	{"1-1", "Interface number", CMD_IP_MROUTE6, NULL, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Interface number", CMD_IP_MROUTE6, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -146,7 +153,7 @@ cish_command CMD_IP_ROUTE5[] = {
 };
 
 cish_command CMD_IP_ROUTE4_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -199,10 +206,12 @@ cish_command CMD_IP_ROUTE1[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+#ifdef OPTION_ROUTER
 cish_command CMD_IP_DEFAULT_TTL[] = {
 	{"0-255", "Default TTL value", NULL, ip_param, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 #ifdef OPTION_HTTP
 cish_command CMD_IP_HTTP[] = {
@@ -458,11 +467,13 @@ cish_command CMD_NO_IP_PIM[] = {
 };
 #endif
 
+#ifdef OPTION_ROUTER
 cish_command CMD_NO_IP_TCP[] = {
 	{"ecn", "Disable Explicit Congestion Notification", NULL, no_ip_param, 1, MSK_NORMAL},
 	{"syncookies", "Disable syn cookies", NULL, no_ip_param, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 cish_command CMD_NO_IP[] = {
 	{"dhcp", "Disable DHCP server/relay", CMD_NO_IP_DHCP, NULL, 1, MSK_NORMAL},
@@ -471,16 +482,15 @@ cish_command CMD_NO_IP[] = {
 #ifdef CONFIG_NET_FASTROUTE
 	{"fastroute", "Enable interfaces fastroute (bypass firewall)", NULL, no_ip_param, 1, MSK_NORMAL},
 #endif
-#if 1 /* !!! */
-	{"forwarding", "Disable IP forwarding", NULL, no_ip_param, 1, MSK_NORMAL},
-#endif
 #ifdef OPTION_HTTP
 	{"http", "HTTP server configuration", CMD_NO_IP_HTTP, NULL, 1, MSK_NORMAL},
 #endif
 #ifdef OPTION_HTTPS
 	{"https", "HTTPS server configuration", CMD_NO_IP_HTTPS, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"icmp", "Unset icmp parameters", CMD_NO_IP_ICMP, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_PIMD
 	{"multicast-routing", "Disable IP multicast forwarding", NULL, no_ip_param, 1, MSK_NORMAL},
 #endif
@@ -488,16 +498,20 @@ cish_command CMD_NO_IP[] = {
 	{"mroute", "Establish multicast static routes", CMD_IP_MROUTE1, NULL, 1, MSK_NORMAL},
 #endif
 	{"name-server", "Specify address of name server to remove", CMD_IP_NAMESERVER, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_NAT
 	{"nat", "NAT helper configuration", CMD_IP_NAT, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_PIMD
 	{"pim", "PIM global commands", CMD_NO_IP_PIM, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"pmtu-discovery", "Disable Path MTU discovery", NULL, no_ip_param, 1, MSK_NORMAL},
-	{"route", "Establish static routes", CMD_IP_ROUTE1, NULL, 1, MSK_NORMAL},
 	{"routing", "Disable IP routing", NULL, no_ip_param, 1, MSK_NORMAL},
 	{"rp-filter", "Disable reverse path filter", NULL, no_ip_param, 1, MSK_NORMAL},
-	{"ssh", "SSH server configuration", CMD_NO_IP_SSH, NULL, 1, MSK_NORMAL},
 	{"tcp", "Unset tcp parameters", CMD_NO_IP_TCP, NULL, 1, MSK_NORMAL},
+#endif
+	{"route", "Establish static routes", CMD_IP_ROUTE1, NULL, 1, MSK_NORMAL},
+	{"ssh", "SSH server configuration", CMD_NO_IP_SSH, NULL, 1, MSK_NORMAL},
 	{"telnet", "Telnet server configuration", CMD_NO_IP_TELNET, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -515,14 +529,16 @@ cish_command CMD_IP_PIM_CAND_BSR_PRIORITY[] = {
 };
 
 cish_command CMD_IP_PIM_CAND_BSR_INTF_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", CMD_IP_PIM_CAND_BSR_PRIORITY, pim_bsr_candidate, 0, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_IP_PIM_CAND_BSR_PRIORITY, pim_bsr_candidate, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_SERIAL
 cish_command CMD_IP_PIM_CAND_BSR_INTF_SERIAL[] = {
 	{"0-0", "Serial interface number", CMD_IP_PIM_CAND_BSR_PRIORITY, pim_bsr_candidate, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_IP_PIM_CAND_BSR_INTF[] = {
 #ifdef OPTION_ETHERNET_WAN
@@ -562,7 +578,7 @@ cish_command CMD_IP_PIM_CAND_RP_PRIORITY[] = {
 };
 
 cish_command CMD_IP_PIM_CAND_RP_INTF_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", CMD_IP_PIM_CAND_RP_PRIORITY, pim_rp_candidate, 0, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_IP_PIM_CAND_RP_PRIORITY, pim_rp_candidate, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -613,6 +629,7 @@ cish_command CMD_IP_RECYCLE[] = {
 };
 #endif
 
+#ifdef OPTION_ROUTER
 cish_command CMD_IP_TCP_KEEPALIVE_INTVL[] = {
 	{"1-32767", "Keepalive probe interval time (s)", NULL, ip_param, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -638,6 +655,7 @@ cish_command CMD_IP_TCP[] = {
 	{"syncookies", "Enable syn cookies", NULL, ip_param, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif /* OPTION_ROUTER */
 
 #ifdef OPTION_BGP
 cish_command CMD_IP_AS_PATH3[] = {
@@ -667,27 +685,20 @@ cish_command CMD_IP[] = {
 #ifdef OPTION_BGP
 	{"as-path", "BGP autonomous system path filter", CMD_IP_AS_PATH, NULL, 1, MSK_BGP},
 #endif
-	//{"cache-flush", "Routing cache flush", NULL, ip_param, 1, MSK_NORMAL},
-	{"default-ttl", "Default TTL value", CMD_IP_DEFAULT_TTL, NULL, 1, MSK_NORMAL},
 	{"dhcp", "Enable DHCP server/relay", CMD_IP_DHCP, NULL, 1, MSK_NORMAL},
 	{"dns", "Configure DNS relay", CMD_IP_DNS, NULL, 1, MSK_NORMAL},
 	{"domain", "Enable name lookup", CMD_IP_DOMAIN, NULL, 1, MSK_NORMAL},
 #ifdef CONFIG_NET_FASTROUTE
 	{"fastroute", "Enable interfaces fastroute (bypass firewall)", NULL, ip_param, 1, MSK_NORMAL},
 #endif
-#if 1 /* Old compatibility! */
-	{"forwarding", "Enable IP forwarding", NULL, ip_param, 1, MSK_NORMAL},
-#endif
+#ifdef OPTION_ROUTER
 	{"fragment", "Set fragmenting parameters", CMD_IP_FRAG, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_HTTP
 	{"http", "HTTP server configuration", CMD_IP_HTTP, NULL, 1, MSK_NORMAL},
 #endif
 #ifdef OPTION_HTTPS
 	{"https", "HTTPS server configuration", CMD_IP_HTTPS, NULL, 1, MSK_NORMAL},
-#endif
-	{"icmp", "Set icmp parameters", CMD_IP_ICMP, NULL, 1, MSK_NORMAL},
-#ifdef CONFIG_DEVELOPMENT
-	//{"max_backlog", "Set maximum RX packets backlog", CMD_IP_MAXBACKLOG, NULL, 1, MSK_NORMAL},
 #endif
 #ifdef OPTION_PIMD
 	{"multicast-routing", "Enable IP multicast forwarding", NULL, ip_param, 1, MSK_NORMAL},
@@ -696,19 +707,22 @@ cish_command CMD_IP[] = {
 	{"mroute", "Establish multicast static routes", CMD_IP_MROUTE1, NULL, 1, MSK_NORMAL},
 #endif
 	{"name-server", "Specify address of name server to add", CMD_IP_NAMESERVER, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_NAT
 	{"nat", "NAT helper configuration", CMD_IP_NAT, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_PIMD
 	{"pim", "PIM global commands", CMD_IP_PIM, NULL, 1, MSK_NORMAL},
 #endif
-	{"pmtu-discovery", "Enable Path MTU discovery", NULL, ip_param, 1, MSK_NORMAL},
-#if defined(CONFIG_NET_SKB_RECYCLING) && defined(CONFIG_DEVELOPMENT)
-	{"recycle", "Packet recycle options", CMD_IP_RECYCLE, NULL, 1, MSK_NORMAL},
-#endif
 	{"route", "Establish static routes", CMD_IP_ROUTE1, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_ROUTER
+	{"default-ttl", "Default TTL value", CMD_IP_DEFAULT_TTL, NULL, 1, MSK_NORMAL},
 	{"routing", "Enable IP routing", NULL, ip_param, 1, MSK_NORMAL},
+	{"icmp", "Set icmp parameters", CMD_IP_ICMP, NULL, 1, MSK_NORMAL},
+	{"pmtu-discovery", "Enable Path MTU discovery", NULL, ip_param, 1, MSK_NORMAL},
 	{"rp-filter", "Enable reverse path filter", NULL, ip_param, 1, MSK_NORMAL},
-	{"ssh", "SSH server configuration", CMD_IP_SSH, NULL, 1, MSK_NORMAL},
 	{"tcp", "Set tcp parameters", CMD_IP_TCP, NULL, 1, MSK_NORMAL},
+#endif
+	{"ssh", "SSH server configuration", CMD_IP_SSH, NULL, 1, MSK_NORMAL},
 	{"telnet", "Telnet server configuration", CMD_IP_TELNET, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };

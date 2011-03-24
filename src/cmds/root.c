@@ -191,69 +191,6 @@ cish_command CMD_RAM[] = {
 };
 #endif
 
-cish_command CMD_CLEAR_INTERFACE_AUX_[] = {
-	{"0-1", "Aux interface number", NULL, clear_counters, 0, MSK_AUX},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CLEAR_INTERFACE_ETHERNET_[] = {
-	{"1-1", "Ethernet interface number", NULL, clear_counters, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CLEAR_INTERFACE_LOOPBACK_[] = {
-	{"0-0", "Loopback interface number", NULL, clear_counters, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CLEAR_INTERFACE_TUNNEL_[] = {
-	{"0-9", "Tunnel interface number", NULL, clear_counters, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CLEAR_INTERFACE_M3G_[] = {
-	{"0-2", "Modem 3G interface number", NULL, clear_counters, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-#ifdef OPTION_IPSEC
-cish_command CMD_CLEAR_CRYPTO_TUNNEL_[] = {
-	{"<text>", "Connection name", NULL, clear_counters, 1, MSK_NORMAL},
-	{"<enter>", "Clear counters of all tunnels", NULL, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif
-
-cish_command CMD_CLEAR_INTERFACE[] = {
-	{"aux", "Aux interface", CMD_CLEAR_INTERFACE_AUX_, NULL, 1, MSK_AUX},
-	{"ethernet", "Ethernet interface", CMD_CLEAR_INTERFACE_ETHERNET_, NULL, 1, MSK_NORMAL},
-	{"loopback", "Loopback interface", CMD_CLEAR_INTERFACE_LOOPBACK_, NULL, 1, MSK_NORMAL},
-	{"tunnel", "Tunnel interface", CMD_CLEAR_INTERFACE_TUNNEL_, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_MODEM3G
-	{"m3G", "Modem 3G interface", CMD_CLEAR_INTERFACE_M3G_, NULL, 1, MSK_NORMAL},
-#endif
-#ifdef OPTION_IPSEC
-	{"crypto", "IPSec tunnel", CMD_CLEAR_CRYPTO_TUNNEL_, clear_counters, 1, MSK_VPN},
-#endif
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-#ifdef CONFIG_IPHC
-cish_command CMD_CLEAR_IPHC_SERIAL[] = {
-	{"0-0", "Serial interface number", NULL, clear_iphc, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CLEAR_IPHC[] = {
-	{"serial", "Serial interface", CMD_CLEAR_IPHC_SERIAL, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CLEAR_IP[] = {
-	{"header-compression", "Clear IP Header Compression statistics", CMD_CLEAR_IPHC, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#endif
 
 #ifdef OPTION_RMON
 cish_command CMD_CLEAR_RMON[] = {
@@ -268,10 +205,6 @@ cish_command CMD_CLEAR_SSH[] = {
 };
 
 cish_command CMD_CLEAR[] = {
-	{"counters", "Clear counters on interface", CMD_CLEAR_INTERFACE, NULL, 1, MSK_NORMAL},
-#ifdef CONFIG_IPHC
-	{"ip", "IP statistics", CMD_CLEAR_IP, NULL, 1, MSK_NORMAL},
-#endif
 	{"logging", "Clear the contents of logging buffers", NULL, clear_logging, 1, MSK_NORMAL},
 #ifdef OPTION_RMON
 	{"rmon", "Clear the RMON counters", CMD_CLEAR_RMON, NULL, 1, MSK_NORMAL},

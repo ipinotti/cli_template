@@ -71,6 +71,7 @@ void process_cish_exit(void)
 	librouter_config_munmap_cfg(router_cfg);
 }
 
+#ifdef CONFIG_DEVELOPMENT
 static int _on_nfs(void)
 {
 	FILE *f;
@@ -89,6 +90,7 @@ static int _on_nfs(void)
 
 	return nfs;
 }
+#endif
 
 static int _print_current_menu()
 {
@@ -98,15 +100,21 @@ static int _print_current_menu()
 		char *menu_str;
 	} menu_mapping[] = {
 		{ CMD_CONFIGURE, "(config)"},
+#ifdef OPTION_ROUTER
 		{ CMD_KEYCHAIN, "(config-keychain)"},
 		{ CMD_KEY, "(config-keychain-key)"},
+#endif
+#ifdef OPTION_QOS
 		{ CMD_POLICYMAP, "(config-pmap)"},
 		{ CMD_POLICYMAP_MARKRULE, "(config-pmap-markrule)"},
+#endif
+#ifdef OPTION_ROUTER
 		{ CMD_POLICY_ROUTE, "(config-proute)"},
 		{ CMD_CONFIG_ROUTER_RIP, "(config-router-rip)"},
 		{ CMD_CONFIG_ROUTER_OSPF, "(config-router-ospf)"},
 #ifdef OPTION_BGP
 		{ CMD_CONFIG_ROUTER_BGP, "(config-router-bgp)"},
+#endif
 #endif
 		{ CMD_CONFIG_INTERFACE_ETHERNET, "(config-if-ethernet-"},
 		{ CMD_CONFIG_INTERFACE_ETHERNET_VLAN, "(config-if-ethernet-"},
@@ -114,7 +122,9 @@ static int _print_current_menu()
 		{ CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT, "(config-if-eth-switch-port-"},
 #endif
 		{ CMD_CONFIG_INTERFACE_LOOPBACK, "(config-if-loopback-"},
+#ifdef OPTION_TUNNEL
 		{ CMD_CONFIG_INTERFACE_TUNNEL, "(config-if-tunnel-"},
+#endif
 #ifdef OPTION_MODEM3G
 		{ CMD_CONFIG_INTERFACE_M3G_USB, "(config-if-m3G-"},
 		{ CMD_CONFIG_INTERFACE_M3G_BTIN, "(config-if-m3G-"},
@@ -158,12 +168,14 @@ static int _print_current_menu()
 			strcat(prompt, buf);
 		}
 	}
+#ifdef OPTION_IPSEC
 	else if (command_root == CMD_IPSEC_CONNECTION_CHILDREN) {
 		if (strlen(dynamic_ipsec_menu_name) > 0) {
 			strcat(prompt, dynamic_ipsec_menu_name);
 			strcat(prompt, ")");
 		}
 	}
+#endif
 #ifdef OPTION_EFM
 	else if (command_root == CMD_CONFIG_INTERFACE_EFM) {
 		if (interface_major >= 0) {
@@ -217,11 +229,12 @@ int main(int argc, char *argv[])
 
 	/* Begin with NORMAL mask */
 	_cish_mask = MSK_NORMAL;
-
+#ifdef OPTION_ROUTER
 	set_rip_interface_cmds(librouter_quagga_ripd_is_running());
 	set_ospf_interface_cmds(librouter_quagga_ospfd_is_running());
 #ifdef OPTION_BGP
 	set_bgp_interface_cmds(librouter_quagga_bgpd_is_running());
+#endif
 #endif
 
 #if 0
@@ -238,7 +251,6 @@ int main(int argc, char *argv[])
 #ifdef OPTION_MANAGED_SWITCH
 	set_model_switch_cmds();
 #endif
-	set_model_ethernet_cmds(OPTION_NUM_ETHERNET_IFACES);
 
 #ifdef OPTION_BRIDGE
 	/* initialize bridging */
@@ -1850,71 +1862,3 @@ static void clear_ipsec_counters(char *conn_name)
 	}
 }
 #endif
-
-void clear_counters(const char *cmdline)
-{
-	arglist *args;
-	char *major;
-	char *minor;
-	char device[32];
-	char sub[16];
-	char *interface;
-	int clear;
-	dev_family *if_edited;
-	int if_major;
-	int if_minor;
-
-	args = librouter_make_args(cmdline); /* clear counters [interface] [major.minor] */
-#ifdef OPTION_IPSEC
-	if (strcmp(args->argv[2], "crypto") == 0) {
-		int i;
-		char **list = NULL, **list_ini = NULL;
-
-		if (librouter_ipsec_list_all_names(&list_ini) < 1) {
-			printf("%% Not possible to clear counters\n");
-			librouter_destroy_args(args);
-			return;
-		}
-		for (i = 0, list = list_ini; i < MAX_CONN; i++, list++) {
-			if (*list) {
-				if (args->argc > 3) {
-					if (strcmp(*list, args->argv[3]) == 0)
-						clear_ipsec_counters(*list);
-				} else
-					clear_ipsec_counters(*list);
-				free(*list);
-			}
-		}
-		free(list_ini);
-		librouter_destroy_args(args);
-		return;
-	}
-#endif
-	strncpy(device, args->argv[2], 31);
-	device[31] = 0;
-	strncpy(sub, args->argv[3], 15);
-	sub[15] = 0;
-	if ((if_edited = librouter_device_get_family_by_name(device, str_cish))) {
-		major = sub;
-		minor = strchr(major, '.');
-		if (minor)
-			*minor++ = 0;
-		if_major = atoi(major);
-
-		if (minor)
-			if_minor = atoi(minor);
-		else
-			if_minor = -1;
-
-		interface = librouter_device_cli_to_linux(if_edited->cish_string, if_major, if_minor);
-		if (librouter_dev_exists(interface)) {
-			clear = librouter_clear_interface_counters(interface);
-		} else {
-			printf("%% Inactive interface %s %s\n", device, sub);
-		}
-		free(interface);
-	} else {
-		fprintf(stderr, "%% Unknown device type.\n");
-	}
-	librouter_destroy_args(args);
-}

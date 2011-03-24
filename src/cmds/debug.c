@@ -12,7 +12,9 @@ cish_command CMD_DEBUG_X25[] = {
 };
 
 cish_command CMD_DEBUG[] = {
+#ifdef OPTION_FIREWALL
 	{"acl","Access list events", NULL, debug_one, 1, MSK_NORMAL},
+#endif
 	{"all","All facilities", NULL, debug_all, 1, MSK_NORMAL},
 #ifdef OPTION_BGP
 	{"bgp","BGP events", NULL, debug_one, 1, MSK_BGP},
@@ -20,7 +22,9 @@ cish_command CMD_DEBUG[] = {
 #ifdef OPTION_BRIDGE
 	{"bridge","Bridge connectivity events", NULL, debug_one, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_PPP
 	{"chat","Chat connectivity events", NULL, debug_one, 1, MSK_NORMAL},
+#endif
 	{"config","System configuration events", NULL, debug_one, 1, MSK_NORMAL},
 #ifdef OPTION_IPSEC
 	{"crypto","VPN events", NULL, debug_one, 1, MSK_VPN},
@@ -43,14 +47,19 @@ cish_command CMD_DEBUG[] = {
 #ifdef OPTION_NTPD
 	{"ntp","NTP events", NULL, debug_one, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"ospf","OSPF events", NULL, debug_one, 1, MSK_OSPF},
+#endif
+#ifdef OPTION_PPP
 	{"ppp","PPP connectivity events", NULL, debug_one, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_X25
 	{"rfc1356","RFC1356 connectivity events", NULL, debug_one, 1, MSK_X25},
 #endif
+#ifdef OPTION_ROUTER
 	{"rip","RIP events", NULL, debug_one, 1, MSK_RIP},
 	{"ssh","SSH events", NULL, debug_one, 1, MSK_NORMAL},
-	{"systty","System control events", NULL, debug_one, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_X25MAP
 	{"trace","Trace events", NULL, debug_one, 1, MSK_X25MAP},
 #endif

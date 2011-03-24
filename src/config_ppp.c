@@ -9,6 +9,7 @@
 #include "pprintf.h"
 #include <librouter/options.h>
 
+#ifdef OPTION_PPP
 void ppp_shutdown (const char *cmd)
 {
 	int i;
@@ -1104,4 +1105,5 @@ void ppp_usepeerdns(const char *cmd) /* [no] ppp usepeerdns */
 	librouter_ppp_set_config(interface_major, &cfg);
 	librouter_destroy_args(args);
 }
+#endif /* OPTION_PPP */
 

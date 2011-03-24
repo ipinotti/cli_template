@@ -85,6 +85,11 @@ cish_command CMD_CONFIG_RATE_LIMIT[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+cish_command CMD_CONFIG_RATE_LIMIT_NO[] = {
+	{"0-3", "Priority queue", NULL, sw_ingress_rate_limit, 1, MSK_MANAGED_SWITCH},
+	{NULL,NULL,NULL,NULL}
+};
+
 cish_command CMD_CONFIG_TRAFFIC_SHAPE1[] = {
 	{"64-100000000", "Maximum TX rate in Kbps", NULL, sw_egress_traffic_shape, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
@@ -92,6 +97,11 @@ cish_command CMD_CONFIG_TRAFFIC_SHAPE1[] = {
 
 cish_command CMD_CONFIG_TRAFFIC_SHAPE[] = {
 	{"0-3", "Priority queue", CMD_CONFIG_TRAFFIC_SHAPE1, NULL, 1, MSK_MANAGED_SWITCH},
+	{NULL,NULL,NULL,NULL}
+};
+
+cish_command CMD_CONFIG_TRAFFIC_SHAPE_NO[] = {
+	{"0-3", "Priority queue", NULL, sw_egress_traffic_shape, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -127,11 +137,10 @@ cish_command CMD_CONFIG_DSCP_PRIO[] = {
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO[] = {
 	{"802.1p", "Enable 802.1p packet classification", NULL, sw_8021p, 1, MSK_MANAGED_SWITCH},
 	{"diffserv", "Enable DiffServ packet classification", NULL, sw_dscp, 1, MSK_MANAGED_SWITCH},
-	{"rate-limit", "Storm control configuration", NULL, sw_ingress_rate_limit, 1, MSK_MANAGED_SWITCH},
+	{"rate-limit", "Storm control configuration", CMD_CONFIG_RATE_LIMIT_NO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"storm-control", "Disable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
-	{"traffic-shape", "Storm control configuration", NULL, sw_egress_traffic_shape, 1, MSK_MANAGED_SWITCH},
+	{"traffic-shape", "Storm control configuration", CMD_CONFIG_TRAFFIC_SHAPE_NO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
-	{"vlan-default", "Mark non-tagged packets with VLAN tag", NULL, NULL, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 

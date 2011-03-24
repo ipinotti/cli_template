@@ -34,7 +34,7 @@ cish_command CMD_POLICYROUTE_ROUTE_TABLE[] = {
 };
 
 cish_command CMD_POLICYROUTE_ROUTE_DEV_ETHERNET[] = {
-	{"0-1", "Ethernet interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 

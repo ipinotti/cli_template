@@ -92,8 +92,11 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 {
 	arglist *args;
 	int no = 0;
-	char *major, *minor, *dev;
+	char *major, *minor;
 	char device[32], sub[16];
+#ifdef OPTION_TUNNEL
+	char *dev;
+#endif
 
 	args = librouter_make_args(cmdline);
 	if (strcmp(args->argv[0], "no") == 0)
@@ -133,6 +136,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			else
 				goto subiface_error;
 			break;
+#ifdef OPTION_TUNNEL
 		case tun:
 			dev = librouter_device_cli_to_linux(interface_edited->cish_string,
 			                interface_major, interface_minor);
@@ -144,6 +148,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			}
 			free(dev);
 			break;
+#endif
 #ifdef OPTION_PPTP
 			case pptp:
 			command_root = CMD_CONFIG_INTERFACE_PPTP;
@@ -199,16 +204,10 @@ void interface_txqueue(const char *cmdline)
 
 	args = librouter_make_args(cmdline);
 	val = atoi(args->argv[1]);
-#if 0 /* Use value from command definition! */
-	if ((val<2) || (val>256))
-	{
-		librouter_destroy_args (args);
-		fprintf (stderr, "%% Value way out of bounds\n");
-		return;
-	}
-#endif
+
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
+
 	librouter_dev_set_qlen(dev, val);
 	librouter_destroy_args(args);
 	free(dev);
@@ -611,41 +610,7 @@ void interface_fec_autonegotiation(const char *cmdline) /* speed auto */
 	}
 }
 
-#ifdef CONFIG_HDLC_SPPP
-void interface_sppp_ipaddr(const char *cmdline) /* ip address [local] [remote] [mask] */
-{
-	arglist *args;
-	char *local, *remote, *dev, *mask;
-
-	args=librouter_make_args(cmdline);
-	local=args->argv[2];
-	remote=args->argv[3];
-	if (args->argc > 4) mask=args->argv[4];
-	else mask=NULL;
-
-	dev=librouter_device_cli_to_linux(interface_edited->cish_string, interface_major, interface_minor);
-	librouter_ip_addr_flush(dev);
-	ip_addr_add(dev, local, remote, mask ? mask : "255.255.255.255");
-	librouter_destroy_args(args);
-	free(dev);
-}
-#endif
-
-/*
- * Used with PD3 implementation of TBF for Frame-Relay ()
- */
-#ifdef CONFIG_HDLC_FR
-void interface_traffic_rate_no(const char *cmdline) /* no frame-relay traffic-rate */
-{
-	char *dev;
-
-	dev=librouter_device_cli_to_linux (interface_edited->cish_string, interface_major, interface_minor);
-	librouter_qos_del_frts_config(dev);
-	librouter_qos_tc_insert_all(dev);
-	free(dev);
-}
-#endif
-
+#ifdef OPTION_TUNNEL
 /*
  * Tunnel related functions
  */
@@ -825,11 +790,12 @@ void tunnel_keepalive(const char *cmdline) /* [no] keepalive <0-255> <0-255> */
 	librouter_destroy_args(args);
 }
 #endif
+#endif /* OPTION_TUNNEL */
 
 /*
  * QoS related functions
  */
-
+#ifdef OPTION_QOS
 void do_bandwidth(const char *cmdline)
 {
 	char *dev;
@@ -915,6 +881,7 @@ void no_service_policy(const char *cmdline)
 	free(dev);
 	return;
 }
+#endif /* OPTION_QOS */
 
 /*
  * SNMP related functions

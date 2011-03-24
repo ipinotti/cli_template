@@ -28,6 +28,7 @@
 
 int get_procip_val(const char *);
 
+#ifdef OPTION_ROUTER
 void ip_param(const char *cmd)
 {
 	const char *dst_file;
@@ -37,12 +38,12 @@ void ip_param(const char *cmd)
 	dst_file = (const char *) NULL;
 	dst_val = -1;
 
-#ifdef OPTION_IP_ROUTING
+
 	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0) {
 		dst_file = "/proc/sys/net/ipv4/ip_forward"; /* "/proc/sys/net/ipv4/conf/all/forwarding" */
 		dst_val = 1;
 	} else
-#endif
+
 #ifdef OPTION_PIMD
 	if (strncmp(cmd, "ip multicast-routing", 20) == 0) {
 		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
@@ -192,7 +193,7 @@ void no_ip_param(const char *_cmd)
 	fprintf(F, "%d", dst_val);
 	fclose(F);
 }
-
+#endif
 #ifdef OPTION_HTTP
 void http_server(const char *cmd)
 {

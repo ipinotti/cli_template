@@ -20,6 +20,7 @@
 /* deamon zebra */
 static char buf_daemon[1024];
 
+#ifdef OPTION_ROUTER
 /*AS number for BGP*/
 int asn = 0;
 
@@ -48,7 +49,9 @@ void set_bgp_interface_cmds(int enable)
 		_cish_mask &= ~MSK_BGP;
 }
 #endif
+#endif /* OPTION_ROUTER */
 
+#ifdef OPTION_QOS
 void set_model_qos_cmds(int enable)
 {
 	if (enable)
@@ -56,7 +59,9 @@ void set_model_qos_cmds(int enable)
 	else
 		_cish_mask &= ~MSK_QOS;
 }
+#endif
 
+#ifdef OPTION_IPSEC
 void set_model_vpn_cmds(int enable)
 {
 	if (enable)
@@ -64,6 +69,7 @@ void set_model_vpn_cmds(int enable)
 	else
 		_cish_mask &= ~MSK_VPN;
 }
+#endif
 
 void set_model_vlan_cmds(int enable)
 {
@@ -117,46 +123,7 @@ extern cish_command CMD_BACKUP_INTERFACE_ETHERNET[];
 #endif
 extern cish_command CMD_POLICYROUTE_ROUTE_DEV_ETHERNET[];
 
-void set_model_ethernet_cmds(int num_ifaces)
-{
-	static char name[8];
-
-	sprintf(name, "0-%d", num_ifaces - 1);
-
-	cish_dbg("Setting ethernet interface number : %s\n", name);
-
-	/* commandtree.c */
-	CMD_SHOW_INTERFACE_ETHERNET[0].name = name;
-#ifdef OPTION_SMCROUTE
-	CMD_IP_MROUTE8_ETHERNET[0].name = name;
-	CMD_IP_MROUTE5_ETHERNET[0].name = name;
-#endif
-	CMD_IP_ROUTE4_ETHERNET[0].name = name;
-#ifdef OPTION_PIMD
-	CMD_IP_PIM_CAND_BSR_INTF_ETHERNET[0].name = name;
-	CMD_IP_PIM_CAND_RP_INTF_ETHERNET[0].name = name;
-#endif
-	CMD_CONFIG_INTERFACE_ETHERNET_[0].name = name;
-#ifdef OPTION_IPSEC
-	CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[0].name = name;
-	CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET[0].name = name;
-#endif
-	CMD_CLEAR_INTERFACE_ETHERNET_[0].name = name;
-	/* configterm.c */
-	CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[0].name = name;
-	/* config_router.c */
-	CMD_ROUTER_RIP_INTERFACE_ETHERNET[0].name = name;
-	CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET[0].name = name;
-	CMD_SHOW_OSPF_INTERFACE_ETHERNET[0].name = name;
-#ifdef OPTION_BGP
-	CMD_BGP_INTERFACE_ETHERNET[0].name = name;
-#endif
-#ifdef OPTION_MODEM3G
-	CMD_BACKUP_INTERFACE_ETHERNET[0].name = name;
-#endif
-	CMD_POLICYROUTE_ROUTE_DEV_ETHERNET[0].name = name;
-}
-
+#ifdef OPTION_ROUTER
 void config_router(const char *cmdline)
 {
 	arglist *args;
@@ -260,6 +227,7 @@ void config_router_done(const char *cmdline)
 	syslog(LOG_INFO, "left router configuration mode for session from %s", _cish_source);
 	command_root = CMD_CONFIGURE;
 }
+#endif /* OPTION_ROUTER */
 
 void zebra_execute_cmd(const char *cmdline)
 {
@@ -307,6 +275,7 @@ void zebra_execute_interface_cmd(const char *cmdline)
 }
 #endif
 
+#ifdef OPTION_ROUTER
 void ospf_execute_root_cmd(const char *cmdline)
 {
 	char *new_cmdline;
@@ -554,7 +523,8 @@ void bgp_execute_router_cmd(const char *cmdline)
 
 	librouter_quagga_close_daemon();
 }
-#endif
+#endif /* OPTION_BGP */
+#endif /* OPTION_ROUTER */
 
 void zebra_dump_routes(FILE *out)
 {

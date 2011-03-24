@@ -7,6 +7,10 @@
 #include "commands.h"
 #include "commandtree.h"
 
+#include <librouter/options.h>
+
+#ifdef OPTION_ROUTER
+
 cish_command CMD_ROUTER_NO_RIP_DEFAULT_INFORMATION[] = {
 	{"originate", "Distribute a default route", NULL, rip_execute_router_cmd, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL,0}
@@ -58,7 +62,7 @@ cish_command CMD_ROUTER_RIP_NETWORK_MASK[] = {
 };
 
 cish_command CMD_ROUTER_RIP_INTERFACE_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", NULL, rip_execute_router_cmd, 1, MSK_RIP},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, rip_execute_router_cmd, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -315,7 +319,7 @@ cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE1[] = {
 };
 
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1, MSK_OSPF},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1, MSK_OSPF},
 	{NULL, NULL, NULL, NULL}
 };
 
@@ -1043,7 +1047,7 @@ cish_command CMD_SHOW_OSPF_NEIGHBOR[] = {
 };
 
 cish_command CMD_SHOW_OSPF_INTERFACE_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", NULL, show_ip_ospf, 1, MSK_OSPF},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, show_ip_ospf, 1, MSK_OSPF},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1109,9 +1113,9 @@ cish_command CMD_SHOW_OSPF[] = {
 	{NULL, NULL, NULL, NULL}
 };
 
-#ifdef OPTION_BGP /* BGP Commands - ThomÃ¡s Del Grande 25/09/07 */
+#ifdef OPTION_BGP
 
-/* Zebra and CISCO implements address-family. However, there was no example in how using it...
+/* Zebra and CISCO implement address-family. However, there was no example in how using it...
 Left commented for further evaluations ....
 
 cish_command CMD_ROUTER_BGP_ADDRFAM2[] = {  address family
@@ -1316,7 +1320,7 @@ cish_command CMD_ROUTER_BGP_NEIGHBOR_DEF_ORIG[] = {
 };
 
 cish_command CMD_BGP_INTERFACE_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", NULL, bgp_execute_router_cmd, 1, MSK_BGP},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, bgp_execute_router_cmd, 1, MSK_BGP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1859,4 +1863,5 @@ cish_command CMD_SHOW_BGP[] = {
 	{"<enter>", "", NULL, NULL, 1, MSK_BGP},
 	{NULL, NULL, NULL, NULL}
 };
-#endif
+#endif /* OPTION_BGP */
+#endif /*OPTION_ROUTER */

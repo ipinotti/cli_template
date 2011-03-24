@@ -6,6 +6,8 @@
 #include "commands.h"
 #include "commandtree.h"
 
+#ifdef OPTION_ROUTER
+
 /* rip key chain entries */
 cish_command CMD_KEY_STRING[] = {
 	{"<text>", "The key", NULL, config_key_string, 1, MSK_RIP},
@@ -55,3 +57,4 @@ cish_command CMD_CONFIG_KEY[] = {
 	{"chain", "Key-chain management", CMD_CONFIG_KEY_CHAIN, NULL, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif /* OPTION_ROUTER */

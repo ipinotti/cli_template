@@ -15,7 +15,7 @@ cish_command CMD_SHOW_INTERFACE_EFM[] = {
 #endif
 
 cish_command CMD_SHOW_INTERFACE_ETHERNET[] = {
-	{"0-1", "Ethernet interface number", NULL, show_interfaces, 0, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -24,10 +24,12 @@ cish_command CMD_SHOW_INTERFACE_LOOPBACK[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_TUNNEL
 cish_command CMD_SHOW_INTERFACE_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 #ifdef OPTION_MODEM3G
 cish_command CMD_SHOW_INTERFACE_M3G[] = {
@@ -55,7 +57,9 @@ cish_command CMD_SHOW_INTERFACES[] = {
 #endif
 	{"ethernet", "Ethernet interface", CMD_SHOW_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_SHOW_INTERFACE_LOOPBACK, NULL, 0, MSK_NORMAL},
+#ifdef OPTION_TUNNEL
 	{"tunnel", "Tunnel interface", CMD_SHOW_INTERFACE_TUNNEL, NULL, 0, MSK_NORMAL},
+#endif
 #ifdef OPTION_MODEM3G
 	{"m3G", "3G interface", CMD_SHOW_INTERFACE_M3G, NULL, 0, MSK_NORMAL},
 #endif
@@ -69,24 +73,31 @@ cish_command CMD_SHOW_INTERFACES[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_FIREWALL
 cish_command CMD_SHOW_ACL[] = {
 	{"<acl>", "Access list name", NULL, show_accesslists, 1, MSK_NORMAL},
 	{"<enter>", "", NULL, show_accesslists, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
+#ifdef OPTION_QOS
 cish_command CMD_SHOW_MANGLE[] = {
 	{"<acl>", "MARK rule name", NULL, show_manglerules, 1, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
+#ifdef OPTION_NAT
 cish_command CMD_SHOW_NAT[] = {
 	{"<acl>", "NAT rule name", NULL, show_natrules, 1, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
+#ifdef OPTION_ROUTER
 cish_command CMD_SHOW_POLICYROUTE_ROUTES_TABLE[] = {
 	{"0-9", "Number of predefined table", NULL, show_policyroute_routes, 1, MSK_NORMAL},
 	{"main", "Main table", NULL, show_policyroute_routes, 1, MSK_NORMAL},
@@ -103,6 +114,7 @@ cish_command CMD_SHOW_POLICYROUTE[] = {
 	{"rules", "Defined rules for Policy-Route", NULL, show_policyroute_rules, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif /* OPTION_ROUTER */
 
 cish_command CMD_SHOW_IP[] = {
 	{"arp", "ARP table", NULL, show_arp, 0, MSK_NORMAL},
@@ -113,8 +125,10 @@ cish_command CMD_SHOW_IP[] = {
 #ifdef OPTION_SMCROUTE
 	{"mroute", "Show multicast route statistics", NULL, show_mroute, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"ospf", "OSPF information", CMD_SHOW_OSPF, show_ip_ospf, 1, MSK_OSPF},
 	{"rip", "RIP information", NULL, show_ip_rip, 1, MSK_RIP},
+#endif
 	{"route", "Routing information", NULL, show_routingtables, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -189,7 +203,9 @@ cish_command CMD_SHOW_RMON[] = {
 #endif
 
 cish_command CMD_SHOW[] = {
+#ifdef OPTION_FIREWALL
 	{"access-lists", "List access lists", CMD_SHOW_ACL, show_accesslists, 1, MSK_NORMAL},
+#endif
 	{"arp", "ARP table", NULL, show_arp, 0, MSK_NORMAL},
 	{"clock", "System clock", NULL, show_clock, 0, MSK_NORMAL},
 #ifdef OPTION_BRIDGE
@@ -208,9 +224,15 @@ cish_command CMD_SHOW[] = {
 #endif
 	{"logging", "Show the contents of logging buffers", CMD_SHOW_LOGGING, show_logging, 0, MSK_NORMAL},
 	{"memory", "Memory statistics", NULL, show_memory, 0, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark-rules", "List MARK rules", CMD_SHOW_MANGLE, show_manglerules, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat-rules", "List NAT rules", CMD_SHOW_NAT, show_natrules, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
 	{"policy-route", "List Policy-route rules/routes (PBR)", CMD_SHOW_POLICYROUTE, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_NTPD
 	{"ntp", "Show NTP info", CMD_SHOW_NTP, NULL, 1, MSK_NORMAL},
 #endif
@@ -218,7 +240,9 @@ cish_command CMD_SHOW[] = {
 	{"previous-config", "Contents of previous configuration", NULL, show_previous_config, 1, MSK_NORMAL},
 	{"privilege", "Show current privilege level", NULL, show_privilege, 0, MSK_NORMAL},
 	{"processes", "Active process statistics", NULL, show_processes, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"qos", "Show QoS statistics", NULL, show_qos, 1, MSK_QOS},
+#endif
 #ifdef CONFIG_DEVELOPMENT
 #ifdef CONFIG_KMALLOC_ACCOUNTING
 	{"kmalloc-account", "Show kmalloc stats", NULL, show_kmalloc, 1, MSK_NORMAL},

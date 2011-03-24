@@ -24,9 +24,11 @@
 
 extern int _cish_booting;
 
+#ifdef OPTION_ROUTER
 /* RIP key management */
 char keychain_name[64];
 int key_number;
+#endif
 
 void config_term(const char *cmdline)
 {
@@ -42,6 +44,7 @@ void config_term_done(const char *cmdline)
 	command_root = CMD;
 }
 
+#ifdef OPTION_ROUTER
 void config_keychain(const char *cmdline) /* [no] key chain <text> */
 {
 	arglist *args;
@@ -88,3 +91,4 @@ void config_key_string(const char *cmdline) /* key-string <text> */
 	rip_execute_key_cmd(cmdline);
 	librouter_destroy_args(args);
 }
+#endif /* OPTION_ROUTER */
