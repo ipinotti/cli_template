@@ -14,6 +14,7 @@
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
+#include "options.h"
 
 #undef DEBUG_ZEBRA
 
@@ -95,7 +96,7 @@ void set_model_switch_cmds(void)
 		_cish_mask &= ~MSK_MANAGED_SWITCH;
 }
 
-#else
+#elif CONFIG_DIGISTAR_3G
 void set_model_switch_cmds(void)
 {
 	int enable = librouter_bcm53115s_probe();

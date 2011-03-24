@@ -231,15 +231,6 @@ static void daemonize(void)
 	if ((chdir("/")) < 0) {
 		exit(EXIT_FAILURE);
 	}
-
-	/* FIXME --> Comentado para efetuar testes no sistema */
-	/* Redirect standard files to /dev/null */
-	/*
-	 freopen("/dev/null", "r", stdin);
-	 freopen("/dev/null", "w", stdout);
-	 freopen("/dev/null", "w", stderr);
-	 */
-
 }
 
 /**
@@ -936,12 +927,16 @@ static void do_backup(void)
 
 int main(int argc, char **argv)
 {
-
 	pid_t mypid;
 	FILE *pidfd;
 	char buf[32];
 	int nodaemon = 0;
 	int opt;
+
+	/* Redirect standard files to /var/log/backupd3G_log */
+	freopen("/var/log/backupd3G_log", "a+", stdin);
+	freopen("/var/log/backupd3G_log", "a+", stdout);
+	freopen("/var/log/backupd3G_log", "a+", stderr);
 
 	/* Parse opts */
 	while ((opt = getopt(argc, argv, "f")) != -1) {

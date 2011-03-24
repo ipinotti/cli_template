@@ -479,14 +479,13 @@ void sw_enable_wfq(const char *cmdline)
 
 void sw_8021q(const char *cmdline)
 {
+	uint32_t data;
 
 	printf("\n\nExecutando teste!!!!\n\n");
 
-	printf("1 - No cish--> %x\n\n", librouter_bcm53115s_read_test(0x02,0x30,4));
+	data = librouter_bcm53115s_read_test(0x01,0x00,2);
 
-	printf("2 - No cish--> %x\n\n", librouter_bcm53115s_read_test(0x01,0x00,1));
-
-	printf("2 - No cish--> %x\n\n", librouter_bcm53115s_read_test(0x01,0x02,2));
+	printf("1 - Return READ No cish--> %x\n\n", data);
 
 
 //	arglist *args;
