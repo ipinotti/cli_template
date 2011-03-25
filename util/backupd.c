@@ -658,10 +658,11 @@ static void do_state_simcheck(struct bckp_conf_t *bckp_conf)
 	if (!librouter_modem3g_sim_order_is_enable())
 		return;
 
-
 	/* If interface is UP, no need for backup SIM for now */
-	if (librouter_dev_exists(bckp_conf->intf_name) &&
-			((librouter_dev_get_link(bckp_conf->intf_name) == IFF_UP)))
+	if (librouter_dev_exists(bckp_conf->intf_name))
+		return;
+
+	if (librouter_dev_get_link(bckp_conf->intf_name) == IFF_UP)
 		return;
 
 	/* Do the real work now */
@@ -933,10 +934,12 @@ int main(int argc, char **argv)
 	int nodaemon = 0;
 	int opt;
 
+#ifdef HIDE_DEBUG_BACKUPD_LOG_CONNECTION
 	/* Redirect standard files to /var/log/backupd3G_log */
 	freopen("/var/log/backupd3G_log", "a+", stdin);
 	freopen("/var/log/backupd3G_log", "a+", stdout);
 	freopen("/var/log/backupd3G_log", "a+", stderr);
+#endif
 
 	/* Parse opts */
 	while ((opt = getopt(argc, argv, "f")) != -1) {

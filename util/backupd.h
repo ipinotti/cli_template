@@ -10,6 +10,8 @@
 
 #include <librouter/modem3G.h>
 
+#define HIDE_DEBUG_BACKUPD_LOG_CONNECTION
+
 //#define DEBUG_BCKP_SYSLOG
 #ifdef DEBUG_BCKP_SYSLOG
 #define bkpd_dbgs(x,...) \
