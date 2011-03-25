@@ -267,8 +267,12 @@ int main(int argc, char *argv[])
 			librouter_nv_load_ssh_secret(SSH_KEY_FILE);
 			librouter_nv_load_ntp_secret(NTP_KEY_FILE);
 			librouter_snmp_load_prepare_users();
-#if defined(OPTION_EFM) && defined(OPTION_MANAGED_SWITCH)
+#if defined(OPTION_MANAGED_SWITCH)
+#if defined (CONFIG_DIGISTAR_EFM)
 			librouter_ksz8863_set_default_config();
+#elif defined (CONFIG_DIGISTAR_3G)
+			librouter_bcm53115s_set_default_config();
+#endif
 #endif
 
 			size = librouter_nv_load_configuration(STARTUP_CFG_FILE);

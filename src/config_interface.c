@@ -36,6 +36,7 @@ extern int _cish_booting;
 dev_family *interface_edited;
 int interface_major = -1;
 int interface_minor = -1;
+
 #ifdef OPTION_MANAGED_SWITCH
 int switch_port = -1;
 

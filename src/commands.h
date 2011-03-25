@@ -57,7 +57,11 @@
 #include <librouter/vlan.h>
 
 #ifdef OPTION_MANAGED_SWITCH
+#ifdef CONFIG_DIGISTAR_EFM
 #include <librouter/ksz8863.h>
+#else
+#include <librouter/bcm53115s.h>
+#endif
 #endif
 
 #ifdef OPTION_EFM
