@@ -336,7 +336,7 @@ void sw_egress_traffic_shape(const char *cmdline)
 //
 //	if (!strcmp(args->argv[0], "no")) {
 //		prio = atoi(args->argv[2]);
-//		librouter_ksz8863_set_egress_rate_limit(switch_port, prio, 0);
+//		librouter_bcm53115s_set_egress_rate_limit(switch_port, prio, 0);
 //	} else {
 //		prio = atoi(args->argv[1]);
 //		rate = atoi(args->argv[2]);
@@ -346,7 +346,7 @@ void sw_egress_traffic_shape(const char *cmdline)
 //		else
 //			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
 //			                / 1000);
-//		librouter_ksz8863_set_egress_rate_limit(interface_major, prio, rate);
+//		librouter_bcm53115s_set_egress_rate_limit(interface_major, prio, rate);
 //	}
 //	librouter_destroy_args(args);
 }
@@ -360,7 +360,7 @@ void sw_ingress_rate_limit(const char *cmdline)
 //
 //	if (!strcmp(args->argv[0], "no")) {
 //		prio = atoi(args->argv[2]);
-//		librouter_ksz8863_set_ingress_rate_limit(switch_port, prio, 0);
+//		librouter_bcm53115s_set_ingress_rate_limit(switch_port, prio, 0);
 //	} else {
 //		prio = atoi(args->argv[1]);
 //		rate = atoi(args->argv[2]);
@@ -370,7 +370,7 @@ void sw_ingress_rate_limit(const char *cmdline)
 //		else
 //			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
 //			                / 1000);
-//		librouter_ksz8863_set_ingress_rate_limit(switch_port, prio, rate);
+//		librouter_bcm53115s_set_ingress_rate_limit(switch_port, prio, rate);
 //	}
 //	librouter_destroy_args(args);
 }
@@ -382,9 +382,9 @@ void sw_vlan_default(const char *cmdline)
 //	args = librouter_make_args(cmdline);
 //
 //	if (!strcmp(args->argv[0], "no"))
-//		librouter_ksz8863_set_default_vid(switch_port, 0);
+//		librouter_bcm53115s_set_default_vid(switch_port, 0);
 //	else
-//		librouter_ksz8863_set_default_vid(switch_port, atoi(args->argv[1]));
+//		librouter_bcm53115s_set_default_vid(switch_port, atoi(args->argv[1]));
 //
 //	librouter_destroy_args(args);
 //	return;
@@ -400,7 +400,7 @@ void sw_broadcast_storm_protect(const char *cmdline)
 //	if (!strcmp(args->argv[0], "no"))
 //		enable = 0;
 //
-//	librouter_ksz8863_set_broadcast_storm_protect(enable, switch_port);
+//	librouter_bcm53115s_set_broadcast_storm_protect(enable, switch_port);
 //
 //	librouter_destroy_args(args);
 //	return;
@@ -421,7 +421,7 @@ void sw_broadcast_storm_protect_rate(const char *cmdline)
 //
 //	perc = atoi(args->argv[2]);
 //
-//	librouter_ksz8863_set_storm_protect_rate(perc);
+//	librouter_bcm53115s_set_storm_protect_rate(perc);
 //
 //	librouter_destroy_args(args);
 //	return;
@@ -437,7 +437,7 @@ void sw_multicast_storm_protect(const char *cmdline)
 //	if (!strcmp(args->argv[0], "no"))
 //		enable = 0;
 //
-//	librouter_ksz8863_set_multicast_storm_protect(enable);
+//	librouter_bcm53115s_set_multicast_storm_protect(enable);
 //
 //	librouter_destroy_args(args);
 //	return;
@@ -453,7 +453,7 @@ void sw_replace_null_vid(const char *cmdline)
 //	if (!strcmp(args->argv[0], "no"))
 //		enable = 0;
 //
-//	if (librouter_ksz8863_set_replace_null_vid(enable) < 0)
+//	if (librouter_bcm53115s_set_replace_null_vid(enable) < 0)
 //		printf("%% Could not execute the command\n");
 //
 //	librouter_destroy_args(args);
@@ -470,7 +470,7 @@ void sw_enable_wfq(const char *cmdline)
 //	if (!strcmp(args->argv[0], "no"))
 //		enable = 0;
 //
-//	if (librouter_ksz8863_set_wfq(enable) < 0)
+//	if (librouter_bcm53115s_set_wfq(enable) < 0)
 //		printf("%% Could not execute the command\n");
 //
 //	librouter_destroy_args(args);
@@ -479,28 +479,19 @@ void sw_enable_wfq(const char *cmdline)
 
 void sw_8021q(const char *cmdline)
 {
-	uint32_t data;
+	arglist *args;
+	int enable = 1;
 
-	printf("\n\nExecutando teste!!!!\n\n");
+	args = librouter_make_args(cmdline);
 
-	data = librouter_bcm53115s_read_test(0x01,0x00,2);
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
 
-	printf("1 - Return READ No cish--> %x\n\n", data);
+	if (librouter_bcm53115s_set_8021q(enable) < 0)
+		printf("%% Could not execute the command\n");
 
-
-//	arglist *args;
-//	int enable = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		enable = 0;
-//
-//	if (librouter_ksz8863_set_8021q(enable) < 0)
-//		printf("%% Could not execute the command\n");
-//
-//	librouter_destroy_args(args);
-//	return;
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_vlan_entry(const char *cmdline)
@@ -514,7 +505,7 @@ void sw_vlan_entry(const char *cmdline)
 //
 //	if (!strcmp(args->argv[0], "no")) {
 //		vconf.vid = atoi(args->argv[2]);
-//		librouter_ksz8863_del_table(&vconf);
+//		librouter_bcm53115s_del_table(&vconf);
 //	} else {
 //		vconf.vid = atoi(args->argv[2]);
 //		if (strstr(cmdline, "port-1"))
@@ -526,7 +517,7 @@ void sw_vlan_entry(const char *cmdline)
 //		if (strstr(cmdline, "internal"))
 //			vconf.membership |= 1 << 2;
 //
-//		librouter_ksz8863_add_table(&vconf);
+//		librouter_bcm53115s_add_table(&vconf);
 //	}
 //
 //	librouter_destroy_args(args);
@@ -543,7 +534,7 @@ void sw_8021p(const char *cmdline)
 //	if (!strcmp(args->argv[0], "no"))
 //		enable = 0;
 //
-//	librouter_ksz8863_set_8021p(enable, switch_port);
+//	librouter_bcm53115s_set_8021p(enable, switch_port);
 //
 //	librouter_destroy_args(args);
 //	return;
@@ -565,7 +556,7 @@ void sw_8021p_prio(const char *cmdline)
 //	cos = atoi(args->argv[2]);
 //	prio = atoi(args->argv[3]);
 //
-//	if (librouter_ksz8863_set_cos_prio(cos, prio) < 0)
+//	if (librouter_bcm53115s_set_cos_prio(cos, prio) < 0)
 //		printf("%% Could not execute the command\n");
 //
 //	librouter_destroy_args(args);
@@ -582,7 +573,7 @@ void sw_dscp(const char *cmdline)
 //	if (!strcmp(args->argv[0], "no"))
 //		enable = 0;
 //
-//	if (librouter_ksz8863_set_diffserv(enable, switch_port) < 0)
+//	if (librouter_bcm53115s_set_diffserv(enable, switch_port) < 0)
 //		printf("%% Could not execute the command\n");
 //
 //	librouter_destroy_args(args);
@@ -605,7 +596,7 @@ void sw_dscp_prio(const char *cmdline)
 //	dscp = atoi(args->argv[2]);
 //	prio = atoi(args->argv[3]);
 //
-//	if (librouter_ksz8863_set_dscp_prio(dscp, prio) < 0)
+//	if (librouter_bcm53115s_set_dscp_prio(dscp, prio) < 0)
 //		printf("%% Could not execute the command\n");
 //
 //	librouter_destroy_args(args);
@@ -622,7 +613,7 @@ void sw_txqueue_split(const char *cmdline)
 //	if (!strcmp(args->argv[0], "no"))
 //		enable = 0;
 //
-//	if (librouter_ksz8863_set_txqsplit(enable, switch_port) < 0)
+//	if (librouter_bcm53115s_set_txqsplit(enable, switch_port) < 0)
 //		printf("%% Could not execute the command\n");
 //
 //	librouter_destroy_args(args);
