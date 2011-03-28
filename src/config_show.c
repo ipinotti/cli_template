@@ -555,8 +555,9 @@ static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 			fprintf(out, "  Internet address is %s %s\n", addr, mask);
 	}
 
-	if (ip->ippeer[0])
-		fprintf(out, "  Peer address is %s\n", ip->ippeer);
+	 if (ip->ippeer[0] && !(conf->linktype == ARPHRD_TUNNEL || 
+		conf->linktype == ARPHRD_IPGRE || conf->linktype == ARPHRD_PPP))
+                        fprintf(out, "  Peer address is %s\n", ip->ippeer);
 
 	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
 	;
@@ -908,10 +909,6 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		/* Dump IP address */
 		__dump_intf_ipaddr_status(out, &conf);
 		__dump_intf_secondary_ipaddr_status(out, &conf);
-
-		if (ip.ippeer[0] && !(conf.linktype == ARPHRD_TUNNEL || conf.linktype
-		                == ARPHRD_IPGRE || conf.linktype == ARPHRD_PPP))
-			fprintf(out, "  Peer address is %s\n", ip.ippeer);
 
 		if (conf.linktype == ARPHRD_PPP && conf.running)
 			fprintf(out, "  MTU is %i bytes\n", conf.mtu);
