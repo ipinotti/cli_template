@@ -483,7 +483,7 @@ void sw_8021q(const char *cmdline)
 
 	printf("\n\nExecutando teste!!!!\n\n");
 
-	data = librouter_bcm53115s_read_test(0x01,0x00,2);
+	librouter_bcm53115s_read_test(0x01,0x00,&data,2);
 
 	printf("1 - Return READ No cish--> %x\n\n", data);
 
