@@ -1251,5 +1251,5 @@ void l2tp_ppp_nomtu(const char *cmd) /* no l2tp ppp mtu */
 		librouter_ppp_l2tp_set_config(dynamic_ipsec_menu_name, &cfg);
 	}
 }
-#endif
+#endif /* OPTION_IPSEC */
 

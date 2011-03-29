@@ -1,12 +1,15 @@
-/* ==============================================================================
- * cish - the cisco shell emulator for LPR
- *
- * (C) 2000 Mad Science Labs / Clue Consultancy
- * This program is licensed under the GNU General Public License
- * ============================================================================== */
-
 #ifndef _COMMANDTREE_H
 #define _COMMANDTREE_H
+
+#include <librouter/options.h>
+
+#if defined(CONFIG_DIGISTAR_3G)
+#define CLI_STRING_ETH_IFACES	"0-1"
+#elif defined(CONFIG_DIGISTAR_EFM)
+#define CLI_STRING_ETH_IFACES	"0-0"
+#else
+#error "No board defined!"
+#endif
 
 
 /* Global variables (We should really get rid of them!) */

@@ -9,6 +9,7 @@
 #include "pprintf.h"
 #include "cish_main.h"
 
+#ifdef OPTION_QOS
 //#define DEBUG_CMD(x) printf("cmd = %s\n", x)
 #define DEBUG_CMD(x)
 
@@ -922,4 +923,4 @@ void interface_no_mangle (const char *cmdline)
 	librouter_destroy_args (args);
 	free (dev);
 }
-
+#endif /* OPTION_QOS */

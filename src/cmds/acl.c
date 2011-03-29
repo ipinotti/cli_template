@@ -6,6 +6,8 @@
 #include "commands.h"
 #include "commandtree.h"
 
+#include <librouter/options.h>
+#ifdef OPTION_FIREWALL
 cish_command CMD_CONFACL_LENGTH_1[] = {
 	{"<min:max>", "Length range", NULL, do_accesslist, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -407,4 +409,4 @@ cish_command CMD_CONFACL1[] = {
 	{"<acl>","Access list name", CMD_CONFACL2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
-/* END OF ACCESS-LIST CONFIGURATION */
+#endif /* OPTION_FIREWALL */

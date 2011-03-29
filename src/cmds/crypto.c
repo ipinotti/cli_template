@@ -57,7 +57,7 @@ cish_command CMD_IPSEC_CONNECTION_LR_ADDR_FQDN[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -165,7 +165,7 @@ cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_ADDRESS[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED_ETHERNET[] = {
-	{"0-1", "Ethernet interface number", NULL, l2tp_ppp_unnumbered, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, l2tp_ppp_unnumbered, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -497,4 +497,4 @@ cish_command CMD_CONFIG_CRYPTO[] = {
 #endif
 	{NULL,NULL,NULL,NULL, 0}
 };
-#endif
+#endif /* OPTION_IPSEC */

@@ -20,6 +20,8 @@
 #include <librouter/device.h>
 #include <librouter/ip.h>
 
+#ifdef OPTION_FIREWALL
+
 //#define DEBUG_CMD(x) printf("cmd = %s\n", x)
 #define DEBUG_CMD(x)
 
@@ -652,4 +654,5 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 	librouter_destroy_args(args);
 	free(dev);
 }
+#endif /* OPTION_FIREWALL */
 

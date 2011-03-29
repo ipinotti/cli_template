@@ -116,8 +116,10 @@ void show_clock(const char *);
 void show_logging(const char *);
 void clear_logging(const char *);
 
+#ifdef OPTION_ROUTER
 void ip_param(const char *);
 void no_ip_param(const char *);
+#endif
 
 void config_term(const char *);
 void config_term_done(const char *);
@@ -138,14 +140,13 @@ void set_model_cmd_mask(int mask);
 void del_model_cmd_mask(int mask);
 
 void set_model_switch_cmds(void);
-void set_model_ethernet_cmds(int num_ifaces);
 void set_model_serial_cmds(const char *);
 void disable_exc_cmds(void);
+
+#ifdef OPTION_ROUTER
 void config_router(const char *);
 void config_no_router(const char *);
 void config_router_done(const char *);
-void zebra_execute_cmd(const char *);
-void zebra_execute_interface_cmd(const char *);
 void ospf_execute_root_cmd(const char *);
 void ospf_execute_router_cmd(const char *);
 void ospf_execute_interface_cmd(const char *);
@@ -153,17 +154,21 @@ void bgp_execute_root_cmd(const char *);
 void bgp_execute_router_cmd(const char *);
 void bgp_execute_interface_cmd(const char *);
 int bgp_start_router_cmd(int temp_asn);
-
 void rip_execute_root_cmd(const char *);
 void rip_execute_keychain_cmd(const char *);
 void rip_execute_key_cmd(const char *);
 void rip_execute_router_cmd(const char *);
 void rip_execute_interface_cmd(const char *);
-void librouter_quagga_zebra_dump_static_routes(FILE *out);
-void zebra_dump_routes(FILE *out);
 void show_ip_ospf(const char *cmdline);
 void show_ip_rip(const char *cmdline);
 void show_ip_bgp(const char *cmdline);
+#endif /* OPTION_ROUTER */
+
+void zebra_execute_cmd(const char *);
+void zebra_execute_interface_cmd(const char *);
+//void librouter_quagga_zebra_dump_static_routes(FILE *out);
+void zebra_dump_routes(FILE *out);
+
 
 void config_interface(const char *);
 
@@ -258,6 +263,7 @@ void pim_rp_candidate(const char *cmd);
 
 void arp_entry(const char *cmd);
 
+#ifdef OPTION_PPP
 void ppp_ipaddr(const char *);
 void ppp_noipaddr(const char *);
 void ppp_peeraddr(const char *);
@@ -329,7 +335,11 @@ void ppp_keepalive_timeout(const char *);
 void ppp_debug(const char *);
 void ppp_multilink(const char *);
 void ppp_usepeerdns(const char *);
+void ppp_chatscript(const char *);
+void ppp_nochatscript(const char *);
+#endif
 
+#ifdef OPTION_IPSEC
 void l2tp_peer(const char *);
 void l2tp_ppp_auth_pass(const char *);
 void l2tp_ppp_auth_user(const char *);
@@ -348,72 +358,11 @@ void l2tp_ppp_keepalive_interval(const char *);
 void l2tp_ppp_keepalive_timeout(const char *);
 void l2tp_ppp_mtu(const char *);
 void l2tp_ppp_nomtu(const char *);
-
-void serial_encap(const char *cmdline);
-void serial_encap_async(const char *cmdline);
-void serial_physical(const char *cmdline);
-void serial_clock_rate(const char *cmdline);
-void serial_clock_rate_no(const char *cmdline);
-void serial_clock_type(const char *cmdline);
-void serial_ignore(const char *cmdline);
-void serial_invert_tx_clock(const char *cmdline);
-void serial_invert_tx_clock_no(const char *cmdline);
-void serial_loopback(const char *cmdline);
-
-void serial_backup(const char *);
-void serial_no_backup(const char *);
-
-void fr_intftype_dce(const char *cmd);
-void fr_intftype_dte(const char *cmd);
-void fr_lmi(const char *cmd);
-void fr_lmi_signalling_auto(const char *cmd);
-void fr_lmi_signalling_ansi(const char *cmd);
-void fr_lmi_signalling_itu(const char *cmd);
-void fr_lmi_signalling_cisco(const char *cmd);
-void fr_lmi_signalling_none(const char *cmd);
-void fr_dlci_add(const char *cmd);
-void fr_dlci_del(const char *cmd);
-#ifdef CONFIG_HDLC_FR_EEK
-void fr_eek_timer(const char *cmdline);
-void fr_eek_mode(const char *cmdline);
-void fr_eek_events(const char *cmdline);
-void fr_eek_disable(const char *cmdline);
-#endif
-
-#ifdef CONFIG_HDLC_FR_LFI
-void interface_fr_interleave(const char *cmdline);
-void interface_fr_no_interleave(const char *cmdline);
-#endif
-
-#ifdef CONFIG_FR_IPHC
-void subfr_iphc(const char *cmdline);
 #endif
 
 void vlan_add(const char *cmd);
 void vlan_del(const char *cmd);
 void vlan_change_cos(const char *cmd);
-
-void chdlc_keepalive_interval(const char *cmd);
-void chdlc_keepalive_timeout(const char *cmd);
-
-void sppp_keepalive_interval(const char *cmd);
-void sppp_keepalive_timeout(const char *cmd);
-void sppp_debug(const char *cmd);
-void sppp_multilink(const char *cmd);
-void sppp_papchap(const char *cmd);
-void sppp_auth_algo(const char *cmd);
-void sppp_usepeerdns(const char *cmd);
-void sppp_supplypeerdns(const char *cmd);
-void sppp_supplypeernbns(const char *cmd);
-void sppp_vj(const char *cmd);
-void sppp_iphc(const char *cmd);
-
-#ifdef CONFIG_SPPP_PPPH_COMP
-void sppp_header_compression(const char *cmd);
-#endif
-
-void ppp_chatscript(const char *);
-void ppp_nochatscript(const char *);
 
 void hostname(const char *);
 void help(const char *);
@@ -440,6 +389,7 @@ void snmp_user(const char *cmd);
 void show_snmp_users(const char *cmd);
 void snmp_version(const char *cmd);
 
+#ifdef OPTION_BRIDGE
 void bridge_setaging(const char *cmd);
 void bridge_setfd(const char *cmd);
 void bridge_sethello(const char *cmd);
@@ -451,6 +401,7 @@ void bridge_setproto(const char *cmd);
 void bridge_no(const char *cmd);
 void dump_bridge(FILE *F);
 void bridge_show(const char *cmd);
+#endif
 
 void term_length(const char *);
 void term_timeout(const char *);
@@ -458,7 +409,6 @@ void term_timeout(const char *);
 void config_clock(const char *cmd);
 void config_clock_timezone(const char *cmd);
 
-void clear_counters(const char *cmd);
 #ifdef CONFIG_IPHC
 void clear_iphc(const char *cmdline);
 #endif
@@ -582,7 +532,7 @@ void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
 
-/* TODO config_switch.c -> create config_switch.h */
+#ifdef OPTION_MANAGED_SWITCH
 void sw_vlan_default(const char *);
 void sw_ingress_rate_limit(const char *);
 void sw_egress_traffic_shape(const char *);
@@ -598,6 +548,7 @@ void sw_8021p_prio(const char *);
 void sw_dscp(const char *);
 void sw_dscp_prio(const char *);
 void sw_txqueue_split(const char *);
+#endif
 
 /* TODO config_interface.c -> create config_interface.h */
 void config_interface_done(const char *);
@@ -607,11 +558,12 @@ void config_interface_switch_port_done(const char *);
 /* TODO config_interface.c -> perhaps create a file for each interface */
 void interface_efm_set_mode(const char *);
 
-
+#ifdef OPTION_QOS
 void do_bandwidth(const char *);
 void do_max_reserved_bw(const char *);
 void do_service_policy(const char *);
 void no_service_policy(const char *);
+#endif
 
 void interface_mtu(const char *);
 void interface_description(const char *);
@@ -673,6 +625,7 @@ int get_iface_mangle_rules(char *iface, char *in_mangle, char *out_mangle);
 int get_mangle_refcount(char *mangle);
 int clean_iface_mangle_rules(char *iface);
 
+#ifdef OPTION_FIREWALL
 /* Access Lists */
 void do_accesslist(const char *);
 void do_accesslist_mac(const char *);
@@ -680,12 +633,15 @@ void do_accesslist_policy(const char *);
 void no_accesslist(const char *);
 void interface_acl(const char *);
 void interface_no_acl(const char *);
+#endif
 
+#ifdef OPTION_NAT
 /* NAT */
 void do_nat_rule(const char *);
 void no_nat_rule(const char *);
 void interface_nat(const char *);
 void interface_no_nat(const char *);
+#endif
 
 
 int nat_rule_exists(char *acl);

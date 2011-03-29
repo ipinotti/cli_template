@@ -161,9 +161,10 @@ static int show_logging_file(time_t tm_start, FILE *tf)
 
 				if (!strlen(tbuf))
 					continue;
-				tbuf[19] = 0; /* <7> Jan  9 23:41:40 */
-				date = tbuf + 4; /* Jan  9 23:41:40 */
-				info = tbuf + 20; /* kernel: X.25(1): TX on serial0 size=131 frametype=0x54 */
+
+				tbuf[16] = 0; /* Jan  9 23:41:40 */
+				date = tbuf; /* Jan  9 23:41:40 */
+				info = tbuf + 17; /* kernel: X.25(1): TX on serial0 size=131 frametype=0x54 */
 				if (tm_start) {
 					time(&tm);
 					localtime_r(&tm, &tm_time);
@@ -1316,6 +1317,7 @@ void show_interfaces(const char *cmdline) /* show interfaces [aux|ethernet|loopb
 	librouter_destroy_args(args);
 }
 
+#ifdef OPTION_FIREWALL
 void show_accesslists(const char *cmdline)
 {
 	arglist *args;
@@ -1324,7 +1326,9 @@ void show_accesslists(const char *cmdline)
 	librouter_acl_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	librouter_destroy_args(args);
 }
+#endif
 
+#ifdef OPTION_QOS
 void show_manglerules(const char *cmdline)
 {
 	arglist *args;
@@ -1333,7 +1337,9 @@ void show_manglerules(const char *cmdline)
 	librouter_mangle_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	librouter_destroy_args(args);
 }
+#endif
 
+#ifdef OPTION_NAT
 void show_natrules(const char *cmdline)
 {
 	arglist *args;
@@ -1342,6 +1348,7 @@ void show_natrules(const char *cmdline)
 	librouter_nat_dump((args->argc == 3) ? args->argv[2] : NULL, stdout, 0);
 	librouter_destroy_args(args);
 }
+#endif
 
 void show_performance(const char *cmdline)
 {
@@ -1965,7 +1972,7 @@ void show_ntpassociations(const char *cmdline)
 }
 #endif /* OPTION_NTPD */
 
-#ifdef OPTION_PIMD
+#ifdef OPTION_SMCROUTE
 void show_mroute(const char *cmdline) /* !!! */
 {
 	FILE *tf;

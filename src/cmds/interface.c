@@ -7,7 +7,7 @@
 #include "commands.h"
 #include "commandtree.h"
 
-
+#ifdef OPTION_QOS
 cish_command CMD_CONFIG_INTERFACE_BW[] = {
 	{"<bandwidth>", "Set bandwidth in [k|m]bps", NULL, do_bandwidth, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL, 0}
@@ -22,7 +22,9 @@ cish_command CMD_CONFIG_SERV_POLICY[] = {
 	{"<text>", "policy-map name", NULL, do_service_policy, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif /* OPTION_QOS */
 
+#ifdef OPTION_ROUTER
 cish_command CMD_CONFIG_INTERFACE_IP_OSPF_NO_INTF[] = {
 	{"<ipaddress>", "Address of interface", NULL, ospf_execute_interface_cmd, 1, MSK_OSPF},
 	{"<enter>", "", NULL, NULL, 1, MSK_OSPF},
@@ -92,7 +94,9 @@ cish_command CMD_CONFIG_INTERFACE_IP_RIP_NO[] = {
 	{"send", "Advertisement transmission", CMD_CONFIG_INTERFACE_IP_RIP_VERSION_NO, NULL, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif /* OPTION_ROUTER */
 
+#ifdef OPTION_FIREWALL
 cish_command CMD_CONFIG_INTERFACE_NO_ACL2[] = {
 //	{"fwd","forward packets", NULL, interface_no_acl, 1, MSK_NORMAL},
 	{"in","inbound packets", NULL, interface_no_acl, 1, MSK_NORMAL},
@@ -104,7 +108,9 @@ cish_command CMD_CONFIG_INTERFACE_NO_ACL[] = {
 	{"<acl>","Access list name", CMD_CONFIG_INTERFACE_NO_ACL2, interface_no_acl, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
+#ifdef OPTION_QOS
 cish_command CMD_CONFIG_INTERFACE_NO_MANGLE2[] = {
 	{"in","inbound packets", NULL, interface_no_mangle, 1, MSK_NORMAL},
 	{"out","outbound packets", NULL, interface_no_mangle, 1, MSK_NORMAL},
@@ -115,7 +121,9 @@ cish_command CMD_CONFIG_INTERFACE_NO_MANGLE[] = {
 	{"<acl>","MARK rule name", CMD_CONFIG_INTERFACE_NO_MANGLE2, interface_no_mangle, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
+#ifdef OPTION_NAT
 cish_command CMD_CONFIG_INTERFACE_NO_NAT2[] = {
 	{"in","inbound packets", NULL, interface_no_nat, 1, MSK_NORMAL},
 	{"out","outbound packets", NULL, interface_no_nat, 1, MSK_NORMAL},
@@ -126,6 +134,7 @@ cish_command CMD_CONFIG_INTERFACE_NO_NAT[] = {
 	{"<acl>","NAT rule name", CMD_CONFIG_INTERFACE_NO_NAT2, interface_no_nat, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP3[] = {
 	{"secondary", "Make this IP address a secondary address", NULL, interface_ethernet_no_ipaddr_secondary, 1, MSK_NORMAL},
@@ -144,13 +153,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP1[] = {
 };
 
 
-
-
-
-
-
 #ifdef OPTION_PIMD
-
 cish_command CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_METR[] = {
 	{"1-5000", "Smaller is better", NULL, pim_sparse_mode_intf, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -191,19 +194,30 @@ cish_command CMD_CONFIG_INTERFACE_IP_PIM_NO[] = {
 #endif
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"address", "Unset local address", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP1, interface_ethernet_no_ipaddr, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_NO_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
 	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF_NO, NULL, 1, MSK_OSPF},
+#endif
 #ifdef OPTION_PIMD
 	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM_NO, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_ROUTER
 cish_command CMD_CONFIG_INTERFACE_IP_OSPF_PRIORITY2[] = {
 	{"<ipaddress>", "Address of interface", NULL, ospf_execute_interface_cmd, 1, MSK_OSPF},
 	{"<enter>", "", NULL, NULL, 1, MSK_OSPF},
@@ -370,7 +384,9 @@ cish_command CMD_CONFIG_INTERFACE_IP_RIP[] = {
 	{"send", "Advertisement transmission", CMD_CONFIG_INTERFACE_IP_RIP_VERSION, NULL, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif /* OPTION_ROUTER */
 
+#ifdef OPTION_FIREWALL
 cish_command CMD_CONFIG_INTERFACE_ACL2[] = {
 //	{"fwd","forward packets", NULL, interface_acl, 1, MSK_NORMAL},
 	{"in","inbound packets", NULL, interface_acl, 1, MSK_NORMAL},
@@ -382,7 +398,9 @@ cish_command CMD_CONFIG_INTERFACE_ACL[] = {
 	{"<acl>","Access list name", CMD_CONFIG_INTERFACE_ACL2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif /* OPTION_FIREWALL */
 
+#ifdef OPTION_QOS
 cish_command CMD_CONFIG_INTERFACE_MANGLE2[] = {
 	{"in","inbound packets", NULL, interface_mangle, 1, MSK_NORMAL},
 	{"out","outbound packets", NULL, interface_mangle, 1, MSK_NORMAL},
@@ -393,7 +411,9 @@ cish_command CMD_CONFIG_INTERFACE_MANGLE[] = {
 	{"<acl>","MARK rule name", CMD_CONFIG_INTERFACE_MANGLE2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif /* OPTION_QOS */
 
+#ifdef OPTION_NAT
 cish_command CMD_CONFIG_INTERFACE_NAT2[] = {
 	{"in","inbound packets", NULL, interface_nat, 1, MSK_NORMAL},
 	{"out","outbound packets", NULL, interface_nat, 1, MSK_NORMAL},
@@ -404,6 +424,7 @@ cish_command CMD_CONFIG_INTERFACE_NAT[] = {
 	{"<acl>","NAT rule name", CMD_CONFIG_INTERFACE_NAT2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif /* OPTION_NAT */
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_MTU[] = {
 #ifdef OPTION_GIGAETHERNET
@@ -576,7 +597,7 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB_APN[] = {
 };
 
 cish_command CMD_BACKUP_INTERFACE_ETHERNET[] = {
-	{"0-1", "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -617,6 +638,9 @@ cish_command CMD_CONFIG_INTERFACE_M3G_NO[] = {
 	{"backup-interface", "Shutdown backup over a given interface", NULL, backup_interface_shutdown, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_M3G_NO_IP, NULL, 1, MSK_NORMAL},
 	{"default-gateway", "Install default-gateway using this interface when connected", NULL, interface_modem3g_default_gateway, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
+	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -626,11 +650,16 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB[] = {
 	{"password", "Password for login on 3G connection through ISP", CMD_CONFIG_INTERFACE_M3G_USB_PASS, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE_USB, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
+#endif
 	{"default-gateway", "Install default-gateway using this interface when connected", CMD_3G_DEFAULT_GW, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_M3G_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
+	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
+#endif
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
@@ -699,11 +728,16 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
 	{"sim-order", "Set order of SIM Cards for backup - <MAIN> <BACKUP>", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER, NULL, 1, MSK_NORMAL},
 	{"backup-method", "Set test method for backup", CMD_BACKUP_METHOD, NULL, 1, MSK_NORMAL},
 	{"backup-interface", "Allow backup over a given interface", CMD_BACKUP_INTERFACE, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
+#endif
 	{"default-gateway", "Install default-gateway using this interface when connected", CMD_3G_DEFAULT_GW, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_M3G_IP, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_M3G_NO, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
+	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
+#endif
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
@@ -714,11 +748,6 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN[] = {
 };
 
 #endif
-
-
-
-
-
 
 
 /***********************/
@@ -752,16 +781,26 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"address", "IP Address and Netmask", CMD_CONFIG_INTERFACE_ETHERNET_IP1, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
 	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF, NULL, 1, MSK_OSPF},
+#endif
 #ifdef OPTION_PIMD
 	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -791,7 +830,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
+#endif
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_MANAGED_SWITCH
@@ -848,7 +889,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SPEED[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
+#ifdef OPTION_QOS
 	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
+#endif
 #ifdef OPTION_BRIDGE
 	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
@@ -857,7 +900,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
+#endif
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_NO, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_MANAGED_SWITCH
 	{"switch-config", "Configure switch advanced settings general to all ports", CMD_CONFIG_INTERFACE_ETH_SW_GENERAL, NULL, 1, MSK_MANAGED_SWITCH},
@@ -867,7 +912,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"speed", "Configure speed and related commands", CMD_CONFIG_INTERFACE_ETHERNET_SPEED, NULL, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
+#endif
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 #endif
@@ -898,14 +945,19 @@ cish_command CMD_CONFIG_INTERFACE_EFM_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
+#endif
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL}
 };
 
 cish_command CMD_CONFIG_INTERFACE_EFM[] = {
+#ifdef OPTION_QOS
 	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
+#endif
 #ifdef OPTION_BRIDGE
 	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
@@ -914,13 +966,17 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
+#endif
 	{"mode", "Set SHDSL DSP as CO or CPE", CMD_CONFIG_INTERFACE_EFM_MODE, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_EFM_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
+#endif
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 #endif
@@ -953,16 +1009,26 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"address", "Unset local address", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP1, interface_no_ipaddr, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_NO_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
 	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF_NO, NULL, 1, MSK_OSPF},
+#endif
 #ifdef OPTION_PIMD
 	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -983,16 +1049,26 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"address", "IP Address and Netmask", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP1, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
 	{"ospf", "OSPF protocol",CMD_CONFIG_INTERFACE_IP_OSPF, NULL, 1, MSK_OSPF},
+#endif
 #ifdef OPTION_PIMD
 	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -1100,7 +1176,9 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"address", "Unset local address", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP1, interface_no_ipaddr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -1122,7 +1200,9 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"address", "IP Address and Netmask", CMD_CONFIG_INTERFACE_LOOPBACK_IP1, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
@@ -1147,14 +1227,10 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-
-
-
-
-
-
+/********************/
 /* Tunnel Interface */
-
+/********************/
+#ifdef OPTION_TUNNEL
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IP3[] = {
 	{"secondary", "Make this IP address a secondary address", NULL, interface_no_ipaddr_secondary, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -1172,13 +1248,21 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"address", "Unset local address", CMD_CONFIG_INTERFACE_TUNNEL_NO_IP1, interface_no_ipaddr, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_NO_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
 	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF_NO, NULL, 1, MSK_OSPF},
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1230,13 +1314,15 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_MODE[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+#ifdef OPTION_AUX_RS232_INTERFACE
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_AUX[] = {
 	{"0-1", "Aux interface number", NULL, tunnel_source_interface, 1, MSK_AUX},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[] = {
-	{"1-1", "Ethernet interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -1245,23 +1331,29 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_LOOPBACK[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+#ifdef OPTION_SERIAL
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_SERIAL[] = {
 	{"0-0", "Serial interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_TUNNEL[] = {
 	{"0-9", "Tunnel interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
+#ifdef OPTION_MODEM3G
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_M3G[] = {
 	{"0-2", "Modem 3G interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC[] = {
+#ifdef OPTION_AUX_RS232_INTERFACE
 	{"aux", "Aux interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_AUX, NULL, 1, MSK_AUX},
+#endif
 #ifdef OPTION_ETHERNET_WAN
 	{"ethernet", "Ethernet interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET, NULL, 1, MSK_NORMAL},
 #endif
@@ -1345,3 +1437,4 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL[] = {
 	{"tunnel", "Protocol-over-protocol tunneling", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
+#endif /* OPTION_TUNNEL */

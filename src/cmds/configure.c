@@ -18,7 +18,7 @@ cish_command CMD_CONFIG_INTERFACE_EFM_[] = {
 #endif
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_[] = {
-	{"0-1", "Ethernet interface number", NULL, config_interface, 0, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, config_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -69,25 +69,33 @@ cish_command CMD_CONFIG_NO_INTERFACE[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_FIREWALL
 cish_command CMD_NO_ACL[] = {
 	{"<acl>","Access lists name", NULL, no_accesslist, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
 };
+#endif
 
+#ifdef OPTION_QOS
 cish_command CMD_NO_MANGLE[] = {
 	{"<acl>","MARK rule name", NULL, no_mangle_rule, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
 };
+#endif
 
+#ifdef OPTION_NAT
 cish_command CMD_NO_NAT[] = {
 	{"<acl>","NAT rule name", NULL, no_nat_rule, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
 };
+#endif
 
+#ifdef OPTION_PPP
 cish_command CMD_CONFIG_NO_CHATSCRIPT[] = {
 	{"<text>","Chatscript name", NULL, ppp_nochatscript, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 cish_command CMD_CONFIG_NO_LOG[] = {
 	{"remote","Disable remote logging", NULL, no_log_remote, 1, MSK_NORMAL},
@@ -107,6 +115,7 @@ cish_command CMD_CONFIG_NO_ROUTER_BGP[] = {
 };
 #endif
 
+#ifdef OPTION_ROUTER
 cish_command CMD_CONFIG_NO_ROUTER[] = {
 #ifdef OPTION_BGP
 	{"bgp", "Border Gateway Protocol (BGP)", CMD_CONFIG_NO_ROUTER_BGP, NULL, 1, MSK_BGP},
@@ -115,6 +124,7 @@ cish_command CMD_CONFIG_NO_ROUTER[] = {
 	{"rip", "Routing Information Protocol (RIP)", NULL, config_no_router, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 #ifdef OPTION_RMON
 cish_command CMD_CONFIG_NO_RMON_ALARM[] = {
@@ -147,20 +157,28 @@ cish_command CMD_CONFIG_POLICYMAP[] = {
 
 cish_command CMD_CONFIG_NO[] = {
 	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_NO_AAA, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_FIREWALL
 	{"access-list","Remove access-list", CMD_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"arp", "Unset a static ARP entry", CMD_NO_ARP_IP, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_BRIDGE
 	{"bridge", "Bridging Group", CMD_CONFIG_NO_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
-#ifdef OPTION_SERIAL
+#ifdef OPTION_PPP
 	{"chatscript", "Reset a chatscript", CMD_CONFIG_NO_CHATSCRIPT, NULL, 1, MSK_NORMAL},
 #endif
 	{"interface","Interface Configuration", CMD_CONFIG_NO_INTERFACE, NULL, 1, MSK_NORMAL},
 	{"ip","IPv4 Configuration", CMD_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_ROUTER
 	{"key","Authentication key management (RIP)", CMD_CONFIG_KEY, NULL, 1, MSK_RIP},
+#endif
 	{"logging", "Unset a logging target", CMD_CONFIG_NO_LOG, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark-rule","Remove MARK rule", CMD_NO_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat-rule","Remove NAT rule", CMD_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_NTPD
 	{"ntp", "NTP Configuration", CMD_NO_NTP, NULL, 1, MSK_NORMAL},
 #else
@@ -172,7 +190,9 @@ cish_command CMD_CONFIG_NO[] = {
 #ifdef OPTION_RMON
 	{"rmon", "Modify RMON settings", CMD_CONFIG_NO_RMON, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"router", "Disable a routing process", CMD_CONFIG_NO_ROUTER, NULL, 1, MSK_NORMAL},
+#endif
 	{"secret", "Disable authentication secrets", CMD_NO_SECRET, NULL, 1, MSK_NORMAL},
 	{"snmp-server", "Remove SNMP settings", CMD_CONFIG_NO_SNMP, snmp_no_server, 1, MSK_NORMAL},
 	{"tacacs-server", "Modify TACACS query parameters", CMD_CONFIG_NO_TACACSSERVER_HOST, 
@@ -180,6 +200,7 @@ cish_command CMD_CONFIG_NO[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_FIREWALL
 cish_command CMD_CONFACLPOL[] = {
 	{"accept","Accept all packets", NULL, do_accesslist_policy, 1, MSK_NORMAL},
 	{"drop","Drop all packets", NULL, do_accesslist_policy, 1, MSK_NORMAL},
@@ -188,7 +209,9 @@ cish_command CMD_CONFACLPOL[] = {
 #endif
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif /* OPTION_FIREWALL */
 
+#ifdef OPTION_PPP
 cish_command CMD_CONFIG_CHATSCRIPT2[] = {
 	{"<string>","Chat script in form EXPECT SEND EXPECT SEND ...", CMD_CONFIG_CHATSCRIPT2, ppp_chatscript, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -198,6 +221,7 @@ cish_command CMD_CONFIG_CHATSCRIPT[] = {
 	{"<text>","Chatscript name", CMD_CONFIG_CHATSCRIPT2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+#endif
 
 cish_command CMD_CONFIG_LOG_REMOTE[] = {
 	{"<ipaddress>", "Remote log host", NULL, log_remote, 1, MSK_NORMAL},
@@ -220,6 +244,8 @@ cish_command CMD_CONFIG_ROUTER_BGP_AS[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
+
+#ifdef OPTION_ROUTER
 cish_command CMD_CONFIG_ROUTER[] = {
 #ifdef OPTION_BGP
 	{"bgp", "Border Gateway Protocol (BGP)", CMD_CONFIG_ROUTER_BGP_AS, NULL, 1, MSK_NORMAL},
@@ -228,6 +254,7 @@ cish_command CMD_CONFIG_ROUTER[] = {
 	{"rip", "Routing Information Protocol (RIP)", NULL, config_router, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_SECRET3[] = {
 	{"<string>", "Encrypted password", NULL, setsecret, 1, MSK_NORMAL},
@@ -332,13 +359,15 @@ cish_command CMD_ARP_IP[] = {
 
 cish_command CMD_CONFIGURE[] = {
 	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_AAA, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_FIREWALL
 	{"access-list","Set an ACL", CMD_CONFACL1, NULL, 1, MSK_NORMAL},
 	{"access-policy", "Set default access policy", CMD_CONFACLPOL, NULL, 1, MSK_NORMAL},
+#endif
 	{"arp", "Set a static ARP entry", CMD_ARP_IP, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_BRIDGE
 	{"bridge", "Bridging Group", CMD_CONFIG_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
-#ifdef OPTION_SERIAL
+#ifdef OPTION_PPP
 	{"chatscript", "Set a chatscript line", CMD_CONFIG_CHATSCRIPT, NULL, 1, MSK_NORMAL},
 #endif
 	{"clock","Manage the system clock", CMD_CONFIGURE_CLOCK, NULL, 1, MSK_NORMAL},
@@ -350,23 +379,35 @@ cish_command CMD_CONFIGURE[] = {
 	{"hostname","Set system's hostname", CMD_CONFIG_HOSTNAME, NULL, 1, MSK_NORMAL},
 	{"ip","IPv4 Configuration", CMD_IP, NULL, 1, MSK_NORMAL},
 	{"interface","Interface Configuration", CMD_CONFIG_INTERFACE, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_ROUTER
 	{"key","Authentication key management (RIP)", CMD_CONFIG_KEY, NULL, 1, MSK_RIP},
+#endif
 	{"logging","Logging info", CMD_CONFIG_LOG, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark-rule","Add MARK rule", CMD_CONFMANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat-rule","Add NAT rule", CMD_CONFNAT1, NULL, 1, MSK_NORMAL},
+#endif
 	{"no","Reverse settings", CMD_CONFIG_NO, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_NTPD
 	{"ntp","Set time synchronization", CMD_CONFIG_NTP, NULL, 1, MSK_NORMAL},
 #else
 	{"ntp-sync","Set time synchronization", CMD_CONFIG_NTP, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_QOS
 	{"policy-map", "Configure QoS Policy Map", CMD_CONFIG_POLICYMAP, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_ROUTER
 	{"policy-route", "Configure Policy Route (PBR)", NULL, cd_policyroute_dir, 1, MSK_NORMAL},
+#endif
 	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_RADIUSSERVER_HOST, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_RMON
 	{"rmon","Set RMON agent configuration", CMD_CONFIG_RMON, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_ROUTER
 	{"router","Enable a routing process", CMD_CONFIG_ROUTER, NULL, 1, MSK_NORMAL},
+#endif
 	{"secret","Set authentication secrets", CMD_SECRET, NULL, 1, MSK_NORMAL},
 	{"snmp-server","Set SNMP server configuration", CMD_CONFIG_SNMP, NULL, 1, MSK_NORMAL},
 	{"tacacs-server","Modify TACACS query parameters", CMD_CONFIG_TACACSSERVER_HOST, NULL, 1, MSK_NORMAL},
