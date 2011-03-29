@@ -159,7 +159,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETH_SW_PORT_[] = {
-	{"0-1", "External switch port", NULL, config_interface_switch_port, 1, MSK_MANAGED_SWITCH},
+	{CLI_STRING_SWITCH_PORTS, "External switch port", NULL, config_interface_switch_port, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 

@@ -5,8 +5,10 @@
 
 #if defined(CONFIG_DIGISTAR_3G)
 #define CLI_STRING_ETH_IFACES	"0-1"
+#define CLI_STRING_SWITCH_PORTS	"0-3"
 #elif defined(CONFIG_DIGISTAR_EFM)
 #define CLI_STRING_ETH_IFACES	"0-0"
+#define CLI_STRING_SWITCH_PORTS	"0-1"
 #else
 #error "No board defined!"
 #endif
