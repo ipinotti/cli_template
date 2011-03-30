@@ -54,8 +54,12 @@ void config_interface_switch_port(const char *cmdline)
 	args = librouter_make_args(cmdline);
 
 	port = atoi(args->argv[1]);
-
-	if (port < 0 || port > 2) {
+#if defined(CONFIG_DIGISTAR_EFM)
+	if (port < 0 || port > 1)
+#elif defined(CONFIG_DIGISTAR_3G)
+	if (port < 0 || port > 3)
+#endif
+	{
 		printf("%% Invalid port\n");
 		librouter_destroy_args(args);
 		return;

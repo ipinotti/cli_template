@@ -392,39 +392,39 @@ void sw_vlan_default(const char *cmdline)
 
 void sw_broadcast_storm_protect(const char *cmdline)
 {
-//	arglist *args;
-//	int enable = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		enable = 0;
-//
-//	librouter_bcm53115s_set_broadcast_storm_protect(enable, switch_port);
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	librouter_bcm53115s_set_broadcast_storm_protect(enable, switch_port);
+
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_broadcast_storm_protect_rate(const char *cmdline)
 {
-//	arglist *args;
-//	int perc = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (args->argc < 3) {
-//		printf("Wrong number of arguments\n");
-//		librouter_destroy_args(args);
-//		return;
-//	}
-//
-//	perc = atoi(args->argv[2]);
-//
-//	librouter_bcm53115s_set_storm_protect_rate(perc);
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int rate = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc < 2) {
+		printf("Wrong number of arguments\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	rate = atoi(args->argv[1]);
+
+	librouter_bcm53115s_set_storm_protect_rate(rate, switch_port);
+
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_multicast_storm_protect(const char *cmdline)
@@ -460,21 +460,21 @@ void sw_replace_null_vid(const char *cmdline)
 //	return;
 }
 
-void sw_enable_wfq(const char *cmdline)
+void sw_enable_wrr(const char *cmdline)
 {
-//	arglist *args;
-//	int enable = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		enable = 0;
-//
-//	if (librouter_bcm53115s_set_wfq(enable) < 0)
-//		printf("%% Could not execute the command\n");
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	if (librouter_bcm53115s_set_wrr(enable) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_8021q(const char *cmdline)
@@ -526,102 +526,88 @@ void sw_vlan_entry(const char *cmdline)
 
 void sw_8021p(const char *cmdline)
 {
-//	arglist *args;
-//	int enable = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		enable = 0;
-//
-//	librouter_bcm53115s_set_8021p(enable, switch_port);
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	librouter_bcm53115s_set_8021p(enable, switch_port);
+
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_8021p_prio(const char *cmdline)
 {
-//	arglist *args;
-//	int prio, cos;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (args->argc < 3) {
-//		printf("%% Invalid number of arguments\n");
-//		librouter_destroy_args(args);
-//		return;
-//	}
-//
-//	cos = atoi(args->argv[2]);
-//	prio = atoi(args->argv[3]);
-//
-//	if (librouter_bcm53115s_set_cos_prio(cos, prio) < 0)
-//		printf("%% Could not execute the command\n");
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int prio, cos;
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc < 3) {
+		printf("%% Invalid number of arguments\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	cos = atoi(args->argv[2]);
+	prio = atoi(args->argv[3]);
+
+	if (librouter_bcm53115s_set_cos_prio(cos, prio) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_dscp(const char *cmdline)
 {
-//	arglist *args;
-//	int enable = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		enable = 0;
-//
-//	if (librouter_bcm53115s_set_diffserv(enable, switch_port) < 0)
-//		printf("%% Could not execute the command\n");
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	if (librouter_bcm53115s_set_diffserv(enable, switch_port) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_dscp_prio(const char *cmdline)
 {
-//	arglist *args;
-//	int prio, dscp;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (args->argc < 3) {
-//		printf("%% Invalid number of arguments\n");
-//		librouter_destroy_args(args);
-//		return;
-//	}
-//
-//	dscp = atoi(args->argv[2]);
-//	prio = atoi(args->argv[3]);
-//
-//	if (librouter_bcm53115s_set_dscp_prio(dscp, prio) < 0)
-//		printf("%% Could not execute the command\n");
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int prio, dscp;
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc < 3) {
+		printf("%% Invalid number of arguments\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	dscp = atoi(args->argv[2]);
+	prio = atoi(args->argv[3]);
+
+	if (librouter_bcm53115s_set_dscp_prio(dscp, prio) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
 }
 
-void sw_txqueue_split(const char *cmdline)
-{
-//	arglist *args;
-//	int enable = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		enable = 0;
-//
-//	if (librouter_bcm53115s_set_txqsplit(enable, switch_port) < 0)
-//		printf("%% Could not execute the command\n");
-//
-//	librouter_destroy_args(args);
-//	return;
-}
 
 /* --- END ------- CONFIG_DIGISTAR_3G -- */
 
+#else /* CONFIG_DIGISTAR_3G */
+#error "OPTION_MANAGED_SWITCH is defined, but not supported for this board"
 #endif
 
 #endif /* OPTION_MANAGED_SWITCH */

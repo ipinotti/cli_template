@@ -691,12 +691,6 @@ static void __dump_loopback_status(FILE *out, struct interface_conf *conf)
 {
 }
 
-#ifdef OPTION_TUNNEL
-static void __dump_tunnel_status(FILE *out, struct interface_conf *conf)
-{
-}
-#endif
-
 #ifdef OPTION_PPP
 #ifdef OPTION_PPPOE
 static void __dump_ppp_pppoe_status(FILE *out, struct interface_conf *conf)
@@ -842,7 +836,6 @@ int intf_cmp(const void *a, const void *b)
 void dump_interfaces(FILE *out, int conf_format, char *intf)
 {
 	int i;
-	struct ip_t ip;
 	char *cish_dev;
 	char *description;
 	struct net_device_stats *st;
@@ -924,20 +917,18 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 #ifdef OPTION_PPP
 		case ARPHRD_PPP:
 #ifdef OPTION_PPTP
-		if (strstr(cish_dev, "Pptp"))
-		__dump_ppp_pptp_status(out, &conf);
+			if (strstr(cish_dev, "Pptp"))
+				__dump_ppp_pptp_status(out, &conf);
 #endif
-
 #ifdef OPTION_PPPOE
-		if (strstr(cish_dev, "Pppoe"))
-		__dump_ppp_pppoe_status(out, &conf);
+			if (strstr(cish_dev, "Pppoe"))
+				__dump_ppp_pppoe_status(out, &conf);
 #endif
 #ifdef OPTION_MODEM3G
-		if (strstr(cish_dev, "M3G"))
-		__dump_ppp_status(out, &conf);
-		break;
+			if (strstr(cish_dev, "M3G"))
+				__dump_ppp_status(out, &conf);
+			break;
 #endif
-
 #endif
 		case ARPHRD_ETHER:
 #ifdef OPTION_EFM
@@ -952,8 +943,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			__dump_loopback_status(out, &conf);
 			break;
 #ifdef OPTION_TUNNEL
-			case ARPHRD_TUNNEL:
-			case ARPHRD_IPGRE:
+		case ARPHRD_TUNNEL:
+		case ARPHRD_IPGRE:
 			librouter_tunnel_dump_interface(out, conf_format, conf.name);
 			break;
 #endif

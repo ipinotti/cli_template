@@ -533,6 +533,7 @@ void interface_shutdown(const char *);
 void interface_txqueue(const char *);
 
 #ifdef OPTION_MANAGED_SWITCH
+#if defined(CONFIG_DIGISTAR_EFM)
 void sw_vlan_default(const char *);
 void sw_ingress_rate_limit(const char *);
 void sw_egress_traffic_shape(const char *);
@@ -548,6 +549,23 @@ void sw_8021p_prio(const char *);
 void sw_dscp(const char *);
 void sw_dscp_prio(const char *);
 void sw_txqueue_split(const char *);
+#elif defined(CONFIG_DIGISTAR_3G)
+void sw_vlan_default(const char *);
+void sw_replace_null_vid(const char *);
+
+void sw_multicast_storm_protect(const char *);
+void sw_broadcast_storm_protect(const char *);
+void sw_broadcast_storm_protect_rate(const char *);
+
+void sw_enable_wrr(const char *);
+void sw_vlan_entry(const char *);
+void sw_8021q(const char *);
+void sw_8021p(const char *);
+void sw_8021p_prio(const char *);
+void sw_dscp(const char *);
+void sw_dscp_prio(const char *);
+
+#endif
 #endif
 
 /* TODO config_interface.c -> create config_interface.h */
