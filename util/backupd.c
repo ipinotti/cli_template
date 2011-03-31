@@ -62,8 +62,7 @@ static void wait_for_dev_goesdown(struct bckp_conf_t *bckp_conf)
 
 	while (1) {
 		if (librouter_dev_exists(bckp_conf->intf_name) != 1 || bckp_conf->shutdown)
-			break;
-		bkpd_dbgp("WAITING FOR DEVICE GOES DOWN\n");
+			break; bkpd_dbgp("WAITING FOR DEVICE GOES DOWN\n");
 		sleep(1); /* necessario para dar tempo de retorno apos efetuar o kill */
 	}
 	sleep(1);
@@ -243,9 +242,11 @@ static void daemonize(void)
 static int check_interface_no_backup(struct bckp_conf_t *bckp_conf)
 {
 	struct bckp_conf_t *bckp_conf_target;
-	for (bckp_conf_target = bc; bckp_conf_target != NULL; bckp_conf_target = bckp_conf_target->next) {
-		if (!strcmp(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name), bckp_conf_target->intf_name)){
-			if ( !bckp_conf_target->is_backup && !bckp_conf_target->shutdown )
+	for (bckp_conf_target = bc; bckp_conf_target != NULL; bckp_conf_target
+	                = bckp_conf_target->next) {
+		if (!strcmp(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name),
+		                bckp_conf_target->intf_name)) {
+			if (!bckp_conf_target->is_backup && !bckp_conf_target->shutdown)
 				return 1;
 		}
 	}
@@ -263,10 +264,16 @@ static int check_interface_backup_ppp(struct bckp_conf_t *bckp_conf)
 {
 	struct bckp_conf_t *bckp_conf_target;
 
-	for (bckp_conf_target = bc; bckp_conf_target != NULL; bckp_conf_target = bckp_conf_target->next) {
-		if ( bckp_conf_target->is_backup && !bckp_conf_target->shutdown && (bckp_conf_target->main_intf_name != NULL && strlen(bckp_conf_target->main_intf_name) != 0)){
-			if (!strcmp(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name), bckp_conf_target->intf_name)){
-				if( (bckp_conf_target->pppd_pid != (int) NULL) && (librouter_dev_get_link_running(bckp_conf_target->intf_name) == -1)){
+	for (bckp_conf_target = bc; bckp_conf_target != NULL; bckp_conf_target
+	                = bckp_conf_target->next) {
+		if (bckp_conf_target->is_backup && !bckp_conf_target->shutdown
+		                && (bckp_conf_target->main_intf_name != NULL && strlen(
+		                                bckp_conf_target->main_intf_name) != 0)) {
+			if (!strcmp(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name),
+			                bckp_conf_target->intf_name)) {
+				if ((bckp_conf_target->pppd_pid != (int) NULL)
+				                && (librouter_dev_get_link_running(
+				                                bckp_conf_target->intf_name) == -1)) {
 					return 1;
 				}
 			}
@@ -286,10 +293,15 @@ static int check_interface_backup_running(struct bckp_conf_t *bckp_conf)
 {
 	struct bckp_conf_t *bckp_conf_target;
 
-	for (bckp_conf_target = bc; bckp_conf_target != NULL; bckp_conf_target = bckp_conf_target->next) {
-		if(bckp_conf_target->is_backup && !bckp_conf_target->shutdown && (bckp_conf_target->main_intf_name != NULL && strlen(bckp_conf_target->main_intf_name) != 0) ){
-			if (!strcmp(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name), bckp_conf_target->intf_name)){
-				if( (librouter_dev_get_link_running(backupd_intf_to_kernel_intf(bckp_conf_target->main_intf_name)) == IFF_RUNNING) ){
+	for (bckp_conf_target = bc; bckp_conf_target != NULL; bckp_conf_target
+	                = bckp_conf_target->next) {
+		if (bckp_conf_target->is_backup && !bckp_conf_target->shutdown
+		                && (bckp_conf_target->main_intf_name != NULL && strlen(
+		                                bckp_conf_target->main_intf_name) != 0)) {
+			if (!strcmp(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name),
+			                bckp_conf_target->intf_name)) {
+				if ((librouter_dev_get_link_running(backupd_intf_to_kernel_intf(
+				                bckp_conf_target->main_intf_name)) == IFF_RUNNING)) {
 					return 1;
 				}
 			}
@@ -298,7 +310,6 @@ static int check_interface_backup_running(struct bckp_conf_t *bckp_conf)
 	}
 	return 0;
 }
-
 
 /**
  * Free configuration
@@ -553,6 +564,35 @@ static int _remove_default_route(struct bckp_conf_t *conf)
 	return 0;
 }
 
+/**
+ * _remove_3g_peer_route	Remove route to a guessed 3G/PPP peer
+ *
+ * This route is invalid and not used for anything, but it is seen
+ * by dynamic routing protocols. Therefore, it must be eliminated.
+ *
+ * @param conf
+ * @return 0 if success, -1 if error
+ */
+static int _remove_3g_peer_route(struct bckp_conf_t *conf)
+{
+	struct routes_t *next, *route = librouter_quagga_get_routes();
+
+	if (route == NULL)
+		return -1;
+
+	for (next = route; next != NULL; next = next->next) {
+		if (strcmp(next->interface, conf->intf_name))
+			continue;
+		if (!strncmp(next->network, "10.64.64.6", strlen("10.64.64.6")))
+			break;
+	}
+
+	if (next)
+		librouter_quagga_del_route(next->hash);
+
+	return 0;
+}
+
 static int pppd_spawn(struct bckp_conf_t *conf)
 {
 	pid_t pid;
@@ -683,10 +723,11 @@ static void do_state_simcheck(struct bckp_conf_t *bckp_conf)
 	pppd_spawn(bckp_conf);
 }
 
-static void bckp_method_ping (struct bckp_conf_t *bckp_conf)
+static void bckp_method_ping(struct bckp_conf_t *bckp_conf)
 {
 	/* Test if main interface is up */
-	if (ping(bckp_conf->ping_address, backupd_intf_to_kernel_intf(bckp_conf->main_intf_name)) != -1) {
+	if (ping(bckp_conf->ping_address, backupd_intf_to_kernel_intf(bckp_conf->main_intf_name))
+	                != -1) {
 		if (bckp_conf->pppd_pid != (int) NULL) {
 			bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
 			bkpd_dbgp("PING OK na MAIN_INTF e m3g ON com pid %d\n",bckp_conf->pppd_pid);
@@ -696,38 +737,38 @@ static void bckp_method_ping (struct bckp_conf_t *bckp_conf)
 		bkpd_dbgp("PING OK -- %s\n",bckp_conf->ping_address);
 
 	} else {
-		if (librouter_dev_get_link_running (bckp_conf->intf_name) == -1){
-			if (strstr(bckp_conf->main_intf_name,"m3G")){
-				if (check_interface_backup_ppp(bckp_conf) || check_interface_no_backup(bckp_conf)){
+		if (librouter_dev_get_link_running(bckp_conf->intf_name) == -1) {
+			if (strstr(bckp_conf->main_intf_name, "m3G")) {
+				if (check_interface_backup_ppp(bckp_conf)
+				                || check_interface_no_backup(bckp_conf)) {
 					bckp_conf->state = STATE_CONNECT;
 					bkpd_dbgp("PING FAIL on main INTF, and its backup_intf is DOWN\n");
-				}
-				else {
+				} else {
 					bckp_conf->state = STATE_SHUTDOWN;
 					bkpd_dbgp("PING FAIL on main INTF, and its backup_intf is UP\n");
 				}
-			}
-			else
+			} else
 				bckp_conf->state = STATE_CONNECT;
-		}
-		else{
-			if ( (librouter_dev_get_link_running (bckp_conf->intf_name) == IFF_RUNNING) && (strstr(bckp_conf->main_intf_name,"m3G")) ){
-				if (!check_interface_backup_ppp(bckp_conf) && check_interface_backup_running(bckp_conf))
+		} else {
+			if ((librouter_dev_get_link_running(bckp_conf->intf_name) == IFF_RUNNING)
+			                && (strstr(bckp_conf->main_intf_name, "m3G"))) {
+				if (!check_interface_backup_ppp(bckp_conf)
+				                && check_interface_backup_running(bckp_conf))
 					bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
 				else
 					bckp_conf->state = STATE_SHUTDOWN;
 			} else
 				bckp_conf->state = STATE_SHUTDOWN;
 
-		}
-		bkpd_dbgp("PING FAIL -- %s\n",bckp_conf->ping_address);
+		} bkpd_dbgp("PING FAIL -- %s\n",bckp_conf->ping_address);
 	}
 
 }
 
-static void bckp_method_link (struct bckp_conf_t *bckp_conf)
+static void bckp_method_link(struct bckp_conf_t *bckp_conf)
 {
-	if (librouter_dev_get_link_running(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name)) == IFF_RUNNING) {
+	if (librouter_dev_get_link_running(backupd_intf_to_kernel_intf(bckp_conf->main_intf_name))
+	                == IFF_RUNNING) {
 		if (bckp_conf->pppd_pid != (int) NULL) {
 			bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
 			bkpd_dbgp("LINK OK na MAIN_INTF e m3g ON com pid %d\n",bckp_conf->pppd_pid);
@@ -736,30 +777,29 @@ static void bckp_method_link (struct bckp_conf_t *bckp_conf)
 
 		bkpd_dbgp("LINK OK\n");
 	} else {
-		if (librouter_dev_get_link_running (bckp_conf->intf_name) == -1){
-			if (strstr(bckp_conf->main_intf_name,"m3G")){
-				if (check_interface_backup_ppp(bckp_conf) || check_interface_no_backup(bckp_conf)){
+		if (librouter_dev_get_link_running(bckp_conf->intf_name) == -1) {
+			if (strstr(bckp_conf->main_intf_name, "m3G")) {
+				if (check_interface_backup_ppp(bckp_conf)
+				                || check_interface_no_backup(bckp_conf)) {
 					bckp_conf->state = STATE_CONNECT;
 					bkpd_dbgp("LINK FAIL on main INTF, and its backup_intf is DOWN\n");
-				}
-				else {
+				} else {
 					bckp_conf->state = STATE_SHUTDOWN;
 					bkpd_dbgp("LINK FAIL on main INTF, and its backup_intf is UP\n");
 				}
-			}
-			else
+			} else
 				bckp_conf->state = STATE_CONNECT;
-		}
-		else{
-			if ( (librouter_dev_get_link_running (bckp_conf->intf_name) == IFF_RUNNING) && (strstr(bckp_conf->main_intf_name,"m3G")) ){
-				if (!check_interface_backup_ppp(bckp_conf) && check_interface_backup_running(bckp_conf))
+		} else {
+			if ((librouter_dev_get_link_running(bckp_conf->intf_name) == IFF_RUNNING)
+			                && (strstr(bckp_conf->main_intf_name, "m3G"))) {
+				if (!check_interface_backup_ppp(bckp_conf)
+				                && check_interface_backup_running(bckp_conf))
 					bckp_conf->state = STATE_MAIN_INTF_RESTABLISHED;
 				else
 					bckp_conf->state = STATE_SHUTDOWN;
 			} else
 				bckp_conf->state = STATE_SHUTDOWN;
-		}
-		bkpd_dbgp("LINK FAIL\n");
+		} bkpd_dbgp("LINK FAIL\n");
 	}
 }
 
@@ -775,10 +815,9 @@ static void do_state_waiting(struct bckp_conf_t *bckp_conf)
 		} else {
 			if (bckp_conf->method == BCKP_METHOD_PING) {
 				bckp_method_ping(bckp_conf);
-			} else
-				if (bckp_conf->method == BCKP_METHOD_LINK) {
-					bckp_method_link(bckp_conf);
-				}
+			} else if (bckp_conf->method == BCKP_METHOD_LINK) {
+				bckp_method_link(bckp_conf);
+			}
 		}
 	} else
 		bckp_conf->state = STATE_SHUTDOWN;
@@ -860,20 +899,7 @@ static void do_backup(void)
 		if (tty_check < 0) /* se não apresentar modem na porta, a interface é ignorada pela maquina de estados */
 			continue;
 
-		bkpd_dbgp("-------------------------------------\n");
-		bkpd_dbgp("DEV NAME -> %s\n",bckp_conf->intf_name);
-		bkpd_dbgp("DEV EXISTS -> %d\n",librouter_dev_exists(bckp_conf->intf_name));
-		bkpd_dbgp("DEV GET LINK -> %d\n",librouter_dev_get_link(bckp_conf->intf_name));
-		bkpd_dbgp("DEV LINK RUNNING -> %d\n",librouter_dev_get_link_running(bckp_conf->intf_name));
-		bkpd_dbgp("DEV LINK PID NUM -> %d\n",(int)bckp_conf->pppd_pid);
-		bkpd_dbgp("-------------------------------------\n");
-		bkpd_dbgp("DEV LINK RUNNING eth0-> %d\n",librouter_dev_get_link_running("eth0"));
-		bkpd_dbgp("DEV LINK RUNNING eth1-> %d\n",librouter_dev_get_link_running("eth1"));
-		bkpd_dbgp("DEV LINK RUNNING ppp0-> %d\n",librouter_dev_get_link_running("ppp0"));
-		bkpd_dbgp("DEV LINK RUNNING ppp1-> %d\n",librouter_dev_get_link_running("ppp1"));
-		bkpd_dbgp("DEV LINK RUNNING ppp2-> %d\n",librouter_dev_get_link_running("ppp2"));
-		bkpd_dbgp("-------------------------------------\n\n");
-
+		bkpd_dbgp("-------------------------------------\n"); bkpd_dbgp("DEV NAME -> %s\n",bckp_conf->intf_name); bkpd_dbgp("DEV EXISTS -> %d\n",librouter_dev_exists(bckp_conf->intf_name)); bkpd_dbgp("DEV GET LINK -> %d\n",librouter_dev_get_link(bckp_conf->intf_name)); bkpd_dbgp("DEV LINK RUNNING -> %d\n",librouter_dev_get_link_running(bckp_conf->intf_name)); bkpd_dbgp("DEV LINK PID NUM -> %d\n",(int)bckp_conf->pppd_pid); bkpd_dbgp("-------------------------------------\n"); bkpd_dbgp("DEV LINK RUNNING eth0-> %d\n",librouter_dev_get_link_running("eth0")); bkpd_dbgp("DEV LINK RUNNING eth1-> %d\n",librouter_dev_get_link_running("eth1")); bkpd_dbgp("DEV LINK RUNNING ppp0-> %d\n",librouter_dev_get_link_running("ppp0")); bkpd_dbgp("DEV LINK RUNNING ppp1-> %d\n",librouter_dev_get_link_running("ppp1")); bkpd_dbgp("DEV LINK RUNNING ppp2-> %d\n",librouter_dev_get_link_running("ppp2")); bkpd_dbgp("-------------------------------------\n\n");
 
 		/* Main state machine */
 		switch (bckp_conf->state) {
@@ -913,6 +939,8 @@ static void do_backup(void)
 		case STATE_CONNECT:
 			bkpd_dbgp("-- STATE CONNECT   -- %s\n\n",bckp_conf->intf_name);
 			do_state_connect(bckp_conf);
+			/* FIXME Find better place for this */
+			_remove_3g_peer_route(bckp_conf);
 			break;
 
 		default:
