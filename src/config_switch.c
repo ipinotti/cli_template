@@ -413,22 +413,25 @@ void sw_multicast_storm_protect(const char *cmdline)
 	return;
 }
 
+//TODO
+#ifdef NOT_IMPLEMENTED_YET
 void sw_replace_null_vid(const char *cmdline)
 {
-//	arglist *args;
-//	int enable = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		enable = 0;
-//
-//	if (librouter_bcm53115s_set_replace_null_vid(enable) < 0)
-//		printf("%% Could not execute the command\n");
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	if (librouter_bcm53115s_set_replace_null_vid(enable) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
 }
+#endif
 
 void sw_enable_wrr(const char *cmdline)
 {
@@ -466,32 +469,43 @@ void sw_8021q(const char *cmdline)
 
 void sw_vlan_entry(const char *cmdline)
 {
-//	arglist *args;
-//	struct vlan_config_t vconf;
-//
-//	memset(&vconf, 0, sizeof(vconf));
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no")) {
-//		vconf.vid = atoi(args->argv[2]);
-//		librouter_bcm53115s_del_table(&vconf);
-//	} else {
-//		vconf.vid = atoi(args->argv[2]);
-//		if (strstr(cmdline, "port-1"))
-//			vconf.membership |= 1 << 0;
-//
-//		if (strstr(cmdline, "port-2"))
-//			vconf.membership |= 1 << 1;
-//
-//		if (strstr(cmdline, "internal"))
-//			vconf.membership |= 1 << 2;
-//
-//		librouter_bcm53115s_add_table(&vconf);
-//	}
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	struct vlan_bcm_config_t vconf;
+
+	memset(&vconf, 0, sizeof(vconf));
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no")) {
+		vconf.vid = atoi(args->argv[3]);
+		if (librouter_bcm53115s_del_table(&vconf) < 0)
+			printf("%% Could not remove Vlan table\n");
+	} else {
+		vconf.vid = atoi(args->argv[2]);
+
+		if (strstr(cmdline, "p1"))
+			vconf.membership |= 1 << 0;
+
+		if (strstr(cmdline, "p2"))
+			vconf.membership |= 1 << 1;
+
+		if (strstr(cmdline, "p3"))
+			vconf.membership |= 1 << 2;
+
+		if (strstr(cmdline, "p4"))
+			vconf.membership |= 1 << 3;
+
+		if (strstr(cmdline, "pI"))
+			vconf.membership |= 1 << 8;
+
+		if (librouter_bcm53115s_add_table(&vconf) < 0){
+			printf("%% Could not add Vlan table\n");
+		}
+
+	}
+
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_8021p(const char *cmdline)
