@@ -1783,6 +1783,7 @@ void no_firmware_upload(const char *cmd)
 	}
 }
 
+#if 0 /* Any use for this? */
 #ifdef OPTION_IPSEC
 struct runn_ipsec_itf {
 	char ipsec_intf[32];
@@ -1866,3 +1867,4 @@ static void clear_ipsec_counters(char *conn_name)
 	}
 }
 #endif
+#endif /* !!! */

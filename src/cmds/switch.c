@@ -74,7 +74,7 @@ cish_command CMD_CONFIG_STORM_CTRL[] = {
 #if defined(CONFIG_DIGISTAR_EFM)
 	{"1-20", "Bandwidth percentage allowed to broadcast/multicast traffic", NULL, sw_broadcast_storm_protect_rate, 1, MSK_MANAGED_SWITCH},
 #elif defined(CONFIG_DIGISTAR_3G)
-	{"1-255", "Bandwidth in kbps allowed to broadcast/multicast traffic", NULL, sw_broadcast_storm_protect_rate, 1, MSK_MANAGED_SWITCH},
+	{"1-125", "Bandwidth allowed to broadcast/multicast traffic in 0.8% increments", NULL, sw_broadcast_storm_protect_rate, 1, MSK_MANAGED_SWITCH},
 #endif
 	{NULL,NULL,NULL,NULL}
 };
@@ -159,6 +159,8 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO[] = {
 	{"traffic-shape", "Storm control configuration", CMD_CONFIG_TRAFFIC_SHAPE_NO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
 #elif defined(CONFIG_DIGISTAR_3G)
+	{"drop-untagged", "Do not drop packets without IEEE 802.1Q tag", NULL, sw_drop_untagged, 1, MSK_MANAGED_SWITCH},
+	{"multicast-storm-protect", "Exclude multicast in storm-control", NULL, sw_multicast_storm_protect, 1, MSK_MANAGED_SWITCH},
 #endif
 	{NULL,NULL,NULL,NULL}
 };
@@ -169,13 +171,21 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"802.1p", "Enable 802.1p packet classification", NULL, sw_8021p, 1, MSK_MANAGED_SWITCH},
 	{"diffserv", "Enable DiffServ packet classification", NULL, sw_dscp, 1, MSK_MANAGED_SWITCH},
+	/*
+	 * It is not clear how to configure tagging of untagged packet, perhaps at the
+	 * untag map in each VLAN table entry. Leave it disabled until that's figured out.
+	 *
+	 * {"vlan-default", "Mark non-tagged packets with VLAN tag", CMD_CONFIG_DEFAULT_VID, NULL, 1, MSK_MANAGED_SWITCH},
+	 *
+	 */
 #if defined(CONFIG_DIGISTAR_EFM)
 	{"rate-limit", "Rate limit (RX) configuration", CMD_CONFIG_RATE_LIMIT, NULL, 1, MSK_MANAGED_SWITCH},
 	{"storm-control", "Enable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	{"traffic-shape", "Traffic shape (TX) configuration", CMD_CONFIG_TRAFFIC_SHAPE, NULL, 1, MSK_MANAGED_SWITCH},
 	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
-	{"vlan-default", "Mark non-tagged packets with VLAN tag", CMD_CONFIG_DEFAULT_VID, NULL, 1, MSK_MANAGED_SWITCH},
 #elif defined(CONFIG_DIGISTAR_3G)
+	{"drop-untagged", "Drop packets without IEEE 802.1Q tag", NULL, sw_drop_untagged, 1, MSK_MANAGED_SWITCH},
+	{"multicast-storm-protect", "Include multicast in storm-control", NULL, sw_multicast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	{"storm-protect-rate", "Set rate limit for broadcast packets", CMD_CONFIG_STORM_CTRL, NULL, 1, MSK_MANAGED_SWITCH},
 #endif
 	{NULL,NULL,NULL,NULL}
@@ -194,7 +204,7 @@ cish_command CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO[] = {
 	{"vlan", "Configure a VLAN entry", CMD_CONFIG_SW_VLAN_ENTRY_NO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"wfq", "Disable WFQ scheme for TX queues", NULL, sw_enable_wfq, 1, MSK_MANAGED_SWITCH},
 #elif defined(CONFIG_DIGISTAR_3G)
-	{"wfq", "Disable WRR scheme for TX queues", NULL, sw_enable_wrr, 1, MSK_MANAGED_SWITCH},
+	{"wrr", "Disable WRR scheme for TX queues", NULL, sw_enable_wrr, 1, MSK_MANAGED_SWITCH},
 #endif
 	{NULL, NULL, NULL, NULL}
 };

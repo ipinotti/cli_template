@@ -327,68 +327,38 @@ void sw_txqueue_split(const char *cmdline)
 
 #include <librouter/bcm53115s.h>
 
-void sw_egress_traffic_shape(const char *cmdline)
-{
-//	arglist *args;
-//	int prio, rate;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no")) {
-//		prio = atoi(args->argv[2]);
-//		librouter_bcm53115s_set_egress_rate_limit(switch_port, prio, 0);
-//	} else {
-//		prio = atoi(args->argv[1]);
-//		rate = atoi(args->argv[2]);
-//		if (rate < 1000)
-//			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate
-//			                / 64) * 64);
-//		else
-//			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
-//			                / 1000);
-//		librouter_bcm53115s_set_egress_rate_limit(interface_major, prio, rate);
-//	}
-//	librouter_destroy_args(args);
-}
-
-void sw_ingress_rate_limit(const char *cmdline)
-{
-//	arglist *args;
-//	int prio, rate;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no")) {
-//		prio = atoi(args->argv[2]);
-//		librouter_bcm53115s_set_ingress_rate_limit(switch_port, prio, 0);
-//	} else {
-//		prio = atoi(args->argv[1]);
-//		rate = atoi(args->argv[2]);
-//		if (rate < 1000)
-//			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate
-//			                / 64) * 64);
-//		else
-//			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
-//			                / 1000);
-//		librouter_bcm53115s_set_ingress_rate_limit(switch_port, prio, rate);
-//	}
-//	librouter_destroy_args(args);
-}
-
 void sw_vlan_default(const char *cmdline)
 {
-//	arglist *args;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		librouter_bcm53115s_set_default_vid(switch_port, 0);
-//	else
-//		librouter_bcm53115s_set_default_vid(switch_port, atoi(args->argv[1]));
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		librouter_bcm53115s_set_default_vid(switch_port, 0);
+	else
+		librouter_bcm53115s_set_default_vid(switch_port, atoi(args->argv[1]));
+
+	librouter_destroy_args(args);
+	return;
 }
+
+
+void sw_drop_untagged(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	librouter_bcm53115s_set_drop_untagged(enable, switch_port);
+
+	librouter_destroy_args(args);
+	return;
+}
+
 
 void sw_broadcast_storm_protect(const char *cmdline)
 {
@@ -429,18 +399,18 @@ void sw_broadcast_storm_protect_rate(const char *cmdline)
 
 void sw_multicast_storm_protect(const char *cmdline)
 {
-//	arglist *args;
-//	int enable = 1;
-//
-//	args = librouter_make_args(cmdline);
-//
-//	if (!strcmp(args->argv[0], "no"))
-//		enable = 0;
-//
-//	librouter_bcm53115s_set_multicast_storm_protect(enable);
-//
-//	librouter_destroy_args(args);
-//	return;
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	librouter_bcm53115s_set_multicast_storm_protect(enable, switch_port);
+
+	librouter_destroy_args(args);
+	return;
 }
 
 void sw_replace_null_vid(const char *cmdline)

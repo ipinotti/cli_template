@@ -556,6 +556,7 @@ void sw_replace_null_vid(const char *);
 void sw_multicast_storm_protect(const char *);
 void sw_broadcast_storm_protect(const char *);
 void sw_broadcast_storm_protect_rate(const char *);
+void sw_drop_untagged(const char *);
 
 void sw_enable_wrr(const char *);
 void sw_vlan_entry(const char *);
