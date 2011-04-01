@@ -477,10 +477,17 @@ void sw_vlan_entry(const char *cmdline)
 	args = librouter_make_args(cmdline);
 
 	if (!strcmp(args->argv[0], "no")) {
-		vconf.vid = atoi(args->argv[3]);
-		if (librouter_bcm53115s_del_table(&vconf) < 0)
-			printf("%% Could not remove Vlan table\n");
-	} else {
+		if(!strcmp(args->argv[3],"all-entries")){
+			if (librouter_bcm53115s_erase_all_tables() < 0)
+				printf("%% Could not erase all Vlans table\n");
+		}
+		else {
+			vconf.vid = atoi(args->argv[3]);
+			if (librouter_bcm53115s_del_table(&vconf) < 0)
+				printf("%% Could not remove Vlan entry\n");
+		}
+	}
+	else {
 		vconf.vid = atoi(args->argv[2]);
 
 		if (strstr(cmdline, "p1"))
@@ -499,7 +506,7 @@ void sw_vlan_entry(const char *cmdline)
 			vconf.membership |= 1 << 8;
 
 		if (librouter_bcm53115s_add_table(&vconf) < 0){
-			printf("%% Could not add Vlan table\n");
+			printf("%% Could not add Vlan entry\n");
 		}
 
 	}

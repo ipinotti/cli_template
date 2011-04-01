@@ -106,6 +106,7 @@ cish_command CMD_CONFIG_SW_VLAN_ENTRY_NO[] = {
 	{"1-4095", "802.1q VID", NULL, sw_vlan_entry, 1, MSK_MANAGED_SWITCH},
 #elif defined(CONFIG_DIGISTAR_3G)
 	{"0-4094", "802.1q VID", NULL, sw_vlan_entry, 1, MSK_MANAGED_SWITCH},
+	{"all-entries", "Erase all entries 802.1q VID", NULL, sw_vlan_entry, 1, MSK_MANAGED_SWITCH},
 #endif
 	{NULL,NULL,NULL,NULL}
 };
@@ -242,7 +243,7 @@ cish_command CMD_CONFIG_INTERFACE_ETH_SW_PORT_[] = {
 
 cish_command CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO[] = {
 	{"802.1q", "Disable 802.1q protocol in the switch", NULL, sw_8021q, 1, MSK_MANAGED_SWITCH},
-	{"vlan", "Configure a VLAN entry", CMD_CONFIG_SW_VLAN_ENTRY_NO, NULL, 1, MSK_MANAGED_SWITCH},
+	{"vlan", "Remove a VLAN entry", CMD_CONFIG_SW_VLAN_ENTRY_NO, NULL, 1, MSK_MANAGED_SWITCH},
 #if defined(CONFIG_DIGISTAR_EFM)
 	{"multicast-storm-protect", "Exclude multicast in storm-control", NULL, sw_multicast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	{"replace-null-vid", "Replace packet Null VID for port's default VID", NULL, sw_replace_null_vid, 1, MSK_MANAGED_SWITCH},
