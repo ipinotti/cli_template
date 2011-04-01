@@ -197,22 +197,23 @@ cish_command CMD_CONFIG_DSCP_PRIO[] = {
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO[] = {
 #if defined(CONFIG_DIGISTAR_EFM)
-	{"802.1p", "Enable 802.1p packet classification", NULL, sw_8021p, 1, MSK_MANAGED_SWITCH},
-	{"diffserv", "Enable DiffServ packet classification", NULL, sw_dscp, 1, MSK_MANAGED_SWITCH},
 	{"rate-limit", "Storm control configuration", CMD_CONFIG_RATE_LIMIT_NO, NULL, 1, MSK_MANAGED_SWITCH},
-	{"storm-control", "Disable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	{"traffic-shape", "Storm control configuration", CMD_CONFIG_TRAFFIC_SHAPE_NO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
 #elif defined(CONFIG_DIGISTAR_3G)
 	{"drop-untagged", "Do not drop packets without IEEE 802.1Q tag", NULL, sw_drop_untagged, 1, MSK_MANAGED_SWITCH},
 	{"multicast-storm-protect", "Exclude multicast in storm-control", NULL, sw_multicast_storm_protect, 1, MSK_MANAGED_SWITCH},
 #endif
+	{"802.1p", "Enable 802.1p packet classification", NULL, sw_8021p, 1, MSK_MANAGED_SWITCH},
+	{"diffserv", "Enable DiffServ packet classification", NULL, sw_dscp, 1, MSK_MANAGED_SWITCH},
+	{"storm-control", "Disable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
 	{"802.1p", "Enable 802.1p packet classification", NULL, sw_8021p, 1, MSK_MANAGED_SWITCH},
 	{"diffserv", "Enable DiffServ packet classification", NULL, sw_dscp, 1, MSK_MANAGED_SWITCH},
+	{"storm-control", "Enable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	/*
 	 * It is not clear how to configure tagging of untagged packet, perhaps at the
 	 * untag map in each VLAN table entry. Leave it disabled until that's figured out.
@@ -222,7 +223,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
 	 */
 #if defined(CONFIG_DIGISTAR_EFM)
 	{"rate-limit", "Rate limit (RX) configuration", CMD_CONFIG_RATE_LIMIT, NULL, 1, MSK_MANAGED_SWITCH},
-	{"storm-control", "Enable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	{"traffic-shape", "Traffic shape (TX) configuration", CMD_CONFIG_TRAFFIC_SHAPE, NULL, 1, MSK_MANAGED_SWITCH},
 	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
 #elif defined(CONFIG_DIGISTAR_3G)
