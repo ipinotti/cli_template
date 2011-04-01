@@ -490,16 +490,16 @@ void sw_vlan_entry(const char *cmdline)
 	else {
 		vconf.vid = atoi(args->argv[2]);
 
-		if (strstr(cmdline, "p1"))
+		if (strstr(cmdline, "p0"))
 			vconf.membership |= 1 << 0;
 
-		if (strstr(cmdline, "p2"))
+		if (strstr(cmdline, "p1"))
 			vconf.membership |= 1 << 1;
 
-		if (strstr(cmdline, "p3"))
+		if (strstr(cmdline, "p2"))
 			vconf.membership |= 1 << 2;
 
-		if (strstr(cmdline, "p4"))
+		if (strstr(cmdline, "p3"))
 			vconf.membership |= 1 << 3;
 
 		if (strstr(cmdline, "pI"))
