@@ -210,6 +210,7 @@ void config_no_router(const char *cmdline)
 		printf("%s\n", tmp);
 #endif
 		system(tmp); /* clean configuration file */
+		chown(RIPD_CONF,QUAGGA_OWNER_VALUE,QUAGGA_GROUP_VALUE);
 	} else if (strcasecmp(args->argv[2], "ospf") == 0) {
 		set_ospf_interface_cmds(0);
 		librouter_quagga_ospfd_exec(0);
@@ -218,6 +219,7 @@ void config_no_router(const char *cmdline)
 		printf("%s\n", tmp);
 #endif
 		system(tmp); /* clean configuration file */
+		chown(OSPFD_CONF,QUAGGA_OWNER_VALUE,QUAGGA_GROUP_VALUE);
 	}
 #ifdef OPTION_BGP
 	else if (strcasecmp(args->argv[2], "bgp") == 0) {
@@ -232,6 +234,7 @@ void config_no_router(const char *cmdline)
 			printf("%s\n", tmp);
 #endif
 			system(tmp); /* clean configuration file */
+			chown(BGPD_CONF,QUAGGA_OWNER_VALUE,QUAGGA_GROUP_VALUE);
 		}
 	}
 #endif

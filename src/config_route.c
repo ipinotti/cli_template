@@ -31,11 +31,8 @@ void ip_route (const char *cmdline)
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-<<<<<<< HEAD
-	if (librouter_device_get_family(destination)) /* route to a device */
-=======
+
 	if (librouter_device_get_family_by_name(destination)) /* route to a device */
->>>>>>> b4fe5c51875d94d6ec664bd83a353a60eb973f10
 	{
 		if (args->argc < 6)
 		{
@@ -113,11 +110,7 @@ void no_ip_route (const char *cmdline)
 	source_net = args->argv[2];
 	source_mask = args->argv[3];
 	destination = args->argv[4];
-<<<<<<< HEAD
-	if (librouter_device_get_family(destination)) /* route to a device */
-=======
 	if (librouter_device_get_family_by_name(destination)) /* route to a device */
->>>>>>> b4fe5c51875d94d6ec664bd83a353a60eb973f10
 	{
 		if (args->argc < 6)
 		{
