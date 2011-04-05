@@ -430,7 +430,7 @@ void del_tacacsserver(const char *cmd) /* no tacacs-server [host <ipaddr>] */
 		return;
 	}
 
-	if (args->argc == 3) {
+	if (args->argc == 4) {
 		server.ipaddr = args->argv[3];
 		librouter_pam_del_tacacs_server(&server);
 	} else
