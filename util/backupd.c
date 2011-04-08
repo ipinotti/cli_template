@@ -564,6 +564,7 @@ static int _remove_default_route(struct bckp_conf_t *conf)
 	return 0;
 }
 
+#if 0
 /**
  * _remove_3g_peer_route	Remove route to a guessed 3G/PPP peer
  *
@@ -592,6 +593,8 @@ static int _remove_3g_peer_route(struct bckp_conf_t *conf)
 
 	return 0;
 }
+#endif
+
 
 static int pppd_spawn(struct bckp_conf_t *conf)
 {
@@ -939,8 +942,10 @@ static void do_backup(void)
 		case STATE_CONNECT:
 			bkpd_dbgp("-- STATE CONNECT   -- %s\n\n",bckp_conf->intf_name);
 			do_state_connect(bckp_conf);
+#if 0
 			/* FIXME Find better place for this */
 			_remove_3g_peer_route(bckp_conf);
+#endif
 			break;
 
 		default:
