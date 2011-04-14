@@ -21,6 +21,7 @@
 #if defined (OPTION_MANAGED_SWITCH)
 
 extern int switch_port;
+extern int switch_port_real;
 extern int interface_major;
 extern int interface_minor;
 
@@ -37,7 +38,7 @@ void sw_egress_traffic_shape(const char *cmdline)
 
 	if (!strcmp(args->argv[0], "no")) {
 		prio = atoi(args->argv[2]);
-		librouter_ksz8863_set_egress_rate_limit(switch_port, prio, 0);
+		librouter_ksz8863_set_egress_rate_limit(switch_port_real, prio, 0);
 	} else {
 		prio = atoi(args->argv[1]);
 		rate = atoi(args->argv[2]);
@@ -61,7 +62,7 @@ void sw_ingress_rate_limit(const char *cmdline)
 
 	if (!strcmp(args->argv[0], "no")) {
 		prio = atoi(args->argv[2]);
-		librouter_ksz8863_set_ingress_rate_limit(switch_port, prio, 0);
+		librouter_ksz8863_set_ingress_rate_limit(switch_port_real, prio, 0);
 	} else {
 		prio = atoi(args->argv[1]);
 		rate = atoi(args->argv[2]);
@@ -71,7 +72,7 @@ void sw_ingress_rate_limit(const char *cmdline)
 		else
 			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
 			                / 1000);
-		librouter_ksz8863_set_ingress_rate_limit(switch_port, prio, rate);
+		librouter_ksz8863_set_ingress_rate_limit(switch_port_real, prio, rate);
 	}
 	librouter_destroy_args(args);
 }
@@ -83,9 +84,9 @@ void sw_vlan_default(const char *cmdline)
 	args = librouter_make_args(cmdline);
 
 	if (!strcmp(args->argv[0], "no"))
-		librouter_ksz8863_set_default_vid(switch_port, 0);
+		librouter_ksz8863_set_default_vid(switch_port_real, 0);
 	else
-		librouter_ksz8863_set_default_vid(switch_port, atoi(args->argv[1]));
+		librouter_ksz8863_set_default_vid(switch_port_real, atoi(args->argv[1]));
 
 	librouter_destroy_args(args);
 	return;
@@ -117,7 +118,7 @@ void sw_broadcast_storm_protect(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	librouter_ksz8863_set_broadcast_storm_protect(enable, switch_port);
+	librouter_ksz8863_set_broadcast_storm_protect(enable, switch_port_real);
 
 	librouter_destroy_args(args);
 	return;
@@ -236,7 +237,7 @@ void sw_8021p(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	librouter_ksz8863_set_8021p(enable, switch_port);
+	librouter_ksz8863_set_8021p(enable, switch_port_real);
 
 	librouter_destroy_args(args);
 	return;
@@ -275,7 +276,7 @@ void sw_dscp(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	if (librouter_ksz8863_set_diffserv(enable, switch_port) < 0)
+	if (librouter_ksz8863_set_diffserv(enable, switch_port_real) < 0)
 		printf("%% Could not execute the command\n");
 
 	librouter_destroy_args(args);
@@ -315,7 +316,7 @@ void sw_txqueue_split(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	if (librouter_ksz8863_set_txqsplit(enable, switch_port) < 0)
+	if (librouter_ksz8863_set_txqsplit(enable, switch_port_real) < 0)
 		printf("%% Could not execute the command\n");
 
 	librouter_destroy_args(args);
@@ -334,9 +335,9 @@ void sw_vlan_default(const char *cmdline)
 	args = librouter_make_args(cmdline);
 
 	if (!strcmp(args->argv[0], "no"))
-		librouter_bcm53115s_set_default_vid(switch_port, 0);
+		librouter_bcm53115s_set_default_vid(switch_port_real, 0);
 	else
-		librouter_bcm53115s_set_default_vid(switch_port, atoi(args->argv[1]));
+		librouter_bcm53115s_set_default_vid(switch_port_real, atoi(args->argv[1]));
 
 	librouter_destroy_args(args);
 	return;
@@ -353,7 +354,7 @@ void sw_drop_untagged(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	librouter_bcm53115s_set_drop_untagged(enable, switch_port);
+	librouter_bcm53115s_set_drop_untagged(enable, switch_port_real);
 
 	librouter_destroy_args(args);
 	return;
@@ -370,7 +371,7 @@ void sw_broadcast_storm_protect(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	librouter_bcm53115s_set_broadcast_storm_protect(enable, switch_port);
+	librouter_bcm53115s_set_broadcast_storm_protect(enable, switch_port_real);
 
 	librouter_destroy_args(args);
 	return;
@@ -391,7 +392,7 @@ void sw_broadcast_storm_protect_rate(const char *cmdline)
 
 	rate = atoi(args->argv[1]);
 
-	librouter_bcm53115s_set_storm_protect_rate(rate, switch_port);
+	librouter_bcm53115s_set_storm_protect_rate(rate, switch_port_real);
 
 	librouter_destroy_args(args);
 	return;
@@ -407,7 +408,7 @@ void sw_multicast_storm_protect(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	librouter_bcm53115s_set_multicast_storm_protect(enable, switch_port);
+	librouter_bcm53115s_set_multicast_storm_protect(enable, switch_port_real);
 
 	librouter_destroy_args(args);
 	return;
@@ -490,16 +491,16 @@ void sw_vlan_entry(const char *cmdline)
 	else {
 		vconf.vid = atoi(args->argv[2]);
 
-		if (strstr(cmdline, "p0"))
+		if (strstr(cmdline, "p1"))
 			vconf.membership |= 1 << 0;
 
-		if (strstr(cmdline, "p1"))
+		if (strstr(cmdline, "p2"))
 			vconf.membership |= 1 << 1;
 
-		if (strstr(cmdline, "p2"))
+		if (strstr(cmdline, "p3"))
 			vconf.membership |= 1 << 2;
 
-		if (strstr(cmdline, "p3"))
+		if (strstr(cmdline, "p4"))
 			vconf.membership |= 1 << 3;
 
 		if (strstr(cmdline, "pI"))
@@ -525,7 +526,7 @@ void sw_8021p(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	librouter_bcm53115s_set_8021p(enable, switch_port);
+	librouter_bcm53115s_set_8021p(enable, switch_port_real);
 
 	librouter_destroy_args(args);
 	return;
@@ -564,7 +565,7 @@ void sw_dscp(const char *cmdline)
 	if (!strcmp(args->argv[0], "no"))
 		enable = 0;
 
-	if (librouter_bcm53115s_set_diffserv(enable, switch_port) < 0)
+	if (librouter_bcm53115s_set_diffserv(enable, switch_port_real) < 0)
 		printf("%% Could not execute the command\n");
 
 	librouter_destroy_args(args);

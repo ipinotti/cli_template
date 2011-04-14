@@ -61,26 +61,26 @@ cish_command CMD_CONFIG_SW_VLAN_ENTRY0[] = {
 #elif defined(CONFIG_DIGISTAR_3G)
 
 cish_command CMD_CONFIG_SW_VLAN_ENTRY4[] = {
-	{"p3", "Add port 3 to this VLAN", NULL, sw_vlan_entry, 1, MSK_MANAGED_SWITCH},
-	{"0", "Ignore port 3 to this VLAN", NULL, sw_vlan_entry, 1, MSK_MANAGED_SWITCH},
+	{"p4", "Add port 4 to this VLAN", NULL, sw_vlan_entry, 1, MSK_MANAGED_SWITCH},
+	{"0", "Ignore port 4 to this VLAN", NULL, sw_vlan_entry, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 
 cish_command CMD_CONFIG_SW_VLAN_ENTRY3[] = {
-	{"p2", "Add port 2 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY4, NULL, 1, MSK_MANAGED_SWITCH},
-	{"0", "Ignore port 2 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY4, NULL, 1, MSK_MANAGED_SWITCH},
+	{"p3", "Add port 3 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY4, NULL, 1, MSK_MANAGED_SWITCH},
+	{"0", "Ignore port 3 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY4, NULL, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 
 cish_command CMD_CONFIG_SW_VLAN_ENTRY2[] = {
-	{"p1", "Add port 1 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY3, NULL, 1, MSK_MANAGED_SWITCH},
-	{"0", "Ignore port 1 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY3, NULL, 1, MSK_MANAGED_SWITCH},
+	{"p2", "Add port 2 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY3, NULL, 1, MSK_MANAGED_SWITCH},
+	{"0", "Ignore port 2 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY3, NULL, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 
 cish_command CMD_CONFIG_SW_VLAN_ENTRY1[] = {
-	{"p0", "Add port 0 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY2, NULL, 1, MSK_MANAGED_SWITCH},
-	{"0", "Ignore port 0 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY2, NULL, 1, MSK_MANAGED_SWITCH},
+	{"p1", "Add port 1 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY2, NULL, 1, MSK_MANAGED_SWITCH},
+	{"0", "Ignore port 1 to this VLAN", CMD_CONFIG_SW_VLAN_ENTRY2, NULL, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -230,9 +230,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
 	{"multicast-storm-protect", "Include multicast in storm-control", NULL, sw_multicast_storm_protect, 1, MSK_MANAGED_SWITCH},
 	{"storm-protect-rate", "Set rate limit for broadcast packets", CMD_CONFIG_STORM_CTRL, NULL, 1, MSK_MANAGED_SWITCH},
 #endif
-	{"exit", "Exit from interface configuration mode", NULL, config_interface_switch_port_done, 1, MSK_MANAGED_SWITCH},
-	{"help","Description of the interactive help system", NULL, help, 0, MSK_MANAGED_SWITCH},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO, NULL, 1, MSK_MANAGED_SWITCH},
+	{"help","Description of the interactive help system", NULL, help, 0, MSK_MANAGED_SWITCH},
+	{"exit", "Exit from interface configuration mode", NULL, config_interface_switch_port_done, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 

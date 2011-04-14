@@ -39,10 +39,12 @@ int interface_minor = -1;
 
 #ifdef OPTION_MANAGED_SWITCH
 int switch_port = -1;
+int switch_port_real = -1;
 
 void config_interface_switch_port_done(const char *cmdline)
 {
 	switch_port = -1;
+	switch_port_real = -1;
 	command_root = CMD_CONFIG_INTERFACE_ETHERNET;
 }
 
@@ -55,9 +57,9 @@ void config_interface_switch_port(const char *cmdline)
 
 	port = atoi(args->argv[1]);
 #if defined(CONFIG_DIGISTAR_EFM)
-	if (port < 0 || port > 1)
+	if (port < 1 || port > 2)
 #elif defined(CONFIG_DIGISTAR_3G)
-	if (port < 0 || port > 3)
+	if (port < 1 || port > 4)
 #endif
 	{
 		printf("%% Invalid port\n");
@@ -66,6 +68,12 @@ void config_interface_switch_port(const char *cmdline)
 	}
 
 	switch_port = port;
+#if defined(CONFIG_DIGISTAR_EFM)
+	switch_port_real = librouter_ksz8863_get_realport_by_aliasport(port);
+#elif defined(CONFIG_DIGISTAR_3G)
+	switch_port_real = librouter_bcm53115s_get_realport_by_aliasport(port);
+#endif
+
 	command_root = CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT;
 }
 #endif /* OPTION_MANAGED_SWITCH */
@@ -273,7 +281,6 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 	librouter_qos_tc_remove_all(dev);
 
 	if (strstr(dev, "ppp") != NULL) {
-		/* [interface_major+1] devido a numeração do arquivo começar em 1 e nao em 0 */
 		if (librouter_usb_device_is_modem(librouter_usb_get_realport_by_aliasport(
 		                interface_major)) < 0) {
 			printf("\n%% Warning: The interface is not connected or is not a modem\n\n");
@@ -1254,8 +1261,7 @@ void interface_modem3g_sim_card_select(const char *cmdline)
 
 	if (args->argc >= 3) {
 		if (main_sim == atoi(args->argv[2])) {
-			printf(
-			                "\n%% Wrong input - same SIM card for <MAIN> interface and <BACKUP> interface");
+			printf("\n%% Wrong input - same SIM card for <MAIN> interface and <BACKUP> interface");
 			printf("\n%% Settings could not be applied\n\n");
 			goto end;
 		}
@@ -1273,7 +1279,11 @@ void interface_modem3g_sim_card_select(const char *cmdline)
 		}
 	}
 
-	sim->sim_num = main_sim;
+	if ((sim->sim_num = librouter_modem3g_sim_get_realport_by_aliasport(main_sim)) < 0){
+		printf("\n%% Error on set SIM card order");
+		printf("\n%% Settings could not be applied\n\n");
+		goto end;
+	}
 
 	if (librouter_modem3g_sim_order_set_mainsim(sim->sim_num) < 0) {
 		printf("\n%% Error on set SIM card order");
@@ -1320,12 +1330,15 @@ void interface_modem3g_btin_set_info(const char *cmdline)
 
 	args = librouter_make_args(cmdline);
 
-	sim = atoi(args->argv[1]);
 	field = args->argv[2];
 	value = args->argv[4];
 
+	if ((sim = librouter_modem3g_sim_get_realport_by_aliasport(atoi(args->argv[1]))) < 0)
+		goto end;
+
 	check = librouter_modem3g_sim_set_info_infile(sim, field, value);
 
+end:
 	if (check < 0) {
 		printf("\n%% Error on set %s", field);
 		printf("\n%% Settings could not be applied\n\n");

@@ -707,18 +707,18 @@ cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_CONF[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM[] = {
-	{"0-1", "SIM Card Number", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_CONF, NULL, 0, MSK_NORMAL},
+	{"1-2", "SIM Card Number", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_CONF, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER_BACK[] = {
-	{"0-1", "Set <backup> SIM card", NULL, interface_modem3g_sim_card_select, 0, MSK_NORMAL},
+	{"1-2", "Set <backup> SIM card", NULL, interface_modem3g_sim_card_select, 0, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER[] = {
-	{"0-1", "Set <main> SIM card", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER_BACK, interface_modem3g_sim_card_select, 0, MSK_NORMAL},
+	{"1-2", "Set <main> SIM card", CMD_CONFIG_INTERFACE_M3G_BTIN_SIM_ORDER_BACK, interface_modem3g_sim_card_select, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 
 };
