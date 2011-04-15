@@ -292,6 +292,10 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 	switch (fam->type) {
 #ifdef OPTION_EFM
 	case efm:
+		/* Ignore if sub-interface */
+		if (interface_minor > 0)
+			break;
+
 		librouter_efm_enable(0);
 		break;
 #endif
@@ -331,6 +335,10 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 			break;
 #ifdef OPTION_EFM
 		case efm:
+			/* Ignore if sub-interface */
+			if (interface_minor > 0)
+				break;
+
 			librouter_efm_enable(1);
 			break;
 #endif
