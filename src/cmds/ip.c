@@ -610,10 +610,12 @@ cish_command CMD_IP_PIM[] = {
 #endif
 
 #ifdef CONFIG_DEVELOPMENT
+#ifdef OPTION_ROUTER
 cish_command CMD_IP_MAXBACKLOG[] = {
 	{"10-4096", "Max RX backlog size", NULL, ip_param, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 #endif
 
 #if defined(CONFIG_NET_SKB_RECYCLING) && defined(CONFIG_DEVELOPMENT)
