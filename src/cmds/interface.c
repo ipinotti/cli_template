@@ -1339,7 +1339,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_SERIAL[] = {
 #endif
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_TUNNEL[] = {
-	{"0-9", "Tunnel interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
+	{"0-0", "Tunnel interface number", NULL, tunnel_source_interface, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 

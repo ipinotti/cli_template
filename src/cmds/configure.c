@@ -28,7 +28,7 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_[] = {
-	{"0-9", "Tunnel interface number", NULL, config_interface, 0, MSK_NORMAL},
+	{"0-0", "Tunnel interface number", NULL, config_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
