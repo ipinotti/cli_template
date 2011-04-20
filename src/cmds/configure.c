@@ -150,10 +150,12 @@ cish_command CMD_NO_ARP_IP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_QOS
 cish_command CMD_CONFIG_POLICYMAP[] = {
 	{"<text>","policy-map name", NULL, do_policymap, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_CONFIG_NO[] = {
 	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_NO_AAA, NULL, 1, MSK_NORMAL},
@@ -184,7 +186,9 @@ cish_command CMD_CONFIG_NO[] = {
 #else
 	{"ntp-sync", "Disable NTP synchronization", NULL, no_ntp_sync, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_QOS
 	{"policy-map", "Configure QoS Policy Map", CMD_CONFIG_POLICYMAP, NULL, 1, MSK_QOS},
+#endif
 	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_NO_RADIUSSERVER_HOST, 
 								del_radiusserver, 1, MSK_NORMAL},
 #ifdef OPTION_RMON

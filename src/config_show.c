@@ -1362,10 +1362,12 @@ void show_performance(const char *cmdline)
 	librouter_destroy_args(args);
 }
 
+#ifdef OPTION_QOS
 void show_qos(const char *cmdline)
 {
 	librouter_qos_dump_interfaces();
 }
+#endif
 
 #ifdef OPTION_IPSEC
 static void print_ipsec_show_line(char *name,

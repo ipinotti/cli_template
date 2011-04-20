@@ -139,8 +139,7 @@ cish_command CMD_POLICY_ROUTE[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
-
-
+#ifdef OPTION_QOS
 /* POLICY MAP */
 
 cish_command CMD_POLICYMAP_WFQ[] = {
@@ -264,3 +263,4 @@ cish_command CMD_POLICYMAP[] = {
 	{"no","Negate or set default values of a command", CMD_POLICYMAP_NO, NULL, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif

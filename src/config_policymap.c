@@ -25,6 +25,8 @@
 #include "cish_main.h"
 #include "pprintf.h"
 
+#ifdef OPTION_QOS
+
 static char pname[32];
 static int mark;
 
@@ -342,3 +344,4 @@ void policymap_done(const char *cmdline)
 	memset(pname,0,32); /* Clear global value pname */
 	command_root = CMD_CONFIGURE;
 }
+#endif
