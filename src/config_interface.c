@@ -620,14 +620,12 @@ void interface_fec_autonegotiation(const char *cmdline) /* speed auto */
 
 #ifdef CONFIG_ROOT_NFS
 	if (_cish_booting)
-	return;
+		return;
 #endif
 	if ((dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor))) {
-		if (strncmp(dev, "ethernet", 8) == 0) {
-			if (librouter_fec_autonegotiate_link(dev) < 0)
-				printf("%% Not possible to set PHY parameters\n");
-		}
+		if (librouter_fec_autonegotiate_link(dev) < 0)
+			printf("%% Not possible to set PHY parameters\n");
 		free(dev);
 	}
 }
