@@ -116,7 +116,8 @@ static int _print_current_menu()
 		{ CMD_CONFIG_ROUTER_BGP, "(config-router-bgp)"},
 #endif
 #endif
-		{ CMD_CONFIG_INTERFACE_ETHERNET, "(config-if-ethernet-"},
+		{ CMD_CONFIG_INTERFACE_ETHERNET_LAN, "(config-if-ethernet-"},
+		{ CMD_CONFIG_INTERFACE_ETHERNET_WAN, "(config-if-ethernet-"},
 		{ CMD_CONFIG_INTERFACE_ETHERNET_VLAN, "(config-if-ethernet-"},
 #ifdef OPTION_MANAGED_SWITCH
 		{ CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT, "(config-if-eth-switch-port-"},
@@ -463,7 +464,7 @@ void config_file(const char *f)
 #ifdef CONFIG_DEVELOPMENT
 				if (_on_nfs()) {
 
-					if (command_root == CMD_CONFIG_INTERFACE_ETHERNET
+					if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_WAN
 #ifdef CONFIG_DIGISTAR_3G
 					                && interface_major == DEFAULT_ETHERNET_WAN
 #endif

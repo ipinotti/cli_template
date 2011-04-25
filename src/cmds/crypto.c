@@ -188,9 +188,16 @@ cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_CONFIG_INTERFACE_SERIAL_PPP_IP_PEER[] = {
+        {"pool", "Remote address from pool", NULL, l2tp_ppp_peeraddr, 1, MSK_NORMAL},
+        {"<ipaddress>", "Remote address (on internal interface)", NULL, l2tp_ppp_peeraddr, 1, MSK_NORMAL},
+        {NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_IPSEC_CONNECTION_L2TP_PPP_IP[] = {
 	{"address", "Set local address", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_ADDRESS, NULL, 1, MSK_NORMAL},
 	{"default-route", "Use default-route on this interface", NULL, l2tp_ppp_defaultroute, 1, MSK_NORMAL},
+	{"peer-address", "Set peer address", CMD_CONFIG_INTERFACE_SERIAL_PPP_IP_PEER, NULL, 1, MSK_NORMAL},
 	{"unnumbered", "Enable IP processing without an explicit address", CMD_IPSEC_CONNECTION_L2TP_PPP_IP_UNNUMBERED, NULL, 1, MSK_NORMAL},
 	{"vj", "Enable Van Jacobson style TCP/IP header compression", NULL, l2tp_ppp_vj, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
