@@ -824,7 +824,8 @@ cish_command CMD_CONFIG_INTERFACE_NO_SNMPTRAP1[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[] = {
+/* ETHERNET 0 */
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN_NO[] = {
 #ifdef OPTION_BRIDGE
 	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
@@ -838,6 +839,25 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO[] = {
 #ifdef OPTION_MANAGED_SWITCH
 	{"switch-config", "Configure switch advanced settings general to all ports", CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO, NULL, 1, MSK_MANAGED_SWITCH},
 #endif
+	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
+#ifdef OPTION_VRRP
+	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP, NULL, 1, MSK_VRRP},
+#endif
+	{NULL,NULL,NULL,NULL}
+};
+
+/* ETHERNET 1 */
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN_NO[] = {
+#ifdef OPTION_BRIDGE
+	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
+	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
+	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
+	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
+#endif
+	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
+	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
 	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP, NULL, 1, MSK_VRRP},
@@ -888,7 +908,8 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SPEED[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
+/* ETHERNET 0 */
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN[] = {
 #ifdef OPTION_QOS
 	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
 #endif
@@ -896,17 +917,57 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
-	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
-	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
 #endif
-	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_NO, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_MANAGED_SWITCH
 	{"switch-config", "Configure switch advanced settings general to all ports", CMD_CONFIG_INTERFACE_ETH_SW_GENERAL, NULL, 1, MSK_MANAGED_SWITCH},
 	{"switch-port", "Configure switch advanced settings specific to an external port", CMD_CONFIG_INTERFACE_ETH_SW_PORT_, NULL, 1, MSK_MANAGED_SWITCH},
+#endif
+	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
+//TODO
+#ifdef NOT_YET_IMPLEMENTED
+	{"speed", "Configure speed and related commands", CMD_CONFIG_INTERFACE_ETHERNET_SPEED, NULL, 1, MSK_NORMAL},
+#endif
+	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
+	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_SHOWLEVEL
+	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
+#endif
+	{"vlan", "Add vlan", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER, NULL, 1, MSK_VLAN},
+#ifdef OPTION_VRRP
+	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
+#endif
+
+#ifdef CONFIG_PPC_BD_CONFIG
+	{"rx-ring", "Configure RX ring size", CMD_CONFIG_INTERFACE_ETHERNET_RXRING, NULL, 1, MSK_NORMAL},
+	{"tx-ring", "Configure TX ring size", CMD_CONFIG_INTERFACE_ETHERNET_TXRING, NULL, 1, MSK_NORMAL},
+	{"weight", "Configure interface weight", CMD_CONFIG_INTERFACE_WEIGHT, NULL, 1, MSK_NORMAL},
+#endif
+	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_LAN_NO, NULL, 1, MSK_NORMAL},
+	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
+	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
+};
+
+/* ETHERNET 1 */
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[] = {
+#ifdef OPTION_QOS
+	{"bandwidth", "Set bandwidth informational parameter", CMD_CONFIG_INTERFACE_BW, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_BRIDGE
+	{"bridge-group", "Transparent bridging interface parameters", CMD_CONFIG_INTERFACE_ETHERNET_BRIDGE, NULL, 1, MSK_NORMAL},
+#endif
+	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
+	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
+	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
+	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
 #endif
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"speed", "Configure speed and related commands", CMD_CONFIG_INTERFACE_ETHERNET_SPEED, NULL, 1, MSK_NORMAL},
@@ -928,6 +989,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET[] = {
 	{"tx-ring", "Configure TX ring size", CMD_CONFIG_INTERFACE_ETHERNET_TXRING, NULL, 1, MSK_NORMAL},
 	{"weight", "Configure interface weight", CMD_CONFIG_INTERFACE_WEIGHT, NULL, 1, MSK_NORMAL},
 #endif
+	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_WAN_NO, NULL, 1, MSK_NORMAL},
+	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
+	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
 

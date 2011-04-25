@@ -45,7 +45,7 @@ void config_interface_switch_port_done(const char *cmdline)
 {
 	switch_port = -1;
 	switch_port_real = -1;
-	command_root = CMD_CONFIG_INTERFACE_ETHERNET;
+	command_root = CMD_CONFIG_INTERFACE_ETHERNET_LAN;
 }
 
 void config_interface_switch_port(const char *cmdline)
@@ -135,12 +135,29 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 
 		switch (interface_edited->type) {
 		case eth:
-			if (interface_minor == -1)
-				command_root = CMD_CONFIG_INTERFACE_ETHERNET;
-			else {
-				if (validate_interface_minor() < 0)
-					goto subiface_error;
-				command_root = CMD_CONFIG_INTERFACE_ETHERNET_VLAN;
+			switch (interface_major) {
+				case 0:
+						if (interface_minor == -1)
+							command_root = CMD_CONFIG_INTERFACE_ETHERNET_LAN;
+						else {
+							if (validate_interface_minor() < 0)
+								goto subiface_error;
+							command_root = CMD_CONFIG_INTERFACE_ETHERNET_VLAN;
+						}
+						break;
+
+				case 1:
+						if (interface_minor == -1)
+							command_root = CMD_CONFIG_INTERFACE_ETHERNET_WAN;
+						else {
+							if (validate_interface_minor() < 0)
+								goto subiface_error;
+							command_root = CMD_CONFIG_INTERFACE_ETHERNET_VLAN;
+						}
+						break;
+				default:
+						goto subiface_error;
+						break;
 			}
 			break;
 		case lo:

@@ -1079,7 +1079,8 @@ void show_level_running_config(const char *cmdline)
 #ifdef OPTION_IPSEC
 		dump_crypto(f);
 #endif
-	} else if ((command_root == CMD_CONFIG_INTERFACE_ETHERNET)
+	} else if ((command_root == CMD_CONFIG_INTERFACE_ETHERNET_WAN)
+			|| (command_root == CMD_CONFIG_INTERFACE_ETHERNET_LAN)
 			|| (command_root == CMD_CONFIG_INTERFACE_ETHERNET_VLAN)
 			|| (command_root == CMD_CONFIG_INTERFACE_LOOPBACK)
 			|| (command_root == CMD_CONFIG_INTERFACE_TUNNEL)
