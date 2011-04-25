@@ -295,7 +295,9 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 	                interface_minor);
 	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
 
+#ifdef OPTION_QOS
 	librouter_qos_tc_remove_all(dev);
+#endif
 
 	if (strstr(dev, "ppp") != NULL) {
 		if (librouter_usb_device_is_modem(librouter_usb_get_realport_by_aliasport(
@@ -348,7 +350,9 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 		switch (fam->type) {
 		case eth:
 			librouter_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
+#ifdef OPTION_QOS
 			librouter_qos_tc_insert_all(dev);
+#endif
 			break;
 #ifdef OPTION_EFM
 		case efm:
