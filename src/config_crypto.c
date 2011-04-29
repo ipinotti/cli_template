@@ -1019,6 +1019,7 @@ void l2tp_peer(const char *cmd) /* [no] l2tp peer <ipaddress> <netmask> */
 {
 	arglist *args;
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
@@ -1037,6 +1038,7 @@ void l2tp_ppp_auth_pass(const char *cmd) /* l2tp ppp authentication pass [passwo
 {
 	arglist *args;
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
@@ -1050,6 +1052,7 @@ void l2tp_ppp_auth_user(const char *cmd) /* l2tp ppp authentication user [userna
 {
 	arglist *args;
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
@@ -1062,6 +1065,7 @@ void l2tp_ppp_auth_user(const char *cmd) /* l2tp ppp authentication user [userna
 void l2tp_ppp_noauth(const char *cmd) /* no l2tp ppp authentication */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.auth_user[0] = cfg.auth_pass[0] = 0;
@@ -1072,6 +1076,7 @@ void l2tp_ppp_ipaddr(const char *cmd) /* l2tp ppp ip address <ipaddress> */
 {
 	arglist *args;
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
@@ -1085,6 +1090,7 @@ void l2tp_ppp_ipaddr(const char *cmd) /* l2tp ppp ip address <ipaddress> */
 void l2tp_ppp_noipaddr(const char *cmd) /* no l2tp ppp ip address */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.ip_addr[0] = cfg.ip_mask[0] = 0;
@@ -1094,6 +1100,7 @@ void l2tp_ppp_noipaddr(const char *cmd) /* no l2tp ppp ip address */
 void l2tp_ppp_defaultroute(const char *cmd) /* l2tp ppp ip default-route */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (!cfg.default_route) {
@@ -1105,6 +1112,7 @@ void l2tp_ppp_defaultroute(const char *cmd) /* l2tp ppp ip default-route */
 void l2tp_ppp_no_defaultroute(const char *cmd) /* no l2tp ppp ip default-route */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (cfg.default_route) {
@@ -1117,6 +1125,7 @@ void l2tp_ppp_peeraddr(const char *cmd) /* l2tp ppp ip peer-address [pool|<ipadd
 {
 	arglist *args;
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
@@ -1133,6 +1142,7 @@ void l2tp_ppp_peeraddr(const char *cmd) /* l2tp ppp ip peer-address [pool|<ipadd
 void l2tp_ppp_nopeeraddr(const char *cmd) /* no l2tp ppp ip peer-address */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.ip_peer_addr[0] = 0;
@@ -1145,6 +1155,7 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 	char addr[32], mask[32];
 	ppp_config cfg;
 	char *dev;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	dev = librouter_device_cli_to_linux(args->argv[4], atoi(args->argv[5]), -1);
@@ -1172,6 +1183,7 @@ void l2tp_ppp_unnumbered(const char *cmd) /* l2tp ppp ip unnumbered ethernet 0-x
 void l2tp_ppp_no_unnumbered(const char *cmd) /* no l2tp ppp ip unnumbered */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	cfg.ip_addr[0] = cfg.ip_mask[0] = 0;
@@ -1182,6 +1194,7 @@ void l2tp_ppp_no_unnumbered(const char *cmd) /* no l2tp ppp ip unnumbered */
 void l2tp_ppp_vj(const char *cmd) /* l2tp ppp ip vj */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (cfg.novj) {
@@ -1193,6 +1206,7 @@ void l2tp_ppp_vj(const char *cmd) /* l2tp ppp ip vj */
 void l2tp_ppp_no_vj(const char *cmd) /* no l2tp ppp ip vj */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (!cfg.novj) {
@@ -1205,6 +1219,7 @@ void l2tp_ppp_keepalive_interval(const char *cmd) /* l2tp ppp keepalive interval
 {
 	arglist *args;
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
@@ -1217,6 +1232,7 @@ void l2tp_ppp_keepalive_timeout(const char *cmd) /* l2tp ppp keepalive timeout [
 {
 	arglist *args;
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
@@ -1230,6 +1246,7 @@ void l2tp_ppp_mtu(const char *cmd) /* l2tp ppp mtu [mtu] */
 	arglist *args;
 	int mtu;
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	args = librouter_make_args(cmd);
 	mtu = atoi(args->argv[3]);
@@ -1244,6 +1261,7 @@ void l2tp_ppp_mtu(const char *cmd) /* l2tp ppp mtu [mtu] */
 void l2tp_ppp_nomtu(const char *cmd) /* no l2tp ppp mtu */
 {
 	ppp_config cfg;
+	memset(&cfg, 0, sizeof(ppp_config));
 
 	librouter_ppp_l2tp_get_config(dynamic_ipsec_menu_name, &cfg);
 	if (cfg.mtu) {
