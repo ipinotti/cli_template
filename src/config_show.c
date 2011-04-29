@@ -550,10 +550,11 @@ static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 		if (ip->ipaddr[0])
 			fprintf(out, "  Internet address is %s %s\n", ip->ipaddr, ip->ipmask);
 	} else {
-		char addr[32], mask[32];
-		librouter_ip_interface_get_ip_addr(dev, addr, mask);
-		if (addr[0])
-			fprintf(out, "  Internet address is %s %s\n", addr, mask);
+		struct ipa_t ip;
+		librouter_br_get_ipaddr(dev, &ip);
+
+		if (ip.addr[0])
+			fprintf(out, "  Internet address is %s %s\n", ip.addr, ip.mask);
 	}
 
 	 if (ip->ippeer[0] && !(conf->linktype == ARPHRD_TUNNEL || 

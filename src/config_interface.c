@@ -293,35 +293,10 @@ void interface_shutdown(const char *cmdline) /* shutdown */
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
+
 	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
 
-#ifdef OPTION_QOS
-	librouter_qos_tc_remove_all(dev);
-#endif
-
-	if (strstr(dev, "ppp") != NULL) {
-		if (librouter_usb_device_is_modem(librouter_usb_get_realport_by_aliasport(
-		                interface_major)) < 0) {
-			printf("\n%% Warning: The interface is not connected or is not a modem\n\n");
-		}
-
-	}
-
-	librouter_dev_set_link_down(dev);
-	switch (fam->type) {
-#ifdef OPTION_EFM
-	case efm:
-		/* Ignore if sub-interface */
-		if (interface_minor > 0)
-			break;
-
-		librouter_efm_enable(0);
-		break;
-#endif
-	default:
-		break;
-	}
-
+	librouter_dev_shutdown(dev, fam);
 	free(dev);
 }
 
@@ -332,46 +307,12 @@ void interface_no_shutdown(const char *cmdline) /* no shutdown */
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
+
 	fam = librouter_device_get_family_by_name(interface_edited->cish_string, str_cish);
 
-#ifdef OPTION_MODEM3G
-	if (fam->type == ppp) {
-		int p = librouter_usb_get_realport_by_aliasport(interface_major);
-		if (librouter_usb_device_is_modem(p) < 0) {
-			printf("\n%% Warning: The interface is not connected or is not a modem\n\n");
-		}
-
-	}
-#endif
-
-	librouter_dev_set_link_up(dev); /* UP */
-
-	if (fam) {
-		switch (fam->type) {
-		case eth:
-			librouter_udhcpd_reload(interface_major); /* dhcp integration! force reload ethernet address */
-#ifdef OPTION_QOS
-			librouter_qos_tc_insert_all(dev);
-#endif
-			break;
-#ifdef OPTION_EFM
-		case efm:
-			/* Ignore if sub-interface */
-			if (interface_minor > 0)
-				break;
-
-			librouter_efm_enable(1);
-			break;
-#endif
-		default:
-			break;
-		}
-	}
-
+	/* Do it ! */
+	librouter_dev_noshutdown(dev, fam); /* UP */
 	free(dev);
-#ifdef OPTION_SMCROUTE
-	librouter_smc_route_hup();
-#endif
 }
 
 /*
@@ -522,7 +463,7 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 void interface_ethernet_bridgegroup(const char *cmdline)
 {
 	arglist *args;
-	char brname[32], addr[32], mask[32];
+	char brname[32];
 	char *dev;
 
 	args = librouter_make_args(cmdline);
@@ -532,6 +473,7 @@ void interface_ethernet_bridgegroup(const char *cmdline)
 	/* Do we have a bridge interface already? */
 	strcpy(brname, BRIDGE_NAME);
 	strcat(brname, args->argv[1]);
+
 	if (!librouter_br_exists(brname)) {
 		printf("%% bridge group %s does not exist\n", args->argv[1]);
 		return;
@@ -543,18 +485,8 @@ void interface_ethernet_bridgegroup(const char *cmdline)
 		goto bridgegroup_done;
 	}
 
-	/* Save ethernet IP address/mask */
-	librouter_ip_interface_get_ip_addr(dev, addr, mask);
-
-	/* Remove IP configuration from interface */
-	librouter_ip_interface_set_no_addr(dev); /* flush */
-
 	/* Add interface to bridge */
 	librouter_br_addif(brname, dev);
-
-	/* Set bridge IP address with the one from ethernet 0 */
-	if (!strcmp(dev, "eth0"))
-		librouter_ip_ethernet_set_addr(brname, addr, mask);
 
 bridgegroup_done:
 	librouter_destroy_args(args);
@@ -564,7 +496,7 @@ bridgegroup_done:
 void interface_ethernet_no_bridgegroup(const char *cmdline)
 {
 	arglist *args;
-	char brname[32], addr[32], mask[32];
+	char brname[32];
 	char *dev;
 
 	args = librouter_make_args(cmdline);
@@ -581,17 +513,8 @@ void interface_ethernet_no_bridgegroup(const char *cmdline)
 	if (!librouter_br_checkif(brname, dev))
 		goto no_bridgegroup_done;
 
-	librouter_ip_interface_get_ip_addr(brname, addr, mask);
-
-	librouter_ip_interface_set_no_addr(brname); /* flush */
-
 	/* Remove interface from bridge */
 	librouter_br_delif(brname, dev);
-
-
-	/* Recover ip address from bridge */
-	if (!strcmp(dev, "eth0"))
-		librouter_ip_ethernet_set_addr(dev, addr, mask);
 
 
 no_bridgegroup_done:
@@ -637,14 +560,12 @@ void interface_fec_autonegotiation(const char *cmdline) /* speed auto */
 
 #ifdef CONFIG_ROOT_NFS
 	if (_cish_booting)
-	return;
+		return;
 #endif
 	if ((dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor))) {
-		if (strncmp(dev, "ethernet", 8) == 0) {
-			if (librouter_fec_autonegotiate_link(dev) < 0)
-				printf("%% Not possible to set PHY parameters\n");
-		}
+		if (librouter_fec_autonegotiate_link(dev) < 0)
+			printf("%% Not possible to set PHY parameters\n");
 		free(dev);
 	}
 }
@@ -929,11 +850,10 @@ void interface_snmptrap(const char *cmd)
 {
 	char *dev;
 
-	if ((dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
-	                interface_minor))) {
-		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev,
-		                "serial", 6))
-			librouter_snmp_add_dev_trap(dev);
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
+                interface_minor);
+	if (dev) {
+		librouter_snmp_add_dev_trap(dev);
 		free(dev);
 	}
 }
@@ -942,11 +862,10 @@ void interface_no_snmptrap(const char *cmd)
 {
 	char *dev;
 
-	if ((dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
-	                interface_minor))) {
-		if (!strncmp(dev, "aux", 3) || !strncmp(dev, "ethernet", 8) || !strncmp(dev,
-		                "serial", 6))
-			librouter_snmp_del_dev_trap(dev);
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
+                interface_minor);
+	if (dev) {
+		librouter_snmp_del_dev_trap(dev);
 		free(dev);
 	}
 }

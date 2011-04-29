@@ -213,7 +213,19 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO[] = {
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
 	{"802.1p", "Enable 802.1p packet classification", NULL, sw_8021p, 1, MSK_MANAGED_SWITCH},
 	{"diffserv", "Enable DiffServ packet classification", NULL, sw_dscp, 1, MSK_MANAGED_SWITCH},
+	{"exit", "Exit from interface configuration mode", NULL, config_interface_switch_port_done, 1, MSK_MANAGED_SWITCH},
+	{"help","Description of the interactive help system", NULL, help, 0, MSK_MANAGED_SWITCH},
+	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO, NULL, 1, MSK_MANAGED_SWITCH},
 	{"storm-control", "Enable broadcast storm control", NULL, sw_broadcast_storm_protect, 1, MSK_MANAGED_SWITCH},
+#if defined(CONFIG_DIGISTAR_EFM)
+	{"rate-limit", "Rate limit (RX) configuration", CMD_CONFIG_RATE_LIMIT, NULL, 1, MSK_MANAGED_SWITCH},
+	{"traffic-shape", "Traffic shape (TX) configuration", CMD_CONFIG_TRAFFIC_SHAPE, NULL, 1, MSK_MANAGED_SWITCH},
+	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
+	{"vlan-default", "Mark non-tagged packets with VLAN tag", CMD_CONFIG_DEFAULT_VID, NULL, 1, MSK_MANAGED_SWITCH},
+#elif defined(CONFIG_DIGISTAR_3G)
+	{"drop-untagged", "Drop packets without IEEE 802.1Q tag", NULL, sw_drop_untagged, 1, MSK_MANAGED_SWITCH},
+	{"multicast-storm-protect", "Include multicast in storm-control", NULL, sw_multicast_storm_protect, 1, MSK_MANAGED_SWITCH},
+	{"storm-protect-rate", "Set rate limit for broadcast packets", CMD_CONFIG_STORM_CTRL, NULL, 1, MSK_MANAGED_SWITCH},
 	/*
 	 * It is not clear how to configure tagging of untagged packet, perhaps at the
 	 * untag map in each VLAN table entry. Leave it disabled until that's figured out.
@@ -221,18 +233,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[] = {
 	 * {"vlan-default", "Mark non-tagged packets with VLAN tag", CMD_CONFIG_DEFAULT_VID, NULL, 1, MSK_MANAGED_SWITCH},
 	 *
 	 */
-#if defined(CONFIG_DIGISTAR_EFM)
-	{"rate-limit", "Rate limit (RX) configuration", CMD_CONFIG_RATE_LIMIT, NULL, 1, MSK_MANAGED_SWITCH},
-	{"traffic-shape", "Traffic shape (TX) configuration", CMD_CONFIG_TRAFFIC_SHAPE, NULL, 1, MSK_MANAGED_SWITCH},
-	{"txqueue-split", "Split transmission into 4 queues", NULL, sw_txqueue_split, 1, MSK_MANAGED_SWITCH},
-#elif defined(CONFIG_DIGISTAR_3G)
-	{"drop-untagged", "Drop packets without IEEE 802.1Q tag", NULL, sw_drop_untagged, 1, MSK_MANAGED_SWITCH},
-	{"multicast-storm-protect", "Include multicast in storm-control", NULL, sw_multicast_storm_protect, 1, MSK_MANAGED_SWITCH},
-	{"storm-protect-rate", "Set rate limit for broadcast packets", CMD_CONFIG_STORM_CTRL, NULL, 1, MSK_MANAGED_SWITCH},
 #endif
-	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT_NO, NULL, 1, MSK_MANAGED_SWITCH},
-	{"help","Description of the interactive help system", NULL, help, 0, MSK_MANAGED_SWITCH},
-	{"exit", "Exit from interface configuration mode", NULL, config_interface_switch_port_done, 1, MSK_MANAGED_SWITCH},
 	{NULL,NULL,NULL,NULL}
 };
 
