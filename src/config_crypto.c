@@ -225,6 +225,7 @@ int eval_connections_menus(int add_del, char *name)
 	return 0;
 }
 
+#if 0 /* Auto-reload doesn't not exist on openswan */
 void ipsec_autoreload(const char *cmd) /* [no] auto-reload [60-3600] */
 {
 	arglist *args;
@@ -237,6 +238,7 @@ void ipsec_autoreload(const char *cmd) /* [no] auto-reload [60-3600] */
 		                args->argv[1]);
 	librouter_destroy_args(args);
 }
+#endif
 
 void ipsec_nat_traversal(const char *cmd) /* [no] nat-traversal */
 {
