@@ -24,7 +24,7 @@ AC_CHECK_LIB(crypto, RSA_public_encrypt,, exit)
 AC_CHECK_LIB(iptc,iptc_init,, exit)
 AC_CHECK_LIB(netsnmp, snmpv3_store,, exit)
 AC_CHECK_LIB(usb-1.0, libusb_init,, exit)
-AC_CHECK_LIB(router, librouter_acl_apply,, exit)
+AC_CHECK_LIB(router, librouter_config_mmap_cfg,, exit)
 AC_CHECK_LIB(readline, rl_on_new_line,, exit)
 AC_CHECK_LIB(routersnmp, librouter_snmp_get_contact,, exit)
 

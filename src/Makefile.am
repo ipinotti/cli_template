@@ -36,7 +36,8 @@ cish_SOURCES = \
 	config_aaa.c \
 	config_acl.c \
 	config_enable.c \
-	config_vrrp.c
+	config_vrrp.c \
+	config_banner.c
 
 
 cish_LDADD = \

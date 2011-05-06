@@ -211,6 +211,7 @@ cish_command CMD_SHOW[] = {
 #ifdef OPTION_BRIDGE
 	{"bridge", "Show bridge group", CMD_SHOW_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
+	{"banner", "Show system banner", NULL, show_banner, 1, MSK_NORMAL},
 #ifdef OPTION_IPSEC
 	{"crypto", "VPN tunnels", CMD_SHOW_CRYPTO, show_crypto, 1, MSK_VPN},
 #endif

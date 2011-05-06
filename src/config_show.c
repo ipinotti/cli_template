@@ -1696,8 +1696,9 @@ void show_crypto(const char *cmdline)
 	}
 	if ((ret = librouter_ipsec_get_overridemtu()) > 0)
 		printf("overridemtu %d\n", ret);
-	// chave rsa publica
-	if ((rsa = librouter_nv_get_rsakeys())) {
+	/* RSA Keys */
+	rsa = malloc(8192);
+	if (librouter_nv_load_ipsec_secret(rsa)) {
 		if ((p = strstr(rsa, "#pubkey="))) {
 			p += 8;
 			for (; *p == ' '; p++)
@@ -1707,10 +1708,11 @@ void show_crypto(const char *cmdline)
 				printf("public local rsa key %s\n", p);
 			}
 		}
-		free(rsa);
 	} else
 		printf("You have to generate rsa keys!\n");
-	// busca todas as conexoes existentes
+	free(rsa);
+
+	/* Search for connections */
 	if (librouter_ipsec_list_all_names(&list_ini) < 1) {
 		printf("%% Not possible to show ipsec connections\n");
 		return;

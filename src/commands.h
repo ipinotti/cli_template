@@ -727,3 +727,7 @@ void interface_modem3g_sim_card_select(const char *cmdline);
 void interface_modem3g_btin_set_info(const char *cmdline);
 void interface_modem3g_default_gateway(const char *cmdline);
 #endif
+
+void config_banner_login(const char *cmdline);
+void config_banner_system(const char *cmdline);
+void show_banner(const char *cmdline);

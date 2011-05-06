@@ -157,6 +157,12 @@ cish_command CMD_CONFIG_POLICYMAP[] = {
 };
 #endif
 
+cish_command CMD_CONFIG_BANNER[] = {
+		{"login", "Banner shown at login screen", NULL, config_banner_login, 1, MSK_NORMAL},
+		{"system", "Banner for system information", NULL, config_banner_system, 1, MSK_NORMAL},
+		{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CONFIG_NO[] = {
 	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_NO_AAA, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_FIREWALL
@@ -166,6 +172,7 @@ cish_command CMD_CONFIG_NO[] = {
 #ifdef OPTION_BRIDGE
 	{"bridge", "Bridging Group", CMD_CONFIG_NO_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
+	{"banner", "Banner settings", CMD_CONFIG_BANNER, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_PPP
 	{"chatscript", "Reset a chatscript", CMD_CONFIG_NO_CHATSCRIPT, NULL, 1, MSK_NORMAL},
 #endif
@@ -371,6 +378,7 @@ cish_command CMD_CONFIGURE[] = {
 #ifdef OPTION_BRIDGE
 	{"bridge", "Bridging Group", CMD_CONFIG_BRIDGE, NULL, 1, MSK_NORMAL},
 #endif
+	{"banner", "Banner settings", CMD_CONFIG_BANNER, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_PPP
 	{"chatscript", "Set a chatscript line", CMD_CONFIG_CHATSCRIPT, NULL, 1, MSK_NORMAL},
 #endif

@@ -265,9 +265,14 @@ int main(int argc, char *argv[])
 		if (strcmp(argv[1], "-b") == 0) { /* Board is booting up */
 			int size;
 
+			 /* Load configuration from flash that is not
+			 * contained at startup config */
 			librouter_nv_load_ssh_secret(SSH_KEY_FILE);
 			librouter_nv_load_ntp_secret(NTP_KEY_FILE);
+			librouter_nv_load_banner_login(router_cfg->banner_login);
+			librouter_nv_load_banner_system(router_cfg->banner_system);
 			librouter_snmp_load_prepare_users();
+
 #if defined(OPTION_MANAGED_SWITCH)
 #if defined (CONFIG_DIGISTAR_EFM)
 			librouter_ksz8863_set_default_config();
@@ -290,6 +295,8 @@ int main(int argc, char *argv[])
 			_cish_enable = 2; /* Enable special commands! */
 			_cish_booting = 1;
 			config_file(bootfile); /* Apply configuration */
+
+			librouter_config_munmap_cfg(router_cfg);
 
 			exit(0);
 		}
