@@ -1736,7 +1736,7 @@ void show_crypto(const char *cmdline)
 			while (fgets(line, 1024, output)) {
 				int flag = CONN_INCOMPLETE;
 
-				if (!strstr(line, "==="))
+				if (!strstr(line, "..."))
 					continue;
 				if (strlen(line) == 0)
 					break;
