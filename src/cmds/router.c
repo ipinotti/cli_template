@@ -72,7 +72,7 @@ cish_command CMD_ROUTER_RIP_INTERFACE_LOOPBACK[] = {
 };
 
 cish_command CMD_ROUTER_RIP_INTERFACE_TUNNEL[] = {
-	{"0-9", "Tunnel interface number", NULL, rip_execute_router_cmd, 1, MSK_RIP},
+	{"0-0", "Tunnel interface number", NULL, rip_execute_router_cmd, 1, MSK_RIP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -324,12 +324,12 @@ cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_ETHERNET[] = {
 };
 
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_LOOPBACK[] = {
-	{"0-4", "Loopback interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1, MSK_OSPF},
+	{"0-0", "Loopback interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1, MSK_OSPF},
 	{NULL, NULL, NULL, NULL}
 };
 
 cish_command CMD_ROUTER_OSPF_PASSIVE_INTERFACE_TUNNEL[] = {
-	{"0-9", "Tunnel interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1, MSK_OSPF},
+	{"0-0", "Tunnel interface number", CMD_ROUTER_OSPF_PASSIVE_INTERFACE1, ospf_execute_router_cmd, 1, MSK_OSPF},
 	{NULL, NULL, NULL, NULL}
 };
 
@@ -1052,12 +1052,12 @@ cish_command CMD_SHOW_OSPF_INTERFACE_ETHERNET[] = {
 };
 
 cish_command CMD_SHOW_OSPF_INTERFACE_LOOPBACK[] = {
-	{"0-4", "Loopback interface number", NULL, show_ip_ospf, 1, MSK_OSPF},
+	{"0-0", "Loopback interface number", NULL, show_ip_ospf, 1, MSK_OSPF},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_SHOW_OSPF_INTERFACE_TUNNEL[] = {
-	{"0-9", "Tunnel interface number", NULL, show_ip_ospf, 1, MSK_OSPF},
+	{"0-0", "Tunnel interface number", NULL, show_ip_ospf, 1, MSK_OSPF},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1325,12 +1325,12 @@ cish_command CMD_BGP_INTERFACE_ETHERNET[] = {
 };
 
 cish_command CMD_BGP_INTERFACE_LOOPBACK[] = {
-	{"0-4", "Loopback interface number", NULL, bgp_execute_router_cmd, 1, MSK_BGP},
+	{"0-0", "Loopback interface number", NULL, bgp_execute_router_cmd, 1, MSK_BGP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_BGP_INTERFACE_TUNNEL[] = {
-	{"0-9", "Tunnel interface number", NULL, bgp_execute_router_cmd, 1, MSK_BGP},
+	{"0-0", "Tunnel interface number", NULL, bgp_execute_router_cmd, 1, MSK_BGP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
