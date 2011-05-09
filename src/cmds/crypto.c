@@ -7,10 +7,12 @@
 #include "commandtree.h"
 
 #ifdef OPTION_IPSEC
+#if 0 /* Auto-reload doesn't exist on openswan */
 cish_command CMD_CONFIG_CRYPTO_AUTORELOAD[] = {
 	{"60-3600", "Set interval of auto-reload connections (dns)", NULL, ipsec_autoreload, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_IPSEC_CONNECTION_AUTHBY_SECRET[] = {
 	{"<text>", "pre-shared key", NULL, ipsec_set_secret_key, 1, MSK_NORMAL},
@@ -479,7 +481,9 @@ cish_command CMD_CRYPTO_NO_L2TP[] = {
 };
 
 cish_command CMD_CRYPTO_NO[] = {
+#if 0
 	{"auto-reload", "Disable auto-reload interval", NULL, ipsec_autoreload, 1, MSK_NORMAL},
+#endif
 	{"ipsec", "Manage IPSEC tunnels", CMD_CRYPTO_IPSEC_NO, NULL, 1, MSK_NORMAL},
 	{"l2tp", "Manage L2TP server", CMD_CRYPTO_NO_L2TP, NULL, 1, MSK_NORMAL},
 	{"nat-traversal", "Disable NAT-Traversal", NULL, ipsec_nat_traversal, 1, MSK_NORMAL},
@@ -493,7 +497,9 @@ cish_command CMD_CONFIG_CRYPTO_OVERRIDEMTU[] = {
 };
 
 cish_command CMD_CONFIG_CRYPTO[] = {
+#if 0
 	{"auto-reload", "Configure auto-reload interval (seconds)", CMD_CONFIG_CRYPTO_AUTORELOAD, NULL, 1, MSK_NORMAL},
+#endif
 	{"exit", "Exit from crypto configuration mode", NULL, config_crypto_done, 1, MSK_NORMAL},
 	{"ipsec", "Manage IPSEC tunnels", CMD_CRYPTO_IPSEC_CONNECTION, NULL, 1, MSK_NORMAL},
 	{"key", "Manage keys", CMD_CRYPTO_KEY_GENERATE, NULL, 1, MSK_NORMAL},
