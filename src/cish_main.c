@@ -154,6 +154,26 @@ static int _print_current_menu()
 		}
 	}
 
+	/* Some menus don't have indexes, so just exit to avoid adding new BUGs */
+	if ( (command_root == CMD_CONFIGURE)
+		|| (command_root == CMD_IP_DHCP_SERVER)
+#ifdef OPTION_QOS
+		|| (command_root == CMD_POLICYMAP)
+		|| (command_root == CMD_POLICYMAP_MARKRULE)
+#endif
+#ifdef OPTION_ROUTER
+		|| (command_root == CMD_KEYCHAIN)
+		|| (command_root == CMD_KEY)
+		|| (command_root == CMD_POLICY_ROUTE)
+		|| (command_root == CMD_CONFIG_ROUTER_RIP)
+		|| (command_root == CMD_CONFIG_ROUTER_OSPF)
+#ifdef OPTION_BGP
+		||  (command_root == CMD_CONFIG_ROUTER_BGP)
+#endif
+#endif
+		)
+		return 0;
+
 	/* Add exceptions here */
 #ifdef OPTION_MANAGED_SWITCH
 	if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT) {

@@ -1347,13 +1347,21 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_IP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
 	{"address", "IP Address and Netmask", CMD_CONFIG_INTERFACE_TUNNEL_IP1, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_QOS
 	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
 	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF, NULL, 1, MSK_OSPF},
 	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP, NULL, 1, MSK_RIP},
 	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
