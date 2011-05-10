@@ -629,7 +629,7 @@ void tunnel_mode(const char *cmdline) /* tunnel mode gre|ipip */
 void tunnel_source_interface(const char *cmdline) /* tunnel source <intf> <sub> */
 {
 	arglist *args;
-	char *dev, source[32];
+	char *dev, *source;
 
 	args = librouter_make_args(cmdline);
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,

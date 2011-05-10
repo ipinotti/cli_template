@@ -1430,13 +1430,17 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC[] = {
 	{"ethernet", "Ethernet interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET, NULL, 1, MSK_NORMAL},
 #endif
 	{"loopback", "Loopback interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_LOOPBACK, NULL, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
 #ifdef OPTION_MODEM3G
 	{"m3G", "Modem 3G interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_M3G, NULL, 1, MSK_NORMAL},
+#endif
 #endif
 #ifdef OPTION_SERIAL
 	{"serial", "Serial interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_SERIAL, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef NOT_YET_IMPLEMENTED
 	{"tunnel", "Tunnel interface", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_TUNNEL, NULL, 1, MSK_NORMAL},
+#endif
 	{"<ipaddress>", "Source IP address", NULL, tunnel_source, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
