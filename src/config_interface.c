@@ -634,8 +634,9 @@ void tunnel_source_interface(const char *cmdline) /* tunnel source <intf> <sub> 
 	args = librouter_make_args(cmdline);
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	strncpy(source, args->argv[2], 31);
-	strncat(source, args->argv[3], 31);
+
+	source = librouter_device_cli_to_linux(args->argv[2],atoi(args->argv[3]),-1);
+
 	if (strcmp(dev, source) == 0) {
 		fprintf(stderr, "%% Cannot use self\n");
 	} else {
