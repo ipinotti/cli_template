@@ -50,12 +50,10 @@ cish_command CMD_CONFIG_NO_AAA_ACCT[] = {
 
 cish_command CMD_CONFIG_NO_AAA[] = {
 	{"authentication", "Authentication configurations parameters", CMD_CONFIG_NO_AAA_AUTHENTICATION, NULL, 1, MSK_NORMAL},
-
-#ifdef OPTION_AA_Authorization
+#ifdef OPTION_AAA_AUTHORIZATION
 	{"authorization", "Authorization configurations parameters", CMD_CONFIG_NO_AAA_AUTHOR, NULL, 1, MSK_NORMAL},
 #endif
-
-#ifdef OPTION_AA_Accounting
+#ifdef OPTION_AAA_ACCOUNTING
 	{"accounting", "Accounting configurations parameters", CMD_CONFIG_NO_AAA_ACCT, NULL, 1, MSK_NORMAL},
 #endif
 
@@ -134,6 +132,7 @@ cish_command CMD_CONFIG_AAA_USERNAME[] = {
 };
 
 cish_command CMD_CONFIG_AAA_ACCT_TACACS[] = {
+	{"radius", "Use list of all Radius hosts.", NULL, cmd_aaa_acct, 1, MSK_NORMAL},
 	{"tacacs+", "Use list of all Tacacs+ hosts.", NULL, cmd_aaa_acct, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -164,19 +163,20 @@ cish_command CMD_CONFIG_AAA_ACCT[] = {
 	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
-cish_command CMD_CONFIG_AAA_AUTHOR_TACACS_LOCAL[] = {
+cish_command CMD_CONFIG_AAA_AUTHOR_LOCAL[] = {
 	{"local", "Use local database", NULL, cmd_aaa_author, 1, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_AAA_AUTHOR_TACACS[] = {
-	{"tacacs+", "Use list of all Tacacs+ hosts.", CMD_CONFIG_AAA_AUTHOR_TACACS_LOCAL, cmd_aaa_author, 1, MSK_NORMAL},
+cish_command CMD_CONFIG_AAA_AUTHOR_GROUP1[] = {
+	{"radius", "Use list of all Radius hosts.", CMD_CONFIG_AAA_AUTHOR_LOCAL, cmd_aaa_author, 1, MSK_NORMAL},
+	{"tacacs+", "Use list of all Tacacs+ hosts.", CMD_CONFIG_AAA_AUTHOR_LOCAL, cmd_aaa_author, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CONFIG_AAA_AUTHOR_GROUP[] = {
-	{"group", "Use Server-group", CMD_CONFIG_AAA_AUTHOR_TACACS, NULL, 1, MSK_NORMAL},
+	{"group", "Use Server-group", CMD_CONFIG_AAA_AUTHOR_GROUP1, NULL, 1, MSK_NORMAL},
 	{"none", "No authorization (always succeeds)", NULL, cmd_aaa_author, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -192,19 +192,24 @@ cish_command CMD_CONFIG_AAA_AUTHOR[] = {
 };
 
 cish_command CMD_CONFIG_AAA[] = {
-#ifdef OPTION_AA_Accounting
+#ifdef OPTION_AAA_ACCOUNTING
 	{"accounting", "Accounting configurations parameters", CMD_CONFIG_AAA_ACCT, NULL, 1, MSK_NORMAL},
 #endif
 
 	{"authentication", "Authentication configurations parameters", CMD_CONFIG_AAA_AUTHENTICATION, NULL, 1, MSK_NORMAL},
 
-#ifdef OPTION_AA_Authorization
+#ifdef OPTION_AAA_AUTHORIZATION
 	{"authorization", "Authorization configurations parameters", CMD_CONFIG_AAA_AUTHOR, NULL, 1, MSK_NORMAL},
 #endif
 
 	{"username", "Establish User Name Authentication", CMD_CONFIG_AAA_USERNAME, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+
+
+/***********************************************************/
+/******** RADIUS SERVER CONFIG *****************************/
+/***********************************************************/
 
 cish_command CMD_CONFIG_RADIUSSERVER_TIMEOUTVALUE[] = {
 	{"1-1000", "Timeout value in seconds to wait for server to reply", NULL, add_radiusserver, 1, MSK_NORMAL},
@@ -249,6 +254,10 @@ cish_command CMD_CONFIG_NO_RADIUSSERVER_HOST[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+
+/***********************************************************/
+/******** TACACS SERVER CONFIG *****************************/
+/***********************************************************/
 cish_command CMD_CONFIG_NO_TACACSSERVER_HOSTIP[] = {
 	{"<ipaddress>", "IP address of TACACS server", NULL, del_tacacsserver, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}

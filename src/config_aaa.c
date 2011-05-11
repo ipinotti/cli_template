@@ -17,7 +17,12 @@
 struct pam_types_t {
 	char cish_name[32];
 	char conf_filename[64];
-} pam_types[] = { { "cli", FILE_PAM_GENERIC }, { "ppp", FILE_PAM_PPP }, { "web", FILE_PAM_WEB } };
+} pam_types[] = {
+		{ "cli", FILE_PAM_GENERIC },
+		{ "ppp", FILE_PAM_PPP },
+		{ "web", FILE_PAM_WEB },
+		{ "enable", FILE_PAM_ENABLE }
+};
 
 #define PAM_TYPES_SIZE 	sizeof(pam_types)/sizeof(struct pam_types_t)
 
