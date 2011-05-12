@@ -156,6 +156,7 @@ static int _print_current_menu()
 
 	/* Some menus don't have indexes, so just exit to avoid adding new BUGs */
 	if ( (command_root == CMD_CONFIGURE)
+		|| (command_root == CMD)
 		|| (command_root == CMD_IP_DHCP_SERVER)
 #ifdef OPTION_QOS
 		|| (command_root == CMD_POLICYMAP)
@@ -171,8 +172,12 @@ static int _print_current_menu()
 		||  (command_root == CMD_CONFIG_ROUTER_BGP)
 #endif
 #endif
-		)
+		) {
+		/* Invalidate interface major and minor in theses menus */
+		interface_major = -1;
+		interface_minor = -1;
 		return 0;
+	}
 
 	/* Add exceptions here */
 #ifdef OPTION_MANAGED_SWITCH
