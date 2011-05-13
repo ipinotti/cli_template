@@ -55,19 +55,27 @@ cish_command CMD_CONFIG_INTERFACE[] = {
 #endif
 	{"ethernet", "Ethernet interface", CMD_CONFIG_INTERFACE_ETHERNET_, NULL, 0, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_CONFIG_INTERFACE_LOOPBACK_, NULL, 0, MSK_NORMAL},
+#ifdef OPTION_TUNNEL
 	{"tunnel", "Tunnel interface", CMD_CONFIG_INTERFACE_TUNNEL_, NULL, 0, MSK_NORMAL},
+#endif
 #ifdef OPTION_MODEM3G
 	{"m3G", "3G interface", CMD_CONFIG_INTERFACE_M3G_, NULL, 0, MSK_NORMAL},
 #endif
+#ifdef OPTION_PPTP
 	{"pptp", "PPTP Interface", CMD_CONFIG_INTERFACE_PPTP_, NULL, 0, MSK_NORMAL},
+#endif
+#ifdef OPTION_PPPOE
 	{"pppoe", "PPPoE Interface", CMD_CONFIG_INTERFACE_PPPOE_, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_TUNNEL
 cish_command CMD_CONFIG_NO_INTERFACE[] = {
 	{"tunnel", "Tunnel interface", CMD_CONFIG_INTERFACE_TUNNEL_, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 #ifdef OPTION_FIREWALL
 cish_command CMD_NO_ACL[] = {
@@ -176,7 +184,9 @@ cish_command CMD_CONFIG_NO[] = {
 #ifdef OPTION_PPP
 	{"chatscript", "Reset a chatscript", CMD_CONFIG_NO_CHATSCRIPT, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_TUNNEL
 	{"interface","Interface Configuration", CMD_CONFIG_NO_INTERFACE, NULL, 1, MSK_NORMAL},
+#endif
 	{"ip","IPv4 Configuration", CMD_NO_IP, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_ROUTER
 	{"key","Authentication key management (RIP)", CMD_CONFIG_KEY, NULL, 1, MSK_RIP},
