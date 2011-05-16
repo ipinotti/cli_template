@@ -172,7 +172,7 @@ cish_command CMD_CONFIG_BANNER[] = {
 };
 
 cish_command CMD_CONFIG_NO[] = {
-	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_NO_AAA, NULL, 1, MSK_NORMAL},
+	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_NO_AAA, NULL, 1, MSK_AUTH},
 #ifdef OPTION_FIREWALL
 	{"access-list","Remove access-list", CMD_NO_ACL, NULL, 1, MSK_NORMAL},
 #endif
@@ -207,7 +207,7 @@ cish_command CMD_CONFIG_NO[] = {
 	{"policy-map", "Configure QoS Policy Map", CMD_CONFIG_POLICYMAP, NULL, 1, MSK_QOS},
 #endif
 	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_NO_RADIUSSERVER_HOST, 
-								del_radiusserver, 1, MSK_NORMAL},
+								del_radiusserver, 1, MSK_AUTH},
 #ifdef OPTION_RMON
 	{"rmon", "Modify RMON settings", CMD_CONFIG_NO_RMON, NULL, 1, MSK_NORMAL},
 #endif
@@ -217,7 +217,7 @@ cish_command CMD_CONFIG_NO[] = {
 	{"secret", "Disable authentication secrets", CMD_NO_SECRET, NULL, 1, MSK_NORMAL},
 	{"snmp-server", "Remove SNMP settings", CMD_CONFIG_NO_SNMP, snmp_no_server, 1, MSK_NORMAL},
 	{"tacacs-server", "Modify TACACS query parameters", CMD_CONFIG_NO_TACACSSERVER_HOST, 
-								del_tacacsserver, 1, MSK_NORMAL},
+								del_tacacsserver, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -278,19 +278,19 @@ cish_command CMD_CONFIG_ROUTER[] = {
 #endif
 
 cish_command CMD_SECRET3[] = {
-	{"<string>", "Encrypted password", NULL, setsecret, 1, MSK_NORMAL},
+	{"<string>", "Encrypted password", NULL, setsecret, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_SECRET2[] = {
-	{"hash", "Encrypted password", CMD_SECRET3, NULL, 2, MSK_NORMAL}, /* needs especial privilege! (2) */
-	{"<enter>", "Type password", NULL, NULL, 1, MSK_NORMAL},
+	{"hash", "Encrypted password", CMD_SECRET3, NULL, 2, MSK_AUTH}, /* needs especial privilege! (2) */
+	{"<enter>", "Type password", NULL, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_SECRET[] = {
-	{"enable", "Set privileged password", CMD_SECRET2, setsecret, 1, MSK_NORMAL},
-	{"login", "Set login password", CMD_SECRET2, setsecret, 1, MSK_NORMAL},
+	{"enable", "Set privileged password", CMD_SECRET2, setsecret, 1, MSK_AUTH},
+	{"login", "Set login password", CMD_SECRET2, setsecret, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -379,7 +379,7 @@ cish_command CMD_ARP_IP[] = {
 };
 
 cish_command CMD_CONFIGURE[] = {
-	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_AAA, NULL, 1, MSK_NORMAL},
+	{"aaa","Authentication, Authorization and Accounting.", CMD_CONFIG_AAA, NULL, 1, MSK_AUTH},
 #ifdef OPTION_FIREWALL
 	{"access-list","Set an ACL", CMD_CONFACL1, NULL, 1, MSK_NORMAL},
 	{"access-policy", "Set default access policy", CMD_CONFACLPOL, NULL, 1, MSK_NORMAL},
@@ -423,17 +423,17 @@ cish_command CMD_CONFIGURE[] = {
 #ifdef OPTION_ROUTER
 	{"policy-route", "Configure Policy Route (PBR)", NULL, cd_policyroute_dir, 1, MSK_NORMAL},
 #endif
-	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_RADIUSSERVER_HOST, NULL, 1, MSK_NORMAL},
+	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_RADIUSSERVER_HOST, NULL, 1, MSK_AUTH},
 #ifdef OPTION_RMON
 	{"rmon","Set RMON agent configuration", CMD_CONFIG_RMON, NULL, 1, MSK_NORMAL},
 #endif
 #ifdef OPTION_ROUTER
 	{"router","Enable a routing process", CMD_CONFIG_ROUTER, NULL, 1, MSK_NORMAL},
 #endif
-	{"secret","Set authentication secrets", CMD_SECRET, NULL, 1, MSK_NORMAL},
+	{"secret","Set authentication secrets", CMD_SECRET, NULL, 1, MSK_AUTH},
 	{"snmp-server","Set SNMP server configuration", CMD_CONFIG_SNMP, NULL, 1, MSK_NORMAL},
-	{"tacacs-server","Modify TACACS query parameters", CMD_CONFIG_TACACSSERVER_HOST, NULL, 1, MSK_NORMAL},
-	{"terminal","Set terminal line parameters", CMD_TERMINAL, NULL, 0, MSK_NORMAL},
+	{"tacacs-server","Modify TACACS query parameters", CMD_CONFIG_TACACSSERVER_HOST, NULL, 1, MSK_AUTH},
+	{"terminal","Set terminal line parameters", CMD_TERMINAL, NULL, 0, MSK_AUTH},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 #endif

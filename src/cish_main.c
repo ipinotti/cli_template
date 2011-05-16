@@ -272,6 +272,7 @@ int main(int argc, char *argv[])
 	cmd_mask = MSK_QOS | MSK_VPN | MSK_VLAN;
 	set_model_cmd_mask(cmd_mask);
 #endif
+	set_model_auth_cmds();
 
 	/* FIXME Read HW ID or something to enable this */
 #ifdef OPTION_MANAGED_SWITCH

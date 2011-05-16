@@ -139,6 +139,8 @@ void set_model_vpn_cmds(int enable);
 void set_model_cmd_mask(int mask);
 void del_model_cmd_mask(int mask);
 
+void set_model_auth_cmds(void);
+
 void set_model_switch_cmds(void);
 void set_model_serial_cmds(const char *);
 void disable_exc_cmds(void);

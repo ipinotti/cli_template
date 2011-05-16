@@ -90,6 +90,11 @@ void del_model_cmd_mask(int mask)
 	_cish_mask &= ~mask;
 }
 
+void set_model_auth_cmds(void)
+{
+	_cish_mask |= MSK_AUTH;
+}
+
 #ifdef OPTION_MANAGED_SWITCH
 #ifdef CONFIG_DIGISTAR_EFM
 void set_model_switch_cmds(void)
