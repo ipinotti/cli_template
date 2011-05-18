@@ -27,11 +27,6 @@ void snmp_community(const char *cmd)
 
 	if (librouter_snmp_is_running())
 		librouter_snmp_reload_config();
-	/* This code is commented on Atlanta without any explanation */
-#ifdef CONFIG_BERLIN_SATROUTER
-	else
-	librouter_snmp_start();
-#endif
 }
 
 void snmp_no_community(const char *cmd)
@@ -52,11 +47,6 @@ void snmp_no_community(const char *cmd)
 
 	if (librouter_snmp_is_running())
 		librouter_snmp_reload_config();
-	/* This code is commented on Atlanta without any explanation */
-#ifdef CONFIG_BERLIN_SATROUTER
-	else
-	librouter_snmp_start();
-#endif
 }
 
 void snmp_text(const char *cmd) /* [no] snmp-server contact|location <text> */
