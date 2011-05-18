@@ -544,15 +544,23 @@ cish_command CMD_CONFIG_INTERFACE_PPPOE_NO[] = {
 #ifdef OPTION_MODEM3G
 
 cish_command CMD_CONFIG_INTERFACE_M3G_NO_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_NAT
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
 
 cish_command CMD_CONFIG_INTERFACE_M3G_IP[] = {
+#ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_NAT
 	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
