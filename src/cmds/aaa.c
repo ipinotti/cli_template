@@ -6,6 +6,18 @@
 #include "commands.h"
 #include "commandtree.h"
 
+cish_command CMD_CONFIG_NO_AAA_USERNAME_PRIVILEGE_DATA[] = {
+	{"1", "Low Privilege", NULL, del_user, 1, MSK_AUTH},
+	{"7", "Medium Privilege", NULL, del_user, 1, MSK_AUTH},
+	{"15", "High Privilege (Master)", NULL, del_user, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_NO_AAA_USERNAME_PRIVILEGE[] = {
+	{"privilege", "Specify the privilege for the user", CMD_CONFIG_NO_AAA_USERNAME_PRIVILEGE_DATA, NULL, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CONFIG_NO_AAA_AUTHEN_DEFAULT[] = {
 	{"default", "The default authentication list", NULL, cmd_aaa_authen, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
@@ -19,7 +31,7 @@ cish_command CMD_CONFIG_NO_AAA_AUTHENTICATION[] = {
 };
 
 cish_command CMD_CONFIG_NO_AAA_USERNAME[] = {
-	{"<text>", "User name", NULL, del_user, 1, MSK_AUTH},
+	{"<text>", "User name", CMD_CONFIG_NO_AAA_USERNAME_PRIVILEGE, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -103,6 +115,17 @@ cish_command CMD_CONFIG_AAA_AUTHEN_DEFAULT[] = {
 // };
 
 
+cish_command CMD_CONFIG_AAA_USERNAME_PRIVILEGE_DATA[] = {
+	{"1", "Low Privilege", NULL, add_user, 1, MSK_AUTH},
+	{"7", "Medium Privilege", NULL, add_user, 1, MSK_AUTH},
+	{"15", "High Privilege (Master)", NULL, add_user, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_USERNAME_PRIVILEGE[] = {
+	{"privilege", "Specify the privilege for the user", CMD_CONFIG_AAA_USERNAME_PRIVILEGE_DATA, NULL, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
 
 cish_command CMD_CONFIG_AAA_AUTHENTICATION[] = {
 	{"cli", "Set authentication lists for logins.", CMD_CONFIG_AAA_AUTHEN_DEFAULT, NULL, 1, MSK_AUTH},
@@ -112,12 +135,12 @@ cish_command CMD_CONFIG_AAA_AUTHENTICATION[] = {
 };
 
 cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH[] = {
-	{"<string>", "Encrypted password", NULL, add_user, 1, MSK_AUTH},
+	{"<string>", "Encrypted password", CMD_CONFIG_AAA_USERNAME_PRIVILEGE, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD_DATA[] = {
-	{"<text>", "The UNENCRYPTED (cleartext) user password", NULL, add_user, 1, MSK_AUTH},
+	{"<text>", "The UNENCRYPTED (cleartext) user password", CMD_CONFIG_AAA_USERNAME_PRIVILEGE, NULL, 1, MSK_AUTH},
 	{"hash", "Encrypted password", CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH,
 					NULL, 2, MSK_AUTH}, /* needs especial priviledge! (2) */
 	{NULL,NULL,NULL,NULL, 0}

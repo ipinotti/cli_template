@@ -295,21 +295,29 @@ void cmd_aaa_author(const char *cmd)
 
 
 
-void add_user(const char *cmd) /* aaa username <user> password [hash] <pass> *//* tinylogin */
+void add_user(const char *cmd) /* aaa username <user> password [hash] <pass> privilege <priv>*//* tinylogin */
 {
 	arglist *args;
+	char group[12];
 
 	args = librouter_make_args(cmd);
+	snprintf(group, 12, "priv%s", args->argv[6]);
 	librouter_pam_add_user(args->argv[2], args->argv[4]);
+	librouter_pam_add_user_to_group(args->argv[2], group);
+	librouter_pam_add_user_to_group(args->argv[2], "root");
 	librouter_destroy_args(args);
 }
 
-void del_user(const char *cmd) /* no aaa username <user> *//* tinylogin */
+void del_user(const char *cmd) /* no aaa username <user> privilege <priv> *//* tinylogin */
 {
 	arglist *args;
+	char group[12];
 
 	args = librouter_make_args(cmd);
+	snprintf(group, 12, "priv%s", args->argv[5]);
 	librouter_pam_del_user(args->argv[3]);
+	librouter_pam_del_user_to_group(args->argv[3], group);
+	librouter_pam_del_user_to_group(args->argv[3], "root");
 	librouter_destroy_args(args);
 }
 
