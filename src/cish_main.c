@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 	save_termios();
 
 	/* Begin with NORMAL mask */
-	_cish_mask = MSK_NORMAL;
+	_cish_mask = MSK_NORMAL | MSK_ENABLE;
 #ifdef OPTION_ROUTER
 	set_rip_interface_cmds(librouter_quagga_ripd_is_running());
 	set_ospf_interface_cmds(librouter_quagga_ospfd_is_running());

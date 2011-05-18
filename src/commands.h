@@ -198,7 +198,6 @@ void erase_cfg(const char *);
 void setsecret(const char *);
 void set_nosecret(const char *);
 void clear_enable_secret(const char *);
-void set_enable_secret(const char *);
 void no_enable_tacrad(const char *cmdline);
 void set_enable_tacrad(const char *cmdline);
 

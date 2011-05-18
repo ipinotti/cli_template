@@ -242,7 +242,7 @@ cish_command CMD[] = {
 	{"copy", "Copy configuration or image data", CMD_COPY, NULL, 1, MSK_NORMAL},
 	{"debug", "Debugging parameters", CMD_DEBUG, NULL, 1, MSK_NORMAL},
 	{"disable", "Leave administrator mode", NULL, disable, 1, MSK_NORMAL},
-	{"enable", "Enter administrator mode", NULL, enable, 0, MSK_NORMAL}, /* enable(); disable(); */
+	{"enable", "Enter administrator mode", NULL, enable, 0, MSK_ENABLE}, /* enable(); disable(); */
 	{"erase", "Erase configuration memory", CMD_ERASE, NULL, 1, MSK_NORMAL},
 	{"exit", "Exit session", NULL, exit_cish, 0, MSK_NORMAL},
 	{"firmware", "Firmware update", CMD_FIRMWARE, NULL, 1, MSK_NORMAL},
