@@ -315,9 +315,9 @@ void del_user(const char *cmd) /* no aaa username <user> privilege <priv> *//* t
 
 	args = librouter_make_args(cmd);
 	snprintf(group, 12, "priv%s", args->argv[5]);
+	librouter_pam_del_user_from_group(args->argv[3], group);
+	librouter_pam_del_user_from_group(args->argv[3], "root");
 	librouter_pam_del_user(args->argv[3]);
-	librouter_pam_del_user_to_group(args->argv[3], group);
-	librouter_pam_del_user_to_group(args->argv[3], "root");
 	librouter_destroy_args(args);
 }
 
