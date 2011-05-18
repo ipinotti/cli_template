@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 	int acct_mode; /* command accounting */
 	int cmd_mask;
 
-	umask(066); /* -rw------ */
+	umask(0); /* -rw------ */
 
 	_cish_booting = 0;
 	_cish_source = "console";
@@ -1014,7 +1014,14 @@ int cish_execute(const char *cmd)
 #if 0 /* Debug */
 			printf("Execute line: %s\n", realcmd);
 #endif
+#ifdef OPTION_AAA_AUTHORIZATION
+			if (librouter_pam_authorize_command(realcmd) != 0)
+				return -1;
+#endif
 			xcmd->func(realcmd);
+#ifdef OPTION_AAA_ACCOUNTING
+			librouter_pam_account_command(realcmd);
+#endif
 		} else
 			printf("%% incomplete command\n");
 	} else {
