@@ -1292,6 +1292,7 @@ void erase_cfg(const char *cmdline)
 void show_privilege(const char *cmdline)
 {
 	printf("Current privilege level is %i\n", _cish_enable);
+	librouter_pam_get_privilege();
 }
 
 void show_interfaces(const char *cmdline) /* show interfaces [aux|ethernet|loopback|serial|tunnel] [0-?] */
