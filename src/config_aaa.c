@@ -238,21 +238,20 @@ static void cmd_aaa_author_commands(const char *cmd)
 
 	args_len = librouter_parse_args_din((char *) cmd, &args);
 
-	/* [no] aaa accounting commands */
+	/* [no] aaa authorization commands */
 	if (args_len < 5) {
 		librouter_destroy_args_din(&args);
 		return;
 	}
 
 	if (!strcmp(args[0], "no") || !strcmp(args[4], "none")) {
-		mode = AAA_ACCT_NONE;
+		mode = AAA_AUTHOR_NONE;
 	} else if (!strcmp(args[2],"commands")) {
 		if (strstr(cmd, "tacacs") && (_check_tacacs_server() == 0))
-			mode = AAA_ACCT_TACACS;
+			mode = (args_len == 7) ? AAA_AUTHOR_TACACS_LOCAL : AAA_AUTHOR_TACACS;
 		else if (strstr(cmd, "radius") && (_check_radius_server() == 0))
-			mode = AAA_ACCT_RADIUS;
+			mode = (args_len == 7) ? AAA_AUTHOR_RADIUS_LOCAL : AAA_AUTHOR_RADIUS;
 	}
-
 
 	if (librouter_pam_config_mode(mode, FILE_PAM_CLI) < 0)
 		printf("%% Not possible to execute command with success\n");
@@ -269,21 +268,20 @@ static void cmd_aaa_author_exec(const char *cmd)
 
 	args_len = librouter_parse_args_din((char *) cmd, &args);
 
-	/* [no] aaa accounting commands */
+	/* [no] aaa authorization exec */
 	if (args_len < 5) {
 		librouter_destroy_args_din(&args);
 		return;
 	}
 
 	if (!strcmp(args[0], "no") || !strcmp(args[4], "none")) {
-		mode = AAA_ACCT_NONE;
-	} else if (!strcmp(args[2],"commands")) {
+		mode = AAA_AUTHOR_NONE;
+	} else if (!strcmp(args[2], "exec")) {
 		if (strstr(cmd, "tacacs") && (_check_tacacs_server() == 0))
-			mode = AAA_ACCT_TACACS;
+			mode = (args_len == 7) ? AAA_AUTHOR_TACACS_LOCAL : AAA_AUTHOR_TACACS;
 		else if (strstr(cmd, "radius") && (_check_radius_server() == 0))
-			mode = AAA_ACCT_RADIUS;
+			mode = (args_len == 7) ? AAA_AUTHOR_RADIUS_LOCAL : AAA_AUTHOR_RADIUS;
 	}
-
 
 	if (librouter_pam_config_mode(mode, FILE_PAM_LOGIN) < 0)
 		printf("%% Not possible to execute command with success\n");
