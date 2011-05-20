@@ -41,6 +41,7 @@ cish_command CMD_CONFIG_NO_AAA_AUTHOR_DEFAULT[] = {
 };
 
 cish_command CMD_CONFIG_NO_AAA_AUTHOR[] = {
+	{"commands", "For exec (shell) commands", CMD_CONFIG_NO_AAA_AUTHOR_DEFAULT, NULL, 1, MSK_AUTH},
 	{"exec", "For starting an exec (shell)", CMD_CONFIG_NO_AAA_AUTHOR_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -50,13 +51,15 @@ cish_command CMD_CONFIG_NO_AAA_ACCT_DEFAULT[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#if 0
 cish_command CMD_CONFIG_NO_AAA_ACCT1[] = {
 	{"0-15", "Enable Level", CMD_CONFIG_NO_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_CONFIG_NO_AAA_ACCT[] = {
-	{"commands", "For exec (shell) commands", CMD_CONFIG_NO_AAA_ACCT1, NULL, 1, MSK_AUTH},
+	{"commands", "For exec (shell) commands", CMD_CONFIG_NO_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
 	{"exec", "For starting an exec (shell)", CMD_CONFIG_NO_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -178,13 +181,15 @@ cish_command CMD_CONFIG_AAA_ACCT_DEFAULT[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#if 0
 cish_command CMD_CONFIG_AAA_ACCT1[] = {
 	{"0-15", "Enable Level", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_CONFIG_AAA_ACCT[] = {
-	{"commands", "For exec (shell) commands", CMD_CONFIG_AAA_ACCT1, NULL, 1, MSK_AUTH},
+	{"commands", "For exec (shell) commands", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
 	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -212,6 +217,7 @@ cish_command CMD_CONFIG_AAA_AUTHOR_DEFAULT[] = {
 };
 
 cish_command CMD_CONFIG_AAA_AUTHOR[] = {
+	{"commands", "For exec (shell) commands", CMD_CONFIG_AAA_AUTHOR_DEFAULT, NULL, 1, MSK_AUTH},
 	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_AUTHOR_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
