@@ -424,6 +424,8 @@ void add_radiusserver(const char *cmd);
 void del_radiusserver(const char *cmd);
 void add_tacacsserver(const char *cmd);
 void del_tacacsserver(const char *cmd);
+int authorize_cli_command(char *cmd);
+void account_cli_command(char *cmd);
 void dump_aaa(FILE *out);
 
 #define FEATURE_VPN 0 /* struct features index */

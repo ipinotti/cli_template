@@ -17,6 +17,7 @@ void ppp_shutdown(const char *cmd)
 	ppp_config cfg;
 	char master[IFNAMSIZ];
 
+
 	librouter_ppp_get_config(interface_major, &cfg);
 	if (cfg.up) {
 		cfg.up = 0;
@@ -32,12 +33,11 @@ void ppp_shutdown(const char *cmd)
 				break;
 			sleep(1);
 		}
-#if 0
+
 		if (interface_major < MAX_WAN_INTF) {
 			sprintf(master, "%s%d", SERIALDEV_PPP, interface_major); /* sx */
 			librouter_dev_set_link_down(master); /* ~UP */
 		}
-#endif
 	}
 }
 
@@ -49,12 +49,11 @@ void ppp_noshutdown(const char *cmd)
 
 	librouter_ppp_get_config(interface_major, &cfg);
 	if (!cfg.up) {
-#if 0
 		if (interface_major < MAX_WAN_INTF) {
 			sprintf(master, "%s%d", SERIALDEV_PPP, interface_major); /* sx */
 			librouter_dev_set_link_up(master); /* UP */
 		}
-#endif
+
 		cfg.up = 1;
 		librouter_ppp_set_config(interface_major, &cfg);
 		dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,

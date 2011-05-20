@@ -237,7 +237,6 @@ int main(int argc, char *argv[])
 	int hadspace;
 	char *bootfile;
 	int retval;
-	int acct_mode; /* command accounting */
 	int cmd_mask;
 
 	umask(0); /* -rw------ */
@@ -410,29 +409,6 @@ int main(int argc, char *argv[])
 			if (strlen(xline)) {
 				add_history(line);
 				retval = cish_execute(xline);
-				/* Command accounting */
-				acct_mode = librouter_pam_get_current_acct_cmd_mode(
-				                FILE_PAM_GENERIC);
-				if (retval && acct_mode != AAA_ACCT_TACACS_CMD_NONE) {
-					/* logs anything but exit and enable commands*/
-					if (strncmp(line, "exit", strlen("exit")) && strncmp(line,
-					                "enable", strlen("enable"))) {
-						if ((!_cish_enable)
-						                && (acct_mode
-						                                == AAA_ACCT_TACACS_CMD_1
-						                                || acct_mode
-						                                                == AAA_ACCT_TACACS_CMD_ALL)) /* unprivileged user */
-							tacacs_log((unsigned char *) line,
-							                TAC_PLUS_PRIV_LVL_USR);
-						else if ((_cish_enable)
-						                && (acct_mode
-						                                == AAA_ACCT_TACACS_CMD_15
-						                                || acct_mode
-						                                                == AAA_ACCT_TACACS_CMD_ALL))
-							tacacs_log((unsigned char *) line,
-							                TAC_PLUS_PRIV_LVL_MAX);
-					}
-				}
 			}
 		}
 		free(line);
@@ -1014,14 +990,14 @@ int cish_execute(const char *cmd)
 #if 0 /* Debug */
 			printf("Execute line: %s\n", realcmd);
 #endif
-#ifdef OPTION_AAA_AUTHORIZATION
-			if (librouter_pam_authorize_command(realcmd) != 0)
+
+			if (authorize_cli_command(realcmd) < 0)
 				return -1;
-#endif
+
 			xcmd->func(realcmd);
-#ifdef OPTION_AAA_ACCOUNTING
-			librouter_pam_account_command(realcmd);
-#endif
+
+			account_cli_command(realcmd);
+
 		} else
 			printf("%% incomplete command\n");
 	} else {
