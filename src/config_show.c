@@ -39,6 +39,7 @@
 #include <librouter/pptp.h>
 #include <librouter/acl.h>
 #include <librouter/pbr.h>
+#include <librouter/pam.h>
 
 #define PPPDEV "ppp"
 
@@ -1291,8 +1292,20 @@ void erase_cfg(const char *cmdline)
 
 void show_privilege(const char *cmdline)
 {
-	printf("Current privilege level is %i\n", _cish_enable);
-	librouter_pam_get_privilege();
+	int priv=0;
+
+	if (!_cish_enable){
+		printf("Current privilege level is 1\n");
+		return;
+	}
+
+	if ((priv = librouter_pam_get_privilege()) < 0){
+		fprintf(stderr, "%% Error retriving privilege\n");
+		return;
+	}
+
+	printf("Current privilege level is %i\n", priv);
+
 }
 
 void show_interfaces(const char *cmdline) /* show interfaces [aux|ethernet|loopback|serial|tunnel] [0-?] */
