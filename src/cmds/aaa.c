@@ -127,14 +127,13 @@ cish_command CMD_CONFIG_AAA_AUTHENTICATION[] = {
 };
 
 cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH[] = {
-	{"<string>", "Encrypted password", CMD_CONFIG_AAA_USERNAME_PRIVILEGE, NULL, 1, MSK_AUTH},
+	{"<text>", "Encrypted password", CMD_CONFIG_AAA_USERNAME_PRIVILEGE, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CONFIG_AAA_USERNAME_PASSWORD_DATA[] = {
+	{"hash", "Encrypted password", CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH, NULL, 2, MSK_AUTH}, /* needs especial priviledge! (2) */
 	{"<text>", "The UNENCRYPTED (cleartext) user password", CMD_CONFIG_AAA_USERNAME_PRIVILEGE, NULL, 1, MSK_AUTH},
-	{"hash", "Encrypted password", CMD_CONFIG_AAA_USERNAME_PASSWORD_DATAHASH,
-					NULL, 2, MSK_AUTH}, /* needs especial priviledge! (2) */
 	{NULL,NULL,NULL,NULL, 0}
 };
 
