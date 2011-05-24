@@ -509,34 +509,6 @@ void account_cli_command(char *cmd)
 /* User manipulation */
 /*********************/
 
-static int remove_user_before_add(char * name)
-{
-	char group[12];
-	int group_num=0;
-
-	if ((group_num = librouter_pam_get_privilege_by_name(name)) < 0){
-		printf("%% Not possible to execute command with success\n");
-		printf("%% Problems retriving user group\n");
-		return -1;
-	}
-
-	snprintf(group, 12, "priv%d", group_num);
-
-	librouter_pam_del_user_from_group(name, group);
-	librouter_pam_del_user_from_group(name, "root");
-
-	return 0;
-}
-
-static void add_user_to_group(char * name, char * priv)
-{
-	char group[12];
-	snprintf(group, 12, "priv%s", priv);
-
-	librouter_pam_add_user_to_group(name, group);
-	librouter_pam_add_user_to_group(name, "root");
-}
-
 /**
  * add_user	Add a user to system and set its password and privileges
  *
@@ -549,22 +521,35 @@ void add_user(const char *cmd) /* aaa username <user> password [hash] <pass> pri
 	args = librouter_make_args(cmd);
 
 	if (strstr(cmd, "hash")) {
-		if (remove_user_before_add(args->argv[2]) < 0)
-			goto end;
+		if (librouter_pam_cmds_del_user_from_group(args->argv[2]) < 0)
+			goto errorG;
 
-		librouter_pam_add_user_with_hash(args->argv[2], args->argv[5]);
-		add_user_to_group(args->argv[2], args->argv[7]);
+		if (librouter_pam_add_user_with_hash(args->argv[2], args->argv[5]) < 0)
+			goto errorU;
+
+		if (librouter_pam_cmds_add_user_to_group(args->argv[2], args->argv[7]) < 0)
+			goto errorU;
 	}
 	else {
-		if (remove_user_before_add(args->argv[2]) < 0 )
-			goto end;
+		if (librouter_pam_cmds_del_user_from_group(args->argv[2]) < 0 )
+			goto errorG;
 
-		librouter_pam_add_user(args->argv[2], args->argv[4]);
-		add_user_to_group(args->argv[2], args->argv[6]);
+		if (librouter_pam_add_user(args->argv[2], args->argv[4]) < 0)
+			goto errorU;
+
+		if (librouter_pam_cmds_add_user_to_group(args->argv[2], args->argv[6]) < 0)
+			goto errorU;
 	}
 
-end:	librouter_destroy_args(args);
+	librouter_destroy_args(args);
+	return;
 
+errorG:
+	printf("%% Problems retriving user group\n");
+errorU:
+	printf("%% Not possible to execute command with success\n");
+	librouter_destroy_args(args);
+	return;
 }
 
 /**
@@ -575,22 +560,22 @@ end:	librouter_destroy_args(args);
 void del_user(const char *cmd) /* no aaa username <user>*//* tinylogin */
 {
 	arglist *args;
-	char group[12];
-	int priv_num=0;
-
 	args = librouter_make_args(cmd);
 
-	if ((priv_num = librouter_pam_get_privilege_by_name(args->argv[3])) < 0){
-		printf("%% Not possible to execute command with success\n");
-		printf("%% Problems retriving user group\n");
-		librouter_destroy_args(args);
-		return;
-	}
+	if (librouter_pam_cmds_del_user_from_group(args->argv[3]) < 0)
+		goto errorG;
 
-	snprintf(group, 12, "priv%d", priv_num);
-	librouter_pam_del_user_from_group(args->argv[3], group);
-	librouter_pam_del_user_from_group(args->argv[3], "root");
-	librouter_pam_del_user(args->argv[3]);
+	if (librouter_pam_del_user(args->argv[3]) < 0)
+		goto errorU;
+
 	librouter_destroy_args(args);
+	return;
+
+errorG:
+	printf("%% Problems retriving user group\n");
+errorU:
+	printf("%% Not possible to execute command with success\n");
+	librouter_destroy_args(args);
+	return;
 
 }
