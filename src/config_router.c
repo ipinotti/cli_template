@@ -98,6 +98,10 @@ void set_model_auth_cmds(void)
 
 	if (priv == 15 || priv == 0)
 		_cish_mask |= MSK_AUTH;
+
+	/* Remove the command "enable" from cish to basic user level*/
+	if (priv == 1)
+		_cish_mask &= ~MSK_ENABLE;
 }
 
 #ifdef OPTION_MANAGED_SWITCH
