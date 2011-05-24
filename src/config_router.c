@@ -92,7 +92,12 @@ void del_model_cmd_mask(int mask)
 
 void set_model_auth_cmds(void)
 {
-	_cish_mask |= MSK_AUTH;
+	int priv = 0;
+
+	priv = librouter_pam_get_privilege();
+
+	if (priv == 15 || priv == 0)
+		_cish_mask |= MSK_AUTH;
 }
 
 #ifdef OPTION_MANAGED_SWITCH
