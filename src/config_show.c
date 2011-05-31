@@ -1304,6 +1304,11 @@ void show_privilege(const char *cmdline)
 		return;
 	}
 
+	/*Usuário root no inicio dos tempos nao pertence a nenhum grupo PRIV
+	 * necessitando um tweak para setar seu privilegio para 15*/
+	if (priv == 0)
+		priv = 15;
+
 	printf("Current privilege level is %i\n", priv);
 
 }
