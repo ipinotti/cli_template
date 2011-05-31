@@ -147,38 +147,59 @@ cish_command CMD_CONFIG_AAA_USERNAME[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_AAA_ACCT_TACACS[] = {
+cish_command CMD_CONFIG_AAA_ACCT_CMDS_TACACS[] = {
+	{"tacacs+", "Use list of all Tacacs+ hosts.", NULL, cmd_aaa_acct, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_ACCT_CMDS_GROUP[] = {
+	{"group", "Use Server-group", CMD_CONFIG_AAA_ACCT_CMDS_TACACS, NULL, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_ACCT_CMDS_STARTSTOP[] = {
+	{"start-stop", "Record start and stop without waiting", CMD_CONFIG_AAA_ACCT_CMDS_GROUP, NULL, 1, MSK_AUTH},
+	{"none", "no accounting", NULL, cmd_aaa_acct, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_ACCT_CMDS_DEFAULT[] = {
+	{"default", "The default accounting list", CMD_CONFIG_AAA_ACCT_CMDS_STARTSTOP, NULL, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_ACCT_EXEC_TACACS_RADIUS[] = {
 	{"radius", "Use list of all Radius hosts.", NULL, cmd_aaa_acct, 1, MSK_AUTH},
 	{"tacacs+", "Use list of all Tacacs+ hosts.", NULL, cmd_aaa_acct, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_AAA_ACCT_GROUP[] = {
-	{"group", "Use Server-group", CMD_CONFIG_AAA_ACCT_TACACS, NULL, 1, MSK_AUTH},
+cish_command CMD_CONFIG_AAA_ACCT_EXEC_GROUP[] = {
+	{"group", "Use Server-group", CMD_CONFIG_AAA_ACCT_EXEC_TACACS_RADIUS, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_AAA_ACCT_STARTSTOP[] = {
-	{"start-stop", "Record start and stop without waiting", CMD_CONFIG_AAA_ACCT_GROUP, NULL, 1, MSK_AUTH},
+cish_command CMD_CONFIG_AAA_ACCT_EXEC_STARTSTOP[] = {
+	{"start-stop", "Record start and stop without waiting", CMD_CONFIG_AAA_ACCT_EXEC_GROUP, NULL, 1, MSK_AUTH},
 	{"none", "no accounting", NULL, cmd_aaa_acct, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_AAA_ACCT_DEFAULT[] = {
-	{"default", "The default accounting list", CMD_CONFIG_AAA_ACCT_STARTSTOP, NULL, 1, MSK_AUTH},
+cish_command CMD_CONFIG_AAA_ACCT_EXEC_DEFAULT[] = {
+	{"default", "The default accounting list", CMD_CONFIG_AAA_ACCT_EXEC_STARTSTOP, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 #if 0
 cish_command CMD_CONFIG_AAA_ACCT1[] = {
-	{"0-15", "Enable Level", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
+	{"0-15", "Enable Level", CMD_CONFIG_AAA_ACCT_DEFAULT_EXEC, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
 
 cish_command CMD_CONFIG_AAA_ACCT[] = {
-	{"commands", "For exec (shell) commands", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
-	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_ACCT_DEFAULT, NULL, 1, MSK_AUTH},
+	{"commands", "For exec (shell) commands", CMD_CONFIG_AAA_ACCT_CMDS_DEFAULT, NULL, 1, MSK_AUTH},
+	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_ACCT_EXEC_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 cish_command CMD_CONFIG_AAA_AUTHOR_LOCAL[] = {
