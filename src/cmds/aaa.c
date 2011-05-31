@@ -202,32 +202,55 @@ cish_command CMD_CONFIG_AAA_ACCT[] = {
 	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_ACCT_EXEC_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
-cish_command CMD_CONFIG_AAA_AUTHOR_LOCAL[] = {
+
+cish_command CMD_CONFIG_AAA_AUTHOR_CMDS_LOCAL[] = {
 	{"local", "Use local database", NULL, cmd_aaa_author, 1, MSK_AUTH},
 	{"<enter>", "", NULL, NULL, 0, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_AAA_AUTHOR_GROUP1[] = {
-	{"radius", "Use list of all Radius hosts.", CMD_CONFIG_AAA_AUTHOR_LOCAL, cmd_aaa_author, 1, MSK_AUTH},
-	{"tacacs+", "Use list of all Tacacs+ hosts.", CMD_CONFIG_AAA_AUTHOR_LOCAL, cmd_aaa_author, 1, MSK_AUTH},
+cish_command CMD_CONFIG_AAA_AUTHOR_CMDS_GROUP1[] = {
+	{"tacacs+", "Use list of all Tacacs+ hosts.", CMD_CONFIG_AAA_AUTHOR_CMDS_LOCAL, cmd_aaa_author, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_AAA_AUTHOR_GROUP[] = {
-	{"group", "Use Server-group", CMD_CONFIG_AAA_AUTHOR_GROUP1, NULL, 1, MSK_AUTH},
+cish_command CMD_CONFIG_AAA_AUTHOR_CMDS_GROUP[] = {
+	{"group", "Use Server-group", CMD_CONFIG_AAA_AUTHOR_CMDS_GROUP1, NULL, 1, MSK_AUTH},
 	{"none", "No authorization (always succeeds)", NULL, cmd_aaa_author, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CONFIG_AAA_AUTHOR_DEFAULT[] = {
-	{"default", "The default accounting list", CMD_CONFIG_AAA_AUTHOR_GROUP, NULL, 1, MSK_AUTH},
+cish_command CMD_CONFIG_AAA_AUTHOR_CMDS_DEFAULT[] = {
+	{"default", "The default accounting list", CMD_CONFIG_AAA_AUTHOR_CMDS_GROUP, NULL, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_AUTHOR_EXEC_LOCAL[] = {
+	{"local", "Use local database", NULL, cmd_aaa_author, 1, MSK_AUTH},
+	{"<enter>", "", NULL, NULL, 0, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_AUTHOR_EXEC_GROUP1[] = {
+	{"radius", "Use list of all Radius hosts.", CMD_CONFIG_AAA_AUTHOR_EXEC_LOCAL, cmd_aaa_author, 1, MSK_AUTH},
+	{"tacacs+", "Use list of all Tacacs+ hosts.", CMD_CONFIG_AAA_AUTHOR_EXEC_LOCAL, cmd_aaa_author, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_AUTHOR_EXEC_GROUP[] = {
+	{"group", "Use Server-group", CMD_CONFIG_AAA_AUTHOR_EXEC_GROUP1, NULL, 1, MSK_AUTH},
+	{"none", "No authorization (always succeeds)", NULL, cmd_aaa_author, 1, MSK_AUTH},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_AAA_AUTHOR_EXEC_DEFAULT[] = {
+	{"default", "The default accounting list", CMD_CONFIG_AAA_AUTHOR_EXEC_GROUP, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CONFIG_AAA_AUTHOR[] = {
-	{"commands", "For exec (shell) commands", CMD_CONFIG_AAA_AUTHOR_DEFAULT, NULL, 1, MSK_AUTH},
-	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_AUTHOR_DEFAULT, NULL, 1, MSK_AUTH},
+	{"commands", "For exec (shell) commands", CMD_CONFIG_AAA_AUTHOR_CMDS_DEFAULT, NULL, 1, MSK_AUTH},
+	{"exec", "For starting an exec (shell)", CMD_CONFIG_AAA_AUTHOR_EXEC_DEFAULT, NULL, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
