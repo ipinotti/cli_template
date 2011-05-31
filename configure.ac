@@ -16,6 +16,7 @@ AC_PROG_MAKE_SET
 AC_C_BIGENDIAN
 
 # Checks for libraries.
+AC_CHECK_LIB(m, log10,, exit)
 AC_CHECK_LIB(crypt, setkey,,exit)
 AC_CHECK_LIB(ncurses, tgetent,, exit)
 AC_CHECK_LIB(pam, pam_get_data,, exit)
