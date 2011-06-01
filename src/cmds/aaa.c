@@ -232,7 +232,9 @@ cish_command CMD_CONFIG_AAA_AUTHOR_EXEC_LOCAL[] = {
 };
 
 cish_command CMD_CONFIG_AAA_AUTHOR_EXEC_GROUP1[] = {
+#ifdef NOT_YET_IMPLEMENTED
 	{"radius", "Use list of all Radius hosts.", CMD_CONFIG_AAA_AUTHOR_EXEC_LOCAL, cmd_aaa_author, 1, MSK_AUTH},
+#endif
 	{"tacacs+", "Use list of all Tacacs+ hosts.", CMD_CONFIG_AAA_AUTHOR_EXEC_LOCAL, cmd_aaa_author, 1, MSK_AUTH},
 	{NULL,NULL,NULL,NULL, 0}
 };
