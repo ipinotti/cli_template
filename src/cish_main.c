@@ -290,16 +290,20 @@ int main(int argc, char *argv[])
 		if (strcmp(argv[1], "-b") == 0) { /* Board is booting up */
 			int size;
 
+			syslog(LOG_DEBUG, "Applying default configuration\n");
+
 			 /* Load configuration from flash that is not
 			 * contained at startup config */
 			librouter_nv_load_ssh_secret(SSH_KEY_FILE);
 			librouter_nv_load_ntp_secret(NTP_KEY_FILE);
 			librouter_nv_load_banner_login(router_cfg->banner_login);
 			librouter_nv_load_banner_system(router_cfg->banner_system);
+			syslog(LOG_DEBUG, "Preparing SNMP users\n");
 			librouter_snmp_load_prepare_users();
-
 #if defined(OPTION_MANAGED_SWITCH)
 #if defined (CONFIG_DIGISTAR_EFM)
+			syslog(LOG_DEBUG, "Reseting VLAN tables from KSZ8863\n");
+
 			librouter_ksz8863_set_default_config();
 #elif defined (CONFIG_DIGISTAR_3G)
 			librouter_bcm53115s_set_default_config();
@@ -369,7 +373,7 @@ int main(int argc, char *argv[])
 		prompt[0] = 0;
 		gethostname(buf, sizeof(buf) - 1);
 		buf[sizeof(buf) - 1] = 0;
-		strncat(prompt, buf, 24);
+		strncat(prompt, buf, OPTION_HOSTNAME_MAXSIZE);
 
 		_print_current_menu();
 

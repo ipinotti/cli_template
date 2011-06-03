@@ -137,6 +137,8 @@ cish_command CMD_CONFIG_SNMP_VERSION[] = {
 	{"3", "Enable SNMP v3", CMD_CONFIG_SNMP_VERSION_3, snmp_version, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL, 0}
 };
+
+};
 #endif /* OPTION_SNMP_VERSION_SELECT */
 
 cish_command CMD_CONFIG_SNMP[] = {
@@ -147,7 +149,7 @@ cish_command CMD_CONFIG_SNMP[] = {
 	{"trapsink", "Set trapsink addresses", CMD_CONFIG_SNMP_TRAPSINK, NULL, 1, MSK_NORMAL},
 	{"user", "SNMP v3 users management", CMD_CONFIG_SNMP_USER, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_SNMP_VERSION_SELECT
-	{"version", "Enable SNMP; SNMP protocol versions enable", CMD_CONFIG_SNMP_VERSION, NULL, 1, MSK_NORMAL},
+	{"version", "SNMP protocol versions selection", CMD_CONFIG_SNMP_VERSION, NULL, 1, MSK_NORMAL},
 #endif
 	{NULL, NULL, NULL, NULL, 0}
 };
