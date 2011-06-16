@@ -1281,6 +1281,11 @@ void config_memory(const char *cmdline)
 	cmd_copy("copy startup-config running-config");
 }
 
+void config_write(const char *cmdline)
+{
+	cmd_copy("copy running-config startup-config");
+}
+
 void erase_cfg(const char *cmdline)
 {
 	FILE *f;

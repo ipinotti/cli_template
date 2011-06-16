@@ -194,6 +194,7 @@ void disable(const char *);
 
 void cmd_copy(const char *);
 void config_memory(const char *);
+void config_write(const char *);
 void erase_cfg(const char *);
 void setsecret(const char *);
 void set_nosecret(const char *);

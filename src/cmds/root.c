@@ -259,5 +259,6 @@ cish_command CMD[] = {
 	{"telnet", "Open a telnet connection", CMD_TELNET, NULL, 1, MSK_NORMAL},
 	{"terminal", "Set terminal line parameters", CMD_TERMINAL, NULL, 0, MSK_NORMAL},
 	{"traceroute", "Traceroute to destination", CMD_TRACEROUTE, NULL, 0, MSK_NORMAL},
+	{"write", "Save current configuration in non-volatile memory", NULL, config_write, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL}
 };
