@@ -680,9 +680,12 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 
 		librouter_efm_get_channel_state_string(st[i].channel_st, buf, sizeof(buf));
 
-		printf("  Channel %d is %s. Speed is %d kbps, ", i, buf, st[i].bitrate[0]);
-		printf("CRC: %d SEGA: %d LOSW: %d\n",
-		       cnt.xcvr_cnt[i].crc, cnt.xcvr_cnt[i].sega, cnt.xcvr_cnt[i].losw);
+		printf("  Channel %d is %s\n", i, buf);
+		if (st[i].channel_st == CHANNEL_STATE_CONNECTED) {
+			printf("    SNR %.02fdB\n", librouter_efm_get_snr(i));
+			printf("    Line rate %d kbps\n    CRC: %d SEGA: %d LOSW: %d\n", st[i].bitrate[0],
+				cnt.xcvr_cnt[i].crc, cnt.xcvr_cnt[i].sega, cnt.xcvr_cnt[i].losw);
+		}
 	}
 
 	printf("  General Interface Statistics\n");
