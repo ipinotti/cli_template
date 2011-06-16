@@ -22,7 +22,7 @@ void vlan_add(const char *cmd) /* vlan <id> */
 	if(librouter_vlan_exists(interface_major, vid)) {
 		printf("%% vlan allready used\n");
 	}
-		else librouter_vlan_vid(interface_major, vid, 1, 0);
+		else librouter_vlan_add_vid(interface_major, vid);
 	librouter_destroy_args(args);
 }
 
@@ -36,7 +36,7 @@ void vlan_del(const char *cmd) /* no vlan <id> */
 	if(!librouter_vlan_exists(interface_major, vid)) {
 		printf("%% vlan not defined\n");
 	}
-		else librouter_vlan_vid(interface_major, vid, 0, 0);
+		else librouter_vlan_del_vid(interface_major, vid);
 	librouter_destroy_args(args);
 }
 
