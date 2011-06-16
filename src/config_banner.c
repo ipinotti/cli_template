@@ -92,12 +92,8 @@ void config_banner_system(const char *cmdline)
 
 void show_banner(const char *cmdline)
 {
-	if (router_cfg->banner_system[0] == 0) {
-		printf("System banner not set\n");
+	if (router_cfg->banner_system[0] == 0)
 		return;
-	}
 
-	printf("\n##################################################################\n");
 	printf("%s" ,router_cfg->banner_system);
-	printf("\n##################################################################\n");
 }

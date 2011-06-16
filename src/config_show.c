@@ -1023,6 +1023,8 @@ void show_running_config(const char *cmdline)
 {
 	FILE *tf;
 
+	show_banner(cmdline);
+
 	printf("Building configuration...\n");
 
 	/* Write config to f descriptor */
