@@ -348,31 +348,27 @@ void del_radiusserver(const char *cmd) /* no radius-server [host <ipaddr>] */
 
 	memset(&server, 0, sizeof(server));
 
-	args = librouter_make_args(cmd);
-
-
 	/* Parse all PAM files to check if RADIUS is enabled anywhere */
 	for (i = 0; pam_files[i] != NULL; i++) {
 		mode = librouter_pam_get_current_mode((char *)pam_files[i]);
 		if (mode == AAA_AUTH_RADIUS || mode == AAA_AUTH_RADIUS_LOCAL) {
 			printf("%% please disable RADIUS authentication first\n");
-			librouter_destroy_args(args);
 			return;
 		}
 		mode = librouter_pam_get_current_author_mode((char *)pam_files[i]);
 		if (mode == AAA_AUTHOR_RADIUS || mode == AAA_AUTHOR_RADIUS_LOCAL) {
 			printf("%% please disable RADIUS authorization first\n");
-			librouter_destroy_args(args);
 			return;
 		}
 
 		mode = librouter_pam_get_current_acct_mode((char *)pam_files[i]);
 		if (mode == AAA_ACCT_RADIUS) {
 			printf("%% please disable RADIUS accounting first\n");
-			librouter_destroy_args(args);
 			return;
 		}
 	}
+
+	args = librouter_make_args(cmd);
 
 	if (args->argc == 4) {
 		server.ipaddr = args->argv[3];
