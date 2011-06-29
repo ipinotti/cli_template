@@ -430,7 +430,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_MTU[] = {
 #ifdef OPTION_GIGAETHERNET
 	{"68-9000", "Max Transfer Unit", NULL, interface_mtu, 1, MSK_NORMAL},
 #else
-	{"68-1500", "Max Transfer Unit", NULL, interface_mtu, 1, MSK_NORMAL},
+	{"68-1600", "Max Transfer Unit", NULL, interface_mtu, 1, MSK_NORMAL},
 #endif
 	{NULL,NULL,NULL,NULL}
 };
