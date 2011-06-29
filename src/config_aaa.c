@@ -545,7 +545,7 @@ void add_user(const char *cmd) /* aaa username <user> password [hash] <pass> pri
 	return;
 
 errorG:
-	printf("%% Problems retriving user group\n");
+	printf("%% Problems retrieving user group\n");
 errorU:
 	printf("%% Not possible to execute command with success\n");
 	librouter_destroy_args(args);
