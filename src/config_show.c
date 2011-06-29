@@ -681,10 +681,23 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 		librouter_efm_get_channel_state_string(st[i].channel_st, buf, sizeof(buf));
 
 		printf("  Channel %d is %s\n", i, buf);
-		if (st[i].channel_st == CHANNEL_STATE_CONNECTED) {
+		//if (st[i].channel_st == CHANNEL_STATE_CONNECTED || st[i].channel_st == CHANNEL_STATE_HANDSHAKING) {
+		switch (st[i].op_state[0]) {
+		case GTI_DATA_OP:
 			printf("    SNR %.02fdB\n", librouter_efm_get_snr(i));
+			/* Fall through */
+		case GTI_TRAINING_OP:
+		case GTI_FRAMER_SYNC_OP:
+		case GTI_FRAMER_GEAR_SHIFT_OP:
+		case GTI_WAIT_ACTION_GEAR_SHIFT_OP:
+			printf("    Transmit Power %.02fdBm\n", librouter_efm_get_xmit_power(i));
+			printf("    Receiver Gain %.02fdB\n", librouter_efm_get_receiver_gain(i));
+			printf("    Loop Attenuation %.02fdB\n", librouter_efm_get_loop_attn(i));
 			printf("    Line rate %d kbps\n    CRC: %d SEGA: %d LOSW: %d\n", st[i].bitrate[0],
 				cnt.xcvr_cnt[i].crc, cnt.xcvr_cnt[i].sega, cnt.xcvr_cnt[i].losw);
+			break;
+		default:
+			break;
 		}
 	}
 
