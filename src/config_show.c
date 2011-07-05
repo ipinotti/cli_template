@@ -677,15 +677,29 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 	                librouter_efm_get_mode() ? "CPE" : "CO");
 	for (i = 0; i < n; i++) {
 		char buf[32];
+		int d, h, m, s, t;
+
+		t = cnt.xcvr_cnt[i].uptime;
+		d = t/86400;
+		t %= 86400;
+		h = t/3600;
+		t %= 3600;
+		m = t/60;
+		t %= 60;
+		s = t;
 
 		librouter_efm_get_channel_state_string(st[i].channel_st, buf, sizeof(buf));
 
 		printf("  Channel %d is %s\n", i, buf);
-		//if (st[i].channel_st == CHANNEL_STATE_CONNECTED || st[i].channel_st == CHANNEL_STATE_HANDSHAKING) {
+		if (st[i].channel_st == CHANNEL_STATE_CONNECTED) {
+			printf("  Connection time : %d days %d hours %d min %d sec\n",
+					d, h, m, s);
+			printf("    SNR %.02fdB\n", librouter_efm_get_snr(i));
+			printf("    SNR Margin %.02fdB\n", librouter_efm_get_data_mode_margin(i));
+		}
+
 		switch (st[i].op_state[0]) {
 		case GTI_DATA_OP:
-			printf("    SNR %.02fdB\n", librouter_efm_get_snr(i));
-			/* Fall through */
 		case GTI_TRAINING_OP:
 		case GTI_FRAMER_SYNC_OP:
 		case GTI_FRAMER_GEAR_SHIFT_OP:
