@@ -483,7 +483,10 @@ int authorize_cli_command(char *cmd)
 	if (!strcmp(cmd, "exit"))
 		return 0;
 
-	if (librouter_pam_authorize_command(cmd) != 0)
+	char cish_enable[2];
+	snprintf(cish_enable,sizeof(cish_enable),"%d",_cish_enable);
+
+	if (librouter_pam_authorize_command(cmd, cish_enable) != 0)
 		return -1;
 #endif
 	return 0;
