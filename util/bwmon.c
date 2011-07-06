@@ -1,4 +1,9 @@
+#include <stdio.h>
+
+#include <librouter/options.h>
 #include <librouter/args.h>
+#include <librouter/device.h>
+
 #include "bwmon.h"
 
 static int print_bytes = 0;
@@ -29,6 +34,7 @@ int main(int argc, char **argv)
 
 	for (k = 0; k < MAX_INTERFACES; k++)
 		interface[k] = NULL;
+
 	if (argc > 0) {
 		while ((opt = getopt(argc, argv, "bu:m")) != -1) {
 			switch (opt) {
@@ -73,8 +79,7 @@ int main(int argc, char **argv)
 			fatal("popen() failed  in %s", __FUNCTION__);
 		if (fgets(buffer, 255, f) && fgets(buffer, 255, f)) {
 			buffer[255] = 0;
-			if ((librouter_parse_args_din(buffer, &argl) > 7) && (strcmp(
-			                argl[0], "cpu0") == 0)) {
+			if ((librouter_parse_args_din(buffer, &argl) > 7) && (strcmp(argl[0], "cpu0") == 0)) {
 				user = atoll(argl[1]);
 				nice = atoll(argl[2]);
 				system = atoll(argl[3]);
@@ -82,22 +87,16 @@ int main(int argc, char **argv)
 				iowait = atoll(argl[5]);
 				irq = atoll(argl[6]);
 				softirq = atoll(argl[7]);
-				scale = 100.0 / (float) ((user - user_old)
-				                + (nice - nice_old) + (system
-				                - system_old) + (idle
-				                - idle_old)
+				scale = 100.0 / (float) ((user - user_old) + (nice - nice_old) + (system
+				                - system_old) + (idle - idle_old)
 #if 1
-				                + (iowait - iowait_old) + (irq
-				                - irq_old) + (softirq
+				                + (iowait - iowait_old) + (irq - irq_old) + (softirq
 				                - softirq_old)
 #endif
 				                );
-				cpu = (float) ((user - user_old) + (nice
-				                - nice_old) + (system
-				                - system_old)
+				cpu = (float) ((user - user_old) + (nice - nice_old) + (system - system_old)
 #if 1
-				                + (iowait - iowait_old) + (irq
-				                - irq_old) + (softirq
+				                + (iowait - iowait_old) + (irq - irq_old) + (softirq
 				                - softirq_old)
 #endif
 				                ) * scale;
@@ -138,16 +137,14 @@ int main(int argc, char **argv)
 			librouter_destroy_args_din(&argl);
 		}
 		if (j == 2)
-			mem = (float) (mem_total - mem_free) * 100.0
-			                / mem_total;
+			mem = (float) (mem_total - mem_free) * 100.0 / mem_total;
 		fclose(f);
 
 		if ((f = fopen(DEVFILE, "r")) == NULL)
 			fatal("fopen() failed  in %s", __FUNCTION__);
 		if (fgets(buffer, 255, f) && fgets(buffer, 255, f)) {
 			i = 0;
-			while (fgets(buffer, 255, f) && (i < (MAX_INTERFACES
-			                - 1))) {
+			while (fgets(buffer, 255, f) && (i < (MAX_INTERFACES - 1))) {
 				if (!do_interface(buffer, &interface[i]))
 					continue;
 				i++;
@@ -190,13 +187,11 @@ int main(int argc, char **argv)
 			 */
 			printf("                 ");
 			for (j = 0; j < i; j++)
-				printf("          %11s         ",
-				                interface[j]->name);
+				printf("          %11s         ", interface[j]->name);
 			printf("\n");
 			printf("CPU used MEM used");
 			for (j = 0; j < i; j++)
-				printf("  TX(K%cps)@pps    RX(K%cps)@pps  ",
-				                print_bytes == 1 ? 'B' : 'b',
+				printf("  TX(K%cps)@pps    RX(K%cps)@pps  ", print_bytes == 1 ? 'B' : 'b',
 				                print_bytes == 1 ? 'B' : 'b');
 			printf("\n");
 			first_pass = 0;
@@ -204,6 +199,14 @@ int main(int argc, char **argv)
 			sleep(1);
 		}
 	}
+
+	for (k = 0; k < MAX_INTERFACES; k++) {
+		if (interface[k] != NULL) {
+			free(interface[k]);
+			interface[k] = NULL;
+		}
+	}
+
 	tcsetattr(0, TCSANOW, &initial_settings);
 	exit(0);
 }
@@ -217,26 +220,24 @@ bool_t do_interface(char * buffer, interface_t *interface)
 	pbuffer = buffer;
 	pbuffer = strtok(pbuffer, " :");
 
-	if (strncmp(pbuffer, "ethernet", 8) && strncmp(pbuffer, "serial", 6)
-	                && strncmp(pbuffer, "aux", 3))
+	if (strncmp(pbuffer, "eth", 3))
 		return FALSE; /* Filter interfaces */
 
+	if (strstr(pbuffer, "."))
+		return FALSE; /* Filter sub-interfaces */
+
 	if (*interface == NULL) {
-		if ((*interface
-		                = (interface_t) malloc(sizeof(struct interface)))
-		                == NULL)
+		if ((*interface = (interface_t) malloc(sizeof(struct interface))) == NULL)
 			return FALSE;
-		strncpy((*interface)->name, pbuffer, 16);
+		strncpy((*interface)->name, librouter_device_linux_to_cli(pbuffer, 0), 16);
 	}
+
 	(*interface)->time_old = (*interface)->time_new;
 	gettimeofday(&((*interface)->time_new), NULL);
 
-	(*interface)->time_diff_ms
-	                = ((*interface)->time_new.tv_sec * 1000
-	                                + (*interface)->time_new.tv_usec / 1000)
-	                                - ((*interface)->time_old.tv_sec * 1000
-	                                                + (*interface)->time_old.tv_usec
-	                                                                / 1000);
+	(*interface)->time_diff_ms = ((*interface)->time_new.tv_sec * 1000 + (*interface)->time_new.tv_usec
+	                / 1000) - ((*interface)->time_old.tv_sec * 1000 + (*interface)->time_old.tv_usec
+	                / 1000);
 	field_number = 0;
 
 	while ((pbuffer = strtok(NULL, " :")) != NULL) {
@@ -250,30 +251,20 @@ bool_t do_interface(char * buffer, interface_t *interface)
 				(*interface)->rx_bytes_new = conv_field * 8;
 			else
 				(*interface)->rx_bytes_new = conv_field;
-			if ((*interface)->rx_bytes_new
-			                > (*interface)->rx_bytes_old)
-				(*interface)->rx_kbytes_dif
-				                = ((*interface)->rx_bytes_new
-				                                - (*interface)->rx_bytes_old)
-				                                * 1000 / 1024;
+			if ((*interface)->rx_bytes_new > (*interface)->rx_bytes_old)
+				(*interface)->rx_kbytes_dif = ((*interface)->rx_bytes_new
+				                - (*interface)->rx_bytes_old) * 1000 / 1024;
 			else
 				(*interface)->rx_kbytes_dif = 0;
-			(*interface)->rx_rate_whole
-			                = (*interface)->rx_kbytes_dif
-			                                / (*interface)->time_diff_ms;
-			(*interface)->rx_rate_part = bwm_calc_remainder(
-			                (*interface)->rx_kbytes_dif,
+			(*interface)->rx_rate_whole = (*interface)->rx_kbytes_dif
+			                / (*interface)->time_diff_ms;
+			(*interface)->rx_rate_part = bwm_calc_remainder((*interface)->rx_kbytes_dif,
 			                (*interface)->time_diff_ms);
-			if ((*interface)->rx_rate_whole
-			                >= (*interface)->rx_max_whole) {
-				if (((*interface)->rx_rate_part
-				                > (*interface)->rx_max_part)
-				                || ((*interface)->rx_rate_whole
-				                                >= (*interface)->rx_max_whole)) {
-					(*interface)->rx_max_part
-					                = (*interface)->rx_rate_part;
-					(*interface)->rx_max_whole
-					                = (*interface)->rx_rate_whole;
+			if ((*interface)->rx_rate_whole >= (*interface)->rx_max_whole) {
+				if (((*interface)->rx_rate_part > (*interface)->rx_max_part)
+				                || ((*interface)->rx_rate_whole >= (*interface)->rx_max_whole)) {
+					(*interface)->rx_max_part = (*interface)->rx_rate_part;
+					(*interface)->rx_max_whole = (*interface)->rx_rate_whole;
 				}
 			}
 			break;
@@ -282,9 +273,8 @@ bool_t do_interface(char * buffer, interface_t *interface)
 			(*interface)->rx_pkt_old = (*interface)->rx_pkt_new;
 			(*interface)->rx_pkt_new = conv_field;
 			if ((*interface)->rx_pkt_new > (*interface)->rx_pkt_old)
-				(*interface)->rx_pkt_dif
-				                = ((*interface)->rx_pkt_new
-				                                - (*interface)->rx_pkt_old);
+				(*interface)->rx_pkt_dif = ((*interface)->rx_pkt_new
+				                - (*interface)->rx_pkt_old);
 			else
 				(*interface)->rx_pkt_dif = 0;
 			(*interface)->rx_pkt_rate = (*interface)->rx_pkt_dif;
@@ -296,39 +286,26 @@ bool_t do_interface(char * buffer, interface_t *interface)
 				(*interface)->tx_bytes_new = conv_field * 8;
 			else
 				(*interface)->tx_bytes_new = conv_field;
-			if ((*interface)->tx_bytes_new
-			                > (*interface)->tx_bytes_old)
-				(*interface)->tx_kbytes_dif
-				                = ((*interface)->tx_bytes_new
-				                                - (*interface)->tx_bytes_old)
-				                                * 1000 / 1024;
+			if ((*interface)->tx_bytes_new > (*interface)->tx_bytes_old)
+				(*interface)->tx_kbytes_dif = ((*interface)->tx_bytes_new
+				                - (*interface)->tx_bytes_old) * 1000 / 1024;
 			else
 				(*interface)->tx_kbytes_dif = 0;
-			(*interface)->tx_rate_whole
-			                = (*interface)->tx_kbytes_dif
-			                                / (*interface)->time_diff_ms;
-			(*interface)->tx_rate_part = bwm_calc_remainder(
-			                (*interface)->tx_kbytes_dif,
+			(*interface)->tx_rate_whole = (*interface)->tx_kbytes_dif
+			                / (*interface)->time_diff_ms;
+			(*interface)->tx_rate_part = bwm_calc_remainder((*interface)->tx_kbytes_dif,
 			                (*interface)->time_diff_ms);
-			if ((*interface)->tx_rate_whole
-			                >= (*interface)->tx_max_whole) {
-				if (((*interface)->tx_rate_part
-				                > (*interface)->tx_max_part)
-				                || ((*interface)->tx_rate_whole
-				                                >= (*interface)->tx_max_whole)) {
-					(*interface)->tx_max_part
-					                = (*interface)->tx_rate_part;
-					(*interface)->tx_max_whole
-					                = (*interface)->tx_rate_whole;
+			if ((*interface)->tx_rate_whole >= (*interface)->tx_max_whole) {
+				if (((*interface)->tx_rate_part > (*interface)->tx_max_part)
+				                || ((*interface)->tx_rate_whole >= (*interface)->tx_max_whole)) {
+					(*interface)->tx_max_part = (*interface)->tx_rate_part;
+					(*interface)->tx_max_whole = (*interface)->tx_rate_whole;
 				}
 			}
 
-			(*interface)->tot_rate_whole
-			                = (*interface)->rx_rate_whole
-			                                + (*interface)->tx_rate_whole;
-			(*interface)->tot_rate_part
-			                = (*interface)->rx_rate_part
-			                                + (*interface)->tx_rate_part;
+			(*interface)->tot_rate_whole = (*interface)->rx_rate_whole
+			                + (*interface)->tx_rate_whole;
+			(*interface)->tot_rate_part = (*interface)->rx_rate_part + (*interface)->tx_rate_part;
 
 			if ((*interface)->tot_rate_part >= 1000) {
 				(*interface)->tot_rate_whole++;
@@ -340,9 +317,8 @@ bool_t do_interface(char * buffer, interface_t *interface)
 			(*interface)->tx_pkt_old = (*interface)->tx_pkt_new;
 			(*interface)->tx_pkt_new = conv_field;
 			if ((*interface)->tx_pkt_new > (*interface)->tx_pkt_old)
-				(*interface)->tx_pkt_dif
-				                = ((*interface)->tx_pkt_new
-				                                - (*interface)->tx_pkt_old);
+				(*interface)->tx_pkt_dif = ((*interface)->tx_pkt_new
+				                - (*interface)->tx_pkt_old);
 			else
 				(*interface)->tx_pkt_dif = 0;
 			(*interface)->tx_pkt_rate = (*interface)->tx_pkt_dif;
@@ -354,11 +330,9 @@ bool_t do_interface(char * buffer, interface_t *interface)
 
 bool_t print_interface(interface_t * interface)
 {
-	printf(" %5lu.%03lu@%-5lu %5lu.%03lu@%-5lu",
-	                (*interface)->tx_rate_whole,
-	                (*interface)->tx_rate_part, (*interface)->tx_pkt_rate,
-	                (*interface)->rx_rate_whole,
-	                (*interface)->rx_rate_part, (*interface)->rx_pkt_rate);
+	printf(" %5lu.%03lu@%-5lu %5lu.%03lu@%-5lu", (*interface)->tx_rate_whole, (*interface)->tx_rate_part,
+	                (*interface)->tx_pkt_rate, (*interface)->rx_rate_whole, (*interface)->rx_rate_part,
+	                (*interface)->rx_pkt_rate);
 
 	return (TRUE);
 }
@@ -366,16 +340,14 @@ bool_t print_interface(interface_t * interface)
 bool_t print_max(interface_t * interface)
 {
 	long max_part = (*interface)->rx_max_part + (*interface)->tx_max_part;
-	long max_whole = (*interface)->rx_max_whole
-	                + (*interface)->tx_max_whole;
+	long max_whole = (*interface)->rx_max_whole + (*interface)->tx_max_whole;
 
 	if (max_part >= 1000) {
 		max_whole++;
 		max_part -= 1000;
 	}
-	printf("        max:      %7lu.%03lu     %7lu.%03lu     %7lu.%03lu\n",
-	                (*interface)->rx_max_whole, (*interface)->rx_max_part,
-	                (*interface)->tx_max_whole, (*interface)->tx_max_part,
+	printf("        max:      %7lu.%03lu     %7lu.%03lu     %7lu.%03lu\n", (*interface)->rx_max_whole,
+	                (*interface)->rx_max_part, (*interface)->tx_max_whole, (*interface)->tx_max_part,
 	                max_whole, max_part);
 	return TRUE;
 }
