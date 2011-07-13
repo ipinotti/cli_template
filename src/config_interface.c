@@ -1468,23 +1468,41 @@ void pppoe_set_clientmode(const char *cmd)
 void interface_efm_set_mode(const char *cmdline)
 {
 	arglist *args;
-	int mode;
+	struct orionplus_conf conf;
 
 	args = librouter_make_args(cmdline);
 
-	if (args->argc != 2) {
+	if (args->argc < 2 || args->argc > 6) {
 		printf("%% Wrong number of arguments\n");
+		librouter_destroy_args(args);
 		return;
 	}
 
-	if (!strcmp(args->argv[1], "cpe"))
-		mode = 1;
-	else
-		mode = 0;
+	if (!strcmp(args->argv[1], "cpe")) {
+		conf.mode = GTI_CPE;
+	} else {
+		conf.mode = GTI_CO;
+	}
 
-	if (librouter_efm_set_mode(mode)) {
+	if (conf.mode == GTI_CO) {
+		if (args->argc != 4) {
+			printf("%% Wrong number of arguments\n");
+			librouter_destroy_args(args);
+			return;
+		}
+
+		if (strstr(args->argv[2], "32"))
+			conf.modulation = GTI_32_TCPAM_MODE;
+		else
+			conf.modulation = GTI_16_TCPAM_MODE;
+		conf.linerate = atoi(args->argv[3]);
+	}
+
+	if (librouter_efm_set_mode(&conf)) {
 		printf("%% Could not set DSP mode\n");
 	}
+
+	librouter_destroy_args(args);
 }
 
 #endif /* OPTION_EFM */

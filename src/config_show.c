@@ -653,6 +653,7 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 {
 	struct orionplus_stat st[4];
 	struct orionplus_counters cnt;
+	struct orionplus_conf dspconf;
 	int n; /* Number of channels */
 	int i;
 
@@ -673,8 +674,9 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 		return;
 	}
 
+	librouter_efm_get_mode(&dspconf);
 	printf("  %d channel DSP, %s mode\n", n,
-	                librouter_efm_get_mode() ? "CPE" : "CO");
+	       dspconf.mode ? "CPE" : "CO");
 	for (i = 0; i < n; i++) {
 		char buf[32];
 		int d, h, m, s, t;
