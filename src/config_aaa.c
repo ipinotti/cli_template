@@ -484,7 +484,9 @@ int authorize_cli_command(char *cmd)
 		return 0;
 
 	char cish_enable[2];
-	snprintf(cish_enable,sizeof(cish_enable),"%d",_cish_enable);
+	memset(&cish_enable, 0, sizeof(cish_enable));
+
+	snprintf(cish_enable, sizeof(cish_enable), "%d", _cish_enable);
 
 	if (librouter_pam_authorize_command(cmd, cish_enable) != 0)
 		return -1;
@@ -500,7 +502,12 @@ int authorize_cli_command(char *cmd)
 void account_cli_command(char *cmd)
 {
 #ifdef OPTION_AAA_ACCOUNTING
-	librouter_pam_account_command(cmd);
+	char cish_enable[2];
+	memset(&cish_enable, 0, sizeof(cish_enable));
+
+	snprintf(cish_enable, sizeof(cish_enable), "%d", _cish_enable);
+
+	librouter_pam_account_command(cmd, cish_enable);
 #endif
 }
 
