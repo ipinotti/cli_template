@@ -1005,8 +1005,25 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[] = {
 
 /* EFM Interface */
 #ifdef OPTION_EFM
+
+cish_command CMD_CONFIG_INTERFACE_EFM_MODE3[] = {
+	{"768-5696", "Maximum Line Rate in Kbps", NULL, interface_efm_set_mode, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
+};
+
+cish_command CMD_CONFIG_INTERFACE_EFM_MODE2[] = {
+	{"192-3840", "Maximum Line Rate in Kbps", NULL, interface_efm_set_mode, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
+};
+
+cish_command CMD_CONFIG_INTERFACE_EFM_MODE1[] = {
+	{"TCPAM-16", "16-TCPAM Line Modulation", CMD_CONFIG_INTERFACE_EFM_MODE2, NULL, 1, MSK_NORMAL},
+	{"TCPAM-32", "32-TCPAM Line Modulation", CMD_CONFIG_INTERFACE_EFM_MODE3, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
+};
+
 cish_command CMD_CONFIG_INTERFACE_EFM_MODE[] = {
-	{"co", "Central Office", NULL, interface_efm_set_mode, 1, MSK_NORMAL},
+	{"co", "Central Office", CMD_CONFIG_INTERFACE_EFM_MODE1, NULL, 1, MSK_NORMAL},
 	{"cpe", "Customer-premise Equipment", NULL, interface_efm_set_mode, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
