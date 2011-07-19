@@ -134,7 +134,6 @@ void bridge_setproto(const char *cmd) /* bridge 1 protocol ieee */
 	strcat(brname, args->argv[1]);
 	if (!librouter_br_exists(brname)) {
 		librouter_br_addbr(brname);
-		librouter_br_set_stp(brname, 1); /* enable spanning-tree protocol */
 		librouter_dev_set_link_up(brname);
 	}
 
