@@ -429,7 +429,7 @@ cish_command CMD_CONFIGURE[] = {
 #ifdef OPTION_QOS
 	{"policy-map", "Configure QoS Policy Map", CMD_CONFIG_POLICYMAP, NULL, 1, MSK_QOS},
 #endif
-#ifdef OPTION_ROUTER
+#ifdef OPTION_PBR
 	{"policy-route", "Configure Policy Route (PBR)", NULL, cd_policyroute_dir, 1, MSK_NORMAL},
 #endif
 	{"radius-server", "Modify RADIUS query parameters", CMD_CONFIG_RADIUSSERVER_HOST, NULL, 1, MSK_AUTH},

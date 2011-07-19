@@ -108,8 +108,10 @@ static int _print_current_menu()
 		{ CMD_POLICYMAP, "(config-pmap)"},
 		{ CMD_POLICYMAP_MARKRULE, "(config-pmap-markrule)"},
 #endif
-#ifdef OPTION_ROUTER
+#ifdef OPTION_PBR
 		{ CMD_POLICY_ROUTE, "(config-proute)"},
+#endif
+#ifdef OPTION_ROUTER
 		{ CMD_CONFIG_ROUTER_RIP, "(config-router-rip)"},
 		{ CMD_CONFIG_ROUTER_OSPF, "(config-router-ospf)"},
 #ifdef OPTION_BGP
@@ -165,7 +167,9 @@ static int _print_current_menu()
 #ifdef OPTION_ROUTER
 		|| (command_root == CMD_KEYCHAIN)
 		|| (command_root == CMD_KEY)
+#ifdef OPTION_PBR
 		|| (command_root == CMD_POLICY_ROUTE)
+#endif
 		|| (command_root == CMD_CONFIG_ROUTER_RIP)
 		|| (command_root == CMD_CONFIG_ROUTER_OSPF)
 #ifdef OPTION_BGP

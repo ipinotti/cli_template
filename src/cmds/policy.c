@@ -7,6 +7,7 @@
 #include "commandtree.h"
 
 /* POLICY ROUTE - PBR */
+#if defined (OPTION_PBR)
 
 cish_command CMD_POLICYROUTE_RULE_TABLENUM[] = {
 	{"0-9", "Table for policy route", NULL, policyroute_rule_set_info, 1, MSK_NORMAL},
@@ -64,7 +65,6 @@ cish_command CMD_POLICYROUTE_ROUTE_DEV_PPPOE[] = {
 	{"0-0", "PPPoE interface number", CMD_POLICYROUTE_ROUTE_TABLE, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
-
 #endif
 
 cish_command CMD_POLICYROUTE_ROUTE_DEV_NAME[] = {
@@ -138,6 +138,8 @@ cish_command CMD_POLICY_ROUTE[] = {
 	{"exit","Exit from Policy Route (PBR) configuration mode", NULL, policyroute_done, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
+
+#endif OPTION_PBR
 
 #ifdef OPTION_QOS
 /* POLICY MAP */

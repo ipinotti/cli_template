@@ -97,7 +97,7 @@ cish_command CMD_SHOW_NAT[] = {
 };
 #endif
 
-#ifdef OPTION_ROUTER
+#ifdef OPTION_PBR
 cish_command CMD_SHOW_POLICYROUTE_ROUTES_TABLE[] = {
 	{"0-9", "Number of predefined table", NULL, show_policyroute_routes, 1, MSK_NORMAL},
 	{"main", "Main table", NULL, show_policyroute_routes, 1, MSK_NORMAL},
@@ -114,7 +114,7 @@ cish_command CMD_SHOW_POLICYROUTE[] = {
 	{"rules", "Defined rules for Policy-Route", NULL, show_policyroute_rules, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
-#endif /* OPTION_ROUTER */
+#endif /* OPTION_PBR */
 
 cish_command CMD_SHOW_IP[] = {
 	{"arp", "ARP table", NULL, show_arp, 0, MSK_NORMAL},
@@ -231,7 +231,7 @@ cish_command CMD_SHOW[] = {
 #ifdef OPTION_NAT
 	{"nat-rules", "List NAT rules", CMD_SHOW_NAT, show_natrules, 1, MSK_NORMAL},
 #endif
-#ifdef OPTION_ROUTER
+#ifdef OPTION_PBR
 	{"policy-route", "List Policy-route rules/routes (PBR)", CMD_SHOW_POLICYROUTE, NULL, 1, MSK_NORMAL},
 #endif
 #ifdef OPTION_NTPD

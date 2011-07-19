@@ -24,6 +24,8 @@
 #include "cish_main.h"
 #include "pprintf.h"
 
+#if defined (OPTION_PBR)
+
 static int route_fill_pbr_struct_from_args(librouter_pbr_struct * pbr, arglist * args)
 {
 	memset(pbr,0,sizeof(librouter_pbr_struct));
@@ -303,3 +305,5 @@ void cd_policyroute_dir(const char *cmdline)
 {
 	command_root = CMD_POLICY_ROUTE;
 }
+
+#endif

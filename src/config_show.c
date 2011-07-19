@@ -2128,6 +2128,7 @@ void show_modem3g_password(const char *cmdline)
 }
 #endif
 
+#if defined (OPTION_PBR)
 void show_policyroute_rules(const char *cmdline)
 {
 	char * show_rules_buffer = NULL;
@@ -2179,3 +2180,4 @@ void show_policyroute_routes(const char *cmdline)
 	librouter_destroy_args(args);
 
 }
+#endif
