@@ -138,8 +138,7 @@ cish_command CMD_POLICY_ROUTE[] = {
 	{"exit","Exit from Policy Route (PBR) configuration mode", NULL, policyroute_done, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
-
-#endif OPTION_PBR
+#endif /*PBR*/
 
 #ifdef OPTION_QOS
 /* POLICY MAP */
