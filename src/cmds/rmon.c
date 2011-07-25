@@ -122,10 +122,18 @@ cish_command RMON_ALARM[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command RMON_VERSION[] = {
+	{"1", "SNMPv1", NULL, rmon_snmp_version, 1, MSK_NORMAL},
+	{"2c", "SNMPv2c", NULL, rmon_snmp_version, 1, MSK_NORMAL},
+	{"3", "SNMPv3", NULL, rmon_snmp_version, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CONFIG_RMON[] = {
 	{"agent", "Start RMON agent", NULL, rmon_agent, 1, MSK_NORMAL},
 	{"event", "Configure event", RMON_EVENT, NULL, 1, MSK_NORMAL},
 	{"alarm", "Configure alarm", RMON_ALARM, NULL, 1, MSK_NORMAL},
+	{"snmp-version", "Configure SNMP version for traps", RMON_VERSION, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif

@@ -183,6 +183,32 @@ void no_rmon_alarm(const char *cmd)
 	librouter_snmp_rmon_send_signal(SIGUSR1);
 }
 
+void rmon_snmp_version(const char *cmd)
+{
+	arglist *args = librouter_make_args(cmd);
+	int version;
+
+	switch (args->argc) {
+	case 3:
+		if (strstr(args->argv[2], "1"))
+			version = SNMP_VERSION_1;
+		else if (strstr(args->argv[2], "2c"))
+			version = SNMP_VERSION_2c;
+		else
+			version = SNMP_VERSION_3;
+
+		if (librouter_snmp_rmon_set_version(version) < 0)
+			printf("%% Error when setting SNMP Version for RMON\n");
+		break;
+
+	default:
+		printf("%% Wrong number of arguments\n");
+		break;
+	}
+	librouter_destroy_args(args);
+	librouter_snmp_rmon_send_signal(SIGUSR1);
+}
+
 void show_rmon_events(const char *cmd)
 {
 	arglist *args = librouter_make_args(cmd);

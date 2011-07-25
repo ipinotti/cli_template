@@ -493,6 +493,7 @@ void rmon_alarm(const char *cmd);
 void no_rmon_agent(const char *cmd);
 void no_rmon_event(const char *cmd);
 void no_rmon_alarm(const char *cmd);
+void rmon_snmp_version(const char *cmd);
 void show_rmon_events(const char *cmd);
 void show_rmon_alarms(const char *cmd);
 void show_rmon_agent(const char *cmd);
