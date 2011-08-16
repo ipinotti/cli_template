@@ -824,6 +824,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_LINKSTATUS_TRAP
 cish_command CMD_CONFIG_INTERFACE_NO_SNMPTRAP2[] = {
 	{"link-status", "Allow SNMP LINKUP and LINKDOWN traps", NULL, interface_no_snmptrap, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -833,6 +834,7 @@ cish_command CMD_CONFIG_INTERFACE_NO_SNMPTRAP1[] = {
 	{"trap", "Allow a specific SNMP trap", CMD_CONFIG_INTERFACE_NO_SNMPTRAP2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
+#endif
 
 /* ETHERNET 0 */
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN_NO[] = {
@@ -845,7 +847,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN_NO[] = {
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_MANAGED_SWITCH
 	{"switch-config", "Configure switch advanced settings general to all ports", CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO, NULL, 1, MSK_MANAGED_SWITCH},
 #endif
@@ -867,7 +871,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN_NO[] = {
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP, NULL, 1, MSK_VRRP},
@@ -875,6 +881,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN_NO[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+#ifdef OPTION_LINKSTATUS_TRAP
 cish_command CMD_CONFIG_INTERFACE_SNMPTRAP2[] = {
 	{"link-status", "Allow SNMP LINKUP and LINKDOWN traps", NULL, interface_snmptrap, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -884,6 +891,7 @@ cish_command CMD_CONFIG_INTERFACE_SNMPTRAP1[] = {
 	{"trap", "Allow a specific SNMP trap", CMD_CONFIG_INTERFACE_SNMPTRAP2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
+#endif
 
 #if 0 //#ifdef CONFIG_DEVELOPMENT
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_RXRING[] = {
@@ -941,7 +949,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN[] = {
 #ifdef NOT_YET_IMPLEMENTED
 	{"speed", "Configure speed and related commands", CMD_CONFIG_INTERFACE_ETHERNET_SPEED, NULL, 1, MSK_NORMAL},
 #endif
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
 #endif
@@ -983,7 +993,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[] = {
 #endif
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"speed", "Configure speed and related commands", CMD_CONFIG_INTERFACE_ETHERNET_SPEED, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
 #endif
@@ -1044,7 +1056,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM_NO[] = {
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
 	{NULL,NULL,NULL,NULL}
 };
@@ -1067,7 +1081,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"mode", "Set SHDSL DSP as CO or CPE", CMD_CONFIG_INTERFACE_EFM_MODE, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_EFM_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
 #endif
@@ -1197,7 +1213,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[] = {
 	{"set", "Unset QoS values", CMD_CONFIG_VLAN_NO_COS, NULL, 0, MSK_NORMAL},
 #endif
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP, NULL, 1, MSK_VRRP},
 #endif
@@ -1215,7 +1233,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[] = {
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
 #endif
@@ -1242,7 +1262,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM_VLAN[] = {
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
+#ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
 #endif

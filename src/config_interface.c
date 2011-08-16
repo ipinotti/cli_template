@@ -846,6 +846,7 @@ void no_service_policy(const char *cmdline)
 }
 #endif /* OPTION_QOS */
 
+#ifdef OPTION_LINKSTATUS_TRAP
 /*
  * SNMP related functions
  */
@@ -872,6 +873,7 @@ void interface_no_snmptrap(const char *cmd)
 		free(dev);
 	}
 }
+#endif
 
 #if 0 //#ifdef CONFIG_DEVELOPMENT
 void interface_rxring(const char *cmdline) /* rxring <2-2048> */
