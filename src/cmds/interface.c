@@ -440,10 +440,12 @@ cish_command CMD_CONFIG_INTERFACE_DESCRIPTION[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+#ifdef CONFIG_DEVELOPMENT
 cish_command CMD_CONFIG_INTERFACE_TXQUEUELEN[] = {
 	{"10-4096", "Length of the transmit queue", NULL, interface_txqueue, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
+#endif
 
 /* PPTP Interface */
 #ifdef OPTION_PPTP
@@ -940,7 +942,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN[] = {
 	{"speed", "Configure speed and related commands", CMD_CONFIG_INTERFACE_ETHERNET_SPEED, NULL, 1, MSK_NORMAL},
 #endif
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
 #endif
@@ -980,7 +984,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[] = {
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"speed", "Configure speed and related commands", CMD_CONFIG_INTERFACE_ETHERNET_SPEED, NULL, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
 #endif
@@ -1062,7 +1068,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_EFM_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},
 #endif
@@ -1208,7 +1216,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[] = {
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
 #endif
@@ -1233,7 +1243,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM_VLAN[] = {
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_SNMPTRAP1, NULL, 1, MSK_NORMAL},
+#ifdef CONFIG_DEVELOPMENT
 	{"txqueuelen", "Length of the transmit queue", CMD_CONFIG_INTERFACE_TXQUEUELEN, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
 #endif

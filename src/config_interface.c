@@ -226,6 +226,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 	return;
 }
 
+#ifdef CONFIG_DEVELOPMENT
 void interface_txqueue(const char *cmdline)
 {
 	arglist *args;
@@ -242,6 +243,7 @@ void interface_txqueue(const char *cmdline)
 	librouter_destroy_args(args);
 	free(dev);
 }
+#endif
 
 void interface_description(const char *cmd)
 {
