@@ -1046,7 +1046,7 @@ void backup_interface(const char *cmdline)
 
 	args = librouter_make_args(cmdline);
 
-	snprintf(main_interface, 16, "%s%s", args->argv[1], args->argv[2]);
+	snprintf(main_interface, 16, "%s %s", args->argv[1], args->argv[2]);
 	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
 	if (librouter_dev_exists(interface)) {

@@ -606,15 +606,24 @@ cish_command CMD_CONFIG_INTERFACE_M3G_USB_APN[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+#ifdef OPTION_EFM
+cish_command CMD_BACKUP_INTERFACE_EFM[] = {
+	{CLI_STRING_EFM_IFACES, "EFM interface number", NULL, backup_interface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 cish_command CMD_BACKUP_INTERFACE_ETHERNET[] = {
 	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, backup_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef CONFIG_DIGISTAR_3G
 cish_command CMD_BACKUP_INTERFACE_M3G[] = {
 	{"1-2", "3G interface number -| 1 == USB1 | 2 == USB2", NULL, backup_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_BACKUP_INTERFACE [] = {
 	{"ethernet", "Ethernet interface", CMD_BACKUP_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
@@ -622,8 +631,13 @@ cish_command CMD_BACKUP_INTERFACE [] = {
 };
 
 cish_command CMD_BACKUP_INTERFACE_USB [] = {
+#ifdef OPTION_EFM
+	{"efm", "EFM interface", CMD_BACKUP_INTERFACE_EFM, NULL, 0, MSK_NORMAL},
+#endif
 	{"ethernet", "Ethernet interface", CMD_BACKUP_INTERFACE_ETHERNET, NULL, 0, MSK_NORMAL},
+#ifdef CONFIG_DIGISTAR_3G
 	{"m3G", "3G interface - USB", CMD_BACKUP_INTERFACE_M3G, NULL, 0, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
