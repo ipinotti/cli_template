@@ -2,7 +2,8 @@ bin_PROGRAMS = \
 	cishinit \
 	ifstat \
 	bwmon \
-	backupd
+	backupd \
+	switch_test
 
 cishinit_SOURCES = cishinit.c
 
@@ -12,3 +13,4 @@ bwmon_SOURCES = bwmon.c
 
 backupd_SOURCES = backupd.c
 
+switch_test_SOURCES = switch_test.c
