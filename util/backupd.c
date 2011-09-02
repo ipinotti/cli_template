@@ -70,6 +70,7 @@ static void wait_for_dev_goesdown(struct bckp_conf_t *bckp_conf)
 	return;
 }
 
+#if 0
 static char * backupd_intf_to_kernel_intf(char *interface)
 {
 	char * intf_k;
@@ -82,6 +83,12 @@ static char * backupd_intf_to_kernel_intf(char *interface)
 
 	return intf_k;
 }
+#else
+static char * backupd_intf_to_kernel_intf(char *interface)
+{
+	return librouter_device_to_linux_cmdline(interface);
+}
+#endif
 
 static int in_cksum(unsigned short *buf, int sz)
 {
@@ -830,13 +837,12 @@ static void do_state_waiting(struct bckp_conf_t *bckp_conf)
 static void do_state_main_intf_restablished(struct bckp_conf_t *bckp_conf)
 {
 
-	if ((!bckp_conf->shutdown) && (bckp_conf->is_backup) && (bckp_conf->pppd_pid != (int) NULL)) {
+	if ((!bckp_conf->shutdown) && (bckp_conf->is_backup) &&
+			(bckp_conf->pppd_pid != (int) NULL)) {
+		syslog(LOG_INFO, "Detected main interface online, disabling backup interface\n");
 		kill(bckp_conf->pppd_pid, SIGTERM);
-
 		wait_for_dev_goesdown(bckp_conf);
-
 		waitpid(bckp_conf->pppd_pid, NULL, 0);
-
 		bckp_conf->pppd_pid = (int) NULL;
 	}
 

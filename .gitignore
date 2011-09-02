@@ -45,3 +45,5 @@ cishinit
 ifstat
 systtyd
 backupd
+switch_test
+

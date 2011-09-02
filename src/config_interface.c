@@ -226,6 +226,7 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 	return;
 }
 
+#ifdef CONFIG_DEVELOPMENT
 void interface_txqueue(const char *cmdline)
 {
 	arglist *args;
@@ -242,6 +243,7 @@ void interface_txqueue(const char *cmdline)
 	librouter_destroy_args(args);
 	free(dev);
 }
+#endif
 
 void interface_description(const char *cmd)
 {
@@ -876,6 +878,7 @@ void no_service_policy(const char *cmdline)
 }
 #endif /* OPTION_QOS */
 
+#ifdef OPTION_LINKSTATUS_TRAP
 /*
  * SNMP related functions
  */
@@ -902,6 +905,7 @@ void interface_no_snmptrap(const char *cmd)
 		free(dev);
 	}
 }
+#endif
 
 #if 0 //#ifdef CONFIG_DEVELOPMENT
 void interface_rxring(const char *cmdline) /* rxring <2-2048> */
@@ -1074,7 +1078,7 @@ void backup_interface(const char *cmdline)
 
 	args = librouter_make_args(cmdline);
 
-	snprintf(main_interface, 16, "%s%s", args->argv[1], args->argv[2]);
+	snprintf(main_interface, 16, "%s %s", args->argv[1], args->argv[2]);
 	snprintf(interface, 16, "%s%d", interface_edited->linux_string, interface_major);
 
 	if (librouter_dev_exists(interface)) {
