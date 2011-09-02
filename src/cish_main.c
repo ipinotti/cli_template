@@ -1158,7 +1158,7 @@ cish_command *expand_token(const char *unexpanded, cish_command *queue, int iter
 
 			} else if (strcmp(queue[idx_inqueue].name, "<netmask_v6>") == 0) {
 				int netmask_v6 = 0;
-				if (atoi(unexpanded) < 129)
+				if ( (atoi(unexpanded) > 3) && (atoi(unexpanded) < 129))
 					if ( (atoi(unexpanded) % 4) == 0 )
 						netmask_v6 = 1;
 

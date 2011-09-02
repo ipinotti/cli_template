@@ -831,12 +831,13 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP[] = {
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX[] = {
 	{"anycast", "Configure as an anycast", NULL, NULL, 1, MSK_NORMAL},
 	{"eui-64", "Use eui-64 interface identifier", NULL, NULL, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_2[] = {
 	{"link-local", "Use link-local address", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
-	{"<netmask_v6>", "IPv6 Netmask - <0-128>", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX, NULL, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
