@@ -14,6 +14,7 @@
 #include <librouter/device.h>
 #include <librouter/typedefs.h>
 #include <librouter/ip.h>
+#include <librouter/ipv6.h>
 #include <librouter/dev.h>
 #include <librouter/dhcp.h>
 #include <librouter/dns.h>
@@ -536,6 +537,9 @@ void interface_ethernet_ipxnet(const char *);
 void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
+/* Ipv6 */
+void interface_ethernet_ipaddr_v6(const char *);
+
 
 #ifdef OPTION_MANAGED_SWITCH
 #if defined(CONFIG_DIGISTAR_EFM)

@@ -156,6 +156,10 @@ extern cish_command CMD_IP[];
 extern cish_command CMD_NO_IP[];
 extern cish_command CMD_IP_DHCP_SERVER[];
 
+/* IPv6 */
+extern cish_command CMD_IPV6[];
+extern cish_command CMD_NO_IPV6[];
+
 extern cish_command CMD_CONFIG_NO_ROUTER[];
 extern cish_command CMD_IP_ROUTE3[];
 extern cish_command CMD_CLEAR_INTERFACE[];

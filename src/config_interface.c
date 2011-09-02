@@ -416,6 +416,38 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 	free(dev);
 }
 
+void interface_ethernet_ipaddr_v6(const char *cmdline) /* ip address <address> <mask> */
+{
+	arglist *args;
+	char *addr, *mask, *dev;
+	ppp_config cfg;
+	char daemon_dhcpc[32];
+
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
+	                interface_minor);
+//	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
+//	if (librouter_exec_check_daemon(daemon_dhcpc))
+//		librouter_kill_daemon(daemon_dhcpc); /* !!! dhcp x ppp unumbered */
+
+	args = librouter_make_args(cmdline);
+	addr = args->argv[2];
+//	mask = args->argv[3];
+	librouter_ip_ethernet_set_addr(dev, addr, mask); /* preserve alias addresses */
+
+	// Verifica se o ip unnumbered relaciona a ethernet com a serial
+	librouter_ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
+	if (cfg.ip_unnumbered == interface_major) {
+		strncpy(cfg.ip_addr, addr, 16); // Atualiza cfg com os dados da ethernet
+		cfg.ip_addr[15] = 0;
+		strncpy(cfg.ip_mask, mask, 16);
+		cfg.ip_mask[15] = 0;
+		librouter_ppp_set_config(0, &cfg); // Atualiza as configuracoes da serial
+	}
+
+	librouter_destroy_args(args);
+	free(dev);
+}
+
 void interface_ethernet_ipaddr_secondary(const char *cmdline) /* ip address <address> <mask> secondary */
 {
 	arglist *args;

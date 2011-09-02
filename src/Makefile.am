@@ -16,6 +16,7 @@ cish_SOURCES = \
 	config_mangle.c \
 	config_exit.c \
 	config_ip.c \
+	config_ipv6.c \
 	config_show.c \
 	config_interface.c \
 	config_switch.c \

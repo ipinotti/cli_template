@@ -1128,6 +1128,50 @@ cish_command *expand_token(const char *unexpanded, cish_command *queue, int iter
 						return &CEXT;
 					}
 				}
+
+			} else if (strcmp(queue[idx_inqueue].name, "<ipv6address>") == 0) {
+//				struct in6_addr address;
+				struct sockaddr_in6 address;
+				struct hostent* he;
+				char str[INET6_ADDRSTRLEN];
+				int address_ok = 0;
+
+				if (inet_pton(AF_INET6, unexpanded, &address.sin6_addr) != 0) {
+					if (strcmp(unexpanded, inet_ntop(AF_INET6, &address.sin6_addr, str, INET6_ADDRSTRLEN)) == 0)
+						address_ok = 1;
+				} else {
+					if (((he = gethostbyname2(unexpanded, AF_INET6)) != NULL
+					                && he->h_addrtype == AF_INET6)) {
+						memcpy(&address.sin6_addr, he->h_addr, he->h_length);
+						address_ok = 1;
+					}
+				}
+				if (address_ok) {
+					if (iteration < 1) {
+						strncpy(EXTCMD, inet_ntop(AF_INET6, &address.sin6_addr, str, INET6_ADDRSTRLEN), 1023);
+						EXTCMD[1023] = 0;
+						CEXT.func = queue[idx_inqueue].func;
+						CEXT.children = queue[idx_inqueue].children;
+						return &CEXT;
+					}
+				}
+
+			} else if (strcmp(queue[idx_inqueue].name, "<netmask_v6>") == 0) {
+				int netmask_v6 = 0;
+				if (atoi(unexpanded) < 129)
+					if ( (atoi(unexpanded) % 4) == 0 )
+						netmask_v6 = 1;
+
+				if (netmask_v6){
+					if (iteration < 1) {
+						strncpy(EXTCMD, unexpanded, 1023);
+						EXTCMD[1023] = 0;
+						CEXT.func = queue[idx_inqueue].func;
+						CEXT.children = queue[idx_inqueue].children;
+						return &CEXT;
+					}
+				}
+
 			} else if (strcmp(queue[idx_inqueue].name, "<netmask>") == 0) {
 				for (octets = 0; octets < 33; ++octets) {
 					if (strncmp(masks[octets], unexpanded, strlen(unexpanded))

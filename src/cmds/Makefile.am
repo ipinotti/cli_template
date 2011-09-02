@@ -10,6 +10,7 @@ libcmds_la_SOURCES = \
 	crypto.c \
 	debug.c \
 	ip.c \
+	ipv6.c \
 	interface.c \
 	switch.c \
 	keychain.c \
