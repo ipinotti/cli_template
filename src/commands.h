@@ -112,6 +112,7 @@ void show_recycle(const char *);
 void show_kmalloc(const char *);
 void show_softnet(const char *);
 void clear_ssh_hosts(const char *cmd);
+void clear_counters(const char *cmd);
 
 void show_clock(const char *);
 void show_logging(const char *);

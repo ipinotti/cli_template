@@ -874,3 +874,40 @@ void clear_ssh_hosts(const char *cmd)
 {
 	remove(FILE_SSH_KNOWN_HOSTS);
 }
+
+void clear_counters(const char *cmd)
+{
+	arglist *args;
+	dev_family *fam;
+	char dev[32];
+	char *p;
+	int idx, subidx = 0;
+
+	args = librouter_make_args(cmd);
+
+	if (args->argc != 4) {
+		librouter_destroy_args(args);
+		return;
+	}
+
+	fam = librouter_device_get_family_by_name(args->argv[2], str_cish);
+	idx = atoi(args->argv[3]);
+	if ((p = strstr(args->argv[3], ".")) != NULL)
+		subidx = atoi(p + 1);
+
+	/* FIXME Do this in a specific function */
+	if (fam->type == efm) {
+		librouter_efm_clear_counters();
+		idx += EFM_INDEX_OFFSET;
+	}
+
+	if (subidx)
+		sprintf(dev,"%s%d.%d", fam->linux_string, idx, subidx);
+	else
+		sprintf(dev,"%s%d", fam->linux_string, idx);
+
+	if (librouter_dev_clear_interface_counters(dev))
+		printf("%% Could not clear counters : Interface exists? \n");
+
+	librouter_destroy_args(args);
+}

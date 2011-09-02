@@ -204,8 +204,37 @@ cish_command CMD_CLEAR_SSH[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_CLEAR_INTERFACE_COUNTERS
+cish_command CMD_CLEAR_INTERFACE_LOOPBACK_[] = {
+	{"0-0", "Loopback interface number", NULL, clear_counters, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CLEAR_INTERFACE_EFM_[] = {
+	{"0-0", "EFM interface number", NULL, clear_counters, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CLEAR_INTERFACE_ETHERNET_[] = {
+	{"0-0", "Ethernet interface number", NULL, clear_counters, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CLEAR_INTERFACE[] = {
+#ifdef OPTION_EFM
+	{"efm", "Aux interface", CMD_CLEAR_INTERFACE_EFM_, NULL, 1, MSK_NORMAL},
+#endif
+	{"ethernet", "Ethernet interface", CMD_CLEAR_INTERFACE_ETHERNET_, NULL, 1, MSK_NORMAL},
+	{"loopback", "Loopback interface", CMD_CLEAR_INTERFACE_LOOPBACK_, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 cish_command CMD_CLEAR[] = {
 	{"logging", "Clear the contents of logging buffers", NULL, clear_logging, 1, MSK_NORMAL},
+#ifdef OPTION_CLEAR_INTERFACE_COUNTERS
+	{"counters", "Clear counters on interface", CMD_CLEAR_INTERFACE, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_RMON
 	{"rmon", "Clear the RMON counters", CMD_CLEAR_RMON, NULL, 1, MSK_NORMAL},
 #endif
