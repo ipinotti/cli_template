@@ -829,20 +829,21 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX[] = {
-	{"anycast", "Configure as an anycast", NULL, NULL, 1, MSK_NORMAL},
-	{"eui-64", "Use eui-64 interface identifier", NULL, NULL, 1, MSK_NORMAL},
+	{"anycast", "Configure as an anycast", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
+	{"eui-64", "Use eui-64 interface identifier", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_2[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
 	{"link-local", "Use link-local address", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_1[] = {
 	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_2, NULL, 1, MSK_NORMAL},
+	{"dhcp", "IPv6 Address negotiated via DHCPv6", NULL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -1026,6 +1027,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[] = {
 #endif
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
@@ -1113,6 +1115,7 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},

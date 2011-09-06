@@ -421,30 +421,46 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 void interface_ethernet_ipaddr_v6(const char *cmdline) /* ip address <address> <mask> */
 {
 	arglist *args;
-	char *addr, *mask, *dev;
+	char *addr, *mask, *dev, *prop;
 	ppp_config cfg;
-	char daemon_dhcpc[32];
+	char daemon_dhcpcv6[32];
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
-//	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
-//	if (librouter_exec_check_daemon(daemon_dhcpc))
-//		librouter_kill_daemon(daemon_dhcpc); /* !!! dhcp x ppp unumbered */
+
+//	sprintf(daemon_dhcpcv6, DHCPCV6_DAEMON, dev);
+//	if (librouter_exec_check_daemon(daemon_dhcpcv6))
+//		librouter_kill_daemon(daemon_dhcpcv6); /* !!! dhcp x ppp unumbered */
 
 	args = librouter_make_args(cmdline);
 	addr = args->argv[2];
-//	mask = args->argv[3];
-	librouter_ip_ethernet_set_addr(dev, addr, mask); /* preserve alias addresses */
 
-	// Verifica se o ip unnumbered relaciona a ethernet com a serial
-	librouter_ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
-	if (cfg.ip_unnumbered == interface_major) {
-		strncpy(cfg.ip_addr, addr, 16); // Atualiza cfg com os dados da ethernet
-		cfg.ip_addr[15] = 0;
-		strncpy(cfg.ip_mask, mask, 16);
-		cfg.ip_mask[15] = 0;
-		librouter_ppp_set_config(0, &cfg); // Atualiza as configuracoes da serial
+	if ((args->argc == 4) && !strcmp(args->argv[3], "link-local")){
+		printf("Args == 4 + link-loc\n");
+		librouter_ipv6_ethernet_set_addr(dev, addr, NULL); /* preserve alias addresses */
 	}
+	else {
+		if (args->argc == 5)
+			printf("Args == 5 - mask+feature\n");
+			//librouter_ipv6_ethernet_set_addr(dev,addr,mask,feature);
+		else
+			printf("Args == 4 - mask\n");
+			//librouter_ipv6_ethernet_set_addr(dev,addr,mask,NULL);
+	}
+
+
+//	mask = args->argv[3];
+	//librouter_ipv6_ethernet_set_addr(dev, addr, mask); /* preserve alias addresses */
+
+//	// Verifica se o ip unnumbered relaciona a ethernet com a serial
+//	librouter_ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
+//	if (cfg.ip_unnumbered == interface_major) {
+//		strncpy(cfg.ip_addr, addr, 16); // Atualiza cfg com os dados da ethernet
+//		cfg.ip_addr[15] = 0;
+//		strncpy(cfg.ip_mask, mask, 16);
+//		cfg.ip_mask[15] = 0;
+//		librouter_ppp_set_config(0, &cfg); // Atualiza as configuracoes da serial
+//	}
 
 	librouter_destroy_args(args);
 	free(dev);
