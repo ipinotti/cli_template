@@ -420,6 +420,7 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 
 void interface_ethernet_ipaddr_v6(const char *cmdline) /* ip address <address> <mask> */
 {
+#if 0
 	arglist *args;
 	char *addr, *mask, *dev, *prop;
 	ppp_config cfg;
@@ -464,6 +465,7 @@ void interface_ethernet_ipaddr_v6(const char *cmdline) /* ip address <address> <
 
 	librouter_destroy_args(args);
 	free(dev);
+#endif
 }
 
 void interface_ethernet_ipaddr_secondary(const char *cmdline) /* ip address <address> <mask> secondary */
