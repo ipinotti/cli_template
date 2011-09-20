@@ -273,6 +273,9 @@ int main(int argc, char *argv[])
 	set_model_vlan_cmds(1);
 #else
 	cmd_mask = MSK_QOS | MSK_VPN | MSK_VLAN;
+#ifdef OPTION_IPV6
+	cmd_mask |= MSK_IPV6;
+#endif
 	set_model_cmd_mask(cmd_mask);
 #endif
 	set_model_auth_cmds();

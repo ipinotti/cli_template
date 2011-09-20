@@ -70,6 +70,7 @@ enum cish_mask {
 	MSK_BOOTING = 0x00100000,
 	MSK_VLAN = 0x00200000,
 	MSK_AUTH = 0x00400000,
+	MSK_IPV6 = 0x00800000,
 };
 
 /* Global Commands */
