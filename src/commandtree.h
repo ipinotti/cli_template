@@ -12,6 +12,11 @@
 #define CLI_STRING_EFM_IFACES	"0-0"
 #define CLI_STRING_SWITCH_PORTS	"1-2"
 #define CLI_STRING_USB_PORTS	"0-0"
+#elif defined(CONFIG_DIGISTAR_EFM4ETH)
+#define CLI_STRING_ETH_IFACES	"0-0"
+#define CLI_STRING_EFM_IFACES	"0-0"
+#define CLI_STRING_SWITCH_PORTS	"1-4"
+#define CLI_STRING_USB_PORTS	"0-0"
 #else
 #error "No board defined!"
 #endif

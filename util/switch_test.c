@@ -34,6 +34,7 @@
 
 int main(int argc, char **argv)
 {
+#if defined(OPTION_MANAGED_SWITCH) && defined(OPTION_DIGISTAR_EFM)
 	int i = 1000;
 
 	struct vlan_config_t vconf;
@@ -46,6 +47,6 @@ int main(int argc, char **argv)
 		usleep(10000);
 		librouter_ksz8863_del_table(&vconf);
 	}
-
+#endif
 	exit(0);
 }
