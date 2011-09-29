@@ -152,7 +152,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP1[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
-
 #ifdef OPTION_PIMD
 cish_command CMD_CONFIG_INTERFACE_IP_PIM_CONFIG_METR[] = {
 	{"1-5000", "Smaller is better", NULL, pim_sparse_mode_intf, 1, MSK_NORMAL},
@@ -192,6 +191,47 @@ cish_command CMD_CONFIG_INTERFACE_IP_PIM_NO[] = {
 };
 
 #endif
+
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6_2[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, interface_ethernet_no_ipaddr_v6, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6_1[] = {
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6_2, interface_ethernet_no_ipaddr_v6, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "Unset IPv6 address", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6_1, interface_ethernet_flush_ipaddr_v6, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_QOS
+	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_NO_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF_NO, NULL, 1, MSK_OSPF},
+#endif
+#ifdef OPTION_PIMD
+	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM_NO, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
+	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
+#endif
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IP[] = {
 #ifdef OPTION_FIREWALL
@@ -829,7 +869,6 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_IP[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX[] = {
-	{"anycast", "Configure as an anycast", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
 	{"eui-64", "Use eui-64 interface identifier", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -843,12 +882,37 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_2[] = {
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_1[] = {
 	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_2, NULL, 1, MSK_NORMAL},
+#ifdef NOT_IMPLEMENTED_YET
 	{"dhcp", "IPv6 Address negotiated via DHCPv6", NULL, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
 	{"address", "IPv6 Address", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_1, NULL, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_QOS
+	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF, NULL, 1, MSK_OSPF},
+#endif
+#ifdef OPTION_PIMD
+	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP, NULL, 1, MSK_RIP},
+	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -882,6 +946,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
@@ -906,6 +973,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
@@ -975,7 +1045,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN[] = {
 #endif
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
 	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
@@ -1027,7 +1099,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[] = {
 #endif
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
 	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
@@ -1093,6 +1167,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
@@ -1115,7 +1192,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
 	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
@@ -1227,6 +1306,95 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+
+/*################################### VLAN IPV6 ###################################*/
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_PREFIX[] = {
+	{"eui-64", "Use eui-64 interface identifier", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_2[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_PREFIX, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
+	{"link-local", "Use link-local address", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_1[] = {
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "Set IPv6 Address", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_1, NULL, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_QOS
+	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"ospf", "OSPF protocol",CMD_CONFIG_INTERFACE_IP_OSPF, NULL, 1, MSK_OSPF},
+#endif
+#ifdef OPTION_PIMD
+	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP, NULL, 1, MSK_RIP},
+	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
+#endif
+	{NULL,NULL,NULL,NULL}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6_2[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, interface_ethernet_no_ipaddr_v6, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6_1[] = {
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6_2, interface_ethernet_no_ipaddr_v6, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "Unset IPv6 address", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6_1, interface_flush_ipaddr_v6, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_QOS
+	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_NO_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF_NO, NULL, 1, MSK_OSPF},
+#endif
+#ifdef OPTION_PIMD
+	{"pim", "PIM interface commands", CMD_CONFIG_INTERFACE_IP_PIM, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
+	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
+#endif
+	{NULL,NULL,NULL,NULL, 0}
+};
+/*================================= VLAN IPV6 =================================*/
+
+
 #ifdef CONFIG_VLAN_COS
 cish_command CMD_CONFIG_VLAN_COS1[] = {
 	{"dscp", "Set value from packet dscp", NULL, vlan_change_cos, 1, MSK_NORMAL},
@@ -1251,6 +1419,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef CONFIG_VLAN_COS
 	{"set", "Unset QoS values", CMD_CONFIG_VLAN_NO_COS, NULL, 0, MSK_NORMAL},
 #endif
@@ -1272,6 +1443,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Interface IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
@@ -1301,6 +1475,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM_VLAN[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Interface IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
@@ -1340,11 +1517,32 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP1[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6_2[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, interface_no_ipaddr_v6, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6_1[] = {
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6_2, interface_no_ipaddr_v6, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP[] = {
 #ifdef OPTION_FIREWALL
 	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
 #endif
 	{"address", "Unset local address", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP1, interface_no_ipaddr, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "Unset IPv6 address", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6_1, interface_flush_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -1355,13 +1553,30 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IP3[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IP2[] = {
-	{"<netmask>", "IP Netmask", CMD_CONFIG_INTERFACE_LOOPBACK_IP3, interface_ipaddr, 1, MSK_NORMAL},
+	{"<netmask>", "IP Netmask", NULL, interface_ipaddr, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_PREFIX[] = {
+	{"eui-64", "Use eui-64 interface identifier", NULL, interface_ipaddr_v6, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_2[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_PREFIX, interface_ipaddr_v6, 1, MSK_NORMAL},
+	{"link-local", "Use link-local address", NULL, interface_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IP1[] = {
 	{"<ipaddress>", "IP Address", CMD_CONFIG_INTERFACE_LOOPBACK_IP2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_1[] = {
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
 };
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IP[] = {
@@ -1372,9 +1587,24 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IP[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IPV6[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "Unset IPv6 Address", CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_1, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL}
+};
+
+
+
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO[] = {
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
@@ -1384,6 +1614,9 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_LOOPBACK_IP, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_LOOPBACK_IPV6, NULL, 1, MSK_NORMAL},
+#endif
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_LOOPBACK_NO, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},

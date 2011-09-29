@@ -566,7 +566,7 @@ static int _remove_default_route(struct bckp_conf_t *conf)
 	}
 
 	if (next)
-		librouter_quagga_del_route(next->hash);
+		librouter_quagga_del_route_hash(next->hash);
 
 	return 0;
 }

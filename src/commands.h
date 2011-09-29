@@ -538,9 +538,20 @@ void interface_ethernet_ipxnet(const char *);
 void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
-/* Ipv6 */
-void interface_ethernet_ipaddr_v6(const char *);
 
+/* Ipv6 */
+#ifdef OPTION_IPV6
+void show_routingtables_ipv6(const char *);
+void interface_ethernet_ipaddr_v6(const char *cmdline);
+void interface_ethernet_no_ipaddr_v6(const char *cmdline);
+void interface_ethernet_flush_ipaddr_v6(const char *cmdline);
+void zebra_execute_cmd_ipv6(const char *cmdline);
+void dump_routing_ipv6(FILE *out, int conf_format);
+void zebra_dump_routes_ipv6(FILE *out);
+void interface_no_ipaddr_v6(const char *cmdline);
+void interface_flush_ipaddr_v6(const char *cmdline);
+void interface_ipaddr_v6(const char *cmdline);
+#endif
 
 #ifdef OPTION_MANAGED_SWITCH
 #if defined(CONFIG_DIGISTAR_EFM)
