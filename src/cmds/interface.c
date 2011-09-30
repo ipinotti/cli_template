@@ -946,9 +946,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_IPV6},
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
@@ -973,9 +971,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_IPV6},
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
@@ -1045,9 +1041,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN[] = {
 #endif
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_IPV6},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
@@ -1099,9 +1093,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[] = {
 #endif
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_IPV6},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
@@ -1192,9 +1184,7 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_IPV6},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
@@ -1443,9 +1433,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Interface IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6, NULL, 1, MSK_IPV6},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
@@ -1475,9 +1463,7 @@ cish_command CMD_CONFIG_INTERFACE_EFM_VLAN[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Interface IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_IPV6},
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Shutdown interface", NULL, interface_shutdown, 1, MSK_NORMAL},
@@ -1602,9 +1588,7 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IPV6[] = {
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO[] = {
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6, NULL, 1, MSK_IPV6},
 	{"shutdown", "Bring the interface up", NULL, interface_no_shutdown, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL}
 };
@@ -1614,9 +1598,7 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_LOOPBACK_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_LOOPBACK_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_LOOPBACK_IPV6, NULL, 1, MSK_IPV6},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_LOOPBACK_NO, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},

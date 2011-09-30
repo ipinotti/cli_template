@@ -549,6 +549,7 @@ void interface_ethernet_ipaddr_v6(const char *cmdline) /* ipv6 address <ipv6addr
 
 	if (ret < 0)
 		printf("%% Not possible to set IPv6 parameters\n");
+
 }
 
 void interface_ethernet_ipaddr_secondary(const char *cmdline) /* ip address <address> <mask> secondary */
@@ -1260,7 +1261,7 @@ void backup_interface(const char *cmdline)
 	//WARNING: Bloco de código retirado para possibilitar duas interfaces backups distintas de monitorar uma mesma interface
 
 	if (librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR, main_interface, intf_return)) {
-		Already applied in another 3G interface ?
+		//Already applied in another 3G interface ?
 		if (strcmp(intf_return, interface)) {
 			printf("\n%% The interface is already with a backup connection by %s",
 					librouter_device_from_linux_cmdline(intf_return));

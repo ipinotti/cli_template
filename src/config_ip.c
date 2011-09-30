@@ -895,11 +895,13 @@ void clear_counters(const char *cmd)
 	if ((p = strstr(args->argv[3], ".")) != NULL)
 		subidx = atoi(p + 1);
 
+#ifdef OPTION_EFM
 	/* FIXME Do this in a specific function */
 	if (fam->type == efm) {
 		librouter_efm_clear_counters();
 		idx += EFM_INDEX_OFFSET;
 	}
+#endif
 
 	if (subidx)
 		sprintf(dev,"%s%d.%d", fam->linux_string, idx, subidx);
