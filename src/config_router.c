@@ -262,6 +262,91 @@ void config_router_done(const char *cmdline)
 }
 #endif /* OPTION_ROUTER */
 
+static int del_route_ipv6(arglist *args, struct routes_t *route)
+{
+	int i;
+	dev_family *fam;
+
+	route->network = args->argv[3];
+	route->mask = args->argv[4];
+
+	for (i = 0; i < args->argc; i++) {
+		fam = librouter_device_get_family_by_name(args->argv[i], str_linux);
+		if (fam) {
+			printf("fam dev is = %s\n\n", fam->linux_string);
+			route->interface = args->argv[i];
+
+			if (args->argc == 7)
+				route->metric = atoi(args->argv[6]);
+
+			return 0;
+		}
+	}
+
+	route->gateway = args->argv[5];
+	if (args->argc == 7)
+		route->metric = atoi(args->argv[6]);
+
+	return 0;
+}
+
+static int add_route_ipv6(arglist *args, struct routes_t *route)
+{
+	int i;
+	dev_family *fam;
+
+	route->network = args->argv[2];
+	route->mask = args->argv[3];
+
+	for (i = 0; i < args->argc; i++) {
+		fam = librouter_device_get_family_by_name(args->argv[i], str_linux);
+		if (fam) {
+			route->interface = args->argv[i];
+
+			if (args->argc == 6)
+				route->metric = atoi(args->argv[5]);
+
+			return 0;
+		}
+	}
+
+	route->gateway = args->argv[4];
+	if (args->argc == 6)
+		route->metric = atoi(args->argv[5]);
+
+	return 0;
+}
+
+void zebra_execute_cmd_ipv6(const char *cmdline)
+{
+	char *new_cmdline;
+	arglist *args;
+
+	struct routes_t *route = NULL;
+	new_cmdline = librouter_device_to_linux_cmdline((char*) cmdline);
+	args = librouter_make_args(new_cmdline);
+
+	route = malloc(sizeof(struct routes_t));
+	memset(route, 0, sizeof(struct routes_t));
+
+	route->ip_version = 6; /*IPv6 version*/
+
+	if (!strcmp(args->argv[0], "no")){
+		del_route_ipv6(args, route);
+		if (librouter_quagga_del_route(route) < 0)
+			printf("%% Could not add ipv4 static route");
+	}
+	else {
+		add_route_ipv6(args, route);
+		if (librouter_quagga_add_route(route) < 0)
+			printf("%% Could not add ipv4 static route");
+	}
+
+	free(route);
+	route = NULL;
+	librouter_destroy_args(args);
+}
+
 void zebra_execute_cmd(const char *cmdline)
 {
 	char *new_cmdline;
@@ -580,6 +665,61 @@ void zebra_dump_routes(FILE *out)
 				                "Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF, B - BGP, > - selected route\n");
 #else
 			fprintf(out, "Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF, > - selected route\n");
+#endif
+			else if (line > 3) {
+				if (strlen(buf) > 4) {
+#if 0
+					if (buf[0] == 'K')
+					continue;
+#endif
+
+					new_buf = librouter_device_from_linux_cmdline(
+					                librouter_zebra_to_linux_cmdline(buf + 4));
+					buf[3] = 0;
+					if (new_buf) {
+						print = 1;
+						if (strchr(buf, '>') == NULL) {
+							if (((n = librouter_parse_args_din(new_buf,
+							                &argl)) > 0) && (strcmp(
+							                argl[n - 1], "inactive")
+							                == 0))
+								print = 0;
+							librouter_destroy_args_din(&argl);
+						}
+						if (print)
+							fprintf(out, "%s %s\n", buf, new_buf);
+					}
+				}
+			}
+		}
+	}
+	fclose(f);
+}
+
+void zebra_dump_routes_ipv6(FILE *out)
+{
+	int n;
+	FILE *f;
+	arg_list argl = NULL;
+	char *new_buf, buf[1024];
+	unsigned int print, line = 0;
+
+	if (!(f = librouter_quagga_zebra_show_cmd("show ipv6 route")))
+		return;
+	while (!feof(f)) {
+		if (fgets(buf, 1024, f)) {
+			line++;
+			librouter_str_striplf(buf);
+			if (line == 1)
+				/* Show ipv6 route -- original from zebra*/
+				/* Codes: K - kernel route, C - connected, S - static, R - RIPng, O - OSPFv3, I - ISIS, B - BGP, * - FIB route.*/
+
+#ifdef OPTION_BGP_IPV6
+				fprintf(
+				                out,
+				                "Codes: K - kernel route, C - connected, S - static, R - RIPng, O - OSPFv3, B - BGP, > - selected route\n");
+#else
+			fprintf(out, "Codes: K - kernel route, C - connected, S - static, R - RIPng, O - OSPFv3, > - selected route\n");
 #endif
 			else if (line > 3) {
 				if (strlen(buf) > 4) {

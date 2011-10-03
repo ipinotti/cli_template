@@ -335,6 +335,46 @@ void interface_ipaddr(const char *cmdline) /* ip address <address> <mask> */
 	free(dev);
 }
 
+/*
+ * Interface generic ([no] ipv6 address)
+ */
+void interface_ipaddr_v6(const char *cmdline) /* ipv6 address <ipv6address> <mask_v6> */
+{
+	arglist *args;
+	char *addr, *mask, *dev, *feat;
+	int ret = 0;
+
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	args = librouter_make_args(cmdline);
+	addr = args->argv[2];
+
+	if (args->argc == 4){
+		/*Addr IPv6 with feature*/
+		if (!strcmp(args->argv[3], "link-local")){
+			feat = args->argv[3];
+			ret = librouter_ipv6_ethernet_set_addr(dev, addr, NULL, feat);
+		}
+		else{ /*IPv6 addr with mask*/
+			mask = args->argv[3];
+			ret = librouter_ipv6_ethernet_set_addr(dev,addr,mask, NULL);
+		}
+	}
+
+	/*IPv6 addr with mask + feature*/
+	if (args->argc == 5){
+		mask = args->argv[3];
+		feat = args->argv[4];
+		ret = librouter_ipv6_ethernet_set_addr(dev,addr,mask,feat);
+	}
+
+	librouter_destroy_args(args);
+	free(dev);
+
+	if (ret < 0)
+		printf("%% Not possible to set IPv6 parameters\n");
+}
+
 void interface_ipaddr_secondary(const char *cmdline) /* ip address <address> <mask> secondary */
 {
 	arglist *args;
@@ -374,6 +414,40 @@ void interface_no_ipaddr(const char *cmdline) /* no ip address */
 	librouter_ip_interface_set_no_addr(dev);
 	free(dev);
 }
+
+void interface_no_ipaddr_v6(const char *cmdline) /* no ipv6 address <ipv6addr> <mask_v6>*/
+{
+	arglist *args;
+	char *addr, *mask, *dev;
+
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major, interface_minor);
+	args = librouter_make_args(cmdline);
+	addr = args->argv[3];
+
+	/* No mask added*/
+	if (args->argc == 4){
+		librouter_ipv6_interface_set_no_addr(dev, addr, NULL);
+	}
+
+	if (args->argc == 5){
+		mask = args->argv[4];
+		librouter_ipv6_interface_set_no_addr(dev, addr, mask);
+	}
+
+	librouter_destroy_args(args);
+	free(dev);
+}
+
+void interface_flush_ipaddr_v6(const char *cmdline) /* no ipv6 address */
+{
+	char *dev;
+
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
+	                interface_minor);
+	librouter_ipv6_interface_set_no_addr_flush(dev);
+	free(dev);
+}
+
 
 void interface_ethernet_ipaddr_dhcp(const char *cmdline) /* ip address dhcp */
 {
@@ -418,54 +492,64 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 	free(dev);
 }
 
-void interface_ethernet_ipaddr_v6(const char *cmdline) /* ip address <address> <mask> */
+void interface_ethernet_ipaddr_v6(const char *cmdline) /* ipv6 address <ipv6address> <mask_v6> [feature]*/
 {
-#if 0
 	arglist *args;
-	char *addr, *mask, *dev, *prop;
-	ppp_config cfg;
-	char daemon_dhcpcv6[32];
+	char *addr, *mask, *dev, *feat;
+	int ret = 0;
+#ifdef NOT_YET_IMPLEMENTED
+//	ppp_config cfg;
+//	char daemon_dhcpcv6[32];
+#endif
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
-
+#ifdef NOT_YET_IMPLEMENTED
 //	sprintf(daemon_dhcpcv6, DHCPCV6_DAEMON, dev);
 //	if (librouter_exec_check_daemon(daemon_dhcpcv6))
 //		librouter_kill_daemon(daemon_dhcpcv6); /* !!! dhcp x ppp unumbered */
+#endif
 
 	args = librouter_make_args(cmdline);
 	addr = args->argv[2];
 
-	if ((args->argc == 4) && !strcmp(args->argv[3], "link-local")){
-		printf("Args == 4 + link-loc\n");
-		librouter_ipv6_ethernet_set_addr(dev, addr, NULL); /* preserve alias addresses */
+	if (args->argc == 4){
+		/*Addr IPv6 with feature*/
+		if (!strcmp(args->argv[3], "link-local")){
+			feat = args->argv[3];
+			ret = librouter_ipv6_ethernet_set_addr(dev, addr, NULL, feat);
+		}
+		else{ /*IPv6 addr with mask*/
+			mask = args->argv[3];
+			ret = librouter_ipv6_ethernet_set_addr(dev,addr,mask, NULL);
+		}
 	}
-	else {
-		if (args->argc == 5)
-			printf("Args == 5 - mask+feature\n");
-			//librouter_ipv6_ethernet_set_addr(dev,addr,mask,feature);
-		else
-			printf("Args == 4 - mask\n");
-			//librouter_ipv6_ethernet_set_addr(dev,addr,mask,NULL);
+
+	/*IPv6 addr with mask + feature*/
+	if (args->argc == 5){
+		mask = args->argv[3];
+		feat = args->argv[4];
+		ret = librouter_ipv6_ethernet_set_addr(dev,addr,mask,feat);
 	}
 
-
-//	mask = args->argv[3];
-	//librouter_ipv6_ethernet_set_addr(dev, addr, mask); /* preserve alias addresses */
-
-//	// Verifica se o ip unnumbered relaciona a ethernet com a serial
-//	librouter_ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
-//	if (cfg.ip_unnumbered == interface_major) {
-//		strncpy(cfg.ip_addr, addr, 16); // Atualiza cfg com os dados da ethernet
-//		cfg.ip_addr[15] = 0;
-//		strncpy(cfg.ip_mask, mask, 16);
-//		cfg.ip_mask[15] = 0;
-//		librouter_ppp_set_config(0, &cfg); // Atualiza as configuracoes da serial
-//	}
+#ifdef NOT_YET_IMPLEMENTED
+	// Verifica se o ip unnumbered relaciona a ethernet com a serial
+	librouter_ppp_get_config(0, &cfg); // Armazena em cfg a configuracao da serial
+	if (cfg.ip_unnumbered == interface_major) {
+		strncpy(cfg.ip_addr, addr, 16); // Atualiza cfg com os dados da ethernet
+		cfg.ip_addr[15] = 0;
+		strncpy(cfg.ip_mask, mask, 16);
+		cfg.ip_mask[15] = 0;
+		librouter_ppp_set_config(0, &cfg); // Atualiza as configuracoes da serial
+	}
+#endif
 
 	librouter_destroy_args(args);
 	free(dev);
-#endif
+
+	if (ret < 0)
+		printf("%% Not possible to set IPv6 parameters\n");
+
 }
 
 void interface_ethernet_ipaddr_secondary(const char *cmdline) /* ip address <address> <mask> secondary */
@@ -511,6 +595,58 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 	librouter_ip_ethernet_set_no_addr(dev);
 	free(dev);
 }
+
+void interface_ethernet_no_ipaddr_v6(const char *cmdline) /* no ip address <ipv6addr> <mask>*/
+{
+	arglist *args;
+	char *addr, *mask, *dev;
+
+#ifdef NOT_YET_IMPLEMENTED
+	ppp_config cfg;
+	char daemon_dhcpcv6[32];
+#endif
+
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major, interface_minor);
+
+#ifdef NOT_YET_IMPLEMENTED
+	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
+	if (librouter_exec_check_daemon(daemon_dhcpc))
+		librouter_kill_daemon(daemon_dhcpc);
+#endif
+	args = librouter_make_args(cmdline);
+	addr = args->argv[3];
+
+	/* No mask added*/
+	if (args->argc == 4){
+		librouter_ipv6_ethernet_set_no_addr(dev, addr, NULL);
+	}
+
+	if (args->argc == 5){
+		mask = args->argv[4];
+		librouter_ipv6_ethernet_set_no_addr(dev, addr, mask);
+	}
+
+	librouter_destroy_args(args);
+	free(dev);
+}
+
+void interface_ethernet_flush_ipaddr_v6(const char *cmdline) /* no ipv6 address */
+{
+	char *dev;
+#ifdef NOT_YET_IMPLEMENTED
+	char daemon_dhcpc[32];
+#endif
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
+	                interface_minor);
+#ifdef NOT_YET_IMPLEMENTED
+	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
+	if (librouter_exec_check_daemon(daemon_dhcpc))
+		librouter_kill_daemon(daemon_dhcpc);
+#endif
+	librouter_ipv6_ethernet_set_no_addr_flush(dev);
+	free(dev);
+}
+
 
 void interface_ethernet_bridgegroup(const char *cmdline)
 {
@@ -1125,7 +1261,7 @@ void backup_interface(const char *cmdline)
 	//WARNING: Bloco de código retirado para possibilitar duas interfaces backups distintas de monitorar uma mesma interface
 
 	if (librouter_ppp_backupd_verif_param_infile(MAIN_INTF_STR, main_interface, intf_return)) {
-		Already applied in another 3G interface ?
+		//Already applied in another 3G interface ?
 		if (strcmp(intf_return, interface)) {
 			printf("\n%% The interface is already with a backup connection by %s",
 					librouter_device_from_linux_cmdline(intf_return));

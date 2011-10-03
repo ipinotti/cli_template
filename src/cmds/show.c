@@ -133,6 +133,26 @@ cish_command CMD_SHOW_IP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_IPV6
+cish_command CMD_SHOW_IPV6[] = {
+#ifdef OPTION_BGP_IPV6
+	{"bgp", "BGP information", CMD_SHOW_BGP, show_ip_bgp, 1, MSK_BGP},
+#endif
+#ifdef NOT_IMPLEMENTED_YET
+	{"dns", "DNS information", NULL, show_ip_dns, 0, MSK_NORMAL},
+#endif
+#ifdef OPTION_SMCROUTE_IPV6
+	{"mroute", "Show multicast route statistics", NULL, show_mroute, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER_IPV6
+	{"ospf", "OSPF information", CMD_SHOW_OSPF, show_ip_ospf, 1, MSK_OSPF},
+	{"rip", "RIP information", NULL, show_ip_rip, 1, MSK_RIP},
+#endif
+	{"route", "Routing information", NULL, show_routingtables_ipv6, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 cish_command CMD_SHOW_SNMP[] = {
 	{"users", "Show SNMP v3 users", NULL, show_snmp_users, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -219,7 +239,8 @@ cish_command CMD_SHOW[] = {
 	{"debugging", "State of each debugging option", NULL, show_debug, 0, MSK_NORMAL},
 	{"dhcp", "Show DHCP leases", NULL, show_dumpleases, 0, MSK_NORMAL},
 	{"interfaces", "Network interfaces", CMD_SHOW_INTERFACES, show_interfaces, 0, MSK_NORMAL},
-	{"ip", "IP system information", CMD_SHOW_IP, NULL, 0, MSK_NORMAL},
+	{"ip", "IPv4 system information", CMD_SHOW_IP, NULL, 0, MSK_NORMAL},
+	{"ipv6", "IPv6 system information", CMD_SHOW_IPV6, NULL, 0, MSK_NORMAL},
 #ifdef OPTION_IPSEC
 	{"l2tp", "L2TP tunnels", NULL, show_l2tp, 1, MSK_VPN},
 #endif

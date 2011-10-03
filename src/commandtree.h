@@ -158,6 +158,7 @@ extern cish_command CMD_CONFIG_INTERFACE_PPPOE_NO[];
 /* Show */
 extern cish_command CMD_SHOW[];
 extern cish_command CMD_SHOW_IP[];
+extern cish_command CMD_SHOW_IPV6[];
 extern cish_command CMD_SHOW_INTERFACES[];
 
 /* IP */

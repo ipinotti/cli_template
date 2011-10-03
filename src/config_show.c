@@ -515,9 +515,18 @@ void show_softnet(const char *cmdline)
 void dump_routing(FILE *out, int conf_format)
 {
 	if (conf_format) {
-		librouter_quagga_zebra_dump_static_routes(out);
+		librouter_quagga_zebra_dump_static_routes(out, 4); /*Ip_version = 4 -> ipv4*/
 	} else {
 		zebra_dump_routes(out);
+	}
+}
+
+void dump_routing_ipv6(FILE *out, int conf_format)
+{
+	if (conf_format) {
+		librouter_quagga_zebra_dump_static_routes(out, 6); /*Ip_version = 6 -> ipv6*/
+	} else {
+		zebra_dump_routes_ipv6(out);
 	}
 }
 
@@ -539,6 +548,53 @@ static void __dump_intf_secondary_ipaddr_status(FILE *out, struct interface_conf
 
 	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
 	;
+}
+
+#ifdef NOT_YET_IMPLEMENTED
+static void __dump_intf_secondary_ipaddr_v6_status(FILE *out, struct interfacev6_conf *conf)
+{
+	int i;
+	struct ipv6_t *ipv6 = &conf->sec_ip[0];
+
+	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
+
+	/* Go through IP configuration */
+	for (i = 0; i < MAX_NUM_IPS; i++, ipv6++) {
+
+		if (ipv6->ipv6addr[0] == 0)
+			break;
+
+		fprintf(out, "  Secondary internet 6 address is %s/%s | Scope: %s\n", ipv6->ipv6addr, ipv6->ipv6mask, librouter_ipv6_is_addr_link_local(ipv6->ipv6addr)? "Link":"Global");
+	}
+
+	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
+}
+#endif
+
+static void __dump_intf_ipaddr_v6_status(FILE *out, struct interfacev6_conf *conf)
+{
+	int i;
+	struct ipv6_t *ipv6 = &conf->main_ip[0];
+	char *dev = librouter_ip_ethernet_get_dev(conf->name); /* ethernet enslaved by bridge? */
+	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
+	if (!strcmp(conf->name, dev)) {
+		for (i = 0; i < MAX_NUM_IPS; i++, ipv6++){
+			if (ipv6->ipv6addr[0] == 0)
+				break;
+
+			fprintf(out, "  Internet 6 address is %s/%s | Scope: %s\n", ipv6->ipv6addr, ipv6->ipv6mask, librouter_ipv6_is_addr_link_local(ipv6->ipv6addr)? "Link":"Global");
+		}
+	}
+#if 0 /*Realiza analise sobre o endereço para BRIDGE*/
+	else {
+		struct ipv6_t ipv6_addr;
+		librouter_br_get_ipaddr(dev, &ipv6_addr);
+
+		if (ipv6_addr.addr[0])
+			fprintf(out, "  Internet address is %s %s\n", ipv6_addr.ipv6addr, ipv6_addr.ipv6mask);
+	}
+#endif
+	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
 }
 
 static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
@@ -874,6 +930,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	char *description;
 	struct net_device_stats *st;
 	struct interface_conf conf;
+	struct interfacev6_conf conf_v6;
 	struct intf_info info;
 	char *intf_list[MAX_NUM_LINKS];
 	int num_of_ifaces = 0;
@@ -882,6 +939,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 	librouter_ip_get_if_list(&info);
 	for (i = 0; i < MAX_NUM_LINKS; i++) {
 		intf_list[i] = info.link[i].ifname;
+
 	}
 
 	/* Get number of interfaces and sort them by name */
@@ -937,6 +995,20 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		/* Dump IP address */
 		__dump_intf_ipaddr_status(out, &conf);
 		__dump_intf_secondary_ipaddr_status(out, &conf);
+
+		/* Dump IPv6 address -- Ignoring PPP interfaces */
+		if (!strstr(conf.name, "ppp")){
+			memset(&conf_v6, 0, sizeof(struct interfacev6_conf));
+			if (librouter_ipv6_iface_get_config(intf_list[i], &conf_v6, NULL) < 0) {
+						cish_dbg("%s not found in ipv6\n", intf_list[i]);
+			}
+			else {
+				__dump_intf_ipaddr_v6_status(out, &conf_v6);
+#ifdef NOT_YET_IMPLEMENTED
+				__dump_intf_secondary_ipaddr_v6_status(out, &conf_v6);
+#endif
+			}
+		}
 
 		if (conf.linktype == ARPHRD_PPP && conf.running)
 			fprintf(out, "  MTU is %i bytes\n", conf.mtu);
@@ -1049,6 +1121,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 void show_routingtables(const char *cmdline)
 {
 	dump_routing(stdout, 0);
+}
+
+void show_routingtables_ipv6(const char *cmdline)
+{
+	dump_routing_ipv6(stdout, 0);
 }
 
 void show_running_config(const char *cmdline)
