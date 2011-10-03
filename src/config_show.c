@@ -1777,7 +1777,7 @@ void show_crypto(const char *cmdline)
 	}
 	if (*list_ini != NULL) {
 		printf("Connections:\n");
-		for (i = 0, list = list_ini; i < MAX_CONN; i++, list++) {
+		for (i = 0, list = list_ini; i < IPSEC_MAX_CONN; i++, list++) {
 			if (*list) {
 				if (strlen(*list) > total_name_len)
 					total_name_len = strlen(*list);
@@ -1805,7 +1805,7 @@ void show_crypto(const char *cmdline)
 				if (args->argc == 7) {
 					if (!strstr(args->argv[2], "...%any")) /* skip roadwarrior master! */
 					{
-						for (i = 0, list = list_ini; i < MAX_CONN; i++, list++) {
+						for (i = 0, list = list_ini; i < IPSEC_MAX_CONN; i++, list++) {
 							if (*list) {
 								char name[64];
 								sprintf(name, "\"%s\"", *list);
@@ -1836,7 +1836,7 @@ void show_crypto(const char *cmdline)
 			}
 			pclose(output);
 		}
-		for (i = 0, list = list_ini; i < MAX_CONN; i++, list++) {
+		for (i = 0, list = list_ini; i < IPSEC_MAX_CONN; i++, list++) {
 			if (*list) {
 				switch (librouter_ipsec_get_auto(*list)) {
 				case AUTO_IGNORE:
@@ -1857,7 +1857,7 @@ void show_crypto(const char *cmdline)
 				*list = NULL;
 			}
 		}
-		go_error: for (i = 0, list = list_ini; i < MAX_CONN; i++, list++) {
+		go_error: for (i = 0, list = list_ini; i < IPSEC_MAX_CONN; i++, list++) {
 			if (*list)
 				free(*list);
 		}

@@ -1871,7 +1871,7 @@ static void clear_ipsec_counters(char *conn_name)
 	char name_buf[32];
 	arg_list argl = NULL;
 	unsigned int count, found;
-	struct runn_ipsec_itf entry[MAX_CONN];
+	struct runn_ipsec_itf entry[IPSEC_MAX_CONN];
 
 	if (librouter_ipsec_is_running()) { /* Wait pluto start! */
 		output = popen("/lib/ipsec/whack --status", "r");
@@ -1881,7 +1881,7 @@ static void clear_ipsec_counters(char *conn_name)
 		}
 
 		/* Search for string containing the pair ipsec interface + real interface */
-		for (count = 0; (count < MAX_CONN) && fgets(line, 1024, output);) {
+		for (count = 0; (count < IPSEC_MAX_CONN) && fgets(line, 1024, output);) {
 			if ((n = librouter_parse_args_din(line, &argl)) > 3) {
 				if ((strcmp(argl[1], "interface") == 0) && (strncmp(argl[2],
 				                "ipsec", strlen("ipsec")) == 0)) {

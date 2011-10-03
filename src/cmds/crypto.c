@@ -320,14 +320,59 @@ cish_command CMD_IPSEC_CONNECTION_ADD[] = {
 #if CMDS_BEF_LIST != 1	/* number of nodes before static list. BE CAREFUL */
   #error *** Review the code! Only one node before static list.
 #endif
-#if MAX_CONN == 5
+#if IPSEC_MAX_CONN <= 50
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
 #else
-  #error *** This firmware supports exactly 5 tunnels. For another number review the code!
+  #error *** This firmware supports a maximum of 50 tunnels. For another number review the code!
 #endif
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -353,14 +398,59 @@ cish_command CMD_CRYPTO_KEY_GENERATE[] = {
 };
 
 cish_command CMD_CRYPTO_IPSEC_NO_CONN[] = {
-#if MAX_CONN == 5
+#if IPSEC_MAX_CONN <= 50
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
 	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/* static allocation */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
+	{NULL,NULL,NULL,NULL, 0, MSK_NORMAL},	/*        "          */
 #else
-  #error *** This firmware supports exactly 5 tunnels. For another number review the code!
+  #error *** This firmware supports a maximum of 50 tunnels. For another number review the code!
 #endif
 	{NULL,NULL,NULL,NULL, 0}
 };

@@ -18,7 +18,7 @@
 
 #ifdef OPTION_IPSEC
 
-char dynamic_ipsec_menu_name[MAX_CONN_NAME + 1] = " ";
+char dynamic_ipsec_menu_name[IPSEC_MAX_CONN_NAME + 1] = " ";
 
 int ipsec_file_filter(const struct dirent *file)
 {
@@ -144,7 +144,7 @@ static void refresh_dynamic_ipsec_menus(void)
 {
 	int i, j;
 
-	for (i = CMDS_BEF_LIST; i < (MAX_CONN + CMDS_BEF_LIST); i++) {
+	for (i = CMDS_BEF_LIST; i < (IPSEC_MAX_CONN + CMDS_BEF_LIST); i++) {
 		if (!CMD_IPSEC_CONNECTION_ADD[i].name && CMD_IPSEC_CONNECTION_ADD[i + 1].name) {
 			CMD_IPSEC_CONNECTION_ADD[i].name = CMD_IPSEC_CONNECTION_ADD[i + 1].name;
 			CMD_IPSEC_CONNECTION_ADD[i].children
@@ -182,11 +182,11 @@ int eval_connections_menus(int add_del, char *name)
 		return -1;
 
 	if (add_del) { // add name
-		for (i = CMDS_BEF_LIST; i < (MAX_CONN + CMDS_BEF_LIST); i++) {
+		for (i = CMDS_BEF_LIST; i < (IPSEC_MAX_CONN + CMDS_BEF_LIST); i++) {
 			if (CMD_IPSEC_CONNECTION_ADD[i].name == NULL)
 				break;
 		}
-		if (i >= (MAX_CONN + CMDS_BEF_LIST))
+		if (i >= (IPSEC_MAX_CONN + CMDS_BEF_LIST))
 			return -1;
 		if ((p = malloc(strlen(name) + 1)) == NULL)
 			return -1;
@@ -201,7 +201,7 @@ int eval_connections_menus(int add_del, char *name)
 		CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].func = del_ipsec_conn;
 		CMD_CRYPTO_IPSEC_NO_CONN[i - CMDS_BEF_LIST].privilege = 1;
 	} else { // del name
-		for (i = CMDS_BEF_LIST; i < (MAX_CONN + CMDS_BEF_LIST); i++) {
+		for (i = CMDS_BEF_LIST; i < (IPSEC_MAX_CONN + CMDS_BEF_LIST); i++) {
 			if (CMD_IPSEC_CONNECTION_ADD[i].name != NULL) {
 				if (!strcmp(CMD_IPSEC_CONNECTION_ADD[i].name, name)) {
 					free((char *) CMD_IPSEC_CONNECTION_ADD[i].name);
@@ -275,7 +275,7 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 4) {
-		if (strlen(args->argv[3]) >= MAX_CONN_NAME) {
+		if (strlen(args->argv[3]) >= IPSEC_MAX_CONN_NAME) {
 			printf("%% Connection name to long\n");
 			goto free_args;
 		}
@@ -285,7 +285,7 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 		}
 		if (*list != NULL) {
 			list_ini = list;
-			for (i = 0, go_out = 0, count = 0; *list != NULL && i < MAX_CONN; i++, list++, count++) {
+			for (i = 0, go_out = 0, count = 0; *list != NULL && i < IPSEC_MAX_CONN; i++, list++, count++) {
 				if (strcmp(args->argv[3], *list) == 0)
 					go_out++;
 				free(*list);
@@ -298,7 +298,7 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 				goto free_args;
 			}
 			// Teste do numero de conexoes
-			if (count >= MAX_CONN) {
+			if (count >= IPSEC_MAX_CONN) {
 				printf("%% You have reached the max number of connections!\n");
 				goto free_args;
 			}
@@ -348,7 +348,7 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 		if (librouter_ipsec_list_all_names(&list) > 0) {
 			if (*list != NULL) {
 				list_ini = list;
-				for (i = 0; i < MAX_CONN; i++, list++) {
+				for (i = 0; i < IPSEC_MAX_CONN; i++, list++) {
 					if (*list) {
 						if (librouter_ipsec_get_link(*list))
 							restart = 1;
@@ -384,7 +384,7 @@ void generate_rsa_key(const char *cmd)
 		}
 		if (*list != NULL) {
 			list_ini = list;
-			for (i = 0; i < MAX_CONN; i++, list++) {
+			for (i = 0; i < IPSEC_MAX_CONN; i++, list++) {
 				if (*list) {
 					ret = librouter_ipsec_get_auth(*list, buf);
 					if (ret == RSA)
@@ -404,7 +404,7 @@ void config_crypto_done(const char *cmd)
 	int i;
 
 	/* free memory */
-	for (i = CMDS_BEF_LIST; i < (MAX_CONN + CMDS_BEF_LIST); i++) {
+	for (i = CMDS_BEF_LIST; i < (IPSEC_MAX_CONN + CMDS_BEF_LIST); i++) {
 		if (CMD_IPSEC_CONNECTION_ADD[i].name) {
 			free((char *) CMD_IPSEC_CONNECTION_ADD[i].name);
 			CMD_IPSEC_CONNECTION_ADD[i].name = NULL;
@@ -881,7 +881,7 @@ void ipsec_link_down(const char *cmd)
 	if (librouter_ipsec_list_all_names(&list) > 0) {
 		if (*list != NULL) {
 			list_ini = list;
-			for (i = 0; i < MAX_CONN; i++, list++) {
+			for (i = 0; i < IPSEC_MAX_CONN; i++, list++) {
 				if (*list) {
 					if (librouter_ipsec_get_link(*list))
 						restart = 1;
@@ -978,7 +978,7 @@ void check_initial_conn(void)
 	if (librouter_ipsec_list_all_names(&list) >= 0) {
 		if (*list != NULL) {
 			list_ini = list;
-			for (i = 0; i < MAX_CONN; i++) {
+			for (i = 0; i < IPSEC_MAX_CONN; i++) {
 				if (*list != NULL) {
 					for (j = CMDS_BEF_LIST;; j++) {
 						if (CMD_IPSEC_CONNECTION_ADD[j].name == NULL) {
@@ -1007,7 +1007,7 @@ void check_initial_conn(void)
 				}
 			}
 			// Libera memoria
-			for (i = 0, list = list_ini; i < MAX_CONN; i++, list++)
+			for (i = 0, list = list_ini; i < IPSEC_MAX_CONN; i++, list++)
 				if (*list)
 					free(*list);
 			free(list_ini);
