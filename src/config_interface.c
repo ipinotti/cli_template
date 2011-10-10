@@ -56,11 +56,9 @@ void config_interface_switch_port(const char *cmdline)
 	args = librouter_make_args(cmdline);
 
 	port = atoi(args->argv[1]);
-#if defined(CONFIG_DIGISTAR_EFM)
-	if (port < 1 || port > 2)
-#elif defined(CONFIG_DIGISTAR_3G)
-	if (port < 1 || port > 4)
-#endif
+
+
+	if (port < 1 || port > OPTION_SWITCH_PORT_NUM)
 	{
 		printf("%% Invalid port\n");
 		librouter_destroy_args(args);
@@ -68,9 +66,11 @@ void config_interface_switch_port(const char *cmdline)
 	}
 
 	switch_port = port;
-#if defined(CONFIG_DIGISTAR_EFM)
+#if defined(OPTION_SWITCH_MICREL_KSZ8863)
 	switch_port_real = librouter_ksz8863_get_realport_by_aliasport(port);
-#elif defined(CONFIG_DIGISTAR_3G)
+#elif defined(OPTION_SWITCH_MICREL_KSZ8895)
+	switch_port_real = librouter_ksz8895_get_realport_by_aliasport(port);
+#elif defined(OPTION_SWITCH_BROADCOM)
 	switch_port_real = librouter_bcm53115s_get_realport_by_aliasport(port);
 #endif
 

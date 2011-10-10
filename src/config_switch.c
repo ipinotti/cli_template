@@ -18,15 +18,16 @@
 #include <librouter/options.h>
 #include <librouter/args.h>
 
-#if defined (OPTION_MANAGED_SWITCH)
+#ifdef OPTION_MANAGED_SWITCH
 
 extern int switch_port;
 extern int switch_port_real;
 extern int interface_major;
 extern int interface_minor;
 
-#if defined (CONFIG_DIGISTAR_EFM)
+#if defined(OPTION_SWITCH_MICREL)
 
+#if defined(OPTION_SWITCH_MICREL_KSZ8863)
 #include <librouter/ksz8863.h>
 
 void sw_egress_traffic_shape(const char *cmdline)
@@ -208,9 +209,14 @@ void sw_vlan_entry(const char *cmdline)
 
 	if (!strcmp(args->argv[0], "no")) {
 		vconf.vid = atoi(args->argv[3]);
+#if defined(OPTION_SWITCH_MICREL_KSZ8863)
 		librouter_ksz8863_del_table(&vconf);
+#elif defined(OPTION_SWITCH_MICREL_KSZ8895)
+		librouter_ksz8895_del_table(&vconf);
+#endif
 	} else {
 		vconf.vid = atoi(args->argv[2]);
+#if defined(OPTION_SWITCH_MICREL_KSZ8863)
 		if (strstr(cmdline, "port-1"))
 			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT1_MSK;
 
@@ -221,6 +227,24 @@ void sw_vlan_entry(const char *cmdline)
 			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT3_MSK;
 
 		librouter_ksz8863_add_table(&vconf);
+#elif defined(OPTION_SWITCH_MICREL_KSZ8895)
+		if (strstr(cmdline, "port-1"))
+			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT1_MSK;
+
+		if (strstr(cmdline, "port-2"))
+			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT2_MSK;
+
+		if (strstr(cmdline, "port-3"))
+			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT3_MSK;
+
+		if (strstr(cmdline, "port-4"))
+			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT4_MSK;
+
+		if (strstr(cmdline, "internal"))
+			vconf.membership |= KSZ8863REG_VLAN_MEMBERSHIP_PORT5_MSK;
+
+		librouter_ksz8895_add_table(&vconf);
+#endif
 	}
 
 	librouter_destroy_args(args);
@@ -322,9 +346,315 @@ void sw_txqueue_split(const char *cmdline)
 	librouter_destroy_args(args);
 	return;
 }
-/* --- END ------- CONFIG_DIGISTAR_EFM -- */
 
-#elif defined (CONFIG_DIGISTAR_3G)
+/* --- END ------- OPTION_SWITCH_MICREL_KSZ8863 -- */
+#elif defined(OPTION_SWITCH_MICREL_KSZ8895)
+#include <librouter/ksz8895.h>
+
+void sw_egress_traffic_shape(const char *cmdline)
+{
+	arglist *args;
+	int prio, rate;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no")) {
+		prio = atoi(args->argv[2]);
+		librouter_ksz8895_set_egress_rate_limit(switch_port_real, prio, 0);
+	} else {
+		prio = atoi(args->argv[1]);
+		rate = atoi(args->argv[2]);
+		if (rate < 1000)
+			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate
+			                / 64) * 64);
+		else
+			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
+			                / 1000);
+		librouter_ksz8895_set_egress_rate_limit(interface_major, prio, rate);
+	}
+	librouter_destroy_args(args);
+}
+
+void sw_ingress_rate_limit(const char *cmdline)
+{
+	arglist *args;
+	int prio, rate;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no")) {
+		prio = atoi(args->argv[2]);
+		librouter_ksz8895_set_ingress_rate_limit(switch_port_real, prio, 0);
+	} else {
+		prio = atoi(args->argv[1]);
+		rate = atoi(args->argv[2]);
+		if (rate < 1000)
+			fprintf(stdout, "%% Rounding value to a 64kbps multiple : %dKbps\n", (rate
+			                / 64) * 64);
+		else
+			fprintf(stdout, "%% Rounding value to a 1Mbps multiple : %dMbps\n", rate
+			                / 1000);
+		librouter_ksz8895_set_ingress_rate_limit(switch_port_real, prio, rate);
+	}
+	librouter_destroy_args(args);
+}
+
+void sw_vlan_default(const char *cmdline)
+{
+	arglist *args;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		librouter_ksz8895_set_default_vid(switch_port_real, 0);
+	else
+		librouter_ksz8895_set_default_vid(switch_port_real, atoi(args->argv[1]));
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_multicast_storm_protect(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	librouter_ksz8895_set_multicast_storm_protect(enable);
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_broadcast_storm_protect(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	librouter_ksz8895_set_broadcast_storm_protect(enable, switch_port_real);
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_broadcast_storm_protect_rate(const char *cmdline)
+{
+	arglist *args;
+	int perc = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc < 3) {
+		printf("Wrong number of arguments\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	perc = atoi(args->argv[2]);
+
+	librouter_ksz8895_set_storm_protect_rate(perc);
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_replace_null_vid(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	if (librouter_ksz8895_set_replace_null_vid(enable) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
+
+}
+
+void sw_enable_wfq(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	if (librouter_ksz8895_set_wfq(enable) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_8021q(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	if (librouter_ksz8895_set_8021q(enable) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_vlan_entry(const char *cmdline)
+{
+	arglist *args;
+	struct vlan_config_t vconf;
+
+	memset(&vconf, 0, sizeof(vconf));
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no")) {
+		vconf.vid = atoi(args->argv[3]);
+		librouter_ksz8895_del_table(&vconf);
+	} else {
+		vconf.vid = atoi(args->argv[2]);
+		if (strstr(cmdline, "port-1"))
+			vconf.membership |= KSZ8895REG_VLAN_MEMBERSHIP_PORT1_MSK;
+
+		if (strstr(cmdline, "port-2"))
+			vconf.membership |= KSZ8895REG_VLAN_MEMBERSHIP_PORT2_MSK;
+
+		if (strstr(cmdline, "port-3"))
+			vconf.membership |= KSZ8895REG_VLAN_MEMBERSHIP_PORT3_MSK;
+
+		if (strstr(cmdline, "port-4"))
+			vconf.membership |= KSZ8895REG_VLAN_MEMBERSHIP_PORT4_MSK;
+
+		if (strstr(cmdline, "internal"))
+			vconf.membership |= KSZ8895REG_VLAN_MEMBERSHIP_PORT5_MSK;
+
+		librouter_ksz8895_add_table(&vconf);
+	}
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_8021p(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	librouter_ksz8895_set_8021p(enable, switch_port_real);
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_8021p_prio(const char *cmdline)
+{
+	arglist *args;
+	int prio, cos;
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc < 3) {
+		printf("%% Invalid number of arguments\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	cos = atoi(args->argv[2]);
+	prio = atoi(args->argv[3]);
+
+	if (librouter_ksz8895_set_cos_prio(cos, prio) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_dscp(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	if (librouter_ksz8895_set_diffserv(enable, switch_port_real) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_dscp_prio(const char *cmdline)
+{
+	arglist *args;
+	int prio, dscp;
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc < 3) {
+		printf("%% Invalid number of arguments\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	dscp = atoi(args->argv[2]);
+	prio = atoi(args->argv[3]);
+
+	if (librouter_ksz8895_set_dscp_prio(dscp, prio) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
+}
+
+void sw_txqueue_split(const char *cmdline)
+{
+	arglist *args;
+	int enable = 1;
+
+	args = librouter_make_args(cmdline);
+
+	if (!strcmp(args->argv[0], "no"))
+		enable = 0;
+
+	if (librouter_ksz8895_set_txqsplit(enable, switch_port_real) < 0)
+		printf("%% Could not execute the command\n");
+
+	librouter_destroy_args(args);
+	return;
+}
+
+#endif
+/* --- END ------- OPTION_SWITCH_MICREL -- */
+
+#elif defined (OPTION_SWITCH_BROADCOM)
 
 #include <librouter/bcm53115s.h>
 
@@ -596,9 +926,9 @@ void sw_dscp_prio(const char *cmdline)
 }
 
 
-/* --- END ------- CONFIG_DIGISTAR_3G -- */
+/* --- END ------- OPTION_SWITCH_BROADCOM -- */
 
-#else /* CONFIG_DIGISTAR_3G */
+#else /* OPTION_SWITCH_BROADCOM */
 #error "OPTION_MANAGED_SWITCH is defined, but not supported for this board"
 #endif
 

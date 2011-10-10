@@ -107,16 +107,20 @@ void set_model_auth_cmds(void)
 	if (priv == 15 || priv == 0)
 		_cish_mask |= MSK_AUTH;
 
-	/* Remove the command "enable" from cish to basic user level*/
+	/* Remove the command "enable" from cish to basic user level */
 	if (priv == 1)
 		_cish_mask &= ~MSK_ENABLE;
 }
 
 #ifdef OPTION_MANAGED_SWITCH
-#ifdef CONFIG_DIGISTAR_EFM
+#ifdef OPTION_SWITCH_MICREL
 void set_model_switch_cmds(void)
 {
+#if defined(OPTION_SWITCH_MICREL_KSZ8863)
 	int enable = librouter_ksz8863_probe();
+#elif defined(OPTION_SWITCH_MICREL_KSZ8895)
+	int enable = librouter_ksz8895_probe();
+#endif
 
 	if (enable == 1)
 		_cish_mask |= MSK_MANAGED_SWITCH;
@@ -124,7 +128,7 @@ void set_model_switch_cmds(void)
 		_cish_mask &= ~MSK_MANAGED_SWITCH;
 }
 
-#elif CONFIG_DIGISTAR_3G
+#elif OPTION_SWITCH_BROADCOM
 void set_model_switch_cmds(void)
 {
 	int enable = librouter_bcm53115s_probe();
@@ -138,7 +142,7 @@ void set_model_switch_cmds(void)
 #endif
 
 
-
+#if 0
 extern cish_command CMD_SHOW_INTERFACE_ETHERNET[];
 #ifdef OPTION_SMCROUTE
 extern cish_command CMD_IP_MROUTE8_ETHERNET[];
@@ -160,6 +164,7 @@ extern cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_SRC_ETHERNET[];
 extern cish_command CMD_BACKUP_INTERFACE_ETHERNET[];
 #endif
 extern cish_command CMD_POLICYROUTE_ROUTE_DEV_ETHERNET[];
+#endif
 
 #ifdef OPTION_ROUTER
 void config_router(const char *cmdline)
