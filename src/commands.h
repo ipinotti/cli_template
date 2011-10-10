@@ -137,6 +137,7 @@ void set_bgp_interface_cmds(int enable);
 void set_model_aux_cmds(int enable);
 void set_model_qos_cmds(int enable);
 void set_model_vpn_cmds(int enable);
+void set_model_ipv6_cmds(int enable);
 
 void set_model_cmd_mask(int mask);
 void del_model_cmd_mask(int mask);
@@ -539,8 +540,7 @@ void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
 
-/* Ipv6 */
-#ifdef OPTION_IPV6
+/* IPv6 */
 void show_routingtables_ipv6(const char *);
 void interface_ethernet_ipaddr_v6(const char *cmdline);
 void interface_ethernet_no_ipaddr_v6(const char *cmdline);
@@ -551,7 +551,6 @@ void zebra_dump_routes_ipv6(FILE *out);
 void interface_no_ipaddr_v6(const char *cmdline);
 void interface_flush_ipaddr_v6(const char *cmdline);
 void interface_ipaddr_v6(const char *cmdline);
-#endif
 
 #ifdef OPTION_MANAGED_SWITCH
 #if defined(CONFIG_DIGISTAR_EFM)

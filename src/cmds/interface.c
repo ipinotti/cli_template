@@ -1159,9 +1159,7 @@ cish_command CMD_CONFIG_INTERFACE_EFM_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_IPV6},
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
@@ -1409,9 +1407,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO[] = {
 #endif
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6, NULL, 1, MSK_IPV6},
 #ifdef CONFIG_VLAN_COS
 	{"set", "Unset QoS values", CMD_CONFIG_VLAN_NO_COS, NULL, 0, MSK_NORMAL},
 #endif

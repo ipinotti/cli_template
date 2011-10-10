@@ -197,10 +197,7 @@ cish_command CMD_CONFIG_NO[] = {
 	{"interface","Interface Configuration", CMD_CONFIG_NO_INTERFACE, NULL, 1, MSK_NORMAL},
 #endif
 	{"ip","IPv4 Configuration", CMD_NO_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6","IPv6 Configuration", CMD_NO_IPV6, NULL, 1, MSK_NORMAL},
-#endif
-
+	{"ipv6","IPv6 Configuration", CMD_NO_IPV6, NULL, 1, MSK_IPV6},
 #ifdef OPTION_ROUTER
 	{"key","Authentication key management (RIP)", CMD_CONFIG_KEY, NULL, 1, MSK_RIP},
 #endif
@@ -413,9 +410,7 @@ cish_command CMD_CONFIGURE[] = {
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"hostname","Set system's hostname", CMD_CONFIG_HOSTNAME, NULL, 1, MSK_NORMAL},
 	{"ip","IPv4 Configuration", CMD_IP, NULL, 1, MSK_NORMAL},
-#ifdef OPTION_IPV6
-	{"ipv6","IPv6 Configuration", CMD_IPV6, NULL, 1, MSK_NORMAL},
-#endif
+	{"ipv6","IPv6 Configuration", CMD_IPV6, NULL, 1, MSK_IPV6},
 	{"interface","Interface Configuration", CMD_CONFIG_INTERFACE, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_ROUTER
 	{"key","Authentication key management (RIP)", CMD_CONFIG_KEY, NULL, 1, MSK_RIP},

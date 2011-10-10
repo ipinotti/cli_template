@@ -80,6 +80,14 @@ void set_model_vlan_cmds(int enable)
 		_cish_mask &= ~MSK_VLAN;
 }
 
+void set_model_ipv6_cmds(int enable)
+{
+	if (enable)
+		_cish_mask |= MSK_IPV6;
+	else
+		_cish_mask &= ~MSK_IPV6;
+}
+
 void set_model_cmd_mask(int mask)
 {
 	_cish_mask |= mask;
