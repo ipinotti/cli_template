@@ -551,6 +551,8 @@ void zebra_dump_routes_ipv6(FILE *out);
 void interface_no_ipaddr_v6(const char *cmdline);
 void interface_flush_ipaddr_v6(const char *cmdline);
 void interface_ipaddr_v6(const char *cmdline);
+void ipv6_param(const char *);
+void no_ipv6_param(const char *);
 #endif
 
 #ifdef OPTION_MANAGED_SWITCH

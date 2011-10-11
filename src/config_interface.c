@@ -804,11 +804,24 @@ void tunnel_mode(const char *cmdline) /* tunnel mode gre|ipip */
 	args = librouter_make_args(cmdline);
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	if (strcmp(args->argv[2], "gre") == 0) {
-		librouter_tunnel_mode(dev, IPPROTO_GRE);
-	} else if (strcmp(args->argv[2], "ipip") == 0) {
-		librouter_tunnel_mode(dev, IPPROTO_IPIP);
+	if (args->argc == 3){
+		if (strcmp(args->argv[2], "gre") == 0){
+			librouter_tunnel_mode(dev, IPPROTO_GRE);
+			goto end;
+		}
+
+		if (strcmp(args->argv[2], "ipip") == 0) {
+			librouter_tunnel_mode(dev, IPPROTO_IPIP);
+			goto end;
+		}
 	}
+
+	if ((args->argc == 4))
+		if (strcmp(args->argv[3], "6to4") == 0){
+			librouter_tunnel_mode(dev, IPPROTO_IPV6);
+		}
+
+end:
 	/* TODO: pptp l2tp ipsec ipsec-l2tp */
 	free(dev);
 	librouter_destroy_args(args);

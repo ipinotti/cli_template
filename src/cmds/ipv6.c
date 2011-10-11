@@ -30,7 +30,7 @@ cish_command CMD_IPV6_ROUTE4_LOOPBACK[] = {
 };
 
 cish_command CMD_IPV6_ROUTE4_TUNNEL[] = {
-	{"0-9", "Tunnel interface number", CMD_IPV6_ROUTE5, zebra_execute_cmd_ipv6, 1, MSK_NORMAL},
+	{"0-0", "Tunnel interface number", CMD_IPV6_ROUTE5, zebra_execute_cmd_ipv6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 #ifdef OPTION_MODEM3G
@@ -53,8 +53,8 @@ cish_command CMD_IPV6_ROUTE4_PPPOE[] = {
 cish_command CMD_IPV6_ROUTE3[] = {
 	{"ethernet", "Ethernet interface", CMD_IPV6_ROUTE4_ETHERNET, NULL, 1, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_IPV6_ROUTE4_LOOPBACK, NULL, 1, MSK_NORMAL},
-#ifdef NOT_YET_IMPLEMENTED
 	{"tunnel", "Tunnel interface", CMD_IPV6_ROUTE4_TUNNEL, NULL, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
 #ifdef OPTION_MODEM3G
 	{"m3G", "3G Interface", CMD_IPV6_ROUTE4_3G, NULL, 1, MSK_NORMAL},
 #endif
@@ -76,11 +76,21 @@ cish_command CMD_IPV6_ROUTE1[] = {
 };
 
 cish_command CMD_NO_IPV6[] = {
-	{"route", "Establish static routes", CMD_IPV6_ROUTE1, NULL, 1, MSK_NORMAL},
+	{"route", "Remove static routes", CMD_IPV6_ROUTE1, NULL, 1, MSK_NORMAL},
+	{"routing", "Disable IPv6 routing", NULL, no_ipv6_param, 1, MSK_NORMAL},
+	{"enable", "Disable IPv6 in all interfaces", NULL, no_ipv6_param, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+	{"auto-configuration", "Disable IPv6 address auto-configuration in all interfaces", NULL, no_ipv6_param, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_IPV6[] = {
 	{"route", "Establish static routes", CMD_IPV6_ROUTE1, NULL, 1, MSK_NORMAL},
+	{"routing", "Enable IPv6 routing", NULL, ipv6_param, 1, MSK_NORMAL},
+	{"enable", "Enable IPv6 in all interfaces", NULL, ipv6_param, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+	{"auto-configuration", "Enable IPv6 address auto-configuration in all interfaces", NULL, ipv6_param, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };

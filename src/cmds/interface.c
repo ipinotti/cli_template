@@ -1646,6 +1646,40 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IPV6_2[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, interface_no_ipaddr_v6, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IPV6_1[] = {
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_TUNNEL_NO_IPV6_2, interface_no_ipaddr_v6, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IPV6[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "Unset IPv6 address", CMD_CONFIG_INTERFACE_TUNNEL_NO_IPV6_1, interface_flush_ipaddr_v6, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_QOS
+	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_NO_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF_NO, NULL, 1, MSK_OSPF},
+	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP_NO, NULL, 1, MSK_RIP},
+	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
+#endif
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_IP3[] = {
 	{"secondary", "Make this IP address a secondary address", NULL, interface_ipaddr_secondary, 1, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
@@ -1681,6 +1715,47 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_IP[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_PREFIX[] = {
+	{"eui-64", "Use eui-64 interface identifier", NULL, interface_ipaddr_v6, 1, MSK_NORMAL},
+	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_2[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_TUNNEL_IPV6_PREFIX, interface_ipaddr_v6, 1, MSK_NORMAL},
+	{"link-local", "Use link-local address", NULL, interface_ipaddr_v6, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_1[] = {
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_TUNNEL_IPV6_2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "IPv6 Address", CMD_CONFIG_INTERFACE_TUNNEL_IPV6_1, NULL, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_QOS
+	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#ifdef OPTION_NAT
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_ROUTER
+	{"ospf", "OSPF protocol", CMD_CONFIG_INTERFACE_IP_OSPF, NULL, 1, MSK_OSPF},
+	{"rip", "Routing Information Protocol", CMD_CONFIG_INTERFACE_IP_RIP, NULL, 1, MSK_RIP},
+	{"split-horizon", "Perform split horizon", NULL, rip_execute_interface_cmd, 1, MSK_RIP},
+#endif
+#endif
+	{NULL,NULL,NULL,NULL}
+};
+
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_MTU[] = {
 	{"68-1600", "Max Transfer Unit", NULL, interface_mtu, 1, MSK_NORMAL}, /* linux/net/ipv4/ip_gre.c: ipgre_tunnel_change_mtu() */
 	{NULL,NULL,NULL,NULL}
@@ -1696,9 +1771,15 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_KEY[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_MODE_IPV6IP[] = {
+	{"6to4", "IPv6 automatic tunnelling using 6to4", NULL, tunnel_mode, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_MODE[] = {
 	{"gre", "Generic route encapsulation protocol", NULL, tunnel_mode, 1, MSK_NORMAL},
 	{"ipip", "IP over IP encapsulation", NULL, tunnel_mode, 1, MSK_NORMAL},
+	{"ipv6ip", "IPv6 over IP encapsulation (sit mode)", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_MODE_IPV6IP, NULL, 1, MSK_IPV6},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -1804,6 +1885,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_TUNNEL[] = {
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO[] = {
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_TUNNEL_NO_IP, NULL, 1, MSK_NORMAL},
+	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_TUNNEL_NO_IPV6, NULL, 1, MSK_IPV6},
 #ifdef CONFIG_NET_IPGRE_KEEPALIVE
 	{"keepalive", "Disable Keepalive", NULL, tunnel_keepalive, 1, MSK_NORMAL},
 #endif
@@ -1817,6 +1899,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL[] = {
 	{"exit", "Exit from interface configuration mode", NULL, config_interface_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_TUNNEL_IP, NULL, 1, MSK_NORMAL},
+	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_TUNNEL_IPV6, NULL, 1, MSK_IPV6},
 #ifdef CONFIG_NET_IPGRE_KEEPALIVE
 	{"keepalive", "Enable Keepalive", CMD_CONFIG_INTERFACE_TUNNEL_KP, NULL, 1, MSK_NORMAL},
 #endif
