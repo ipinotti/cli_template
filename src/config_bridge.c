@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <librouter/options.h> /* autoconf.h */
+
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>

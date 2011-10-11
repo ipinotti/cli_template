@@ -133,7 +133,6 @@ cish_command CMD_SHOW_IP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-#ifdef OPTION_IPV6
 cish_command CMD_SHOW_IPV6[] = {
 #ifdef OPTION_BGP_IPV6
 	{"bgp", "BGP information", CMD_SHOW_BGP, show_ip_bgp, 1, MSK_BGP},
@@ -151,7 +150,6 @@ cish_command CMD_SHOW_IPV6[] = {
 	{"route", "Routing information", NULL, show_routingtables_ipv6, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
-#endif
 
 cish_command CMD_SHOW_SNMP[] = {
 	{"users", "Show SNMP v3 users", NULL, show_snmp_users, 0, MSK_NORMAL},
@@ -240,7 +238,7 @@ cish_command CMD_SHOW[] = {
 	{"dhcp", "Show DHCP leases", NULL, show_dumpleases, 0, MSK_NORMAL},
 	{"interfaces", "Network interfaces", CMD_SHOW_INTERFACES, show_interfaces, 0, MSK_NORMAL},
 	{"ip", "IPv4 system information", CMD_SHOW_IP, NULL, 0, MSK_NORMAL},
-	{"ipv6", "IPv6 system information", CMD_SHOW_IPV6, NULL, 0, MSK_NORMAL},
+	{"ipv6", "IPv6 system information", CMD_SHOW_IPV6, NULL, 0, MSK_IPV6},
 #ifdef OPTION_IPSEC
 	{"l2tp", "L2TP tunnels", NULL, show_l2tp, 1, MSK_VPN},
 #endif

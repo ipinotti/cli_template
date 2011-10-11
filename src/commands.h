@@ -58,12 +58,14 @@
 #include <librouter/vlan.h>
 
 #ifdef OPTION_MANAGED_SWITCH
-#ifdef CONFIG_DIGISTAR_EFM
+#if defined(OPTION_SWITCH_MICREL_KSZ8863)
 #include <librouter/ksz8863.h>
-#else
+#elif defined(OPTION_SWITCH_MICREL_KSZ8895)
+#include <librouter/ksz8895.h>
+#elif defined(OPTION_SWITCH_BROADCOM)
 #include <librouter/bcm53115s.h>
 #endif
-#endif
+#endif /* OPTION_MANAGED_SWITCH */
 
 #ifdef OPTION_EFM
 #include <librouter/efm.h>
@@ -137,6 +139,7 @@ void set_bgp_interface_cmds(int enable);
 void set_model_aux_cmds(int enable);
 void set_model_qos_cmds(int enable);
 void set_model_vpn_cmds(int enable);
+void set_model_ipv6_cmds(int enable);
 
 void set_model_cmd_mask(int mask);
 void del_model_cmd_mask(int mask);
@@ -539,8 +542,7 @@ void interface_ethernet_no_ipxnet(const char *);
 void interface_shutdown(const char *);
 void interface_txqueue(const char *);
 
-/* Ipv6 */
-#ifdef OPTION_IPV6
+/* IPv6 */
 void show_routingtables_ipv6(const char *);
 void interface_ethernet_ipaddr_v6(const char *cmdline);
 void interface_ethernet_no_ipaddr_v6(const char *cmdline);
@@ -553,10 +555,9 @@ void interface_flush_ipaddr_v6(const char *cmdline);
 void interface_ipaddr_v6(const char *cmdline);
 void ipv6_param(const char *);
 void no_ipv6_param(const char *);
-#endif
 
 #ifdef OPTION_MANAGED_SWITCH
-#if defined(CONFIG_DIGISTAR_EFM)
+#if defined(OPTION_SWITCH_MICREL)
 void sw_vlan_default(const char *);
 void sw_ingress_rate_limit(const char *);
 void sw_egress_traffic_shape(const char *);
@@ -572,15 +573,13 @@ void sw_8021p_prio(const char *);
 void sw_dscp(const char *);
 void sw_dscp_prio(const char *);
 void sw_txqueue_split(const char *);
-#elif defined(CONFIG_DIGISTAR_3G)
+#elif defined(OPTION_SWITCH_BROADCOM)
 void sw_vlan_default(const char *);
 void sw_replace_null_vid(const char *);
-
 void sw_multicast_storm_protect(const char *);
 void sw_broadcast_storm_protect(const char *);
 void sw_broadcast_storm_protect_rate(const char *);
 void sw_drop_untagged(const char *);
-
 void sw_enable_wrr(const char *);
 void sw_vlan_entry(const char *);
 void sw_8021q(const char *);
@@ -588,9 +587,8 @@ void sw_8021p(const char *);
 void sw_8021p_prio(const char *);
 void sw_dscp(const char *);
 void sw_dscp_prio(const char *);
-
 #endif
-#endif
+#endif /* OPTION_MANAGED_SWITCH */
 
 /* TODO config_interface.c -> create config_interface.h */
 void config_interface_done(const char *);
