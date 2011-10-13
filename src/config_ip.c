@@ -29,6 +29,7 @@
 int get_procip_val(const char *);
 
 #ifdef OPTION_ROUTER
+/* FIXME Move this functions to librouter */
 void ip_param(const char *cmd)
 {
 	const char *dst_file;
@@ -194,7 +195,7 @@ void no_ip_param(const char *_cmd)
 	fclose(F);
 }
 
-#ifdef OPTION_IPV6
+
 static int ipv6_set_param_infile(const char *path, int value)
 {
 	FILE *F;
@@ -272,9 +273,8 @@ void no_ipv6_param(const char *_cmd)
 	}
 
 }
-#endif
+#endif /* OPTION_ROUTER */
 
-#endif
 #ifdef OPTION_HTTP
 void http_server(const char *cmd)
 {
