@@ -27,135 +27,91 @@
 #include "dhcp.h"
 
 
+#ifdef OPTION_IPV6
+static int ipv6_set_param_infile(const char *path, int value)
+{
+	FILE *F;
+
+	F = fopen(path, "w");
+	if (!F)
+		return -1;
+
+	fprintf(F, "%d", value);
+	fclose(F);
+
+	return 0;
+}
+
+void ipv6_param(const char *cmd)
+{
+	const char *dst_file = (const char *) NULL;
+	int dst_val = -1;
+
+	if (strncmp(cmd, "ipv6 forwarding", 15) == 0 || strncmp(cmd, "ipv6 routing", 12) == 0) {
+		dst_file = "/proc/sys/net/ipv6/conf/all/forwarding"; /* "/proc/sys/net/ipv6/conf/all/forwarding" */
+		dst_val = 1;
+		if (ipv6_set_param_infile(dst_file, dst_val) < 0)
+			printf("%% Error opening %s\n", dst_file);
+	}
+	else if (strncmp(cmd, "ipv6 auto-configuration", 23) == 0) {
+		dst_file = "/proc/sys/net/ipv6/conf/all/autoconf";
+		dst_val = 1;
+		if (ipv6_set_param_infile(dst_file, dst_val) < 0)
+			printf("%% Error opening %s\n", dst_file);
+
+		dst_file = "/proc/sys/net/ipv6/conf/all/accept_ra";
+		dst_val = 1;
+		if (ipv6_set_param_infile(dst_file, dst_val) < 0)
+			printf("%% Error opening %s\n", dst_file);
+	}
+	else if (strncmp(cmd, "ipv6 enable", 11) == 0) {
+		dst_file = "/proc/sys/net/ipv6/conf/all/disable_ipv6";
+		dst_val = 0;
+		if (ipv6_set_param_infile(dst_file, dst_val) < 0)
+			printf("%% Error opening %s\n", dst_file);
+	}
+}
+
+void no_ipv6_param(const char *_cmd)
+{
+	const char *cmd;
+	const char *dst_file = (const char *) NULL;
+	int dst_val = -1;
+
+	cmd = _cmd + 3;
+
+	if (strncmp(cmd, "ipv6 forwarding", 15) == 0 || strncmp(cmd, "ipv6 routing", 12) == 0) {
+		dst_file = "/proc/sys/net/ipv6/conf/all/forwarding"; /* "/proc/sys/net/ipv6/conf/all/forwarding" */
+		dst_val = 0;
+		if (ipv6_set_param_infile(dst_file, dst_val) < 0)
+			printf("%% Error opening %s\n", dst_file);
+	}
+	else if (strncmp(cmd, "ipv6 auto-configuration", 23) == 0) {
+		dst_file = "/proc/sys/net/ipv6/conf/all/autoconf";
+		dst_val = 0;
+		if (ipv6_set_param_infile(dst_file, dst_val) < 0)
+			printf("%% Error opening %s\n", dst_file);
+
+		dst_file = "/proc/sys/net/ipv6/conf/all/accept_ra";
+		dst_val = 0;
+		if (ipv6_set_param_infile(dst_file, dst_val) < 0)
+			printf("%% Error opening %s\n", dst_file);
+	}
+	else if (strncmp(cmd, "ipv6 enable", 11) == 0) {
+		dst_file = "/proc/sys/net/ipv6/conf/all/disable_ipv6";
+		dst_val = 1;
+		if (ipv6_set_param_infile(dst_file, dst_val) < 0)
+			printf("%% Error opening %s\n", dst_file);
+	}
+
+}
+#endif
+
 #ifdef NOT_YET_IMPLEMENTED
-
-
 
 int get_procip_val(const char *);
 
 #ifdef OPTION_ROUTER
-void ip_param(const char *cmd)
-{
-	const char *dst_file;
-	int dst_val;
-	FILE *F;
-
-	dst_file = (const char *) NULL;
-	dst_val = -1;
-
-
-	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0) {
-		dst_file = "/proc/sys/net/ipv4/ip_forward"; /* "/proc/sys/net/ipv4/conf/all/forwarding" */
-		dst_val = 1;
-	} else
-
-#ifdef OPTION_PIMD
-	if (strncmp(cmd, "ip multicast-routing", 20) == 0) {
-		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
-		dst_val = 1;
-	} else
-#endif
-	if (strncmp(cmd, "ip pmtu-discovery", 17) == 0) {
-		dst_file = "/proc/sys/net/ipv4/ip_no_pmtu_disc";
-		dst_val = 0;
-	} else if (strncmp(cmd, "ip default-ttl ", 15) == 0) {
-		if ((dst_val = atoi(cmd + 15)) <= 0) {
-			printf("%% Parameter error\n");
-			return;
-		}
-		dst_file = "/proc/sys/net/ipv4/ip_default_ttl";
-	} else if (strncmp(cmd, "ip icmp ignore all", 18) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_all";
-		dst_val = 1;
-	} else if (strncmp(cmd, "ip icmp ignore broadcast", 24) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts";
-		dst_val = 1;
-	} else if (strncmp(cmd, "ip icmp ignore bogus", 20) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_ignore_bogus_error_responses";
-		dst_val = 1;
-	} else if (strncmp(cmd, "ip icmp rate dest-unreachable ", 30) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_destunreach_rate";
-		dst_val = atoi(cmd + 30);
-
-		if ((!dst_val) && (cmd[30] != '0'))
-			return;
-	} else if (strncmp(cmd, "ip icmp rate echo-reply ", 24) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_echoreply_rate";
-		dst_val = atoi(cmd + 24);
-
-		if ((!dst_val) && (cmd[24] != '0'))
-			return;
-	} else if (strncmp(cmd, "ip icmp rate param-prob ", 24) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_paramprob_rate";
-		dst_val = atoi(cmd + 24);
-
-		if ((!dst_val) && (cmd[24] != '0'))
-			return;
-	} else if (strncmp(cmd, "ip icmp rate time-exceed ", 25) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_timeexceed_rate";
-		dst_val = atoi(cmd + 25);
-
-		if ((!dst_val) && (cmd[25] != '0'))
-			return;
-	} else if (strncmp(cmd, "ip fragment high ", 17) == 0) {
-		dst_file = "/proc/sys/net/ipv4/ipfrag_high_thresh";
-		dst_val = atoi(cmd + 17);
-
-		if ((!dst_val) && (cmd[17] != '0'))
-			return;
-	} else if (strncmp(cmd, "ip fragment low ", 16) == 0) {
-		dst_file = "/proc/sys/net/ipv4/ipfrag_low_thresh";
-		dst_val = atoi(cmd + 16);
-
-		if ((!dst_val) && (cmd[16] != '0'))
-			return;
-	} else if (strncmp(cmd, "ip fragment time ", 17) == 0) {
-		dst_file = "/proc/sys/net/ipv4/ipfrag_time";
-		dst_val = atoi(cmd + 17);
-
-		if ((!dst_val) && (cmd[17] != '0'))
-			return;
-	} else if (strncmp(cmd, "ip tcp ecn", 10) == 0) {
-		dst_file = "/proc/sys/net/ipv4/tcp_ecn";
-		dst_val = 1;
-	} else if (strncmp(cmd, "ip tcp syncookies", 17) == 0) {
-		dst_file = "/proc/sys/net/ipv4/tcp_syncookies";
-		dst_val = 1;
-	} else if (strncmp(cmd, "ip rp-filter", 12) == 0) {
-		dst_file = "/proc/sys/net/ipv4/conf/all/rp_filter";
-		dst_val = 1;
-	}
-
-	if (!dst_file) {
-		printf("%% Error! No such file!\n");
-		return;
-	}
-
-	F = fopen(dst_file, "w");
-	if (!F) {
-		printf("%% Error opening %s\n", dst_file);
-		return;
-	}
-	fprintf(F, "%d", dst_val);
-	fclose(F);
-}
-
-void no_ip_param(const char *_cmd)
-{
-	const char *cmd;
-	const char *dst_file;
-	int dst_val;
-	FILE *F;
-
-	cmd = _cmd + 3;
-
-	dst_file = (const char *) NULL;
-	dst_val = -1;
-
-	if (strncmp(cmd, "ip forwarding", 13) == 0 || strncmp(cmd, "ip routing", 10) == 0) {
-		dst_file = "/proc/sys/net/ipv4/ip_forward"; /* "/proc/sys/net/ipv4/conf/all/forwarding" */
-		dst_val = 0;
-	}
 #ifdef OPTION_PIMD
 	else if (strncmp(cmd, "ip multicast-routing", 20) == 0) {
 		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
