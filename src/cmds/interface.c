@@ -1724,8 +1724,19 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_2[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_6TO4_MASKV6[] = {
+	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, tunnel_ipv6_6to4_addr_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_6TO4[] = {
+	{"<ipaddress>", "IPv4 Address Target", CMD_CONFIG_INTERFACE_TUNNEL_IPV6_6TO4_MASKV6, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_1[] = {
 	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_CONFIG_INTERFACE_TUNNEL_IPV6_2, NULL, 1, MSK_NORMAL},
+	{"6to4", "IPv6 Address for 6to4 Tunneling mode", CMD_CONFIG_INTERFACE_TUNNEL_IPV6_6TO4, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 

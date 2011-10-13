@@ -555,6 +555,9 @@ void interface_flush_ipaddr_v6(const char *cmdline);
 void interface_ipaddr_v6(const char *cmdline);
 void ipv6_param(const char *);
 void no_ipv6_param(const char *);
+void tunnel_ipv6_6to4_addr_set(const char *cmdline);
+
+
 
 #ifdef OPTION_MANAGED_SWITCH
 #if defined(OPTION_SWITCH_MICREL)

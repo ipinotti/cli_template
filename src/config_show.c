@@ -1049,6 +1049,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			__dump_loopback_status(out, &conf);
 			break;
 #ifdef OPTION_TUNNEL
+		case ARPHRD_SIT:
 		case ARPHRD_TUNNEL:
 		case ARPHRD_IPGRE:
 			librouter_tunnel_dump_interface(out, conf_format, conf.name);

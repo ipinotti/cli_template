@@ -26,6 +26,7 @@
 #include "cish_main.h"
 #include "dhcp.h"
 
+/* FIXME Move this functions to librouter */
 static int ipv6_set_param_infile(const char *path, int value)
 {
 	FILE *F;

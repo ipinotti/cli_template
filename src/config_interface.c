@@ -762,6 +762,35 @@ void interface_fec_autonegotiation(const char *cmdline) /* speed auto */
 /*
  * Tunnel related functions
  */
+
+void tunnel_ipv6_6to4_addr_set(const char *cmdline)
+{
+	arglist *args;
+	char *dev, *addr_6to4, *addr_ipv4, *mask_ipv6;
+
+	args = librouter_make_args(cmdline);
+
+	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major, interface_minor);
+	addr_ipv4 = args->argv[3];
+	mask_ipv6 = args->argv[4];
+
+	addr_6to4 = malloc (64);
+	strncpy(addr_6to4, addr_ipv4, 64);
+
+	if (librouter_ipv6_conv_ipv4_addr_in_6to4_ipv6_addr(addr_6to4) < 0){
+		printf("%% Not possible to set Tunnel 6to4 Address parameters\n");
+		goto end;
+	}
+
+	if (librouter_ipv6_interface_set_addr(dev, addr_6to4, mask_ipv6, NULL) < 0)
+		printf("%% Not possible to set Tunnel 6to4 Address parameters\n");
+
+end:
+	free(addr_6to4);
+	addr_6to4 = NULL;
+	librouter_destroy_args(args);
+}
+
 void tunnel_destination(const char *cmdline) /* [no] tunnel destination <ipaddress> */
 {
 	arglist *args;
