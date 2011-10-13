@@ -194,7 +194,7 @@ cish_command CMD_CONFIG_INTERFACE_IP_PIM_NO[] = {
 
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6_2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, interface_ethernet_no_ipaddr_v6, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", NULL, interface_ethernet_no_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -875,7 +875,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_IPV6_2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", CMD_CONFIG_INTERFACE_ETHERNET_IPV6_PREFIX, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
 	{"link-local", "Use link-local address", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
@@ -1304,7 +1304,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_PREFIX[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_PREFIX, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6_PREFIX, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
 	{"link-local", "Use link-local address", NULL, interface_ethernet_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
@@ -1343,7 +1343,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_IPV6[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NO_IPV6_2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, interface_ethernet_no_ipaddr_v6, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", NULL, interface_ethernet_no_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -1500,7 +1500,7 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IP1[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_NO_IPV6_2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, interface_no_ipaddr_v6, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", NULL, interface_no_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -1546,7 +1546,7 @@ cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_PREFIX[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_PREFIX, interface_ipaddr_v6, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", CMD_CONFIG_INTERFACE_LOOPBACK_IPV6_PREFIX, interface_ipaddr_v6, 1, MSK_NORMAL},
 	{"link-local", "Use link-local address", NULL, interface_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
@@ -1643,7 +1643,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IP[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_IPV6_2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, interface_no_ipaddr_v6, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", NULL, interface_no_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
@@ -1719,13 +1719,13 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_PREFIX[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_CONFIG_INTERFACE_TUNNEL_IPV6_PREFIX, interface_ipaddr_v6, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", CMD_CONFIG_INTERFACE_TUNNEL_IPV6_PREFIX, interface_ipaddr_v6, 1, MSK_NORMAL},
 	{"link-local", "Use link-local address", NULL, interface_ipaddr_v6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_IPV6_6TO4_MASKV6[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", NULL, tunnel_ipv6_6to4_addr_set, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128>", NULL, tunnel_ipv6_6to4_addr_set, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
