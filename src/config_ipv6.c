@@ -26,8 +26,6 @@
 #include "cish_main.h"
 #include "dhcp.h"
 
-
-#ifdef OPTION_IPV6
 static int ipv6_set_param_infile(const char *path, int value)
 {
 	FILE *F;
@@ -105,7 +103,7 @@ void no_ipv6_param(const char *_cmd)
 	}
 
 }
-#endif
+
 
 #ifdef NOT_YET_IMPLEMENTED
 
