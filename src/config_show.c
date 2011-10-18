@@ -573,6 +573,7 @@ static void __dump_intf_secondary_ipaddr_v6_status(FILE *out, struct interfacev6
 
 static void __dump_intf_ipaddr_v6_status(FILE *out, struct interfacev6_conf *conf)
 {
+#ifdef OPTION_IPV6
 	int i;
 	struct ipv6_t *ipv6 = &conf->main_ip[0];
 	char *dev = librouter_ip_ethernet_get_dev(conf->name); /* ethernet enslaved by bridge? */
@@ -594,6 +595,7 @@ static void __dump_intf_ipaddr_v6_status(FILE *out, struct interfacev6_conf *con
 			fprintf(out, "  Internet address is %s %s\n", ipv6_addr.ipv6addr, ipv6_addr.ipv6mask);
 	}
 #endif
+#endif /* OPTION_IPV6 */
 	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
 }
 
