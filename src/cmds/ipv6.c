@@ -61,17 +61,17 @@ cish_command CMD_IPV6_ROUTE3[] = {
 	{"pptp", "PPTP Interface", CMD_IPV6_ROUTE4_PPTP, NULL, 1, MSK_NORMAL},
 	{"pppoe", "PPPoE Interface", CMD_IPV6_ROUTE4_PPPOE, NULL, 1, MSK_NORMAL},
 #endif
-	{"<ipv6address>", "IPv6 Address - { X:X:X:X:X:X }", CMD_IPV6_ROUTE5, zebra_execute_cmd_ipv6, 1, MSK_NORMAL},
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X:X:X } - Forwarding router's address", CMD_IPV6_ROUTE5, zebra_execute_cmd_ipv6, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_IPV6_ROUTE2[] = {
-	{"<netmask_v6>", "IPv6 Netmask - <4-128>", CMD_IPV6_ROUTE3, NULL, 1, MSK_NORMAL},
+	{"<netmask_v6>", "IPv6 Netmask - <0-128> - Destination prefix mask", CMD_IPV6_ROUTE3, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_IPV6_ROUTE1[] = {
-	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X }", CMD_IPV6_ROUTE2, NULL, 1, MSK_NORMAL},
+	{"<ipv6address>", "IPv6 Address - { X:X:X:X::X } - Destination prefix", CMD_IPV6_ROUTE2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 

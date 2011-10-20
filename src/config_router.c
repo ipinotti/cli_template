@@ -286,7 +286,6 @@ static int del_route_ipv6(arglist *args, struct routes_t *route)
 	for (i = 0; i < args->argc; i++) {
 		fam = librouter_device_get_family_by_name(args->argv[i], str_linux);
 		if (fam) {
-			printf("fam dev is = %s\n\n", fam->linux_string);
 			route->interface = args->argv[i];
 
 			if (args->argc == 7)
@@ -347,12 +346,12 @@ void zebra_execute_cmd_ipv6(const char *cmdline)
 	if (!strcmp(args->argv[0], "no")){
 		del_route_ipv6(args, route);
 		if (librouter_quagga_del_route(route) < 0)
-			printf("%% Could not add ipv4 static route");
+			printf("%% Could not add ipv6 static route");
 	}
 	else {
 		add_route_ipv6(args, route);
 		if (librouter_quagga_add_route(route) < 0)
-			printf("%% Could not add ipv4 static route");
+			printf("%% Could not add ipv6 static route");
 	}
 
 	free(route);
