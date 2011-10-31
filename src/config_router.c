@@ -127,8 +127,9 @@ void set_model_switch_cmds(void)
 	else
 		_cish_mask &= ~MSK_MANAGED_SWITCH;
 }
+#endif
 
-#elif OPTION_SWITCH_BROADCOM
+#ifdef OPTION_SWITCH_BROADCOM
 void set_model_switch_cmds(void)
 {
 	int enable = librouter_bcm53115s_probe();
