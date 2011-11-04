@@ -63,6 +63,11 @@ cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_IPSEC_CONNECTION_INTERFACE_EFM[] = {
+	{CLI_STRING_EFM_IFACES, "EFM interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_M3G[] = {
 	{"0-2", "Modem 3G interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -71,6 +76,9 @@ cish_command CMD_IPSEC_CONNECTION_INTERFACE_M3G[] = {
 cish_command CMD_IPSEC_CONNECTION_INTERFACE[] = {
 #ifdef OPTION_MODEM3G
 	{"m3G", "Modem 3G interface", CMD_IPSEC_CONNECTION_INTERFACE_M3G, NULL, 1, MSK_NORMAL},
+#endif
+#ifdef OPTION_EFM
+	{"efm", "EFM interface", CMD_IPSEC_CONNECTION_INTERFACE_EFM, NULL, 1, MSK_NORMAL},
 #endif
 	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}

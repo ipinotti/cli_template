@@ -82,15 +82,15 @@ void show_cpu(const char *cmdline)
 	tf = fopen("/proc/stat", "r");
 	if (tf) {
 		fgets(buf, sizeof(buf), tf);
-		if (sscanf(buf, "cpu %Lu %Lu %Lu %Lu %Lu %Lu %Lu", &user, &nice, &system, &idle,
-		                &iowait, &irq, &softirq) == 7) {
-			scale = 100.0 / (float) ((user - user_old) + (nice - nice_old) + (system
-			                - system_old) + (idle - idle_old) + (iowait - iowait_old)
+		if (sscanf(buf, "cpu %Lu %Lu %Lu %Lu %Lu %Lu %Lu", &user, &nice, &system, &idle, &iowait,
+		                &irq, &softirq) == 7) {
+			scale = 100.0 / (float) ((user - user_old) + (nice - nice_old)
+			                + (system - system_old) + (idle - idle_old) + (iowait - iowait_old)
 			                + (irq - irq_old) + (softirq - softirq_old));
 
-			cpu = (float) ((user - user_old) + (nice - nice_old)
-			                + (system - system_old) + (iowait - iowait_old) + (irq
-			                - irq_old) + (softirq - softirq_old)) * scale;
+			cpu = (float) ((user - user_old) + (nice - nice_old) + (system - system_old)
+			                + (iowait - iowait_old) + (irq - irq_old) + (softirq - softirq_old))
+			                * scale;
 #if 0
 			pprintf ("processor usage : %#5.1f%% user, %#5.1f%% system, %#5.1f%% nice, %#5.1f%% idle\n"
 					"\t%#5.1f%% iowait, %#5.1f%% irq, %#5.1f%% softirq\n",
@@ -317,8 +317,7 @@ void show_uptime(const char *cmdline)
 
 const char *_WKDAY[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
-const char *_MONTH[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
-                "Nov", "Dec" };
+const char *_MONTH[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 void show_clock(const char *cmdline)
 {
@@ -390,13 +389,11 @@ void show_arp(const char *cmdline)
 			if (flags & ATF_COM) /* Entrada valida (completed) */
 			{
 				pprintf("Internet  %s%s", ipaddr, SPAC32 + 16 + strlen(ipaddr));
-				pprintf("        0     %c%c%c%c.%c%c%c%c.%c%c%c%c ", tolower(
-				                hwaddr[0]), tolower(hwaddr[1]), tolower(hwaddr[3]),
-				                tolower(hwaddr[4]), tolower(hwaddr[6]), tolower(
-				                                hwaddr[7]), tolower(hwaddr[9]),
-				                tolower(hwaddr[10]), tolower(hwaddr[12]), tolower(
-				                                hwaddr[13]), tolower(hwaddr[15]),
-				                tolower(hwaddr[16]));
+				pprintf("        0     %c%c%c%c.%c%c%c%c.%c%c%c%c ", tolower(hwaddr[0]),
+				                tolower(hwaddr[1]), tolower(hwaddr[3]), tolower(hwaddr[4]),
+				                tolower(hwaddr[6]), tolower(hwaddr[7]), tolower(hwaddr[9]),
+				                tolower(hwaddr[10]), tolower(hwaddr[12]),
+				                tolower(hwaddr[13]), tolower(hwaddr[15]), tolower(hwaddr[16]));
 
 				if (strcmp(type, "0x1") == 0)
 					printf("ARPA   ");
@@ -429,33 +426,28 @@ void show_ip_dns(const char *cmdline)
 
 	printf("IP domain lookup is currently %sabled\n",
 	                librouter_dns_domain_lookup_enabled() ? "en" : "dis");
-	printf("DNS relay is currently %sabled\n",
-	                librouter_exec_check_daemon(DNS_DAEMON) ? "en" : "dis");
+	printf("DNS relay is currently %sabled\n", librouter_exec_check_daemon(DNS_DAEMON) ? "en" : "dis");
 
 	/* Lista servidores DNS estaticos */
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i,
-		                addr) < 0)
+		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 1, i, addr) < 0)
 			break;
 		printf("Static ip name-server %s\n", addr);
 	}
 	for (i = 0; i < DNS_MAX_SERVERS; i++) {
-		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i,
-		                addr) < 0)
+		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_STATIC_NAMESERVER, 0, i, addr) < 0)
 			break;
 		printf("Static ip name-server %s (inactive)\n", addr);
 	}
 
 	/* Lista servidores DNS dinamicos */
 	for (i = 0;; i++) {
-		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i,
-		                addr) < 0)
+		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 1, i, addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s\n", addr);
 	}
 	for (i = 0;; i++) {
-		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i,
-		                addr) < 0)
+		if (librouter_dns_get_nameserver_by_type_actv_index(DNS_DYNAMIC_NAMESERVER, 0, i, addr) < 0)
 			break;
 		printf("Dynamic ip name-server %s (inactive)\n", addr);
 	}
@@ -546,8 +538,7 @@ static void __dump_intf_secondary_ipaddr_status(FILE *out, struct interface_conf
 		fprintf(out, "  Secondary internet address is %s %s\n", ip->ipaddr, ip->ipmask);
 	}
 
-	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
-	;
+	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
 }
 
 #ifdef NOT_YET_IMPLEMENTED
@@ -562,7 +553,7 @@ static void __dump_intf_secondary_ipaddr_v6_status(FILE *out, struct interfacev6
 	for (i = 0; i < MAX_NUM_IPS; i++, ipv6++) {
 
 		if (ipv6->ipv6addr[0] == 0)
-			break;
+		break;
 
 		fprintf(out, "  Secondary internet 6 address is %s/%s | Scope: %s\n", ipv6->ipv6addr, ipv6->ipv6mask, librouter_ipv6_is_addr_link_local(ipv6->ipv6addr)? "Link":"Global");
 	}
@@ -579,9 +570,9 @@ static void __dump_intf_ipaddr_v6_status(FILE *out, struct interfacev6_conf *con
 	char *dev = librouter_ip_ethernet_get_dev(conf->name); /* ethernet enslaved by bridge? */
 	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
 	if (!strcmp(conf->name, dev)) {
-		for (i = 0; i < MAX_NUM_IPS; i++, ipv6++){
+		for (i = 0; i < MAX_NUM_IPS; i++, ipv6++) {
 			if (ipv6->ipv6addr[0] == 0)
-				break;
+			break;
 
 			fprintf(out, "  Internet 6 address is %s/%s | Scope: %s\n", ipv6->ipv6addr, ipv6->ipv6mask, librouter_ipv6_is_addr_link_local(ipv6->ipv6addr)? "Link":"Global");
 		}
@@ -592,7 +583,7 @@ static void __dump_intf_ipaddr_v6_status(FILE *out, struct interfacev6_conf *con
 		librouter_br_get_ipaddr(dev, &ipv6_addr);
 
 		if (ipv6_addr.addr[0])
-			fprintf(out, "  Internet address is %s %s\n", ipv6_addr.ipv6addr, ipv6_addr.ipv6mask);
+		fprintf(out, "  Internet address is %s %s\n", ipv6_addr.ipv6addr, ipv6_addr.ipv6mask);
 	}
 #endif
 #endif /* OPTION_IPV6 */
@@ -616,12 +607,11 @@ static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 			fprintf(out, "  Internet address is %s %s\n", ip.addr, ip.mask);
 	}
 
-	 if (ip->ippeer[0] && !(conf->linktype == ARPHRD_TUNNEL || 
-		conf->linktype == ARPHRD_IPGRE || conf->linktype == ARPHRD_PPP))
-                        fprintf(out, "  Peer address is %s\n", ip->ippeer);
+	if (ip->ippeer[0] && !(conf->linktype == ARPHRD_TUNNEL || conf->linktype == ARPHRD_IPGRE
+	                || conf->linktype == ARPHRD_PPP))
+		fprintf(out, "  Peer address is %s\n", ip->ippeer);
 
-	cish_dbg("%s : Exiting ...\n", __FUNCTION__)
-	;
+	cish_dbg("%s : Exiting ...\n", __FUNCTION__);
 }
 
 static void __dump_ethernet_status(FILE *out, struct interface_conf *conf)
@@ -715,7 +705,6 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 	int n; /* Number of channels */
 	int i;
 
-
 	/*  normal ethernet dump */
 	__dump_ethernet_status(out, conf);
 
@@ -733,18 +722,17 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 	}
 
 	librouter_efm_get_mode(&dspconf);
-	printf("  %d channel DSP, %s mode\n", n,
-	       dspconf.mode ? "CPE" : "CO");
+	printf("  %d channel DSP, %s mode\n", n, dspconf.mode ? "CPE" : "CO");
 	for (i = 0; i < n; i++) {
 		char buf[32];
 		int d, h, m, s, t;
 
 		t = cnt.xcvr_cnt[i].uptime;
-		d = t/86400;
+		d = t / 86400;
 		t %= 86400;
-		h = t/3600;
+		h = t / 3600;
 		t %= 3600;
-		m = t/60;
+		m = t / 60;
 		t %= 60;
 		s = t;
 
@@ -752,8 +740,7 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 
 		printf("  Channel %d is %s\n", i, buf);
 		if (st[i].channel_st == CHANNEL_STATE_CONNECTED) {
-			printf("  Connection time : %d days %d hours %d min %d sec\n",
-					d, h, m, s);
+			printf("  Connection time : %d days %d hours %d min %d sec\n", d, h, m, s);
 			printf("    SNR %.02fdB\n", librouter_efm_get_snr(i));
 			printf("    SNR Margin %.02fdB\n", librouter_efm_get_data_mode_margin(i));
 		}
@@ -768,7 +755,7 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 			printf("    Receiver Gain %.02fdB\n", librouter_efm_get_receiver_gain(i));
 			printf("    Loop Attenuation %.02fdB\n", librouter_efm_get_loop_attn(i));
 			printf("    Line rate %d kbps\n    CRC: %d SEGA: %d LOSW: %d\n", st[i].bitrate[0],
-				cnt.xcvr_cnt[i].crc, cnt.xcvr_cnt[i].sega, cnt.xcvr_cnt[i].losw);
+			                cnt.xcvr_cnt[i].crc, cnt.xcvr_cnt[i].sega, cnt.xcvr_cnt[i].losw);
 			break;
 		default:
 			break;
@@ -894,19 +881,19 @@ static void __dump_ppp_status(FILE *out, struct interface_conf *conf)
 	fprintf(out, "  Encapsulation PPP");
 
 	if (!librouter_modem3g_get_apn(apn, serial_no))
-	fprintf(out, ", APN is \"%s\"\n", apn);
+		fprintf(out, ", APN is \"%s\"\n", apn);
 	else
-	printf(" Error - reading APN\n");
+		printf(" Error - reading APN\n");
 
 	free(apn);
 
 	if ((!lusb_descriptor) && (lusb_tty_verify != -1))
-	fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d", usbdev->product_str,
-			usbdev->manufacture_str, usbdev->port);
+		fprintf(out, "  USB 3G Device:  %s  -  %s, on USB-Port %d", usbdev->product_str,
+		                usbdev->manufacture_str, usbdev->port);
 	else if ((!lusb_descriptor) && (lusb_tty_verify < 0))
-	fprintf(out, "  USB device connected, but not a modem.");
+		fprintf(out, "  USB device connected, but not a modem.");
 	else
-	fprintf(out, "  No USB device connected.");
+		fprintf(out, "  No USB device connected.");
 
 	free(usbdev);
 
@@ -946,11 +933,15 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 	/* Get number of interfaces and sort them by name */
 	for (i = 0; intf_list[i][0] != '\0'; i++)
-		 num_of_ifaces++;
+		num_of_ifaces++;
 	qsort(&intf_list[0], num_of_ifaces, sizeof(char *), intf_cmp);
 
 	for (i = 0; i < num_of_ifaces; i++) {
 		cish_dbg("%s\n", intf_list[i]);
+
+		/* Ignore IPSec devices */
+		if (!strncmp(intf_list[i], "ipsec", 5))
+			continue;
 
 		if (librouter_ip_iface_get_config(intf_list[i], &conf, &info) < 0) {
 			cish_dbg("%s not found\n", intf_list[i]);
@@ -987,8 +978,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 		fprintf(out, "%s is %s, line protocol is %s%s\n", cish_dev,
 		                conf.up ? (1 ? "up" : "down") : "administratively down", /* FIXME */
-		                conf.running & IF_STATE_UP ? "up" : "down", conf.running
-		                                & IF_STATE_LOOP ? " (looped)" : "");
+		                conf.running & IF_STATE_UP ? "up" : "down",
+		                conf.running & IF_STATE_LOOP ? " (looped)" : "");
 
 		description = librouter_dev_get_description(conf.name);
 		if (description)
@@ -999,12 +990,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		__dump_intf_secondary_ipaddr_status(out, &conf);
 
 		/* Dump IPv6 address -- Ignoring PPP interfaces */
-		if (!strstr(conf.name, "ppp")){
+		if (!strstr(conf.name, "ppp")) {
 			memset(&conf_v6, 0, sizeof(struct interfacev6_conf));
 			if (librouter_ipv6_iface_get_config(intf_list[i], &conf_v6, NULL) < 0) {
-						cish_dbg("%s not found in ipv6\n", intf_list[i]);
-			}
-			else {
+				cish_dbg("%s not found in ipv6\n", intf_list[i]);
+			} else {
 				__dump_intf_ipaddr_v6_status(out, &conf_v6);
 #ifdef NOT_YET_IMPLEMENTED
 				__dump_intf_secondary_ipaddr_v6_status(out, &conf_v6);
@@ -1026,11 +1016,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		case ARPHRD_PPP:
 #ifdef OPTION_PPTP
 			if (strstr(cish_dev, "Pptp"))
-				__dump_ppp_pptp_status(out, &conf);
+			__dump_ppp_pptp_status(out, &conf);
 #endif
 #ifdef OPTION_PPPOE
 			if (strstr(cish_dev, "Pppoe"))
-				__dump_ppp_pppoe_status(out, &conf);
+			__dump_ppp_pppoe_status(out, &conf);
 #endif
 #ifdef OPTION_MODEM3G
 			if (strstr(cish_dev, "M3G"))
@@ -1078,8 +1068,8 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		fprintf(
 		                out,
 		                "     %lu input errors, %lu dropped, %lu overruns, %lu frame, %lu crc, %lu fifo\n",
-		                st->rx_errors, st->rx_dropped, st->rx_over_errors,
-		                st->rx_frame_errors, st->rx_crc_errors, st->rx_fifo_errors);
+		                st->rx_errors, st->rx_dropped, st->rx_over_errors, st->rx_frame_errors,
+		                st->rx_crc_errors, st->rx_fifo_errors);
 
 #ifdef CONFIG_DEVELOPMENT
 		fprintf(out, "     %lu length, %lu missed\n", st->rx_length_errors,
@@ -1089,11 +1079,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 
 #endif
 		fprintf(out, "     %lu packets output, %lu bytes\n", st->tx_packets, st->tx_bytes);
-		fprintf(
-		                out,
-		                "     %lu output errors, %lu collisions, %lu dropped, %lu carrier, %lu fifo\n",
-		                st->tx_errors, st->collisions, st->tx_dropped,
-		                st->tx_carrier_errors, st->tx_fifo_errors);
+		fprintf(out, "     %lu output errors, %lu collisions, %lu dropped, %lu carrier, %lu fifo\n",
+		                st->tx_errors, st->collisions, st->tx_dropped, st->tx_carrier_errors,
+		                st->tx_fifo_errors);
 #ifdef CONFIG_DEVELOPMENT
 		fprintf(out, "     %lu aborted, %lu heartbeat, %lu window\n",
 				st->tx_aborted_errors, st->tx_heartbeat_errors,
@@ -1364,8 +1352,7 @@ void cmd_copy(const char *cmdline)
 		FILE *f;
 		char *s;
 
-		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename,
-		                host);
+		sprintf(buf, "/bin/tftp -p -l %s -r %s %s 2> "TMP_TFTP_OUTPUT_FILE, in, filename, host);
 		system(buf);
 		f = fopen(TMP_TFTP_OUTPUT_FILE, "rt");
 		if (!f) {
@@ -1411,14 +1398,14 @@ void erase_cfg(const char *cmdline)
 
 void show_privilege(const char *cmdline)
 {
-	int priv=0;
+	int priv = 0;
 
-	if (!_cish_enable){
+	if (!_cish_enable) {
 		printf("Current privilege level is 1\n");
 		return;
 	}
 
-	if ((priv = librouter_pam_get_privilege()) < 0){
+	if ((priv = librouter_pam_get_privilege()) < 0) {
 		fprintf(stderr, "%% Error retriving privilege\n");
 		return;
 	}
@@ -1510,6 +1497,21 @@ void show_qos(const char *cmdline)
 #endif
 
 #ifdef OPTION_IPSEC
+struct ipsec_connection {
+	char *name;
+	char *local;
+	char *remote;
+	char *authby;
+	char *authproto;
+	char *esp_c;
+	char *pfs;
+	int len;
+	int shift;
+	int second_shift;
+	int third_shift;
+	int state;
+	int *net_flag;
+} conn;
 static void print_ipsec_show_line(char *name,
                                   char *local,
                                   char *remote,
@@ -1525,9 +1527,8 @@ static void print_ipsec_show_line(char *name,
                                   int *net_flag)
 {
 	if (!(*net_flag)) {
-		printf("\033[3C%s\033[%dC%s\033[%dC%s\033[%dC%s", name, total_name_len - strlen(
-		                name), local, len - strlen(local) + (shift - len) / 2, separator,
-		                second_shift, remote);
+		printf("\033[3C%s\033[%dC%s\033[%dC%s\033[%dC%s", name, total_name_len - strlen(name), local,
+		                len - strlen(local) + (shift - len) / 2, separator, second_shift, remote);
 		printf("\033[%dC", third_shift - strlen(remote));
 		if (strlen(authby))
 			printf("%s+", authby);
@@ -1551,167 +1552,156 @@ static void print_ipsec_show_line(char *name,
 			printf("waiting...");
 		*net_flag = 1;
 	} else
-		printf("\033[%dC%s\033[%dC%s", total_name_len + 3, local, shift - strlen(local),
-		                remote);
+		printf("\033[%dC%s\033[%dC%s", total_name_len + 3, local, shift - strlen(local), remote);
 	printf("\n");
 }
 
 static int show_conn_specific(char *name, int state)
 {
 	int ret, len, len2, net_flag = 0, shift = 0, second_shift = 0, third_shift = 0;
-	char *p, mask[20], authby[10], authproto[10], esp_c[20], pfs[5], tmp[300];
-	char addr_l[MAX_ADDR_SIZE], cidr_l[20], id_l[MAX_ADDR_SIZE], nexthop_l[20];
-	char addr_r[MAX_ADDR_SIZE], cidr_r[20], id_r[MAX_ADDR_SIZE], nexthop_r[20];
+	char *p;
+	char tmp[256];
+	struct {
+		char mask[20];
+		char authby[10];
+		char authproto[10];
+		char esp_c[20];
+		char pfs[5];
+		char addr_l[MAX_ADDR_SIZE];
+		char cidr_l[20];
+		char id_l[MAX_ADDR_SIZE];
+		char nexthop_l[20];
+		char addr_r[MAX_ADDR_SIZE];
+		char cidr_r[20];
+		char id_r[MAX_ADDR_SIZE];
+		char nexthop_r[20];
+	} b;
 
-	// Busca id local
-	tmp[0] = '\0';
-	id_l[0] = '\0';
+	memset(&b, 0, sizeof(b));
+
+	/* Get local id */
 	if (librouter_ipsec_get_id(LOCAL, name, tmp) >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < MAX_ADDR_SIZE)
-			strcpy(id_l, tmp);
+			strcpy(b.id_l, tmp);
 	}
 
-	// Busca subrede local
-	tmp[0] = '\0';
-	addr_l[0] = '\0';
-	mask[0] = '\0';
-	cidr_l[0] = '\0';
+	/* Get local subnet */
 	if (librouter_ipsec_get_subnet(LOCAL, name, tmp) >= 0) {
 		if (strlen(tmp) > 0) {
 			if ((p = strchr(tmp, ' '))) {
-				strncpy(addr_l, tmp, p - tmp);
-				*(addr_l + (p - tmp)) = '\0';
+				strncpy(b.addr_l, tmp, p - tmp);
+				*(b.addr_l + (p - tmp)) = '\0';
 				p++;
 				for (; *p == ' '; p++)
 					;
 				if (strlen(p) > 0) {
-					strcpy(mask, p);
-					if (librouter_quagga_classic_to_cidr(addr_l, mask, cidr_l)
-					                != 0)
-						cidr_l[0] = '\0';
+					strcpy(b.mask, p);
+					if (librouter_quagga_classic_to_cidr(b.addr_l, b.mask, b.cidr_l) != 0)
+						b.cidr_l[0] = '\0';
 				}
 			}
 		}
 	}
 
-	// Busca endereco local
-	tmp[0] = '\0';
-	addr_l[0] = '\0';
+	/* Get local address */
 	ret = librouter_ipsec_get_local_addr(name, tmp);
 	if (ret >= 0) {
 		if (ret > 0 && strlen(tmp) < MAX_ADDR_SIZE) {
-			if (ret == ADDR_DEFAULT)
-				strcpy(addr_l, "default-route");
-			else if (ret == ADDR_INTERFACE)
-				strcpy(addr_l, tmp + 1);
-			else if (ret == ADDR_IP)
-				strcpy(addr_l, tmp);
+			if (ret == ADDR_DEFAULT) {
+				strcpy(b.addr_l, "default-route");
+			} else if (ret == ADDR_INTERFACE) {
+				strcpy(b.addr_l, librouter_device_linux_to_cli(tmp+1, 0));
+			} else if (ret == ADDR_IP) {
+				strcpy(b.addr_l, tmp);
+			}
 		}
 	}
 
-	// Busca nexthop local
-	tmp[0] = '\0';
-	nexthop_l[0] = '\0';
+	/* Get local nexthop */
 	ret = librouter_ipsec_get_nexthop(LOCAL, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < 20)
-			strcpy(nexthop_l, tmp);
+			strcpy(b.nexthop_l, tmp);
 	}
 
-	// Busca id remoto
-	tmp[0] = '\0';
-	id_r[0] = '\0';
+	/* Get remote id */
 	if (librouter_ipsec_get_id(REMOTE, name, tmp) >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < MAX_ADDR_SIZE)
-			strcpy(id_r, tmp);
+			strcpy(b.id_r, tmp);
 	}
 
-	// Busca subrede do remoto
-	tmp[0] = '\0';
-	addr_r[0] = '\0';
-	mask[0] = '\0';
-	cidr_r[0] = '\0';
+	/* Get remote subnet */
 	ret = librouter_ipsec_get_subnet(REMOTE, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0) {
 			if ((p = strchr(tmp, ' '))) {
-				strncpy(addr_r, tmp, p - tmp);
-				*(addr_r + (p - tmp)) = '\0';
+				strncpy(b.addr_r, tmp, p - tmp);
+				*(b.addr_r + (p - tmp)) = '\0';
 				p++;
 				for (; *p == ' '; p++)
 					;
 				if (strlen(p) > 0) {
-					strcpy(mask, p);
-					if (librouter_quagga_classic_to_cidr(addr_r, mask, cidr_r)
-					                != 0)
-						cidr_r[0] = '\0';
+					strcpy(b.mask, p);
+					if (librouter_quagga_classic_to_cidr(b.addr_r, b.mask, b.cidr_r) != 0)
+						b.cidr_r[0] = '\0';
 				}
 			}
 		}
 	}
 
-	// Busca endereco remoto
-	tmp[0] = '\0';
-	addr_r[0] = '\0';
+	/* Get remote address */
 	ret = librouter_ipsec_get_remote_addr(name, tmp);
 	if (ret >= 0) {
 		if (ret > 0 && strlen(tmp) < MAX_ADDR_SIZE) {
 			if (ret == ADDR_ANY)
-				strcpy(addr_r, "any");
+				strcpy(b.addr_r, "any");
 			else
-				strcpy(addr_r, tmp);
+				strcpy(b.addr_r, tmp);
 		} else
-			addr_r[0] = '\0';
+			b.addr_r[0] = '\0';
 	} else
-		addr_r[0] = '\0';
+		b.addr_r[0] = '\0';
 
-	// Busca nexthop remoto
-	tmp[0] = '\0';
-	nexthop_r[0] = '\0';
+	/* Get remote nexthop */
 	ret = librouter_ipsec_get_nexthop(REMOTE, name, tmp);
 	if (ret >= 0) {
 		if (strlen(tmp) > 0 && strlen(tmp) < 20)
-			strcpy(nexthop_r, tmp);
+			strcpy(b.nexthop_r, tmp);
 	}
 
-	// Busca tipo de autenticacao
-	tmp[0] = '\0';
-	authby[0] = '\0';
+	/* Get authentication type */
 	switch (librouter_ipsec_get_auth(name, tmp)) {
 	case SECRET:
-		strcpy(authby, "SECRET");
+		strcpy(b.authby, "SECRET");
 		break;
 	case RSA:
-		strcpy(authby, "RSA");
+		strcpy(b.authby, "RSA");
 		break;
 	}
 
-	// Busca tipo de protocolo de autenticacao
-	tmp[0] = '\0';
-	esp_c[0] = '\0';
-	authproto[0] = '\0';
+	/* Get cyphers */
 	switch (librouter_ipsec_get_ike_authproto(name)) {
 	case ESP:
-		strcat(authproto, "ESP");
+		strcat(b.authproto, "ESP");
 		switch (librouter_ipsec_get_esp(name, tmp)) {
 		case 1:
 			if (strlen(tmp) > 0 && strlen(tmp) < 10) {
 				if (!strncmp(tmp, "des", 3))
-					strcpy(esp_c, "DES");
+					strcpy(b.esp_c, "DES");
 				else if (!strncmp(tmp, "3des", 4))
-					strcpy(esp_c, "3DES");
+					strcpy(b.esp_c, "3DES");
 				else if (!strncmp(tmp, "aes", 3))
-					strcpy(esp_c, "AES");
+					strcpy(b.esp_c, "AES");
 				else if (!strncmp(tmp, "null", 4))
-					strcpy(esp_c, "NULL");
+					strcpy(b.esp_c, "NULL");
 				if (strstr(tmp, "md5"))
-					strcat(esp_c, "+MD5");
+					strcat(b.esp_c, "+MD5");
 				else if (strstr(tmp, "sha1"))
-					strcat(esp_c, "+SHA1");
+					strcat(b.esp_c, "+SHA1");
 			}
 			break;
 		default:
-			//strcat(authproto, "+NOCRYPT");
+			//strcat(b.authproto, "+NOCRYPT");
 			break;
 		}
 		break;
@@ -1719,32 +1709,31 @@ static int show_conn_specific(char *name, int state)
 		break;
 	}
 
-	// Busca PFS
-	pfs[0] = '\0';
+	/* Get PFS */
 	ret = librouter_ipsec_get_pfs(name);
 	if (ret >= 0) {
 		if (ret > 0)
-			strcpy(pfs, "PFS");
+			strcpy(b.pfs, "PFS");
 	}
 
-	// Busca tamanho do maior dado a ser exibido
-	if ((len = strlen(addr_l)) > shift)
+	/* Get biggest length to be shown */
+	if ((len = strlen(b.addr_l)) > shift)
 		shift = len;
-	if ((len = strlen(cidr_l)) > shift)
+	if ((len = strlen(b.cidr_l)) > shift)
 		shift = len;
-	if ((len = strlen(id_l)) > shift)
+	if ((len = strlen(b.id_l)) > shift)
 		shift = len;
-	if ((len = strlen(nexthop_l)) > shift)
+	if ((len = strlen(b.nexthop_l)) > shift)
 		shift = len;
 	len = shift;
 
-	if ((len2 = strlen(addr_r)) > third_shift)
+	if ((len2 = strlen(b.addr_r)) > third_shift)
 		third_shift = len2;
-	if ((len2 = strlen(cidr_r)) > third_shift)
+	if ((len2 = strlen(b.cidr_r)) > third_shift)
 		third_shift = len2;
-	if ((len2 = strlen(id_r)) > third_shift)
+	if ((len2 = strlen(b.id_r)) > third_shift)
 		third_shift = len2;
-	if ((len2 = strlen(nexthop_r)) > third_shift)
+	if ((len2 = strlen(b.nexthop_r)) > third_shift)
 		third_shift = len2;
 
 	shift += 23;
@@ -1753,33 +1742,33 @@ static int show_conn_specific(char *name, int state)
 	second_shift = ((shift - len) / 2) - strlen(separator);
 	third_shift += 8;
 
-	// Comeca exibicao dos dados
-	if (strlen(id_l) || strlen(id_r)) {
-		print_ipsec_show_line(name, id_l, id_r, authby, authproto, esp_c, pfs, len, shift,
+	/* Start printing data */
+	if (strlen(b.id_l) || strlen(b.id_r)) {
+		print_ipsec_show_line(name, b.id_l, b.id_r, b.authby, b.authproto, b.esp_c, b.pfs, len, shift,
 		                second_shift, third_shift, state, &net_flag);
 	}
-	if (strlen(addr_l) || strlen(addr_r)) {
-		print_ipsec_show_line(name, addr_l, addr_r, authby, authproto, esp_c, pfs, len,
-		                shift, second_shift, third_shift, state, &net_flag);
+	if (strlen(b.addr_l) || strlen(b.addr_r)) {
+		print_ipsec_show_line(name, b.addr_l, b.addr_r, b.authby, b.authproto, b.esp_c, b.pfs, len, shift,
+		                second_shift, third_shift, state, &net_flag);
 	}
-	if (strlen(cidr_l) || strlen(cidr_r)) {
-		print_ipsec_show_line(name, cidr_l, cidr_r, authby, authproto, esp_c, pfs, len,
-		                shift, second_shift, third_shift, state, &net_flag);
+	if (strlen(b.cidr_l) || strlen(b.cidr_r)) {
+		print_ipsec_show_line(name, b.cidr_l, b.cidr_r, b.authby, b.authproto, b.esp_c, b.pfs, len, shift,
+		                second_shift, third_shift, state, &net_flag);
 	}
-	if (strlen(nexthop_l) || strlen(nexthop_r)) {
-		print_ipsec_show_line(name, nexthop_l, nexthop_r, authby, authproto, esp_c, pfs,
-		                len, shift, second_shift, third_shift, state, &net_flag);
+	if (strlen(b.nexthop_l) || strlen(b.nexthop_r)) {
+		print_ipsec_show_line(name, b.nexthop_l, b.nexthop_r, b.authby, b.authproto, b.esp_c, b.pfs, len, shift,
+		                second_shift, third_shift, state, &net_flag);
 	}
 	if (!net_flag) {
 		printf("\033[3C%s\033[%dC", name, total_name_len - strlen(name));
-		if (strlen(authby))
-			printf("%s+", authby);
-		if (strlen(authproto))
-			printf("%s+", authproto);
-		if (strlen(esp_c))
-			printf("%s+", esp_c);
-		if (strlen(pfs))
-			printf("%s+", pfs);
+		if (strlen(b.authby))
+			printf("%s+", b.authby);
+		if (strlen(b.authproto))
+			printf("%s+", b.authproto);
+		if (strlen(b.esp_c))
+			printf("%s+", b.esp_c);
+		if (strlen(b.pfs))
+			printf("%s+", b.pfs);
 		printf("\033[1D ");
 		printf("\033[5C");
 		printf("incomplete configuration\n");
@@ -1890,16 +1879,13 @@ void show_crypto(const char *cmdline)
 								char name[64];
 								sprintf(name, "\"%s\"", *list);
 								if (strstr(args->argv[1], name)) {
-									if (strstr(args->argv[3],
-									                "erouted"))
+									if (strstr(args->argv[3], "erouted"))
 										flag = CONN_UP;
-									else if (strstr(
-									                args->argv[3],
+									else if (strstr(args->argv[3],
 									                "unrouted"))
 										flag = CONN_DOWN;
 
-									if (show_conn_specific(
-									                *list, flag)
+									if (show_conn_specific(*list, flag)
 									                < 1)
 										goto go_error;
 
@@ -2214,7 +2200,7 @@ void show_policyroute_rules(const char *cmdline)
 	char * show_rules_buffer = NULL;
 	int size_show = 0;
 
-	if ((size_show = librouter_pbr_get_show_rules_cli_size()) < 0){
+	if ((size_show = librouter_pbr_get_show_rules_cli_size()) < 0) {
 		printf("Error on show Policy-Route Rules\n");
 		return;
 	}
@@ -2223,9 +2209,9 @@ void show_policyroute_rules(const char *cmdline)
 	memset(show_rules_buffer,0,sizeof(show_rules_buffer));
 
 	if (librouter_pbr_get_show_rules_cli(show_rules_buffer) < 0)
-		printf("Error on show Policy-Route Rules\n");
+	printf("Error on show Policy-Route Rules\n");
 	else
-		printf("%s\n",show_rules_buffer);
+	printf("%s\n",show_rules_buffer);
 
 	free (show_rules_buffer);
 }
@@ -2239,11 +2225,11 @@ void show_policyroute_routes(const char *cmdline)
 	int size_show = 0;
 
 	if (!strcmp(args->argv[4],"main"))
-		sprintf(table_name,"%s",args->argv[4]);
+	sprintf(table_name,"%s",args->argv[4]);
 	else
-		sprintf(table_name,"%s%s",args->argv[3],args->argv[4]);
+	sprintf(table_name,"%s%s",args->argv[3],args->argv[4]);
 
-	if ((size_show = librouter_pbr_get_show_routes_cli_size(table_name)) < 0){
+	if ((size_show = librouter_pbr_get_show_routes_cli_size(table_name)) < 0) {
 		printf("Error on show Policy-Route Routes\n");
 		return;
 	}
@@ -2252,9 +2238,9 @@ void show_policyroute_routes(const char *cmdline)
 	memset(show_routes_buffer,0,sizeof(show_routes_buffer));
 
 	if (librouter_pbr_get_show_routes_cli(table_name, show_routes_buffer) < 0)
-		printf("Error on show Policy-Route Routes\n");
+	printf("Error on show Policy-Route Routes\n");
 	else
-		printf("%s\n",show_routes_buffer);
+	printf("%s\n",show_routes_buffer);
 
 	free (show_routes_buffer);
 	librouter_destroy_args(args);

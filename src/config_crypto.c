@@ -631,67 +631,77 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 	int ret, local = 0;
 	char tp[200];
 	arglist *args;
+	char *ncmd;
 
-	args = librouter_make_args(cmd);
-	if (args->argc >= 3) {
-		if (!strncmp(args->argv[0], "local", 5))
-			local = 1;
-		if (local && !strncmp(args->argv[2], "default-route", 13)) {
-			ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name,
-			                STRING_DEFAULTROUTE);
-			if (ret < 0) {
-				printf("%% Not possible to set %s address to default-route\n",
-				                args->argv[0]);
-				goto free_args;
-			}
-		} else if (local && args->argc == 5 && !strncmp(args->argv[2], "interface", 9)) {
-			dev_family *fam = librouter_device_get_family_by_name(args->argv[3], str_cish);
-			sprintf(tp, "%%%s%s", fam->linux_string, args->argv[4]);
-			ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name, tp);
-			if (ret < 0) {
-				printf("%% Not possible to set %s address to interface %s\n",
-				                args->argv[0], args->argv[3]);
-				goto free_args;
-			}
-		} else if (!local && !strncmp(args->argv[2], "any", 3)) {
-			ret = librouter_ipsec_set_remote_addr(dynamic_ipsec_menu_name, STRING_ANY);
-			if (ret < 0) {
-				printf("%% Not possible to set %s address to any\n", args->argv[0]);
-				goto free_args;
-			}
-		} else if (args->argc == 4 && (!strncmp(args->argv[2], "ip", 2) || !strncmp(
-		                args->argv[2], "fqdn", 4))) {
-			if (strlen(args->argv[3]) < 200)
-				strcpy(tp, args->argv[3]);
-			else {
-				printf("%% Not possible to set %s address\n", args->argv[0]);
-				goto free_args;
-			}
-			if (local)
-				ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name, tp);
-			else
-				ret = librouter_ipsec_set_remote_addr(dynamic_ipsec_menu_name, tp);
-			if (ret < 0) {
-				if (!strncmp(args->argv[2], "ip", 2))
-					printf("%% Not possible to set %s ip address\n",
-					                args->argv[0]);
-				else
-					printf("%% Not possible to set %s fqdn address\n",
-					                args->argv[0]);
-				goto free_args;
-			}
-		}
+	ncmd = librouter_device_to_linux_cmdline((char *)cmd);
+	args = librouter_make_args(ncmd);
 
-		// se o link estiver ativo, entao provocamos um RESTART no starter
-		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
+	if (args->argc < 2) {
+		printf("%% Wrong number of arguments\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	if (!strncmp(args->argv[0], "local", 5))
+		local = 1;
+
+	if (local && !strncmp(args->argv[2], "default-route", 13)) {
+		ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name, STRING_DEFAULTROUTE);
 		if (ret < 0) {
+			printf("%% Not possible to set local address to default-route\n");
+			goto free_args;
+		}
+	} else if (local && !strncmp(args->argv[2], "interface", 9)) {
+		cish_dbg("Adding local as interface\n");
+		sprintf(tp, "%%%s", args->argv[3]);
+		ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name, tp);
+
+		if (ret < 0) {
+			printf("%% Not possible to set %s address to interface %s\n",
+					args->argv[0], args->argv[3]);
+			goto free_args;
+		}
+	} else if (!local && !strncmp(args->argv[2], "any", 3)) {
+		ret = librouter_ipsec_set_remote_addr(dynamic_ipsec_menu_name, STRING_ANY);
+		if (ret < 0) {
+			printf("%% Not possible to set %s address to any\n", args->argv[0]);
+			goto free_args;
+		}
+	} else if (args->argc == 4 && (!strncmp(args->argv[2], "ip", 2) || !strncmp(
+			args->argv[2], "fqdn", 4))) {
+		if (strlen(args->argv[3]) < 200)
+			strcpy(tp, args->argv[3]);
+		else {
 			printf("%% Not possible to set %s address\n", args->argv[0]);
 			goto free_args;
 		}
-		if (ret > 0)
-			librouter_ipsec_exec(RESTART);
+
+		if (local)
+			ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name, tp);
+		else
+			ret = librouter_ipsec_set_remote_addr(dynamic_ipsec_menu_name, tp);
+		if (ret < 0) {
+			if (!strncmp(args->argv[2], "ip", 2))
+				printf("%% Not possible to set %s ip address\n",
+						args->argv[0]);
+			else
+				printf("%% Not possible to set %s fqdn address\n",
+						args->argv[0]);
+			goto free_args;
+		}
 	}
-	free_args: librouter_destroy_args(args);
+
+	/* If link was active, then restart the ipsec daemon */
+	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
+	if (ret < 0) {
+		printf("%% Not possible to set %s address\n", args->argv[0]);
+		goto free_args;
+	}
+	if (ret > 0)
+		librouter_ipsec_exec(RESTART);
+
+free_args:
+	librouter_destroy_args(args);
 }
 
 void set_ipsec_nexthop(const char *cmd)
