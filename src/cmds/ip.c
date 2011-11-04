@@ -152,6 +152,13 @@ cish_command CMD_IP_ROUTE5[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+#ifdef OPTION_EFM
+cish_command CMD_IP_ROUTE4_EFM[] = {
+	{CLI_STRING_EFM_IFACES, "EFM interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+#endif
+
 cish_command CMD_IP_ROUTE4_ETHERNET[] = {
 	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_IP_ROUTE5, zebra_execute_cmd, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
@@ -184,6 +191,9 @@ cish_command CMD_IP_ROUTE4_PPPOE[] = {
 };
 
 cish_command CMD_IP_ROUTE3[] = {
+#ifdef OPTION_EFM
+	{"efm", "EFM interface", CMD_IP_ROUTE4_EFM, NULL, 1, MSK_NORMAL},
+#endif
 	{"ethernet", "Ethernet interface", CMD_IP_ROUTE4_ETHERNET, NULL, 1, MSK_NORMAL},
 	{"loopback", "Loopback interface", CMD_IP_ROUTE4_LOOPBACK, NULL, 1, MSK_NORMAL},
 	{"tunnel", "Tunnel interface", CMD_IP_ROUTE4_TUNNEL, NULL, 1, MSK_NORMAL},
