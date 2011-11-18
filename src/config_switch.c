@@ -12,7 +12,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <linux/autoconf.h>
+
 #include <linux/types.h>
 
 #include <librouter/options.h>

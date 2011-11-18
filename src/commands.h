@@ -2,7 +2,6 @@
 #define _COMMANDS_H 1
 
 #include <stdio.h>
-#include <linux/autoconf.h>
 
 /* Libconfig includes */
 #include <librouter/options.h>

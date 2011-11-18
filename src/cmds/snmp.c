@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include <linux/autoconf.h>
+
 
 #include "commands.h"
 #include "commandtree.h"

@@ -7,7 +7,7 @@
 
 #include <dirent.h>
 #include <netdb.h>
-#include <linux/autoconf.h>
+
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>

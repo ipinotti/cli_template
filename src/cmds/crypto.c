@@ -1,7 +1,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <linux/autoconf.h>
+
 
 #include "commands.h"
 #include "commandtree.h"
@@ -63,10 +63,12 @@ cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_EFM
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_EFM[] = {
 	{CLI_STRING_EFM_IFACES, "EFM interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_M3G[] = {
 	{"0-2", "Modem 3G interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},

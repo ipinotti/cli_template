@@ -14,7 +14,6 @@
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
-#include "options.h"
 
 #undef DEBUG_ZEBRA
 

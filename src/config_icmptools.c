@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <linux/autoconf.h>
+
 
 #include "commands.h"
 #include "commandtree.h"

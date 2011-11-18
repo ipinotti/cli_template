@@ -3,6 +3,7 @@
 
 #include <librouter/options.h>
 
+/* FIXME This should be all defined (somehow) on options.h */
 #if defined(CONFIG_DIGISTAR_3G)
 #define CLI_STRING_ETH_IFACES	"0-1"
 #define CLI_STRING_SWITCH_PORTS	"1-4"
@@ -15,6 +16,10 @@
 #elif defined(CONFIG_DIGISTAR_EFM4ETH)
 #define CLI_STRING_ETH_IFACES	"0-0"
 #define CLI_STRING_EFM_IFACES	"0-0"
+#define CLI_STRING_SWITCH_PORTS	"1-4"
+#define CLI_STRING_USB_PORTS	"0-0"
+#elif defined(CONFIG_DIGISTAR_MRG)
+#define CLI_STRING_ETH_IFACES	"0-1"
 #define CLI_STRING_SWITCH_PORTS	"1-4"
 #define CLI_STRING_USB_PORTS	"0-0"
 #else

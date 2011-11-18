@@ -15,16 +15,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/socket.h>
-#include <linux/autoconf.h>
+
 #include <linux/if_arp.h>
 #include <syslog.h>
 
-#include "options.h"
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
 #include "cish_main.h"
-#include "dhcp.h"
 
 /* FIXME Move this functions to librouter */
 static int ipv6_set_param_infile(const char *path, int value)

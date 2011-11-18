@@ -15,16 +15,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/socket.h>
-#include <linux/autoconf.h>
+
 #include <linux/if_arp.h>
 #include <syslog.h>
 
-#include "options.h"
 #include "commands.h"
 #include "commandtree.h"
 #include "pprintf.h"
 #include "cish_main.h"
-#include "dhcp.h"
+
 
 int get_procip_val(const char *);
 

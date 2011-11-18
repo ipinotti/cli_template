@@ -15,7 +15,7 @@
 #include <sys/uio.h>
 #include <sys/un.h>
 #include <dirent.h>
-#include <linux/autoconf.h>
+
 #include <linux/if.h>
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
@@ -976,10 +976,9 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 			continue;
 		}
 
-		fprintf(out, "%s is %s, line protocol is %s%s\n", cish_dev,
+		fprintf(out, "%s is %s, line protocol is %s\n", cish_dev,
 		                conf.up ? (1 ? "up" : "down") : "administratively down", /* FIXME */
-		                conf.running & IF_STATE_UP ? "up" : "down",
-		                conf.running & IF_STATE_LOOP ? " (looped)" : "");
+		                conf.running ? "up" : "down");
 
 		description = librouter_dev_get_description(conf.name);
 		if (description)

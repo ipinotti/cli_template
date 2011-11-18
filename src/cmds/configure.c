@@ -1,7 +1,6 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <linux/autoconf.h>
 
 #include "commands.h"
 #include "commandtree.h"
@@ -33,19 +32,10 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_[] = {
 };
 
 #ifdef OPTION_MODEM3G
-#if defined(CONFIG_DIGISTAR_3G)
 cish_command CMD_CONFIG_INTERFACE_M3G_[] = {
-	{"0-2", "3G interface number -| 0 == Built-in | 1 == USB1 | 2 == USB2", NULL, config_interface, 0, MSK_NORMAL},
+	{CLI_STRING_USB_PORTS, "3G interface number", NULL, config_interface, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
-#elif defined(CONFIG_DIGISTAR_EFM) || defined(CONFIG_DIGISTAR_EFM4ETH)
-cish_command CMD_CONFIG_INTERFACE_M3G_[] = {
-	{"0-0", "3G interface number", NULL, config_interface, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-#else
-#error "OPTION_MODEM3G defined, but not supported for this family"
-#endif
 #endif
 
 cish_command CMD_CONFIG_INTERFACE_PPTP_[] = {
