@@ -36,7 +36,7 @@
 
 #include "backupd.h"
 
-#define PPPD_BIN_FILE 	"/bin/pppd"
+#define PPPD_BIN_FILE 	"/sbin/pppd"
 
 static const char * M3G_0_CONFIG_FILE[] = { PPPD_BIN_FILE, "call", "modem-3g-0", NULL };
 static const char * M3G_1_CONFIG_FILE[] = { PPPD_BIN_FILE, "call", "modem-3g-1", NULL };
