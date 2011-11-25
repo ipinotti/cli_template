@@ -1070,39 +1070,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		                st->rx_errors, st->rx_dropped, st->rx_over_errors, st->rx_frame_errors,
 		                st->rx_crc_errors, st->rx_fifo_errors);
 
-#ifdef CONFIG_DEVELOPMENT
-		fprintf(out, "     %lu length, %lu missed\n", st->rx_length_errors,
-				st->rx_missed_errors);
-		fprintf(out, "     %lu enable int, %lu max worked\n", st->rx_enable_int,
-				st->rx_max_worked);
-
-#endif
 		fprintf(out, "     %lu packets output, %lu bytes\n", st->tx_packets, st->tx_bytes);
 		fprintf(out, "     %lu output errors, %lu collisions, %lu dropped, %lu carrier, %lu fifo\n",
 		                st->tx_errors, st->collisions, st->tx_dropped, st->tx_carrier_errors,
 		                st->tx_fifo_errors);
-#ifdef CONFIG_DEVELOPMENT
-		fprintf(out, "     %lu aborted, %lu heartbeat, %lu window\n",
-				st->tx_aborted_errors, st->tx_heartbeat_errors,
-				st->tx_window_errors);
-		fprintf(out, "     %lu enable int, %lu max worked\n", st->tx_enable_int,
-				st->tx_max_worked);
-		fprintf(out, "     %lu stopped, %lu restarted\n", st->tx_stopped, st->tx_restarted);
-#endif
 
-#if 0
-		if (modem_info != -1) {
-			fprintf(out, "     ");
-			if (serial_no < MAX_WAN_INTF) /* serial[ 0-1 ] */
-			fprintf(out, "DCD=%s  ", modem_info & TIOCM_CD?"up":"down");
-			fprintf(out, "DSR=%s  DTR=%s  RTS=%s  CTS=%s\n",
-					modem_info & TIOCM_DSR ? "up" : "down",
-					modem_info & TIOCM_DTR ? "up" : "down",
-					modem_info & TIOCM_RTS ? "up" : "down",
-					modem_info & TIOCM_CTS ? "up" : "down");
-		}
-
-#endif
 		fprintf(out, "\n");
 
 	}
