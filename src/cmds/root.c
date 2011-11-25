@@ -61,6 +61,13 @@ cish_command CMD_PING[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_IPV6
+cish_command CMD_PING_IPV6[] = {
+	{"<ipv6address>", "Destination host", CMD_PING2, ping, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 cish_command CMD_SSH3[] = {
 	{"1-65535", "Port number", NULL, ssh, 0, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 0, MSK_NORMAL},
@@ -280,7 +287,10 @@ cish_command CMD[] = {
 #endif
 	{"help", "Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{"no", "Override parameters", CMD_NO, NULL, 1, MSK_NORMAL},
-	{"ping", "Send echo messages", CMD_PING, NULL, 0, MSK_NORMAL},
+	{"ping", "Send IPv4 echo messages", CMD_PING, NULL, 0, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"ping6", "Send IPv6 echo messages", CMD_PING_IPV6, NULL, 0, MSK_NORMAL},
+#endif
 	{"reload", "Halt and perform a cold restart", CMD_RELOAD, reload, 1, MSK_NORMAL},
 	{"show", "Show running system information", CMD_SHOW, NULL, 0, MSK_NORMAL},
 	{"ssh", "Open a SSH connection", CMD_SSH, NULL, 1, MSK_NORMAL},
