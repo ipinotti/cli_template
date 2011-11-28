@@ -52,7 +52,10 @@ void ping (const char *cmdline)
 			return;
 			
 		case 0:
-			xargv[0] = "/bin/ping";
+			if (!strcmp(args->argv[0],"ping6"))
+				xargv[0] = "/bin/ping6";
+			else
+				xargv[0] = "/bin/ping";
 			xargv[1] = "-c";
 			xargv[2] = count;
 			xargv[3] = "-s";
