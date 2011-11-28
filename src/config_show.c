@@ -1058,7 +1058,7 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		/* Se dispositivo 3G USB não estiver presente no sistema, ou sem ppp ativo,
 		 * Description não será apresentado
 		 */
-		if (conf.linktype == ARPHRD_PPP && !conf.running) {
+		if (conf.linktype == ARPHRD_PPP && !conf.running && !conf.up) {
 			fprintf(out, "\n");
 			continue;
 		}
