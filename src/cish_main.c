@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 			syslog(LOG_DEBUG, "Reseting VLAN tables from KSZ8863\n");
 
 			librouter_ksz8863_set_default_config();
-#elif defined (CONFIG_DIGISTAR_3G)
+#elif defined(CONFIG_DIGISTAR_3G) || defined(CONFIG_DIGISTAR_MRG)
 			librouter_bcm53115s_set_default_config();
 #endif
 #endif
