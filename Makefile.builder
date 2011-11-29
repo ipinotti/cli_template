@@ -1,11 +1,11 @@
 include ../../common.mk
 
 CFLAGS= -O2 -Wall -I. -I$(ROOTDIR)/include -I$(ROOTDIR)/include/ncurses -I$(ROOTDIR)/$(FSDIR)/include/librouter/ \
-	  -I$(ROOTDIR)/$(FSDIR)/include
+	  -I$(ROOTDIR)/$(FSDIR)/include -DCONFIG_PD3 -DCONFIG_DIGISTAR
 LDFLAGS= -L$(ROOTDIR)/$(FSDIR)/lib
 
 all: config
-	$(MAKE) all
+	$(MAKE)
 
 config: configure
 	if [ ! -f Makefile ]; then \
