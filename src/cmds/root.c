@@ -17,6 +17,11 @@ cish_command CMD_TRACEROUTE[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_TRACEROUTE6[] = {
+	{"<ipv6address>", "Destination host", NULL, traceroute, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_PING7[] = {
 	{"1-1000000", "count", NULL, ping, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -297,7 +302,10 @@ cish_command CMD[] = {
 	{"tcpdump", "Start packet sniffer", CMD_TCPDUMP, tcpdump, 1, MSK_NORMAL},
 	{"telnet", "Open a telnet connection", CMD_TELNET, NULL, 1, MSK_NORMAL},
 	{"terminal", "Set terminal line parameters", CMD_TERMINAL, NULL, 0, MSK_NORMAL},
-	{"traceroute", "Traceroute to destination", CMD_TRACEROUTE, NULL, 0, MSK_NORMAL},
+	{"traceroute", "Traceroute to an IPv4 destination", CMD_TRACEROUTE, NULL, 0, MSK_NORMAL},
+#ifdef OPTION_IPV6
+	{"traceroute6", "Traceroute to an IPv6 destination", CMD_TRACEROUTE6, NULL, 0, MSK_NORMAL},
+#endif
 	{"write", "Save current configuration in non-volatile memory", NULL, config_write, 1, MSK_NORMAL},
 	{NULL, NULL, NULL, NULL}
 };

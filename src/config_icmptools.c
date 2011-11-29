@@ -14,14 +14,14 @@ void ping (const char *cmdline)
 {
 	arglist *args;
 	int argc;
-	char count[32], size[32], addr[32];
+	char count[32], size[32], addr[INET6_ADDRSTRLEN + 1];
 	char *xargv[16];
 	pid_t ping_pid;
 	
 	args = librouter_make_args (cmdline);
 	
-	strncpy(addr, args->argv[1], 31); 
-	addr[31] = 0;
+	memset(addr, 0, sizeof(addr));
+	strncpy(addr, args->argv[1], sizeof(addr)-1);
 	
 	strcpy(count, "5");
 	strcpy(size, "56");
@@ -72,38 +72,41 @@ void ping (const char *cmdline)
 
 void traceroute (const char *cmdline)
 {
-	const char *crsr;
-	const char *tmp;
-	char		cmd[64];
-	
-	buf[0] = 0;
-	
-	crsr = strchr (cmdline, ' ');
-	if (crsr)
+	arglist *args;
+	pid_t pid;
+	char *xargv[16];
+	char addr[INET6_ADDRSTRLEN + 1];
+
+	args = librouter_make_args (cmdline);
+
+	memset(addr, 0, sizeof(addr));
+	strncpy(addr, args->argv[1], sizeof(addr)-1);
+
+	switch (pid = fork())
 	{
-		++crsr;
-		tmp = strchr (crsr, ' ');
-		if (tmp)
-		{
-			if ((tmp - crsr) < 18)
-			{
-				memcpy (buf, crsr, tmp-crsr);
-				buf[tmp-crsr] = 0;
-			}
-		}
-		else
-		{
-			if (strlen (crsr) < 18)
-			{
-				strcpy (buf, crsr);
-			}
-		}
+		case -1:
+			fprintf (stderr, "%% No processes left\n");
+			return;
+
+		case 0:
+			if (!strcmp(args->argv[0],"traceroute6"))
+				xargv[0] = "/bin/traceroute6";
+			else
+				xargv[0] = "/bin/traceroute";
+			xargv[1] = "-m";
+			xargv[2] = "15";
+			xargv[3] = "-w";
+			xargv[4] = "2";
+			xargv[5] = addr;
+			xargv[6] = NULL;
+			execv(xargv[0], xargv);
+
+		default:
+			waitpid (pid, NULL, 0);
+			break;
 	}
-	if (strlen (buf))
-	{
-		sprintf (cmd, "/bin/traceroute -m 15 -w 2 %s", buf); /* -n (ip domain lookup) */
-		system (cmd);
-	}
+
+	librouter_destroy_args(args);
 }
 
 #ifdef CONFIG_GIGA
