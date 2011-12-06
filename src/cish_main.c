@@ -5,10 +5,8 @@
  * This program is licensed under the GNU General Public License
  * ============================================================================== */
 
-#include <dirent.h>
-#include <netdb.h>
-
 #include <stdio.h>
+#include <string.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -17,11 +15,15 @@
 #include <sys/errno.h>
 #include <sys/signal.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include <syslog.h>
 #include <time.h>
 #include <termios.h>
 #include <sys/mman.h>	/*mmap*/
 #include <dlfcn.h>	/*dlopen, dlsym*/
+#include <dirent.h>
+#include <netdb.h>
+
 
 #define _XOPEN_SOURCE
 #include <unistd.h>
