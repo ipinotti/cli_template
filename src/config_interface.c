@@ -835,11 +835,13 @@ void tunnel_mode(const char *cmdline) /* tunnel mode gre|ipip */
 	                interface_minor);
 	if (args->argc == 3){
 		if (strcmp(args->argv[2], "gre") == 0){
+			_cish_mask |= MSK_TUNNEL_DEST;
 			librouter_tunnel_mode(dev, IPPROTO_GRE);
 			goto end;
 		}
 
 		if (strcmp(args->argv[2], "ipip") == 0) {
+			_cish_mask |= MSK_TUNNEL_DEST;
 			librouter_tunnel_mode(dev, IPPROTO_IPIP);
 			goto end;
 		}
@@ -847,11 +849,11 @@ void tunnel_mode(const char *cmdline) /* tunnel mode gre|ipip */
 
 	if ((args->argc == 4))
 		if (strcmp(args->argv[3], "6to4") == 0){
+			_cish_mask &= ~MSK_TUNNEL_DEST;
 			librouter_tunnel_mode(dev, IPPROTO_IPV6);
 		}
 
 end:
-	/* TODO: pptp l2tp ipsec ipsec-l2tp */
 	free(dev);
 	librouter_destroy_args(args);
 }

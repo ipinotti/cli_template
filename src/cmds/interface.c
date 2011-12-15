@@ -1868,7 +1868,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_KP[] = {
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL[] = {
 	{"checksum", "Enable end to end checksumming of packets", NULL, tunnel_checksum, 1, MSK_NORMAL},
-	{"destination", "Destination of tunnel", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_DST, NULL, 1, MSK_NORMAL},
+	{"destination", "Destination of tunnel", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_DST, NULL, 1, MSK_TUNNEL_DEST},
 	{"key", "Security or selector key", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_KEY, NULL, 1, MSK_NORMAL},
 	{"mode", "Tunnel encapsulation method", CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL_MODE, NULL, 1, MSK_NORMAL},
 	{"path-mtu-discovery", "Enable Path MTU Discovery on tunnel", NULL, tunnel_pmtu, 1, MSK_NORMAL},
@@ -1880,7 +1880,7 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL_TUNNEL[] = {
 
 cish_command CMD_CONFIG_INTERFACE_TUNNEL_NO_TUNNEL[] = {
 	{"checksum", "Enable end to end checksumming of packets", NULL, tunnel_checksum, 1, MSK_NORMAL},
-	{"destination", "Destination of tunnel", NULL, tunnel_destination, 1, MSK_NORMAL},
+	{"destination", "Destination of tunnel", NULL, tunnel_destination, 1, MSK_TUNNEL_DEST},
 	{"key", "Security or selector key", NULL, tunnel_key, 1, MSK_NORMAL},
 	{"path-mtu-discovery", "Enable Path MTU Discovery on tunnel", NULL, tunnel_pmtu, 1, MSK_NORMAL},
 	{"sequence-datagrams", "Drop datagrams arriving out of order", NULL, tunnel_sequence, 1, MSK_NORMAL},
