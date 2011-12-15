@@ -73,7 +73,6 @@ void process_cish_exit(void)
 	librouter_config_munmap_cfg(router_cfg);
 }
 
-#ifdef CONFIG_DEVELOPMENT
 static int _on_nfs(void)
 {
 	FILE *f;
@@ -92,7 +91,6 @@ static int _on_nfs(void)
 
 	return nfs;
 }
-#endif
 
 static int _print_current_menu()
 {
@@ -483,7 +481,6 @@ void config_file(const char *f)
 						cish_execute("exit");
 					}
 				}
-#ifdef CONFIG_DEVELOPMENT
 				if (_on_nfs()) {
 
 					if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_WAN
@@ -503,7 +500,7 @@ void config_file(const char *f)
 						}
 					}
 				}
-#endif
+
 				if (strlen(&line[i]))
 					cish_execute(&line[i]);
 			}

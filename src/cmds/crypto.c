@@ -555,11 +555,7 @@ cish_command CMD_CRYPTO_L2TP_POOL1[] = {
 };
 
 cish_command CMD_CRYPTO_L2TP_POOL_ETHERNET[] = {
-#ifdef OPTION_ETHERNET_WAN
-	{"1-1", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */
-#else
-	{"0-1", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */
-#endif
+	{"0-0", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
