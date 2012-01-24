@@ -8,21 +8,25 @@
 #define CLI_STRING_ETH_IFACES	"0-1"
 #define CLI_STRING_SWITCH_PORTS	"1-4"
 #define CLI_STRING_USB_PORTS	"0-2"
+#define CLI_STRING_TUN_IFACES	"0-9"
 #elif defined(CONFIG_DIGISTAR_EFM)
 #define CLI_STRING_ETH_IFACES	"0-0"
 #define CLI_STRING_EFM_IFACES	"0-0"
 #define CLI_STRING_SWITCH_PORTS	"1-2"
 #define CLI_STRING_USB_PORTS	"0-0"
+#define CLI_STRING_TUN_IFACES	"0-9"
 #elif defined(CONFIG_DIGISTAR_EFM4ETH)
 #define CLI_STRING_ETH_IFACES	"0-0"
 #define CLI_STRING_EFM_IFACES	"0-0"
 #define CLI_STRING_SWITCH_PORTS	"1-4"
 #define CLI_STRING_USB_PORTS	"0-0"
+#define CLI_STRING_TUN_IFACES	"0-9"
 #elif defined(CONFIG_DIGISTAR_MRG)
 #define CLI_STRING_ETH_IFACES	"0-1"
 #define CLI_STRING_SWITCH_PORTS	"1-4"
 #define CLI_STRING_USB_PORTS	"0-0"
 #define CLI_STRING_WLAN_IFACES  "0-0"
+#define CLI_STRING_TUN_IFACES	"0-9"
 #else
 #error "No board defined!"
 #endif
@@ -82,6 +86,7 @@ enum cish_mask {
 	MSK_VLAN = 0x00200000,
 	MSK_AUTH = 0x00400000,
 	MSK_IPV6 = 0x00800000,
+	MSK_TUNNEL_DEST = 0x04000000,
 };
 
 /* Global Commands */

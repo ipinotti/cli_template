@@ -108,7 +108,7 @@ cish_command RMON_ALARM_DATATYPE[] = {
 };
 
 cish_command RMON_ALARM_INTERVAL[] = {
-	{"10-2592000", "Interval in seconds", RMON_ALARM_DATATYPE, NULL, 1, MSK_NORMAL},
+	{"3-3600", "Interval in seconds", RMON_ALARM_DATATYPE, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

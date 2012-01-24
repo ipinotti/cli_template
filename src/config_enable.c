@@ -3,10 +3,12 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+
 #define __USE_XOPEN
 #include <unistd.h>
 #include <syslog.h>
 
+#include <sys/time.h>
 
 
 #include <readline/readline.h>

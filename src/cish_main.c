@@ -5,10 +5,8 @@
  * This program is licensed under the GNU General Public License
  * ============================================================================== */
 
-#include <dirent.h>
-#include <netdb.h>
-
 #include <stdio.h>
+#include <string.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -17,11 +15,15 @@
 #include <sys/errno.h>
 #include <sys/signal.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include <syslog.h>
 #include <time.h>
 #include <termios.h>
 #include <sys/mman.h>	/*mmap*/
 #include <dlfcn.h>	/*dlopen, dlsym*/
+#include <dirent.h>
+#include <netdb.h>
+
 
 #define _XOPEN_SOURCE
 #include <unistd.h>
@@ -71,7 +73,6 @@ void process_cish_exit(void)
 	librouter_config_munmap_cfg(router_cfg);
 }
 
-#ifdef CONFIG_DEVELOPMENT
 static int _on_nfs(void)
 {
 	FILE *f;
@@ -90,7 +91,6 @@ static int _on_nfs(void)
 
 	return nfs;
 }
-#endif
 
 static int _print_current_menu()
 {
@@ -492,7 +492,6 @@ void config_file(const char *f)
 						cish_execute("exit");
 					}
 				}
-#ifdef CONFIG_DEVELOPMENT
 				if (_on_nfs()) {
 
 					if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_WAN
@@ -512,7 +511,7 @@ void config_file(const char *f)
 						}
 					}
 				}
-#endif
+
 				if (strlen(&line[i]))
 					cish_execute(&line[i]);
 			}

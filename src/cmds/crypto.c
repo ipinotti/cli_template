@@ -58,22 +58,38 @@ cish_command CMD_IPSEC_CONNECTION_LR_ADDR_FQDN[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+/* VLANs and others ... */
+cish_command CMD_IPSEC_CONNECTION_INTERFACE_SUBIFACE[] = {
+	{"0-4095", "Sub-interface interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{"<enter>", "Use main interface", NULL, NULL, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[] = {
-	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_IPSEC_CONNECTION_INTERFACE_SUBIFACE, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 #ifdef OPTION_EFM
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_EFM[] = {
-	{CLI_STRING_EFM_IFACES, "EFM interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{CLI_STRING_EFM_IFACES, "EFM interface number", CMD_IPSEC_CONNECTION_INTERFACE_SUBIFACE, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
 
+#ifdef OPTION_MODEM3G
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_M3G[] = {
-	{"0-2", "Modem 3G interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{CLI_STRING_USB_PORTS, "Modem 3G interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
+
+#ifdef OPTION_TUNNEL
+cish_command CMD_IPSEC_CONNECTION_INTERFACE_TUNNEL[] = {
+	{CLI_STRING_TUN_IFACES, "Tunnel interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
 
 cish_command CMD_IPSEC_CONNECTION_INTERFACE[] = {
 #ifdef OPTION_MODEM3G
@@ -83,6 +99,9 @@ cish_command CMD_IPSEC_CONNECTION_INTERFACE[] = {
 	{"efm", "EFM interface", CMD_IPSEC_CONNECTION_INTERFACE_EFM, NULL, 1, MSK_NORMAL},
 #endif
 	{"ethernet", "Ethernet interface", CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_TUNNEL
+	{"tunnel", "Tunnel interface", CMD_IPSEC_CONNECTION_INTERFACE_TUNNEL, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -555,11 +574,7 @@ cish_command CMD_CRYPTO_L2TP_POOL1[] = {
 };
 
 cish_command CMD_CRYPTO_L2TP_POOL_ETHERNET[] = {
-#ifdef OPTION_ETHERNET_WAN
-	{"1-1", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */
-#else
-	{"0-1", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL}, /* !!! MU ethernet1 */
-#endif
+	{"0-0", "DHCP address pool on ethernet", NULL, l2tp_dhcp_server, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
