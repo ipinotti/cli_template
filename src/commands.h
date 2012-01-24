@@ -507,7 +507,7 @@ void dump_rmon(FILE *out);
 void clear_rmon_events(const char *cmd);
 
 void ip_mroute(const char *);
-void show_vrrp(const char *);
+
 void show_fr_pvc(const char *);
 
 #ifdef CONFIG_IPHC
@@ -733,6 +733,10 @@ void cd_policyroute_dir(const char *cmdline);
 void show_policyroute_rules(const char *cmdline);
 void show_policyroute_routes(const char *cmdline);
 
+/* VRRP */
+void show_vrrp(const char *);
+void interface_no_vrrp(const char *);
+void interface_vrrp(const char *);
 
 /* 3G Device */
 #ifdef OPTION_MODEM3G

@@ -286,6 +286,9 @@ int main(int argc, char *argv[])
 #ifdef OPTION_IPV6
 	cmd_mask |= MSK_IPV6;
 #endif
+#ifdef OPTION_VRRP
+	cmd_mask |= MSK_VRRP;
+#endif
 	set_model_cmd_mask(cmd_mask);
 #endif
 	set_model_auth_cmds();
