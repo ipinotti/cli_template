@@ -751,6 +751,14 @@ void interface_modem3g_btin_set_info(const char *cmdline);
 void interface_modem3g_default_gateway(const char *cmdline);
 #endif
 
+/* Wifi Device */
+#ifdef OPTION_WIFI
+void config_interface_wlan_ap_manager (const char *cmdline);
+void config_interface_wlan_ap_manager_done (const char *cmdline);
+void apmanager_ssid_set (const char *cmdline);
+
+#endif
+
 void config_banner_login(const char *cmdline);
 void config_banner_system(const char *cmdline);
 void show_banner(const char *cmdline);

@@ -38,6 +38,7 @@ cish_SOURCES = \
 	config_acl.c \
 	config_enable.c \
 	config_vrrp.c \
+	config_apmanager.c \
 	config_banner.c
 
 

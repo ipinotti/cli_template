@@ -22,6 +22,7 @@
 #define CLI_STRING_ETH_IFACES	"0-1"
 #define CLI_STRING_SWITCH_PORTS	"1-4"
 #define CLI_STRING_USB_PORTS	"0-0"
+#define CLI_STRING_WLAN_IFACES  "0-0"
 #else
 #error "No board defined!"
 #endif
@@ -93,6 +94,8 @@ extern cish_command CMD_KEYCHAIN[];
 extern cish_command CMD_KEY[];
 
 /* Interfaces */
+extern cish_command CMD_CONFIG_INTERFACE_WLAN[];
+extern cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[];
 extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN[];
 extern cish_command CMD_CONFIG_INTERFACE_EFM[];

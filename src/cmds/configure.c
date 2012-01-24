@@ -9,6 +9,13 @@ char EXTCMD[1024];
 char EXTSCRIPT[1024];
 cish_command CEXT = {EXTCMD, EXTSCRIPT, NULL, NULL, 0};
 
+#ifdef OPTION_WIFI
+cish_command CMD_CONFIG_INTERFACE_WLAN_[] = {
+	{CLI_STRING_WLAN_IFACES, "Wireless Lan interface number", NULL, config_interface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 #ifdef OPTION_EFM
 cish_command CMD_CONFIG_INTERFACE_EFM_[] = {
 	{"0-0", "EFM interface number", NULL, config_interface, 0, MSK_NORMAL},
@@ -56,6 +63,9 @@ cish_command CMD_CONFIG_INTERFACE[] = {
 	{"loopback", "Loopback interface", CMD_CONFIG_INTERFACE_LOOPBACK_, NULL, 0, MSK_NORMAL},
 #ifdef OPTION_TUNNEL
 	{"tunnel", "Tunnel interface", CMD_CONFIG_INTERFACE_TUNNEL_, NULL, 0, MSK_NORMAL},
+#endif
+#ifdef OPTION_WIFI
+	{"wlan", "Wireless Lan interface", CMD_CONFIG_INTERFACE_WLAN_, NULL, 0, MSK_NORMAL},
 #endif
 #ifdef OPTION_MODEM3G
 	{"m3G", "3G interface", CMD_CONFIG_INTERFACE_M3G_, NULL, 0, MSK_NORMAL},

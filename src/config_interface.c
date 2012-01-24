@@ -166,6 +166,11 @@ void config_interface(const char *cmdline) /* [no] interface <device> <sub> */
 			else
 				goto subiface_error;
 			break;
+#ifdef OPTION_WIFI
+		case wlan:
+			command_root = CMD_CONFIG_INTERFACE_WLAN;
+			break;
+#endif
 #ifdef OPTION_TUNNEL
 		case tun:
 			dev = librouter_device_cli_to_linux(interface_edited->cish_string,
@@ -1738,3 +1743,18 @@ void interface_efm_set_mode(const char *cmdline)
 }
 
 #endif /* OPTION_EFM */
+
+#ifdef OPTION_WIFI
+void config_interface_wlan_ap_manager_done(const char *cmdline)
+{
+	switch_port = -1;
+	switch_port_real = -1;
+	command_root = CMD_CONFIG_INTERFACE_WLAN;
+}
+
+void config_interface_wlan_ap_manager(const char *cmdline)
+{
+	command_root = CMD_CONFIG_INTERFACE_WLAN_APMANAGER;
+}
+
+#endif /* OPTION_WIFI */

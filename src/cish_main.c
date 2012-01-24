@@ -128,6 +128,10 @@ static int _print_current_menu()
 #ifdef OPTION_TUNNEL
 		{ CMD_CONFIG_INTERFACE_TUNNEL, "(config-if-tunnel-"},
 #endif
+#ifdef OPTION_WIFI
+		{ CMD_CONFIG_INTERFACE_WLAN, "(config-if-wlan-"},
+		{ CMD_CONFIG_INTERFACE_WLAN_APMANAGER, "(config-if-wlan-"},
+#endif
 #ifdef OPTION_MODEM3G
 		{ CMD_CONFIG_INTERFACE_M3G_USB, "(config-if-m3G-"},
 		{ CMD_CONFIG_INTERFACE_M3G_BTIN, "(config-if-m3G-"},
@@ -184,6 +188,12 @@ static int _print_current_menu()
 	}
 
 	/* Add exceptions here */
+#ifdef OPTION_WIFI
+	if (command_root == CMD_CONFIG_INTERFACE_WLAN_APMANAGER) {
+		snprintf(buf, sizeof(buf), "%d-ap-manager)", interface_major);
+		strcat(prompt, buf);
+	} else
+#endif
 #ifdef OPTION_MANAGED_SWITCH
 	if (command_root == CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT) {
 		if (switch_port >= 0) {
@@ -313,6 +323,7 @@ int main(int argc, char *argv[])
 
 			librouter_ksz8863_set_default_config();
 #elif defined(CONFIG_DIGISTAR_3G) || defined(CONFIG_DIGISTAR_MRG)
+			syslog(LOG_DEBUG, "Reseting VLAN tables from BCM53115s\n");
 			librouter_bcm53115s_set_default_config();
 #endif
 #endif
