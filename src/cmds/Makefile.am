@@ -22,4 +22,5 @@ libcmds_la_SOURCES = \
 	root.c \
 	router.c \
 	show.c \
-	snmp.c
+	snmp.c \
+	vrrp.c

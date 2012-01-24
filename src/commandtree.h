@@ -243,4 +243,8 @@ extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_SW_PORT[];
 extern cish_command CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO[];
 extern cish_command CMD_CONFIG_INTERFACE_ETH_SW_GENERAL[];
 
+/* VRRP */
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP[];
+extern cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP[];
+
 #endif /* _COMMANDTREE_H */

@@ -572,9 +572,11 @@ static void __dump_intf_ipaddr_v6_status(FILE *out, struct interfacev6_conf *con
 	if (!strcmp(conf->name, dev)) {
 		for (i = 0; i < MAX_NUM_IPS; i++, ipv6++) {
 			if (ipv6->ipv6addr[0] == 0)
-			break;
+				break;
 
-			fprintf(out, "  Internet 6 address is %s/%s | Scope: %s\n", ipv6->ipv6addr, ipv6->ipv6mask, librouter_ipv6_is_addr_link_local(ipv6->ipv6addr)? "Link":"Global");
+			fprintf(out, "  Internet 6 address is %s/%s | Scope: %s\n", ipv6->ipv6addr,
+			                ipv6->ipv6mask,
+			                librouter_ipv6_is_addr_link_local(ipv6->ipv6addr) ? "Link" : "Global");
 		}
 	}
 #if 0 /*Realiza analise sobre o endereço para BRIDGE*/
@@ -1581,7 +1583,7 @@ static int show_conn_specific(char *name, int state)
 			if (ret == ADDR_DEFAULT) {
 				strcpy(b.addr_l, "default-route");
 			} else if (ret == ADDR_INTERFACE) {
-				strcpy(b.addr_l, librouter_device_linux_to_cli(tmp+1, 0));
+				strcpy(b.addr_l, librouter_device_linux_to_cli(tmp + 1, 0));
 			} else if (ret == ADDR_IP) {
 				strcpy(b.addr_l, tmp);
 			}
@@ -1715,20 +1717,20 @@ static int show_conn_specific(char *name, int state)
 
 	/* Start printing data */
 	if (strlen(b.id_l) || strlen(b.id_r)) {
-		print_ipsec_show_line(name, b.id_l, b.id_r, b.authby, b.authproto, b.esp_c, b.pfs, len, shift,
-		                second_shift, third_shift, state, &net_flag);
+		print_ipsec_show_line(name, b.id_l, b.id_r, b.authby, b.authproto, b.esp_c, b.pfs, len,
+		                shift, second_shift, third_shift, state, &net_flag);
 	}
 	if (strlen(b.addr_l) || strlen(b.addr_r)) {
-		print_ipsec_show_line(name, b.addr_l, b.addr_r, b.authby, b.authproto, b.esp_c, b.pfs, len, shift,
-		                second_shift, third_shift, state, &net_flag);
+		print_ipsec_show_line(name, b.addr_l, b.addr_r, b.authby, b.authproto, b.esp_c, b.pfs, len,
+		                shift, second_shift, third_shift, state, &net_flag);
 	}
 	if (strlen(b.cidr_l) || strlen(b.cidr_r)) {
-		print_ipsec_show_line(name, b.cidr_l, b.cidr_r, b.authby, b.authproto, b.esp_c, b.pfs, len, shift,
-		                second_shift, third_shift, state, &net_flag);
+		print_ipsec_show_line(name, b.cidr_l, b.cidr_r, b.authby, b.authproto, b.esp_c, b.pfs, len,
+		                shift, second_shift, third_shift, state, &net_flag);
 	}
 	if (strlen(b.nexthop_l) || strlen(b.nexthop_r)) {
-		print_ipsec_show_line(name, b.nexthop_l, b.nexthop_r, b.authby, b.authproto, b.esp_c, b.pfs, len, shift,
-		                second_shift, third_shift, state, &net_flag);
+		print_ipsec_show_line(name, b.nexthop_l, b.nexthop_r, b.authby, b.authproto, b.esp_c, b.pfs,
+		                len, shift, second_shift, third_shift, state, &net_flag);
 	}
 	if (!net_flag) {
 		printf("\033[3C%s\033[%dC", name, total_name_len - strlen(name));
@@ -2092,10 +2094,11 @@ void show_mroute(const char *cmdline) /* !!! */
 void show_vrrp(const char *cmdline)
 {
 	FILE *tf;
-	dump_vrrp_status();
+	librouter_vrrp_dump_status();
 
-	if (!(tf = fopen(VRRP_SHOW_FILE,"r"))) /* Open vrrp show file */
-	return;
+	if (!(tf = fopen(VRRP_SHOW_FILE, "r"))) /* Open vrrp show file */
+		return;
+
 	show_output(tf); /* Print file */
 	fclose(tf);
 }
