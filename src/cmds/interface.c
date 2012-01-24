@@ -1929,9 +1929,11 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL[] = {
 #ifdef OPTION_WIFI
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_NO[] = {
-	{"ssid_broadcast", "Disable SSID Brodcast", NULL, NULL, 1, MSK_NORMAL},
+	{"ssid_broadcast", "Disable SSID Brodcast", NULL, apmanager_ssid_broadcast_set, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
 	{"wmm","Disable WMM Function", NULL, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
+#endif
+	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_HEX[] = {
@@ -1972,13 +1974,18 @@ cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE[] = {
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SSID_SET[] = {
 	{"<text>", "SSID Name - (8-63 Characters)", NULL, apmanager_ssid_set, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_CHANNEL_SET[] = {
+	{"1-13", "Wifi Channel - (Range: 1-13)", NULL, apmanager_channel_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER[] = {
 	{"ssid", "Set SSID - Wireless Network Name", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SSID_SET, NULL, 1, MSK_NORMAL},
-	{"ssid_broadcast", "Enable SSID Brodcast", NULL, NULL, 1, MSK_NORMAL},
-	{"channel", "Set Wireless Channel", NULL, NULL, 1, MSK_NORMAL},
+	{"ssid_broadcast", "Enable SSID Brodcast", NULL, apmanager_ssid_broadcast_set, 1, MSK_NORMAL},
+	{"channel", "Set Wireless Channel", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_CHANNEL_SET, NULL, 1, MSK_NORMAL},
 	{"hw_mode", "Set Wireless Mode", NULL, NULL, 1, MSK_NORMAL},
 	{"max_num_station", "Set Maximum Number of Stations Connected", NULL, NULL, 1, MSK_NORMAL},
 	{"beacon_interval", "Set Beacon Interval - (msec, range:20~1000, default:100)", NULL, NULL, 1, MSK_NORMAL},
@@ -1993,7 +2000,7 @@ cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER[] = {
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_NO, NULL, 1, MSK_NORMAL},
 	{"exit", "Exit from Access Point configuration mode", NULL, config_interface_wlan_ap_manager_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
+	{NULL,NULL,NULL,NULL,0}
 };
 
 

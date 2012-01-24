@@ -756,6 +756,8 @@ void interface_modem3g_default_gateway(const char *cmdline);
 void config_interface_wlan_ap_manager (const char *cmdline);
 void config_interface_wlan_ap_manager_done (const char *cmdline);
 void apmanager_ssid_set (const char *cmdline);
+void apmanager_ssid_broadcast_set (const char *cmdline);
+void apmanager_channel_set (const char *cmdline);
 
 #endif
 
