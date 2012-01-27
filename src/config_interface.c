@@ -474,9 +474,12 @@ void interface_ethernet_ipaddr(const char *cmdline) /* ip address <address> <mas
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
-	if (librouter_exec_check_daemon(daemon_dhcpc))
-		librouter_kill_daemon(daemon_dhcpc); /* !!! dhcp x ppp unumbered */
+
+	if (!strstr(dev, "wlan")){
+		sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
+		if (librouter_exec_check_daemon(daemon_dhcpc))
+			librouter_kill_daemon(daemon_dhcpc); /* !!! dhcp x ppp unumbered */
+	}
 
 	args = librouter_make_args(cmdline);
 	addr = args->argv[2];
@@ -594,9 +597,13 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
-	sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
-	if (librouter_exec_check_daemon(daemon_dhcpc))
-		librouter_kill_daemon(daemon_dhcpc);
+
+	if (!strstr(dev, "wlan")){
+		sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
+		if (librouter_exec_check_daemon(daemon_dhcpc))
+			librouter_kill_daemon(daemon_dhcpc);
+	}
+
 	librouter_ip_ethernet_set_no_addr(dev);
 	free(dev);
 }

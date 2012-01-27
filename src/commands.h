@@ -762,6 +762,14 @@ void config_interface_wlan_ap_manager_done (const char *cmdline);
 void apmanager_ssid_set (const char *cmdline);
 void apmanager_ssid_broadcast_set (const char *cmdline);
 void apmanager_channel_set (const char *cmdline);
+void apmanager_hw_mode_set (const char *cmdline);
+void apmanager_max_num_station_set (const char *cmdline);
+void apmanager_beacon_interval_set (const char *cmdline);
+void apmanager_rts_threshold_set (const char *cmdline);
+void apmanager_fragmentation_set (const char *cmdline);
+void apmanager_dtim_interval_set (const char *cmdline);
+void apmanager_preamble_type_set (const char *cmdline);
+void apmanager_security_mode_set (const char *cmdline);
 
 #endif
 
