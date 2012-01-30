@@ -150,46 +150,51 @@ static int show_logging_file(time_t tm_start, FILE *tf)
 		pager_init();
 		signal(SIGINT, SIG_DFL);
 		while (!feof(tf)) {
+			char *date, *info, *p;
+			char name[16];
+			int last_one_was_printed = 0;
+
 			if (pager_skipping())
 				raise(SIGINT);
+
 			tbuf[0] = 0;
 			fgets(tbuf, 255, tf);
 			tbuf[255] = 0;
-			{
-				char *date, *info, *p;
-				char name[16];
-				int last_one_was_printed = 0;
 
-				if (!strlen(tbuf))
-					continue;
+			if (!strlen(tbuf))
+				continue;
 
-				tbuf[16] = 0; /* Jan  9 23:41:40 */
-				date = tbuf; /* Jan  9 23:41:40 */
-				info = tbuf + 17; /* kernel: X.25(1): TX on serial0 size=131 frametype=0x54 */
-				if (tm_start) {
-					time(&tm);
-					localtime_r(&tm, &tm_time);
-					strptime(date, "%b %d %T", &tm_time);
-					tm = mktime(&tm_time);
-					if (tm < tm_start)
-						continue; /* skip! */
-				}
-				p = librouter_debug_find_token(info, name, 1);
-				if (p != NULL) {
-					last_one_was_printed = 1;
-					pprintf("%s %s%s", date, name, p);
-				} else {
-					if ((strncmp(info, "last message repeated", 21) == 0)
-					                && last_one_was_printed) {
-						pprintf("%s %s", date, info);
-					}
-#ifdef CONFIG_DEVELOPMENT /* Show all lines... */
-					else
-					pprintf("%s %s", date, info);
-#endif
-				}
-				last_one_was_printed = 0;
+			/* Get data -> Jan  9 23:41:40 */
+			tbuf[16] = 0;
+			date = tbuf;
+
+			/* Get the rest -> DigistarEFM user.info kernel: X.25(1): TX on serial0 size=131 frametype=0x54 */
+			info = tbuf + 17;
+
+			if (tm_start) {
+				time(&tm);
+				localtime_r(&tm, &tm_time);
+				strptime(date, "%b %d %T", &tm_time);
+				tm = mktime(&tm_time);
+				if (tm < tm_start)
+					continue; /* skip! */
 			}
+
+			p = librouter_debug_find_token(info, name, 1);
+			if (p != NULL) {
+				last_one_was_printed = 1;
+				pprintf("%s %s%s", date, name, p);
+			} else {
+				if ((strncmp(info, "last message repeated", 21) == 0) && last_one_was_printed) {
+					pprintf("%s %s", date, info);
+				}
+#ifdef CONFIG_DEVELOPMENT /* Show all lines... */
+				else
+				pprintf("%s %s", date, info);
+#endif
+			}
+			last_one_was_printed = 0;
+
 		}
 		exit(0);
 
