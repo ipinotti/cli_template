@@ -23,6 +23,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_OPTIONS[] = {
 	{"preempt", "Disable preemption of lower priority Master", NULL, interface_no_vrrp, 1, MSK_VRRP},
 	{"priority", "Unset priority of this VRRP group", NULL, interface_no_vrrp, 1, MSK_VRRP},
  	{"timers", "Unset the VRRP timers", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_TIMERS, NULL, 1, MSK_VRRP},
+ 	{"track-interface", "Unset VRRP interface tracking", NULL, interface_no_vrrp, 1, MSK_VRRP},
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -89,6 +90,27 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_TIMERS[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
+/* VRRP Interface tracking */
+#ifdef OPTION_EFM
+cish_command CMD_VRRP_GROUP_TRACK_EFM[] = {
+	{CLI_STRING_EFM_IFACES, "EFM interface number", NULL, interface_vrrp, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+cish_command CMD_VRRP_GROUP_TRACK_ETH[] = {
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, interface_vrrp, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_TRACK[] = {
+#ifdef OPTION_EFM
+	{"efm", "EFM interface", CMD_VRRP_GROUP_TRACK_EFM, NULL, 0, MSK_VRRP},
+#endif
+	{"ethernet", "Ethernet interface", CMD_VRRP_GROUP_TRACK_ETH, NULL, 0, MSK_VRRP},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_OPTIONS[] = {
 	{"authentication", "Authentication string", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_AUTH, NULL, 1, MSK_VRRP},
 	{"description", "Group specific description", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_DESC, NULL, 1, MSK_VRRP},
@@ -96,6 +118,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_OPTIONS[] = {
 	{"preempt", "Enable preemption of lower priority Master", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_PREEMPT, interface_vrrp, 1, MSK_VRRP},
 	{"priority", "Priority of this VRRP group", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_PRIO, NULL, 1, MSK_VRRP},
  	{"timers", "Set the VRRP timers", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_TIMERS, NULL, 1, MSK_VRRP},
+ 	{"track-interface", "Set VRRP interface tracking", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_TRACK, NULL, 1, MSK_VRRP},
 	{NULL,NULL,NULL,NULL}
 };
 
