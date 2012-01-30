@@ -40,6 +40,7 @@
 #include <librouter/acl.h>
 #include <librouter/pbr.h>
 #include <librouter/pam.h>
+#include <librouter/wifi.h>
 
 #define PPPDEV "ppp"
 
@@ -773,6 +774,89 @@ static void __dump_efm_status(FILE *out, struct interface_conf *conf)
 }
 #endif
 
+#ifdef OPTION_WIFI
+static int wifi_hw_mode_get(char * hw_mode_string, int size_mode)
+{
+	char mode;
+
+	switch (librouter_wifi_hw_mode_get()) {
+		case a_hw:
+			mode = 'a';
+			break;
+		case b_hw:
+			mode = 'b';
+			break;
+		case g_hw:
+			mode = 'g';
+			break;
+		case n_hw:
+			mode = 'n';
+			break;
+		default:
+			return -1;
+			break;
+	}
+
+	snprintf(hw_mode_string, size_mode, "802.11%c", mode);
+
+	return 0;
+}
+
+static void __dump_wlan_status(FILE *out, struct interface_conf *conf)
+{
+#if 0
+	struct lan_status st;
+	int phy_status;
+#endif
+	int wifi_channel = 0;
+	char ssid[64], hw_mode_string[10];
+	memset(ssid, 0, sizeof(ssid));
+	memset(hw_mode_string, 0, sizeof(hw_mode_string));
+
+	if (librouter_wifi_ssid_get(ssid, sizeof(ssid)) < 0)
+		printf(" Error - reading SSID\n");
+
+	if ((wifi_channel = librouter_wifi_channel_get()) < 0)
+		printf(" Error - reading Wifi Channel\n");
+
+	if (wifi_hw_mode_get(hw_mode_string, sizeof(hw_mode_string)) < 0)
+		printf(" Error - reading Wifi Mode\n");
+
+	if (conf->mac[0])
+		fprintf(out, "  Hardware address is %s\n", conf->mac);
+
+	fprintf(out, "  Wireless Network Name (SSID) is %s\n", ssid);
+	fprintf(out, "  Wireless Operation Mode is %s, at Channel %d\n", hw_mode_string, wifi_channel);
+
+#if 0
+	phy_status = librouter_lan_get_status(conf->name, &st);
+
+		if (phy_status < 0) {
+			fprintf(out, "Could not fetch %s status\n", conf->name);
+			return;
+		}
+
+		if (conf->running) {
+
+			if (st.autoneg)
+				fprintf(out, "  Auto-sense");
+			else
+				fprintf(out, "  Forced");
+
+			fprintf(out, " %dMbps, ", st.speed);
+
+			if (st.duplex)
+				fprintf(out, " Full-Duplex");
+			else
+				fprintf(out, " Half-Duplex");
+
+			fprintf(out, "\n");
+		}
+#endif
+
+}
+#endif /* OPTION WIFI */
+
 static void __dump_loopback_status(FILE *out, struct interface_conf *conf)
 {
 }
@@ -1038,6 +1122,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 #ifdef OPTION_EFM
 			if (strstr(cish_dev, "Efm"))
 				__dump_efm_status(out, &conf);
+			else
+#endif
+#ifdef OPTION_WIFI
+			if (strstr(cish_dev, "Wlan"))
+				__dump_wlan_status(out, &conf);
 			else
 #endif
 				__dump_ethernet_status(out, &conf);

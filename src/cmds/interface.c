@@ -1922,7 +1922,8 @@ cish_command CMD_CONFIG_INTERFACE_TUNNEL[] = {
 #ifdef OPTION_WIFI
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_NO[] = {
-	{"ssid_broadcast", "Disable SSID Brodcast", NULL, apmanager_ssid_broadcast_set, 1, MSK_NORMAL},
+	{"security-mode", "Disable Wifi Security ", NULL, apmanager_security_mode_set, 1, MSK_NORMAL},
+	{"ssid-broadcast", "Disable SSID Brodcast", NULL, apmanager_ssid_broadcast_set, 1, MSK_NORMAL},
 #ifdef NOT_YET_IMPLEMENTED
 	{"wmm","Disable WMM Function", NULL, NULL, 1, MSK_NORMAL},
 #endif
@@ -1930,73 +1931,175 @@ cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_NO[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_HEX[] = {
-	{"<text>", "Set Key in HEX digits", NULL, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
+	{"<hexstring>", "Set Key in HEX digits - (64Bit - 10 Digits / 128Bit - 26 Digits)", NULL, apmanager_security_mode_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_ASCII[] = {
-	{"ascii", "Set Key in ASCII digits", NULL, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
+	{"<text>", "Set Key in ASCII digits - (64Bit - 5 Characters / 128Bit - 13 Characters)", NULL, apmanager_security_mode_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_HEX_ENCRYPT[] = {
+	{"64Bit", "Set 64Bit WEP Encryption", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_HEX, NULL, 1, MSK_NORMAL},
+	{"128Bit", "Set 128Bit WEP Encryption", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_HEX, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_ASCII_ENCRYPT[] = {
+	{"64Bit", "Set 64Bit WEP Encryption", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_ASCII, NULL, 1, MSK_NORMAL},
+	{"128Bit", "Set 128Bit WEP Encryption", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_ASCII, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_TYPE[] = {
-	{"hex", "Set WEP Encryption Key in HEX digits", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_HEX, NULL, 1, MSK_NORMAL},
-	{"ascii", "Set WEP Encryption Key in ASCII digits", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_ASCII, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
-};
-
-cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_ENCRYPT[] = {
-	{"64Bit", "Set 64Bit WEP Encryption (in HEX - 10 digits / in ASCII - 5 digits)", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_TYPE, NULL, 1, MSK_NORMAL},
-	{"128Bit", "Set 128Bit WEP Encryption (in HEX - 26 digits / in ASCII - 13 digits)", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_TYPE, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
+	{"hex", "Set WEP Encryption Key in HEX digits", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_HEX_ENCRYPT, NULL, 1, MSK_NORMAL},
+	{"ascii", "Set WEP Encryption Key in ASCII digits", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_STRING_ASCII_ENCRYPT, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_AUTH[] = {
-	{"open", "Set Open WEP Authentication Type", NULL, NULL, 1, MSK_NORMAL},
-	{"shared_key", "Set Shared Key WEP Authentication Type", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_ENCRYPT, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
+	{"open", "Set Open WEP Authentication Type", NULL, apmanager_security_mode_set, 1, MSK_NORMAL},
+	{"shared", "Set Shared Key WEP Authentication Type", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_KEY_TYPE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP_PSK_KEY[] = {
+	{"<hexstring>", "HEX Digits Key - (64 HEX Digits)", NULL, apmanager_security_mode_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP_PHRASE_KEY[] = {
+	{"<text>", "ASCII Phrase Key - (8~63 Characters)", NULL, apmanager_security_mode_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP[] = {
+	{"psk", "Set WPA PSK Key Type", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP_PSK_KEY, NULL, 1, MSK_NORMAL},
+	{"phrase", "Set WPA Phrase Key Type", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP_PHRASE_KEY, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE[] = {
 	{"wep", "Enable WEP Wireless Security", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WEP_AUTH, NULL, 1, MSK_NORMAL},
-//	{"wpa", "Enable WAP Wireless Security", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP, NULL, 1, MSK_NORMAL},
-//	{"wpa2", "Enable WAP2 Wireless Security", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP2, NULL, 1, MSK_NORMAL},
-//	{"wpa/wap2", "Enable WAP/WAP2 Wireless Security", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP/WAP2, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL}
+	{"wpa", "Enable WAP Wireless Security", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP, NULL, 1, MSK_NORMAL},
+	{"wpa2", "Enable WAP2 Wireless Security", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP, NULL, 1, MSK_NORMAL},
+	{"wpa/wpa2", "Enable WAP/WAP2 Wireless Security", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE_WAP, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SSID_SET[] = {
-	{"<text>", "SSID Name - (8-63 Characters)", NULL, apmanager_ssid_set, 1, MSK_NORMAL},
+	{"<text>", "SSID Name - (8~63 Characters)", NULL, apmanager_ssid_set, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_CHANNEL_SET[] = {
-	{"1-13", "Wifi Channel - (Range: 1-13)", NULL, apmanager_channel_set, 1, MSK_NORMAL},
+	{"1-13", "Wifi Channel - (Range: 1~13)", NULL, apmanager_channel_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_HW_MODE_SET[] = {
+#ifdef NOT_YET_IMPLEMENTED
+	{"a", "802.11a Mode", NULL, apmanager_hw_mode_set, 1, MSK_NORMAL},
+#endif
+	{"b", "802.11b Mode", NULL, apmanager_hw_mode_set, 1, MSK_NORMAL},
+	{"g", "802.11g Mode", NULL, apmanager_hw_mode_set, 1, MSK_NORMAL},
+	{"n", "802.11n Mode", NULL, apmanager_hw_mode_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_MAX_NUM_STA_SET[] = {
+	{"1-1500", "Number of Connected Station through WIFI - (Range: 1~1500, Default:255)", NULL, apmanager_max_num_station_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_BEACON_INTR_SET[] = {
+	{"20-1000", "Beacon Interval Value - (msec, Range:20~1000, Default:100)", NULL, apmanager_beacon_interval_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_RTS_THRESHOLD_SET[] = {
+	{"256-2346", "RTS Threshold Value - (Range: 256~2346, Default:2346)", NULL, apmanager_rts_threshold_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_FRAGM_THRESHOLD_SET[] = {
+	{"1500-2346", "Fragmentation Threshold Value - (Range: 1500~2346, Default:2346)", NULL, apmanager_fragmentation_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_DTIM_INTR_SET[] = {
+	{"1-255", "DTIM Interval Value - (Range: 1~255, Default:1)", NULL, apmanager_dtim_interval_set, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_PREAMBLE_TYPE_SET[] = {
+	{"long", "Long Preamble Type - (Default)", NULL, apmanager_preamble_type_set, 1, MSK_NORMAL},
+	{"short", "Short Preamble Type", NULL, apmanager_preamble_type_set, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER[] = {
 	{"ssid", "Set SSID - Wireless Network Name", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SSID_SET, NULL, 1, MSK_NORMAL},
-	{"ssid_broadcast", "Enable SSID Brodcast", NULL, apmanager_ssid_broadcast_set, 1, MSK_NORMAL},
+	{"ssid-broadcast", "Enable SSID Brodcast", NULL, apmanager_ssid_broadcast_set, 1, MSK_NORMAL},
 	{"channel", "Set Wireless Channel", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_CHANNEL_SET, NULL, 1, MSK_NORMAL},
-	{"hw_mode", "Set Wireless Mode", NULL, NULL, 1, MSK_NORMAL},
-	{"max_num_station", "Set Maximum Number of Stations Connected", NULL, NULL, 1, MSK_NORMAL},
-	{"beacon_interval", "Set Beacon Interval - (msec, range:20~1000, default:100)", NULL, NULL, 1, MSK_NORMAL},
-	{"rts_threshold", "Set RTS Threshold - (range: 256~2346, default:2346)", NULL, NULL, 1, MSK_NORMAL},
-	{"fragmentation", "Set Fragmentation Threshold - (range: 1500~2346, default:2346)", NULL, NULL, 1, MSK_NORMAL},
-	{"dtim_interval", "Set DTIM Interval - (range: 1~255, default:1)", NULL, NULL, 1, MSK_NORMAL},
-	{"preamble_type","Set Preamble Type", NULL, NULL, 1, MSK_NORMAL},
+	{"hw-mode", "Set Wireless Mode", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_HW_MODE_SET, NULL, 1, MSK_NORMAL},
+	{"max-num-station", "Set Maximum Number of Stations Connected", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_MAX_NUM_STA_SET, NULL, 1, MSK_NORMAL},
+	{"beacon-interval", "Set Beacon Interval", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_BEACON_INTR_SET, NULL, 1, MSK_NORMAL},
+	{"rts-threshold", "Set RTS Threshold", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_RTS_THRESHOLD_SET, NULL, 1, MSK_NORMAL},
+	{"fragmentation", "Set Fragmentation Threshold", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_FRAGM_THRESHOLD_SET, NULL, 1, MSK_NORMAL},
+	{"dtim-interval", "Set DTIM Interval", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_DTIM_INTR_SET, NULL, 1, MSK_NORMAL},
+	{"preamble-type","Set Preamble Type", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_PREAMBLE_TYPE_SET, NULL, 1, MSK_NORMAL},
 #ifdef NOT_YET_IMPLEMENTED
 	{"wmm","Enable WMM Function", NULL, NULL, 1, MSK_NORMAL},
 #endif
-	{"security_mode", "Configure Security Mode Parameters", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE, NULL, 1, MSK_NORMAL},
+	{"security-mode", "Configure Security Mode Parameters", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_SECURITY_MODE, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse a setting", CMD_CONFIG_INTERFACE_WLAN_APMANAGER_NO, NULL, 1, MSK_NORMAL},
 	{"exit", "Exit from Access Point configuration mode", NULL, config_interface_wlan_ap_manager_done, 1, MSK_NORMAL},
 	{"help","Description of the interactive help system", NULL, help, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
+cish_command CMD_CONFIG_INTERFACE_WLAN_IP1[] = {
+	{"<ipaddress>", "IP Address", CMD_CONFIG_INTERFACE_ETHERNET_IP2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
 
+cish_command CMD_CONFIG_INTERFACE_WLAN_IP[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "IP Address and Netmask", CMD_CONFIG_INTERFACE_WLAN_IP1, NULL, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_QOS
+	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#endif
+#ifdef OPTION_NAT
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NAT, NULL, 1, MSK_NORMAL},
+#endif
+	{NULL,NULL,NULL,NULL}
+};
+
+cish_command CMD_CONFIG_INTERFACE_WLAN_NO_IP[] = {
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_FIREWALL
+	{"access-group", "Specify access control for packets", CMD_CONFIG_INTERFACE_NO_ACL, NULL, 1, MSK_NORMAL},
+#endif
+#endif
+	{"address", "Unset local address", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP1, interface_ethernet_no_ipaddr, 1, MSK_NORMAL},
+#ifdef NOT_YET_IMPLEMENTED
+#ifdef OPTION_QOS
+	{"mark", "Specify MARK rule for packets", CMD_CONFIG_INTERFACE_NO_MANGLE, NULL, 1, MSK_QOS},
+#endif
+#endif
+#ifdef OPTION_NAT
+	{"nat", "Specify NAT rule for packets", CMD_CONFIG_INTERFACE_NO_NAT, NULL, 1, MSK_NORMAL},
+#endif
+	{NULL,NULL,NULL,NULL, 0}
+};
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_NO[] = {
 #ifdef OPTION_BRIDGE
@@ -2005,10 +2108,8 @@ cish_command CMD_CONFIG_INTERFACE_WLAN_NO[] = {
 #ifdef NOT_YET_IMPLEMENTED
 	{"description", "Interface specific description", NULL, interface_no_description, 1, MSK_NORMAL},
 #endif
-	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IP, NULL, 1, MSK_NORMAL},
-#ifdef NOT_YET_IMPLEMENTED
+	{"ip", "Unset IP parameters", CMD_CONFIG_INTERFACE_WLAN_NO_IP, NULL, 1, MSK_NORMAL},
 	{"ipv6", "Unset IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_NO_IPV6, NULL, 1, MSK_IPV6},
-#endif
 #ifdef OPTION_QOS
 	{"service-policy", "Configure QoS Service Policy", NULL, no_service_policy, 1, MSK_QOS},
 #endif
@@ -2027,13 +2128,9 @@ cish_command CMD_CONFIG_INTERFACE_WLAN[] = {
 #ifdef NOT_YET_IMPLEMENTED
 	{"description", "Interface specific description", CMD_CONFIG_INTERFACE_DESCRIPTION, NULL, 1, MSK_NORMAL},
 #endif
-	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_ETHERNET_IP, NULL, 1, MSK_NORMAL},
-#ifdef NOT_YET_IMPLEMENTED
+	{"ip", "Set IP parameters", CMD_CONFIG_INTERFACE_WLAN_IP, NULL, 1, MSK_NORMAL},
 	{"ipv6", "Set IPv6 parameters", CMD_CONFIG_INTERFACE_ETHERNET_IPV6, NULL, 1, MSK_IPV6},
-#endif
-#ifdef NOT_YET_IMPLEMENTED
 	{"mtu", "Set interface mtu", CMD_CONFIG_INTERFACE_ETHERNET_MTU, NULL, 1, MSK_NORMAL},
-#endif
 #ifdef OPTION_QOS
 	{"max-reserved-bandwidth","Maximum Reservable Bandwidth on an Interface", CMD_CONFIG_INTERFACE_MAXBW, NULL, 1, MSK_QOS},
 	{"service-policy", "Configure QoS Service Policy", CMD_CONFIG_SERV_POLICY, NULL, 1, MSK_QOS},

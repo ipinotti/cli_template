@@ -1310,6 +1310,24 @@ cish_command *expand_token(const char *unexpanded, cish_command *queue, int iter
 						return &CEXT;
 					}
 				}
+			} else if (strcmp(queue[idx_inqueue].name, "<hexstring>") == 0) {
+				int len;
+
+				if ((len = strlen(unexpanded))) {
+					int i;
+
+					for (i = 0; unexpanded[i]; i++) {
+						if (!isxdigit(unexpanded[i]))
+							break;
+					}
+					if (i == len && iteration < 1) {
+						strncpy(EXTCMD, unexpanded, len);
+						EXTCMD[1023] = 0;
+						CEXT.func = queue[idx_inqueue].func;
+						CEXT.children = queue[idx_inqueue].children;
+						return &CEXT;
+					}
+				}
 			} else if (strcmp(queue[idx_inqueue].name, "<bandwidth>") == 0) {
 				int i, factor = 0, per = 0;
 				char *endptr;
