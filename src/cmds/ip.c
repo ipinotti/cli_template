@@ -335,6 +335,44 @@ cish_command CMD_IP_DHCP_NETWORK[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_BRIDGE
+cish_command CMD_IP_DHCP_SERVER_IFACE_BRIDGE[] = {
+	{"0-15", "Bridge-group number", NULL, dhcp_server_iface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+#ifdef OPTION_WIFI
+cish_command CMD_IP_DHCP_SERVER_IFACE_WLAN_[] = {
+	{CLI_STRING_WLAN_IFACES, "Wireless Lan interface number", NULL, dhcp_server_iface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+#ifdef OPTION_EFM
+cish_command CMD_IP_DHCP_SERVER_IFACE_EFM[] = {
+	{CLI_STRING_EFM_IFACES, "EFM interface number", NULL, dhcp_server_iface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+cish_command CMD_IP_DHCP_SERVER_IFACE_ETH[] = {
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, dhcp_server_iface, 0, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IP_DHCP_SERVER_IFACE[] = {
+	{"bridge", "All interfaces enslaved by a bridge-group", CMD_IP_DHCP_SERVER_IFACE_BRIDGE, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_EFM
+	{"efm", "Ethernet-First-Mile interface", CMD_IP_DHCP_SERVER_IFACE_EFM, NULL, 1, MSK_NORMAL},
+#endif
+	{"ethernet", "Ethernet interface", CMD_IP_DHCP_SERVER_IFACE_ETH, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_WIFI
+	{"wlan", "Wireless Lan interface", CMD_IP_DHCP_SERVER_IFACE_WLAN_, NULL, 1, MSK_NORMAL},
+#endif
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_IP_DHCP_SERVER_NO[] = {
 	{"default-lease-time", "Delete default lease time", NULL, dhcp_server_leasetime, 1, MSK_NORMAL},
 	{"domain-name", "Delete current domain name for the client", NULL, dhcp_server_domainname, 1, MSK_NORMAL},
@@ -359,6 +397,7 @@ cish_command CMD_IP_DHCP_SERVER[] = {
 	{"dns-server", "Specify the IP address of a DNS server", CMD_IP_DHCP_SERVER_DNS, NULL, 1, MSK_NORMAL},
 	{"enable", "Enable DHCP Server", NULL, dhcp_server_enable, 1, MSK_NORMAL},
 	{"exit","Exit this menu", NULL, dhcp_server_exit, 0, MSK_NORMAL},
+	{"interface", "Select interface to serve DHCP (default: ethernet 0)", CMD_IP_DHCP_SERVER_IFACE, NULL, 1, MSK_NORMAL},
 	{"max-lease-time", "Specify maximum lease time", CMD_IP_DHCP_SERVER_LEASETIME, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_DHCP_NETBIOS
 	{"netbios-name-server", "Specify the IP address of the NetBIOS name server WINS (NBNS)",

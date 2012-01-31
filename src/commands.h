@@ -233,6 +233,7 @@ void dhcp_server_pool(const char *cmd);
 void dhcp_server_dns(const char *cmd);
 void dhcp_server_leasetime(const char *cmd);
 void dhcp_server_domainname(const char *cmd);
+void dhcp_server_iface(const char *cmd);
 void dhcp_server_nbns(const char *cmd);
 void dhcp_server_nbdd(const char *cmd);
 void dhcp_server_nbnt(const char *cmd);

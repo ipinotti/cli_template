@@ -319,6 +319,36 @@ void dhcp_server_domainname(const char *cmd)
 	free(args);
 }
 
+void dhcp_server_iface(const char *cmd)
+{
+	arglist *args;
+	char *dev;
+
+	args = librouter_make_args(librouter_device_to_linux_cmdline((char *)cmd));
+	if (!strcmp(args->argv[0],"no"))
+		dev = NULL;
+	else
+		dev = args->argv[1];
+
+	/* Special case: if bridge, check if it exists on system */
+	if (strstr(dev, "bridge")) {
+		if (!librouter_br_exists(dev)) {
+			printf("%% %s must be created first\n", dev);
+			free(args);
+			return;
+		}
+	}
+
+	/* All OK, add to file */
+	if (librouter_dhcp_server_set_iface(dev) < 0)
+		printf("%% Could not set Domain Name\n");
+
+	if (librouter_dhcp_get_status() == DHCP_SERVER)
+		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+
+	free(args);
+}
+
 #ifdef OPTION_DHCP_NETBIOS
 void dhcp_server_nbns(const char *cmd)
 {
