@@ -111,30 +111,30 @@ int get_procip_val(const char *);
 #ifdef OPTION_ROUTER
 #ifdef OPTION_PIMD
 	else if (strncmp(cmd, "ip multicast-routing", 20) == 0) {
-		dst_file = "/proc/sys/net/ipv4/conf/all/mc_forwarding";
+		dst_file = "/proc/sys/net/ipv6/conf/all/mc_forwarding";
 		dst_val = 0;
 	}
 #endif
 	else if (strncmp(cmd, "ip pmtu-discovery", 17) == 0) {
-		dst_file = "/proc/sys/net/ipv4/ip_no_pmtu_disc";
+		dst_file = "/proc/sys/net/ipv6/ip_no_pmtu_disc";
 		dst_val = 1;
 	} else if (strncmp(cmd, "ip icmp ignore all", 18) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_all";
+		dst_file = "/proc/sys/net/ipv6/icmp_echo_ignore_all";
 		dst_val = 0;
 	} else if (strncmp(cmd, "ip icmp ignore broadcast", 24) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts";
+		dst_file = "/proc/sys/net/ipv6/icmp_echo_ignore_broadcasts";
 		dst_val = 0;
 	} else if (strncmp(cmd, "ip icmp ignore bogus", 20) == 0) {
-		dst_file = "/proc/sys/net/ipv4/icmp_ignore_bogus_error_responses";
+		dst_file = "/proc/sys/net/ipv6/icmp_ignore_bogus_error_responses";
 		dst_val = 0;
 	} else if (strncmp(cmd, "ip tcp ecn", 10) == 0) {
-		dst_file = "/proc/sys/net/ipv4/tcp_ecn";
+		dst_file = "/proc/sys/net/ipv6/tcp_ecn";
 		dst_val = 0;
 	} else if (strncmp(cmd, "ip tcp syncookies", 17) == 0) {
-		dst_file = "/proc/sys/net/ipv4/tcp_syncookies";
+		dst_file = "/proc/sys/net/ipv6/tcp_syncookies";
 		dst_val = 0;
 	} else if (strncmp(cmd, "ip rp-filter", 12) == 0) {
-		dst_file = "/proc/sys/net/ipv4/conf/all/rp_filter";
+		dst_file = "/proc/sys/net/ipv6/conf/all/rp_filter";
 		dst_val = 0;
 	}
 
@@ -516,7 +516,7 @@ void ip_nat_ftp(const char *cmd) /* [no] ip nat helper ftp [ports <ports>] */
 		system(buf);
 		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
-		strcpy(router_cfg->nat_helper_ftp_ports, "21"); /* netfilter_ipv4/ip_conntrack_ftp.h:#define FTP_PORT      21 */
+		strcpy(router_cfg->nat_helper_ftp_ports, "21"); /* netfilter_ipv6/ip_conntrack_ftp.h:#define FTP_PORT      21 */
 	}
 	librouter_destroy_args(args);
 }
@@ -551,7 +551,7 @@ void ip_nat_irc(const char *cmd) /* [no] ip nat helper irc [ports <ports>] */
 		system(buf);
 		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
-		strcpy(router_cfg->nat_helper_irc_ports, "6667"); /* netfilter_ipv4/ip_conntrack_irc.h:#define IRC_PORT      6667 */
+		strcpy(router_cfg->nat_helper_irc_ports, "6667"); /* netfilter_ipv6/ip_conntrack_irc.h:#define IRC_PORT      6667 */
 	}
 	librouter_destroy_args(args);
 }
@@ -586,7 +586,7 @@ void ip_nat_tftp(const char *cmd) /* [no] ip nat helper tftp [ports <ports>] */
 		system(buf);
 		snprintf(buf, 127, "modprobe ip_nat_%s >/dev/null 2>/dev/null", args->argv[3]);
 		system(buf);
-		strcpy(router_cfg->nat_helper_tftp_ports, "69"); /* netfilter_ipv4/ip_conntrack_tftp.h:#define TFTP_PORT 69 */
+		strcpy(router_cfg->nat_helper_tftp_ports, "69"); /* netfilter_ipv6/ip_conntrack_tftp.h:#define TFTP_PORT 69 */
 	}
 	librouter_destroy_args(args);
 }
