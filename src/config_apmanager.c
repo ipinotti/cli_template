@@ -298,6 +298,11 @@ static int security_wep_set(arglist * args)
 		}
 	}
 
+	if (!strcmp(args->argv[3], "hex"))
+		security.wep_key_type = key_hex;
+	else
+		security.wep_key_type = key_ascii;
+
 	security.wep_auth = shared;
 	strcpy(security.wep_key, args->argv[5]);
 
