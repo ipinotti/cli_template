@@ -51,6 +51,14 @@ cish_command CMD_SHOW_INTERFACE_PPPOE[] = {
 };
 #endif
 
+#ifdef OPTION_WIFI
+cish_command CMD_SHOW_INTERFACE_WLAN[] = {
+        {CLI_STRING_WLAN_IFACES, "Wireless Lan interface number", NULL, show_interfaces, 0, MSK_NORMAL},
+        {NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
+
 cish_command CMD_SHOW_INTERFACES[] = {
 #ifdef OPTION_EFM
 	{"efm", "EFM interface", CMD_SHOW_INTERFACE_EFM, NULL, 0, MSK_NORMAL},
@@ -68,6 +76,9 @@ cish_command CMD_SHOW_INTERFACES[] = {
 #endif
 #ifdef OPTION_PPPOE
 	{"pppoe", "PPPoE interface", CMD_SHOW_INTERFACE_PPPOE, NULL, 0, MSK_NORMAL},
+#endif
+#ifdef OPTION_WIFI
+	{"wlan", "Wiless Lan interface", CMD_SHOW_INTERFACE_WLAN, NULL, 0, MSK_NORMAL},
 #endif
 	{"<enter>", "", NULL, show_interfaces, 0, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
