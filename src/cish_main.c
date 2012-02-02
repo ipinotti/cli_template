@@ -344,6 +344,11 @@ int main(int argc, char *argv[])
 			_cish_loggedin = 1;
 			_cish_enable = 2; /* Enable special commands! */
 			_cish_booting = 1;
+
+			/* No errors printed here! */
+			close(1);
+			close(2);
+
 			config_file(bootfile); /* Apply configuration */
 
 			librouter_config_munmap_cfg(router_cfg);
