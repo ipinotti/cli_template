@@ -1075,11 +1075,11 @@ void dump_interfaces(FILE *out, int conf_format, char *intf)
 		case ARPHRD_PPP:
 #ifdef OPTION_PPTP
 			if (strstr(cish_dev, "Pptp"))
-			__dump_ppp_pptp_status(out, &conf);
+				__dump_ppp_pptp_status(out, &conf);
 #endif
 #ifdef OPTION_PPPOE
 			if (strstr(cish_dev, "Pppoe"))
-			__dump_ppp_pppoe_status(out, &conf);
+				__dump_ppp_pppoe_status(out, &conf);
 #endif
 #ifdef OPTION_MODEM3G
 			if (strstr(cish_dev, "M3G"))
@@ -2033,17 +2033,21 @@ void show_dumpleases(const char *cmdline)
 	char filename[64];
 	FILE *tf;
 
-	for (i = 0; i < MAX_LAN_INTF; i++) {
-		if (librouter_udhcpd_kick_by_eth(i) == 0) {
-			sprintf(filename, FILE_DHCPDLEASES, i);
-			tf = fopen(filename, "r");
+	for (i = 0; i < MAX_DHCP_SERVER_INSTANCES; i++) {
+		if (librouter_dhcp_reload_leases_file() == 0) {
+			tf = fopen(FILE_DHCPDLEASES, "r");
 			if (!tf)
 				continue;
 			fclose(tf);
-			sprintf(filename, "/bin/dumpleases -f "FILE_DHCPDLEASES, i);
+			sprintf(filename, "/bin/dumpleases -f "FILE_DHCPDLEASES);
 			tf = popen(filename, "r");
 			if (tf) {
-				pprintf("interface ethernet%d\n", i);
+				char *dev = NULL;
+				librouter_dhcp_server_get_iface(&dev);
+				if (dev) {
+					pprintf("interface %s\n", dev);
+					free(dev);
+				}
 				show_output(tf);
 				pclose(tf);
 			}

@@ -122,15 +122,16 @@ void ip_param(const char *cmd)
 	}
 
 	if (!dst_file) {
-		printf("%% Error! No such file!\n");
+		printf("%% Error! No such file\n");
 		return;
 	}
 
 	F = fopen(dst_file, "w");
 	if (!F) {
-		printf("%% Error opening %s\n", dst_file);
+		printf("%% Not possible to set this parameter now\n");
 		return;
 	}
+
 	fprintf(F, "%d", dst_val);
 	fclose(F);
 }
@@ -258,7 +259,7 @@ void dhcp_server_dns(const char *cmd)
 		printf("%% Could not set DNS server\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 	free(args);
 }
 
@@ -294,7 +295,7 @@ void dhcp_server_leasetime(const char *cmd)
 	}
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
@@ -314,7 +315,7 @@ void dhcp_server_domainname(const char *cmd)
 		printf("%% Could not set Domain Name\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
@@ -344,7 +345,7 @@ void dhcp_server_iface(const char *cmd)
 		printf("%% Could not set Domain Name\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
@@ -365,7 +366,7 @@ void dhcp_server_nbns(const char *cmd)
 		printf("%% Could not set NetBIOS Name Server\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
@@ -386,7 +387,7 @@ void dhcp_server_nbdd(const char *cmd)
 		printf("%% Could not set NetBIOS Datagram Distribution server\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
@@ -424,7 +425,7 @@ void dhcp_server_nbnt(const char *cmd)
 		printf("%% Could not set NetBIOS node type\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
@@ -446,7 +447,7 @@ void dhcp_server_default_router(const char *cmd)
 		printf("%% Could not set default router\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
@@ -465,7 +466,7 @@ void dhcp_server_pool(const char *cmd)
 		printf("%% Could not set pool\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
@@ -484,7 +485,7 @@ void dhcp_server_network(const char *cmd)
 		printf("%% Could not set network\n");
 
 	if (librouter_dhcp_get_status() == DHCP_SERVER)
-		librouter_dhcpd_set_status(1, INTF_DHCP_SERVER_DEFAULT);
+		librouter_dhcp_server_set_status(1);
 
 	free(args);
 }
