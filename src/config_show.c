@@ -804,10 +804,6 @@ static int wifi_hw_mode_get(char * hw_mode_string, int size_mode)
 
 static void __dump_wlan_status(FILE *out, struct interface_conf *conf)
 {
-#if 0
-	struct lan_status st;
-	int phy_status;
-#endif
 	int wifi_channel = 0;
 	char ssid[64], hw_mode_string[10];
 	memset(ssid, 0, sizeof(ssid));
@@ -827,33 +823,6 @@ static void __dump_wlan_status(FILE *out, struct interface_conf *conf)
 
 	fprintf(out, "  Wireless Network Name (SSID) is %s\n", ssid);
 	fprintf(out, "  Wireless Operation Mode is %s, at Channel %d\n", hw_mode_string, wifi_channel);
-
-#if 0
-	phy_status = librouter_lan_get_status(conf->name, &st);
-
-		if (phy_status < 0) {
-			fprintf(out, "Could not fetch %s status\n", conf->name);
-			return;
-		}
-
-		if (conf->running) {
-
-			if (st.autoneg)
-				fprintf(out, "  Auto-sense");
-			else
-				fprintf(out, "  Forced");
-
-			fprintf(out, " %dMbps, ", st.speed);
-
-			if (st.duplex)
-				fprintf(out, " Full-Duplex");
-			else
-				fprintf(out, " Half-Duplex");
-
-			fprintf(out, "\n");
-		}
-#endif
-
 }
 #endif /* OPTION WIFI */
 
