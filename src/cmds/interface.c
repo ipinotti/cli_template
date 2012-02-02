@@ -2019,7 +2019,7 @@ cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_BEACON_INTR_SET[] = {
 };
 
 cish_command CMD_CONFIG_INTERFACE_WLAN_APMANAGER_RTS_THRESHOLD_SET[] = {
-	{"256-2346", "RTS Threshold Value - (Range: 256~2346, Default:2346)", NULL, apmanager_rts_threshold_set, 1, MSK_NORMAL},
+	{"256-2347", "RTS Threshold Value - (Range: 256~2347, Default:2347)", NULL, apmanager_rts_threshold_set, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };
 
