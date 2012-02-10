@@ -50,7 +50,11 @@ void interface_no_vrrp(const char *cmd) /* no vrrp <1-255> <option> <...> */
 		} else if (strcmp(args->argv[3], "description") == 0) { /* description */
 			librouter_vrrp_option_description(dev, group, NULL);
 		} else if (strcmp(args->argv[3], "ip") == 0) { /* ip [<ipaddress>] */
-			librouter_vrrp_option_ip(dev, group, 0, args->argc == 5 ? args->argv[4] : NULL, args->argc == 5);
+			librouter_vrrp_option_ip(dev, group, 0, args->argc == 5 ? args->argv[4] : NULL,
+			                args->argc == 5);
+		} else if (strcmp(args->argv[3], "ipv6") == 0) { /* ipv6 [<ipaddress>] */
+			librouter_vrrp_option_ipv6(dev, group, 0, args->argc == 5 ? args->argv[4] : NULL,
+			                args->argc == 5);
 		} else if (strcmp(args->argv[3], "preempt") == 0) {
 			librouter_vrrp_option_preempt(dev, group, 0, 0);
 		} else if (strcmp(args->argv[3], "priority") == 0) { /* priority */
@@ -89,6 +93,11 @@ void interface_vrrp(const char *cmd) /* vrrp <1-255> <option> <...> */
 			librouter_vrrp_option_ip(dev, group, 1, args->argv[3], 1);
 		} else
 			librouter_vrrp_option_ip(dev, group, 1, args->argv[3], 0);
+	} else if (strcmp(args->argv[2], "ipv6") == 0) { /* ipv6 <ipaddress> [secondary] */
+		if (args->argc == 5 && strcmp(args->argv[4], "secondary") == 0) {
+			librouter_vrrp_option_ipv6(dev, group, 1, args->argv[3], 1);
+		} else
+			librouter_vrrp_option_ipv6(dev, group, 1, args->argv[3], 0);
 	} else if (strcmp(args->argv[2], "preempt") == 0) { /* preempt delay minimum <0-1000> */
 		librouter_vrrp_option_preempt(dev, group, 1, args->argc == 6 ? atoi(args->argv[5]) : 0);
 	} else if (strcmp(args->argv[2], "priority") == 0) { /* priority <1-254> */
@@ -96,7 +105,7 @@ void interface_vrrp(const char *cmd) /* vrrp <1-255> <option> <...> */
 	} else if (strcmp(args->argv[2], "timers") == 0) { /* timers advertise <1-255> */
 		librouter_vrrp_option_advertise_delay(dev, group, atoi(args->argv[4]));
 	} else if (strcmp(args->argv[2], "track-interface") == 0) { /* timers advertise <1-255> */
-		arglist *nargs = librouter_make_args(librouter_device_to_linux_cmdline((char *)cmd)); /* vrrp <group> track-interface <interface>*/
+		arglist *nargs = librouter_make_args(librouter_device_to_linux_cmdline((char *) cmd)); /* vrrp <group> track-interface <interface>*/
 		librouter_vrrp_option_track_interface(dev, group, nargs->argv[3]);
 	}
 

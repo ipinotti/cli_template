@@ -5,8 +5,14 @@
 #include "commandtree.h"
 
 #ifdef OPTION_VRRP
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_IP6[] = {
+	{"<ipv6address>", "Virtual IPv6 address", NULL, interface_no_vrrp, 1, MSK_VRRP},
+	{"<enter>", "", NULL, NULL, 1, MSK_VRRP},
+	{NULL,NULL,NULL,NULL}
+};
+
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_IP[] = {
-	{"<ipaddress>", "VRRP group IP address", NULL, interface_no_vrrp, 1, MSK_VRRP},
+	{"<ipaddress>", "Virtual IP address", NULL, interface_no_vrrp, 1, MSK_VRRP},
 	{"<enter>", "", NULL, NULL, 1, MSK_VRRP},
 	{NULL,NULL,NULL,NULL}
 };
@@ -19,7 +25,8 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_TIMERS[] = {
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_OPTIONS[] = {
 	{"authentication", "Clear authentication string", NULL, interface_no_vrrp, 1, MSK_VRRP},
 	{"description", "Clear Group specific description", NULL, interface_no_vrrp, 1, MSK_VRRP},
-	{"ip", "Disable Virtual Router Redundancy Protocol (VRRP) for IP", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_IP, interface_no_vrrp, 1, MSK_VRRP},
+	{"ip", "Disable VRRP for IP", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_IP, interface_no_vrrp, 1, MSK_VRRP},
+	{"ipv6", "Disable VRRP for IPv6", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_IP6, interface_no_vrrp, 1, MSK_VRRP},
 	{"preempt", "Disable preemption of lower priority Master", NULL, interface_no_vrrp, 1, MSK_VRRP},
 	{"priority", "Unset priority of this VRRP group", NULL, interface_no_vrrp, 1, MSK_VRRP},
  	{"timers", "Unset the VRRP timers", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP_TIMERS, NULL, 1, MSK_VRRP},
@@ -56,6 +63,11 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_IP_SECONDARY[] = {
 
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_IP[] = {
 	{"<ipaddress>", "VRRP group IP address", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_IP_SECONDARY, interface_vrrp, 1, MSK_VRRP},
+	{NULL,NULL,NULL,NULL}
+};
+
+cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_IP6[] = {
+	{"<ipv6address>", "VRRP group IPv6 address", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_IP_SECONDARY, interface_vrrp, 1, MSK_VRRP},
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -114,7 +126,8 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_TRACK[] = {
 cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_OPTIONS[] = {
 	{"authentication", "Authentication string", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_AUTH, NULL, 1, MSK_VRRP},
 	{"description", "Group specific description", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_DESC, NULL, 1, MSK_VRRP},
-	{"ip", "Enable Virtual Router Redundancy Protocol (VRRP) for IP", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_IP, NULL, 1, MSK_VRRP},
+	{"ip", "Enable VRRP for IP", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_IP, NULL, 1, MSK_VRRP},
+	{"ipv6", "Enable VRRP for IPv6", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_IP6, NULL, 1, MSK_VRRP},
 	{"preempt", "Enable preemption of lower priority Master", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_PREEMPT, interface_vrrp, 1, MSK_VRRP},
 	{"priority", "Priority of this VRRP group", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_PRIO, NULL, 1, MSK_VRRP},
  	{"timers", "Set the VRRP timers", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_TIMERS, NULL, 1, MSK_VRRP},
