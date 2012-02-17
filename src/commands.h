@@ -405,6 +405,8 @@ void bridge_setprio(const char *cmd);
 void bridge_nostp(const char *cmd);
 void bridge_stp(const char *cmd);
 void bridge_setproto(const char *cmd);
+void bridge_set_ipv4_addr(const char *cmd);
+void bridge_set_no_ipv4_addr(const char *cmd);
 void bridge_no(const char *cmd);
 void dump_bridge(FILE *F);
 void bridge_show(const char *cmd);

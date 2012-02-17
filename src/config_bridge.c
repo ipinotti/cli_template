@@ -134,10 +134,45 @@ void bridge_setproto(const char *cmd) /* bridge 1 protocol ieee */
 
 	strcpy(brname, BRIDGE_NAME);
 	strcat(brname, args->argv[1]);
+
 	if (!librouter_br_exists(brname)) {
 		librouter_br_addbr(brname);
 		librouter_dev_set_link_up(brname);
 	}
+
+	librouter_destroy_args(args);
+}
+
+void bridge_set_no_ipv4_addr(const char *cmd)
+{
+	arglist *args;
+	char brname[32];
+
+	args = librouter_make_args(cmd);
+
+	strcpy(brname, BRIDGE_NAME);
+	strcat(brname, args->argv[2]);
+
+	librouter_ip_interface_set_no_addr(brname);
+
+	librouter_destroy_args(args);
+}
+
+
+void bridge_set_ipv4_addr(const char *cmd)
+{
+	arglist *args;
+	char brname[32];
+	char *addr, *mask;
+
+	args = librouter_make_args(cmd);
+
+	strcpy(brname, BRIDGE_NAME);
+	strcat(brname, args->argv[1]);
+	addr = args->argv[3];
+	mask = args->argv[4];
+
+	librouter_ip_interface_set_addr(brname, addr, mask);
 
 	librouter_destroy_args(args);
 }

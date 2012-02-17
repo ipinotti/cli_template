@@ -47,10 +47,21 @@ cish_command CMD_CONFIG_BRIDGE_PROTO[] = {
 	{NULL,NULL,NULL,NULL,0}
 };
 
+cish_command CMD_CONFIG_BRIDGE_IPV4_MASK[] = {
+	{"<netmask>", "IPv4 address mask", NULL, bridge_set_ipv4_addr, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
+cish_command CMD_CONFIG_BRIDGE_IPV4_ADDRESS[] = {
+	{"<ipaddress>", "IPv4 address", CMD_CONFIG_BRIDGE_IPV4_MASK, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL,0}
+};
+
 cish_command CMD_CONFIG_BRIDGE2[] = {
 	{"aging-time", "Set forwarding entry aging time", CMD_CONFIG_BRIDGE_AGING, NULL, 1, MSK_NORMAL},
 	{"forward-time", "Set forwarding delay time", CMD_CONFIG_BRIDGE_FD, NULL, 1, MSK_NORMAL},
 	{"hello-time", "Set interval between HELLOs", CMD_CONFIG_BRIDGE_HELLO, NULL, 1, MSK_NORMAL},
+	{"ip-address", "Set bridge IPv4 address", CMD_CONFIG_BRIDGE_IPV4_ADDRESS, NULL, 1, MSK_NORMAL},
 	{"max-age", "Maximum allowed message age of received Hello BPDUs", CMD_CONFIG_BRIDGE_MAXAGE, NULL, 1, MSK_NORMAL},
 	{"priority", "Set bridge priority", CMD_CONFIG_BRIDGE_PRIO, NULL, 1, MSK_NORMAL},
 	{"protocol", "Specify spanning tree protocol", CMD_CONFIG_BRIDGE_PROTO, NULL, 1, MSK_NORMAL},
@@ -65,6 +76,7 @@ cish_command CMD_CONFIG_BRIDGE[] = {
 
 cish_command CMD_CONFIG_NO_BRIDGE2[] = {
 	{"spanning-disabled", "Enable spanning tree", NULL, bridge_stp, 1, MSK_NORMAL},
+	{"ip-address", "Remove bridge IPv4 address", NULL, bridge_set_no_ipv4_addr, 1, MSK_NORMAL},
 	{"<enter>", "", NULL, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL,0}
 };

@@ -573,18 +573,18 @@ static void __dump_intf_ipaddr_v6_status(FILE *out, struct interfacev6_conf *con
 #ifdef OPTION_IPV6
 	int i;
 	struct ipv6_t *ipv6 = &conf->main_ip[0];
-	char *dev = librouter_ip_ethernet_get_dev(conf->name); /* ethernet enslaved by bridge? */
-	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
-	if (!strcmp(conf->name, dev)) {
-		for (i = 0; i < MAX_NUM_IPS; i++, ipv6++) {
-			if (ipv6->ipv6addr[0] == 0)
-				break;
 
-			fprintf(out, "  Internet 6 address is %s/%s | Scope: %s\n", ipv6->ipv6addr,
-			                ipv6->ipv6mask,
-			                librouter_ipv6_is_addr_link_local(ipv6->ipv6addr) ? "Link" : "Global");
-		}
+	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
+
+	for (i = 0; i < MAX_NUM_IPS; i++, ipv6++) {
+		if (ipv6->ipv6addr[0] == 0)
+			break;
+
+		fprintf(out, "  Internet 6 address is %s/%s | Scope: %s\n",
+		                ipv6->ipv6addr, ipv6->ipv6mask,
+		                librouter_ipv6_is_addr_link_local(ipv6->ipv6addr) ? "Link" : "Global");
 	}
+
 #if 0 /*Realiza analise sobre o endereço para BRIDGE*/
 	else {
 		struct ipv6_t ipv6_addr;
@@ -601,21 +601,14 @@ static void __dump_intf_ipaddr_v6_status(FILE *out, struct interfacev6_conf *con
 static void __dump_intf_ipaddr_status(FILE *out, struct interface_conf *conf)
 {
 	struct ip_t *ip = &conf->main_ip;
-	char *dev = librouter_ip_ethernet_get_dev(conf->name); /* ethernet enslaved by bridge? */
 
 	cish_dbg("%s : %s\n", __FUNCTION__, conf->name);
-	if (!strcmp(conf->name, dev)) {
-		if (ip->ipaddr[0])
-			fprintf(out, "  Internet address is %s %s\n", ip->ipaddr, ip->ipmask);
-	} else {
-		struct ipa_t ip;
-		librouter_br_get_ipaddr(dev, &ip);
 
-		if (ip.addr[0])
-			fprintf(out, "  Internet address is %s %s\n", ip.addr, ip.mask);
-	}
+	if (ip->ipaddr[0])
+		fprintf(out, "  Internet address is %s %s\n", ip->ipaddr, ip->ipmask);
 
-	if (ip->ippeer[0] && !(conf->linktype == ARPHRD_TUNNEL || conf->linktype == ARPHRD_IPGRE
+	if (ip->ippeer[0]
+	                && !(conf->linktype == ARPHRD_TUNNEL || conf->linktype == ARPHRD_IPGRE
 	                || conf->linktype == ARPHRD_PPP))
 		fprintf(out, "  Peer address is %s\n", ip->ippeer);
 
