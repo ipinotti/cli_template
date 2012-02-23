@@ -654,14 +654,9 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 	} else if (local && !strncmp(args->argv[2], "interface", 9)) {
 		cish_dbg("Adding local as interface\n");
 
-		/* Maybe there is a sub-interface index as well */
-		if (args->argc == 5)
-			sprintf(tp, "%%%s.%s", args->argv[3], args->argv[4]);
-		else
-			sprintf(tp, "%%%s", args->argv[3]);
+		sprintf(tp, "%%%s", args->argv[3]);
 
 		ret = librouter_ipsec_set_local_addr(dynamic_ipsec_menu_name, tp);
-
 		if (ret < 0) {
 			printf("%% Not possible to set %s address to interface %s\n",
 					args->argv[0], args->argv[3]);

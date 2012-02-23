@@ -58,21 +58,14 @@ cish_command CMD_IPSEC_CONNECTION_LR_ADDR_FQDN[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-/* VLANs and others ... */
-cish_command CMD_IPSEC_CONNECTION_INTERFACE_SUBIFACE[] = {
-	{"0-4095", "Sub-interface interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
-	{"<enter>", "Use main interface", NULL, NULL, 0, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[] = {
-	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_IPSEC_CONNECTION_INTERFACE_SUBIFACE, set_ipsec_addr, 1, MSK_NORMAL},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 #ifdef OPTION_EFM
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_EFM[] = {
-	{CLI_STRING_EFM_IFACES, "EFM interface number", CMD_IPSEC_CONNECTION_INTERFACE_SUBIFACE, set_ipsec_addr, 1, MSK_NORMAL},
+	{CLI_STRING_EFM_IFACES, "EFM interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
