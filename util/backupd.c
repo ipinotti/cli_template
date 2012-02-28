@@ -26,14 +26,17 @@
 #include <arpa/inet.h>
 
 #include <librouter/options.h>
-#ifdef OPTION_MODEM3G
 #include <librouter/dev.h> /* get_dev_link */
 #include <librouter/usb.h>
 #include <librouter/device.h>
 #include <librouter/modem3G.h>
 #include <librouter/quagga.h>
 #include <librouter/str.h>
+#ifdef OPTION_VRRP
+#include <librouter/vrrp.h>
+#endif
 
+#ifdef OPTION_MODEM3G
 #include "backupd.h"
 
 #define PPPD_BIN_FILE 	"/sbin/pppd"
@@ -603,6 +606,29 @@ static int _remove_3g_peer_route(struct bckp_conf_t *conf)
 #endif
 
 
+#ifdef OPTION_VRRP
+static int _reload_vrrp(struct bckp_conf_t *conf)
+{
+	pid_t pid;
+
+	/* No need to reload if interface is not tracked */
+	if (librouter_vrrp_is_iface_tracked(conf->intf_name) == 0)
+		return -1;
+
+	/* Fork and wait a while for connection to settle */
+	switch (pid = fork()) {
+	case 0:  /* child */
+		sleep(8);
+		librouter_vrrp_reload();
+		exit(0);
+	default:
+		break;
+	}
+
+	return 0;
+}
+#endif
+
 static int pppd_spawn(struct bckp_conf_t *conf)
 {
 	pid_t pid;
@@ -652,6 +678,14 @@ static int pppd_spawn(struct bckp_conf_t *conf)
 	/* Check if default route should be installed */
 	if (conf->is_default_gateway)
 		_install_default_route(conf);
+
+#ifdef OPTION_VRRP
+	/* PPP interfaces are created dynamically, so
+	 * we must reload VRRP here so it can find them in the kernel.
+	 * This is needed because PPP can be used for
+	 * interface-tracking */
+	_reload_vrrp(conf);
+#endif
 
 	return 1;
 }
