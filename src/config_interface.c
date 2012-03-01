@@ -594,7 +594,7 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 {
 	char *dev;
 	char daemon_dhcpc[32];
-
+	char * dhcpd_intf = NULL;
 	dev = librouter_device_cli_to_linux(interface_edited->cish_string, interface_major,
 	                interface_minor);
 
@@ -602,6 +602,14 @@ void interface_ethernet_no_ipaddr(const char *cmdline) /* no ip address */
 		sprintf(daemon_dhcpc, DHCPC_DAEMON, dev);
 		if (librouter_exec_check_daemon(daemon_dhcpc))
 			librouter_kill_daemon(daemon_dhcpc);
+	}
+
+	/*Verify DHCP Server on intf and shut it down*/
+	librouter_dhcp_server_get_iface(&dhcpd_intf);
+	if (dhcpd_intf){
+		if (!strcmp(dev, dhcpd_intf))
+			librouter_dhcp_server_set_status(0);
+		free (dhcpd_intf);
 	}
 
 	librouter_ip_ethernet_set_no_addr(dev);

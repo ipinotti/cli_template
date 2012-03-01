@@ -233,6 +233,12 @@ void no_telnet_server(const char *cmd)
 /* DHCP Server */
 void dhcp_server_enable(const char *cmd)
 {
+	if (!librouter_dhcp_server_verify_ip_intf()){
+		printf("%% Could not start DHCP Server\n");
+		printf("%% Missing IP Address / Netmask on the DHCP Server interface\n");
+		return;
+	}
+
 	if (librouter_dhcp_server_set(1) < 0)
 		printf("%% Could not start DHCP Server\n");
 }

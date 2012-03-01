@@ -147,11 +147,23 @@ void bridge_set_no_ipv4_addr(const char *cmd)
 {
 	arglist *args;
 	char brname[32];
+	char * dhcpd_intf = NULL;
 
 	args = librouter_make_args(cmd);
 
 	strcpy(brname, BRIDGE_NAME);
 	strcat(brname, args->argv[2]);
+
+	/*Verify DHCP Server on intf and shut it down*/
+	librouter_dhcp_server_get_iface(&dhcpd_intf);
+	if (dhcpd_intf){
+		if (!strcmp(brname, dhcpd_intf)){
+			printf("%% bridge group %s has DHCP Server assigned.\n", args->argv[2]);
+			printf("%% DHCP Server is going to be shut down.\n");
+			librouter_dhcp_server_set_status(0);
+		}
+		free (dhcpd_intf);
+	}
 
 	librouter_ip_interface_set_no_addr(brname);
 
@@ -181,6 +193,7 @@ void bridge_no(const char *cmd)
 {
 	arglist *args;
 	char brname[32];
+	char * dhcpd_intf = NULL;
 
 	args = librouter_make_args(cmd);
 
@@ -190,6 +203,14 @@ void bridge_no(const char *cmd)
 		if (librouter_br_hasifs(brname)) {
 			printf("%% bridge group %s has assigned interface(s)\n", args->argv[2]);
 		} else {
+			/*Verify DHCP Server on intf and shut it down*/
+			librouter_dhcp_server_get_iface(&dhcpd_intf);
+			if (dhcpd_intf){
+				if (!strcmp(brname, dhcpd_intf))
+					librouter_dhcp_server_set_status(0);
+				free (dhcpd_intf);
+			}
+
 			librouter_dev_set_link_down(brname);
 			librouter_br_delbr(brname);
 		}
