@@ -1327,7 +1327,7 @@ cish_command *expand_token(const char *unexpanded, cish_command *queue, int iter
 					}
 					if (i == len && iteration < 1) {
 						strncpy(EXTCMD, unexpanded, len);
-						EXTCMD[1023] = 0;
+						EXTCMD[len] = 0;
 						CEXT.func = queue[idx_inqueue].func;
 						CEXT.children = queue[idx_inqueue].children;
 						return &CEXT;

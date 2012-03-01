@@ -252,8 +252,7 @@ static int security_none_set(arglist * args)
 static int security_wep_set(arglist * args)
 {
 	librouter_wifi_security_mode_struct security;
-	memset(&security, 0, sizeof(security));
-
+	memset(&security, 0, sizeof(librouter_wifi_security_mode_struct));
 	security.security_mode = wep;
 
 	if (!strcmp(args->argv[2], "open")){
@@ -348,7 +347,7 @@ static int security_wpa_set(arglist * args)
 
 void apmanager_security_mode_set (const char *cmdline)
 {
-	arglist *args;
+	arglist *args = NULL;
 	int ret = 0;
 
 	if (need_shutdown_warning())
@@ -377,6 +376,7 @@ void apmanager_security_mode_set (const char *cmdline)
 		printf("%% Error setting Wifi security.\n");
 
 	librouter_destroy_args(args);
+
 }
 
 #endif
