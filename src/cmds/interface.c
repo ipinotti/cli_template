@@ -957,7 +957,7 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_LAN_NO[] = {
 #ifdef OPTION_MANAGED_SWITCH
 	{"switch-config", "Configure switch advanced settings general to all ports", CMD_CONFIG_INTERFACE_ETH_SW_GENERAL_NO, NULL, 1, MSK_MANAGED_SWITCH},
 #endif
-	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
+	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_VLAN},
 #ifdef OPTION_VRRP
 	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP, NULL, 1, MSK_VRRP},
 #endif
@@ -979,7 +979,10 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN_NO[] = {
 #ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
 #endif
-	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
+	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_VLAN},
+#ifdef OPTION_VRRP
+	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP, NULL, 1, MSK_VRRP},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -1110,6 +1113,9 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_WAN[] = {
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 #endif
 	{"vlan", "Add vlan", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER, NULL, 1, MSK_VLAN},
+#ifdef OPTION_VRRP
+	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
+#endif
 #ifdef CONFIG_PPC_BD_CONFIG
 	{"rx-ring", "Configure RX ring size", CMD_CONFIG_INTERFACE_ETHERNET_RXRING, NULL, 1, MSK_NORMAL},
 	{"tx-ring", "Configure TX ring size", CMD_CONFIG_INTERFACE_ETHERNET_TXRING, NULL, 1, MSK_NORMAL},
@@ -1160,7 +1166,10 @@ cish_command CMD_CONFIG_INTERFACE_EFM_NO[] = {
 #ifdef OPTION_LINKSTATUS_TRAP
 	{"snmp", "Modify SNMP interface parameters", CMD_CONFIG_INTERFACE_NO_SNMPTRAP1, NULL, 1, MSK_NORMAL},
 #endif
-	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_QOS},
+	{"vlan", "Delete vlan", CMD_CONFIG_INTERFACE_ETHERNET_NO_VLAN_NUMBER, NULL, 1, MSK_VLAN},
+#ifdef OPTION_VRRP
+	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_NO_GROUP, NULL, 1, MSK_VRRP},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 
@@ -1201,6 +1210,9 @@ cish_command CMD_CONFIG_INTERFACE_EFM[] = {
 	{"weight", "Configure interface weight", CMD_CONFIG_INTERFACE_WEIGHT, NULL, 1, MSK_NORMAL},
 #endif
 	{"vlan", "Add vlan", CMD_CONFIG_INTERFACE_ETHERNET_VLAN_NUMBER, NULL, 1, MSK_VLAN},
+#ifdef OPTION_VRRP
+	{"vrrp", "VRRP Interface configuration commands", CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP, NULL, 1, MSK_VRRP},
+#endif
 	{NULL,NULL,NULL,NULL}
 };
 #endif /* OPTION_EFM */
