@@ -103,29 +103,34 @@ cish_command CMD_CONFIG_INTERFACE_ETHERNET_VRRP_GROUP_TIMERS[] = {
 };
 
 /* VRRP Interface tracking */
+cish_command CMD_VRRP_GROUP_TRACK_PRIO[] = {
+	{"1-255", "Decrement VRRP priority when track-interface goes DOWN", NULL, interface_vrrp, 1, MSK_VRRP},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 #ifdef OPTION_MODEM3G
 cish_command CMD_VRRP_GROUP_TRACK_M3G[] = {
-	{CLI_STRING_USB_PORTS, "Modem 3G interface number", NULL, interface_vrrp, 1, MSK_VRRP},
+	{CLI_STRING_USB_PORTS, "Modem 3G interface number", CMD_VRRP_GROUP_TRACK_PRIO, interface_vrrp, 1, MSK_VRRP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
 
 #ifdef OPTION_TUNNEL
 cish_command CMD_VRRP_GROUP_TRACK_TUNNEL[] = {
-	{CLI_STRING_TUN_IFACES, "Tunnel interface number", NULL, interface_vrrp, 1, MSK_VRRP},
+	{CLI_STRING_TUN_IFACES, "Tunnel interface number", CMD_VRRP_GROUP_TRACK_PRIO, interface_vrrp, 1, MSK_VRRP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
 
 #ifdef OPTION_EFM
 cish_command CMD_VRRP_GROUP_TRACK_EFM[] = {
-	{CLI_STRING_EFM_IFACES, "EFM interface number", NULL, interface_vrrp, 1, MSK_VRRP},
+	{CLI_STRING_EFM_IFACES, "EFM interface number", CMD_VRRP_GROUP_TRACK_PRIO, interface_vrrp, 1, MSK_VRRP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
 
 cish_command CMD_VRRP_GROUP_TRACK_ETH[] = {
-	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, interface_vrrp, 1, MSK_VRRP},
+	{CLI_STRING_ETH_IFACES, "Ethernet interface number", CMD_VRRP_GROUP_TRACK_PRIO, interface_vrrp, 1, MSK_VRRP},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

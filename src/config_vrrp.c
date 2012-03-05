@@ -62,7 +62,7 @@ void interface_no_vrrp(const char *cmd) /* no vrrp <1-255> <option> <...> */
 		} else if (strcmp(args->argv[3], "timers") == 0) { /* timers advertise */
 			librouter_vrrp_option_advertise_delay(dev, group, 0);
 		} else if (strcmp(args->argv[3], "track-interface") == 0) { /* interface tracking */
-			librouter_vrrp_option_track_interface(dev, group, NULL);
+			librouter_vrrp_option_track_interface(dev, group, NULL, 0);
 		}
 	}
 	free(dev);
@@ -106,7 +106,10 @@ void interface_vrrp(const char *cmd) /* vrrp <1-255> <option> <...> */
 		librouter_vrrp_option_advertise_delay(dev, group, atoi(args->argv[4]));
 	} else if (strcmp(args->argv[2], "track-interface") == 0) { /* track-interface <interface>*/
 		arglist *nargs = librouter_make_args(librouter_device_to_linux_cmdline((char *) cmd));
-		librouter_vrrp_option_track_interface(dev, group, nargs->argv[3]);
+		if (nargs->argc == 5)
+			librouter_vrrp_option_track_interface(dev, group, nargs->argv[3], atoi(nargs->argv[4]));
+		else
+			librouter_vrrp_option_track_interface(dev, group, nargs->argv[3], 0);
 	}
 
 	free(dev);
