@@ -1526,21 +1526,6 @@ void show_qos(const char *cmdline)
 #endif
 
 #ifdef OPTION_IPSEC
-struct ipsec_connection {
-	char *name;
-	char *local;
-	char *remote;
-	char *authby;
-	char *authproto;
-	char *esp_c;
-	char *pfs;
-	int len;
-	int shift;
-	int second_shift;
-	int third_shift;
-	int state;
-	int *net_flag;
-} conn;
 static void print_ipsec_show_line(char *name,
                                   char *local,
                                   char *remote,
@@ -1699,7 +1684,7 @@ static int show_conn_specific(char *name, int state)
 	}
 
 	/* Get authentication type */
-	switch (librouter_ipsec_get_auth(name, tmp)) {
+	switch (librouter_ipsec_get_auth(name)) {
 	case SECRET:
 		strcpy(b.authby, "SECRET");
 		break;

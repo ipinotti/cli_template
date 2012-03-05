@@ -33,94 +33,6 @@ int ipsec_file_filter(const struct dirent *file)
 	return 0;
 }
 
-/*  Create ipsec.[connectioname].conf
- *  Type:
- *     - 0,  manual
- *     - 1,  ike
- */
-int create_conf_conn_file(char *name)
-{
-	int fd;
-	char buf[MAX_CMD_LINE];
-
-	sprintf(buf, FILE_IKE_CONN_CONF, name);
-
-	if ((fd = open(buf, O_WRONLY | O_CREAT | O_TRUNC, 0600)) < 0) {
-		printf("%% could not create connection file\n");
-		return -1;
-	}
-
-	sprintf(buf, "#active= no\n"
-		"conn %s\n"
-		"\tauthby= \n"
-		"\tauth= esp\n"
-		"\tesp= \n"
-		"\tleftid=\n"
-		"\tleft=\n"
-		"\tleftsubnet=\n"
-		"\tleftnexthop=\n"
-		"\tleftrsasigkey=\n"
-		"\tleftprotoport=\n"
-		"\trightid=\n"
-		"\tright=\n"
-		"\trightsubnet=\n"
-		"\trightnexthop=\n"
-		"\trightrsasigkey=\n"
-		"\trightprotoport=\n"
-		"\taggrmode=\n"
-		"\tpfs=\n"
-		"\tauto= ignore\n"
-		"\tdpddelay= 30\n"
-		"\tdpdtimeout= 120\n"
-		"\tdpdaction= restart\n", name);
-
-	write(fd, buf, strlen(buf));
-	close(fd);
-	return 0;
-}
-
-/*  Updade ipsec.conf
- *  0 -> para excluir
- *  1 -> para acrescentar
- */
-int update_ipsec_conf(char *name, int action)
-{
-	int fd, ret;
-	char filename[128], key[128];
-
-	if ((fd = open(FILE_IPSEC_CONF, O_RDWR)) < 0) {
-		if ((fd = librouter_ipsec_create_conf()) < 0) {
-			printf("%% could not open file %s\n", FILE_IPSEC_CONF);
-			return -1;
-		}
-	}
-	snprintf(filename, 128, FILE_IKE_CONN_CONF, name);
-	snprintf(key, 128, "include %s\n", filename);
-	ret = librouter_ipsec_set_connection(action, key, fd);
-	close(fd);
-	return ret;
-}
-
-/*  Updade ipsec.secrets
- *  0 -> para excluir
- *  1 -> para acrescentar
- */
-int update_ipsec_secrets(char *name, int action)
-{
-	int fd, ret;
-	char filename[128], key[128];
-
-	if ((fd = open(FILE_IPSEC_SECRETS, O_RDWR | O_CREAT, 0600)) < 0) {
-		printf("%% could not open file %s\n", FILE_IPSEC_SECRETS);
-		return -1;
-	}
-	snprintf(filename, 128, FILE_CONN_SECRETS, name);
-	snprintf(key, 128, "include %s\n", filename);
-	ret = librouter_ipsec_set_connection(action, key, fd);
-	close(fd);
-	return ret;
-}
-
 void cd_connection_dir(const char *cmd) /* ipsec connection [name] */
 {
 	arglist *args;
@@ -297,12 +209,14 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 					                args->argv[3]);
 				goto free_args;
 			}
-			// Teste do numero de conexoes
+
 			if (count >= IPSEC_MAX_CONN) {
 				printf("%% You have reached the max number of connections!\n");
 				goto free_args;
 			}
 		}
+
+#if 0
 		// Adicao da conexao
 		if (create_conf_conn_file(args->argv[3]) < 0) {
 			printf("%% Not possible to add ipsec connection name!\n");
@@ -318,8 +232,16 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 			printf("%% Not possible to add ipsec connection name!\n");
 			goto free_args;
 		}
+#else
+		if (librouter_ipsec_create_conn(args->argv[3])) {
+			printf("%% Not possible to add ipsec connection %s\n", args->argv[3]);
+			goto free_args;
+		}
+#endif
+
+		printf("AAAAAAAAAAAAAAAAAAAAA\n");
 		if (eval_connections_menus(1, args->argv[3]) < 0) {
-			remove_conn_files(args->argv[3]);
+			librouter_ipsec_delete_conn(args->argv[3]);
 			goto free_args;
 		}
 	}
@@ -335,11 +257,11 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 	args = librouter_make_args(cmd);
 	if (args->argc == 4) {
 		if (librouter_ipsec_set_link(args->argv[3], 0) < 0) {
-			printf("%% Not possible to del ipsec connection!\n");
+			printf("%% Not possible to disable ipsec connection!\n");
 			goto free_args;
 		}
-		if (remove_conn_files(args->argv[3]) < 0) {
-			printf("%% Not possible to del ipsec connection files!\n");
+		if (librouter_ipsec_delete_conn(args->argv[3]) < 0) {
+			printf("%% Not possible to delete ipsec connection !\n");
 			goto free_args;
 		}
 		if (eval_connections_menus(0, args->argv[3]) < 0)
@@ -386,7 +308,7 @@ void generate_rsa_key(const char *cmd)
 			list_ini = list;
 			for (i = 0; i < IPSEC_MAX_CONN; i++, list++) {
 				if (*list) {
-					ret = librouter_ipsec_get_auth(*list, buf);
+					ret = librouter_ipsec_get_auth(*list);
 					if (ret == RSA)
 						librouter_ipsec_create_secrets_file(*list, 1, NULL);
 					free(*list);
@@ -423,27 +345,6 @@ void config_crypto_done(const char *cmd)
 void config_connection_done(const char *cmd)
 {
 	command_root = CMD_CONFIG_CRYPTO;
-}
-
-int remove_conn_files(char *name)
-{
-	char buf[128];
-	struct stat st;
-
-	snprintf(buf, 128, FILE_IKE_CONN_CONF, name);
-	if (stat(buf, &st) == 0)
-		remove(buf);
-#if 0
-	snprintf(buf, 128, FILE_MAN_CONN_CONF, name);
-	if (stat(buf, &st) == 0) remove(buf);
-#endif
-	snprintf(buf, 128, FILE_CONN_SECRETS, name);
-	if (stat(buf, &st) == 0)
-		remove(buf);
-
-	update_ipsec_conf(name, 0); // Atualizacao do arquivo /etc/ipsec.conf
-	update_ipsec_secrets(name, 0); // Atualizacao do arquivo /etc/ipsec.secrets
-	return 0;
 }
 
 void ipsec_set_secret_key(const char *cmd) /* authby secret password */
@@ -528,41 +429,44 @@ void set_esp_hash(const char *cmd)
 {
 	int ret;
 	arglist *args;
+	int cypher = CYPHER_ANY, hash = HASH_ANY;
 
 	args = librouter_make_args(cmd);
-	switch (args->argc) {
-	case 1:
-		if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, NULL, NULL) < 0) {
-			printf("%% Not possible to reset esp\n");
-			goto free_args;
-		}
-		break;
-	case 2:
-		if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, args->argv[1], NULL) < 0) {
-			printf("%% Not possible to set cypher to %s\n", args->argv[1]);
-			goto free_args;
-		}
-		break;
-	case 3:
-		if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, args->argv[1], args->argv[2])
-		                < 0) {
-			printf("%% Not possible to set cypher to %s/%s\n", args->argv[1],
-			                args->argv[2]);
-			goto free_args;
-		}
-		break;
-	default:
+
+	if (args->argc > 1) {
+		if (strstr(args->argv[1], "aes"))
+			cypher = CYPHER_AES;
+		else if (strstr(args->argv[1],"3des"))
+			cypher = CYPHER_3DES;
+		else if (strstr(args->argv[1],"null"))
+			cypher = CYPHER_NULL;
+		else
+			cypher = CYPHER_DES;
+	}
+
+	if (args->argc > 2) {
+		if (strstr(args->argv[2], "sha1"))
+			cypher = HASH_SHA1;
+		else
+			cypher = HASH_MD5;
+	}
+
+	if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, cypher, hash) < 0) {
+		printf("%% Not possible to reset esp\n");
 		goto free_args;
 	}
-	// se o link estiver up, entao provocamos um RESTART no starter
+
+	/* Restart link if it was already enabled */
 	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 	if (ret < 0) {
 		printf("%% Not possible to set cypher\n");
 		goto free_args;
 	}
+
 	if (ret > 0)
 		librouter_ipsec_exec(RESTART);
-	free_args: librouter_destroy_args(args);
+free_args:
+	librouter_destroy_args(args);
 }
 
 void set_ipsec_id(const char *cmd)
@@ -768,8 +672,7 @@ void set_ipsec_remote_rsakey(const char *cmd) /* remote rsakey [publickey] */
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
-		if (librouter_ipsec_set_rsakey(dynamic_ipsec_menu_name, STRING_IPSEC_R_RSAKEY,
-		                args->argv[2]) < 0) {
+		if (librouter_ipsec_set_remote_rsakey(dynamic_ipsec_menu_name, args->argv[2]) < 0) {
 			printf("%% Not possible to set %s rsakey\n", args->argv[0]);
 			goto free_args;
 		}
@@ -792,7 +695,7 @@ void clear_ipsec_remote_rsakey(const char *cmd) /* no local/remote rsakey */
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
-		if (librouter_ipsec_set_rsakey(dynamic_ipsec_menu_name, STRING_IPSEC_R_RSAKEY, "")
+		if (librouter_ipsec_set_remote_rsakey(dynamic_ipsec_menu_name, "")
 		                < 0) {
 			printf("%% Not possible to clear %s rsakey\n", args->argv[1]);
 			goto free_args;
@@ -874,6 +777,7 @@ void ipsec_link_up(const char *cmd)
 		printf("%% Not possible to enable tunnel\n");
 		return;
 	}
+
 	if (librouter_ipsec_is_running())
 		librouter_ipsec_exec(RESTART);
 	else
