@@ -137,21 +137,6 @@ int eval_connections_menus(int add_del, char *name)
 	return 0;
 }
 
-#if 0 /* Auto-reload doesn't not exist on openswan */
-void ipsec_autoreload(const char *cmd) /* [no] auto-reload [60-3600] */
-{
-	arglist *args;
-
-	args = librouter_make_args(cmd);
-	if (strcmp(args->argv[0], "no") == 0)
-		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_AUTORELOAD, "0");
-	else
-		librouter_str_replace_string_in_file(FILE_IPSEC_CONF, STRING_IPSEC_AUTORELOAD,
-		                args->argv[1]);
-	librouter_destroy_args(args);
-}
-#endif
-
 void ipsec_nat_traversal(const char *cmd) /* [no] nat-traversal */
 {
 	arglist *args;
@@ -216,30 +201,11 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 			}
 		}
 
-#if 0
-		// Adicao da conexao
-		if (create_conf_conn_file(args->argv[3]) < 0) {
-			printf("%% Not possible to add ipsec connection name!\n");
-			goto free_args;
-		}
-		// Atualizacao do arquivo /etc/ipsec.conf
-		if (update_ipsec_conf(args->argv[3], 1) < 0) {
-			printf("%% Not possible to add ipsec connection name!\n");
-			goto free_args;
-		}
-		// Atualizacao do arquivo /etc/ipsec.secrets
-		if (update_ipsec_secrets(args->argv[3], 1) < 0) {
-			printf("%% Not possible to add ipsec connection name!\n");
-			goto free_args;
-		}
-#else
 		if (librouter_ipsec_create_conn(args->argv[3])) {
 			printf("%% Not possible to add ipsec connection %s\n", args->argv[3]);
 			goto free_args;
 		}
-#endif
 
-		printf("AAAAAAAAAAAAAAAAAAAAA\n");
 		if (eval_connections_menus(1, args->argv[3]) < 0) {
 			librouter_ipsec_delete_conn(args->argv[3]);
 			goto free_args;
@@ -301,21 +267,7 @@ void generate_rsa_key(const char *cmd)
 			printf("%% Not possible to generate RSA key!\n");
 			goto free_args;
 		}
-		if (librouter_ipsec_list_all_names(&list) < 1) {
-			goto free_args;
-		}
-		if (*list != NULL) {
-			list_ini = list;
-			for (i = 0; i < IPSEC_MAX_CONN; i++, list++) {
-				if (*list) {
-					ret = librouter_ipsec_get_auth(*list);
-					if (ret == RSA)
-						librouter_ipsec_create_secrets_file(*list, 1, NULL);
-					free(*list);
-				}
-			}
-			free(list_ini);
-		}
+
 		librouter_ipsec_exec(RESTART);
 	}
 	free_args: librouter_destroy_args(args);
@@ -354,21 +306,23 @@ void ipsec_set_secret_key(const char *cmd) /* authby secret password */
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 3) {
-		if (librouter_ipsec_create_secrets_file(dynamic_ipsec_menu_name, 0, args->argv[2])
-		                < 0) {
-			printf("%% Not possible to set secret authentication type\n");
-			goto free_args;
-		}
 		if (librouter_ipsec_set_auth(dynamic_ipsec_menu_name, SECRET) < 0) {
 			printf("%% Not possible to set secret authentication type\n");
 			goto free_args;
 		}
+
+		if (librouter_ipsec_set_secret(dynamic_ipsec_menu_name, args->argv[2]) < 0) {
+			printf("%% Not possible to set secret\n");
+			goto free_args;
+		}
+
 		// se o link estiver ativo, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set secret authentication type\n");
 			goto free_args;
 		}
+
 		if (ret > 0)
 			librouter_ipsec_exec(RESTART);
 	}
@@ -382,18 +336,14 @@ void ipsec_authby_rsa(const char *cmd)
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 2) {
-		if (librouter_ipsec_create_secrets_file(dynamic_ipsec_menu_name, 1, NULL) < 0) {
-			printf("%% Not possible to set RSA authentication type\n");
-			goto free_args;
-		}
 		if (librouter_ipsec_set_auth(dynamic_ipsec_menu_name, RSA) < 0) {
-			printf("%% Not possible to set RSA authentication type\n");
+			printf("%% Not possible to set RSA authentication type:\n");
 			goto free_args;
 		}
 		// se o link estiver ativo, entao provocamos um RESTART no starter
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
-			printf("%% Not possible to set RSA authentication type\n");
+			printf("%% Could not get connection link status\n");
 			goto free_args;
 		}
 		if (ret > 0)
@@ -446,9 +396,9 @@ void set_esp_hash(const char *cmd)
 
 	if (args->argc > 2) {
 		if (strstr(args->argv[2], "sha1"))
-			cypher = HASH_SHA1;
+			hash = HASH_SHA1;
 		else
-			cypher = HASH_MD5;
+			hash = HASH_MD5;
 	}
 
 	if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, cypher, hash) < 0) {

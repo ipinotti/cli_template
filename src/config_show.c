@@ -1918,7 +1918,7 @@ void show_crypto(const char *cmdline)
 		}
 		for (i = 0, list = list_ini; i < IPSEC_MAX_CONN; i++, list++) {
 			if (*list) {
-				switch (librouter_ipsec_get_auto(*list)) {
+				switch (librouter_ipsec_get_link(*list)) {
 				case AUTO_IGNORE:
 					if (show_conn_specific(*list, CONN_SHUTDOWN) < 1)
 						goto go_error;
