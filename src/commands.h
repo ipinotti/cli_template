@@ -104,8 +104,11 @@ void show_natrules(const char *);
 void show_version(const char *);
 void show_performance(const char *);
 void show_qos(const char *cmdline);
+
 void show_crypto(const char *cmdline);
+void show_pki(const char *cmdline);
 void show_l2tp(const char *cmdline);
+
 void show_dumpleases(const char *cmdline);
 void show_ntpkeys(const char *cmdline);
 void show_ntpassociations(const char *cmdline);
@@ -444,6 +447,13 @@ void show_features(const char *);
 void load_ftures(void);
 void crypto_on_off(int);
 
+#ifdef OPTION_PKI
+void pki_generate(const char *cmd);
+void pki_cert_add(const char *cmd);
+void pki_cacert_add(const char *cmd);
+void pki_save(const char *cmd);
+#endif
+
 void add_ipsec_conn(const char *);
 void generate_rsa_key(const char *);
 void del_ipsec_conn(const char *);
@@ -457,6 +467,7 @@ void config_connection_done(const char *cmd);
 int remove_conn_files(char *name);
 void ipsec_set_secret_key(const char *cmd);
 void ipsec_authby_rsa(const char *cmd);
+void ipsec_authby_x509(const char *cmd);
 void ipsec_authproto_esp(const char *cmd);
 void set_esp_hash(const char *cmd);
 void set_ipsec_id(const char *cmd);

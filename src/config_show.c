@@ -1963,6 +1963,52 @@ void show_crypto(const char *cmdline)
 	return;
 }
 
+#ifdef OPTION_PKI
+void show_pki(const char *cmdline)
+{
+	char buf[32*1024];
+	arglist *args;
+
+	memset(buf, 0, sizeof(buf));
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc == 4) {
+		if (strstr(args->argv[2], "csr")) {
+			if (librouter_pki_get_csr_contents(buf, sizeof(buf)) == 0)
+				printf(buf);
+		} else if (strstr(args->argv[2], "host")) {
+			if (librouter_pki_get_cert_contents(buf, sizeof(buf)) == 0)
+				printf(buf);
+		}
+	} else {
+		if (strstr(args->argv[2], "csr")) {
+			if (librouter_pki_get_csr(buf, sizeof(buf)) == 0)
+				printf(buf);
+		} else if (strstr(args->argv[2], "host")) {
+			if (librouter_pki_get_cert(buf, sizeof(buf)) == 0)
+				printf(buf);
+		}
+#if 0
+		else if (!strcmp(args->argv[2], "ca")) {
+			if (librouter_pki_get_cacert(buf, sizeof(buf)) == 0)
+				printf(buf);
+		}
+#endif
+	}
+
+	librouter_destroy_args(args);
+}
+
+void show_pki_csr_contents(const char *cmdline)
+{
+	char buf[2048];
+
+	if (librouter_pki_get_csr_contents(buf, sizeof(buf)) == 0)
+		printf(buf);
+}
+#endif
+
 void show_l2tp(const char *cmdline)
 {
 	struct sockaddr_un addr;

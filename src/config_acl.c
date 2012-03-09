@@ -594,9 +594,7 @@ void interface_acl(const char *cmdline) /* ip access-group <acl> <in|out> */
 		DEBUG_CMD(buf);
 		system(buf);
 	}
-#ifdef OPTION_IPSEC
-	librouter_acl_interface_ipsec(1, chain, dev, listno);
-#endif
+
 	librouter_destroy_args(args);
 	free(dev);
 }
@@ -648,9 +646,7 @@ void interface_no_acl(const char *cmdline) /* no ip access-group <acl> [in|out] 
 			system(buf);
 		}
 	}
-#ifdef OPTION_IPSEC
-	librouter_acl_interface_ipsec(0, chain, dev, listno);
-#endif
+
 	librouter_destroy_args(args);
 	free(dev);
 }

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #include "commands.h"
 #include "commandtree.h"
 
@@ -22,6 +21,7 @@ cish_command CMD_IPSEC_CONNECTION_AUTHBY_SECRET[] = {
 cish_command CMD_IPSEC_CONNECTION_AUTHBY[] = {
 	{"rsa", "Use RSA pair keys", NULL, ipsec_authby_rsa, 1, MSK_NORMAL},
 	{"secret", "Use pre-shared key", CMD_IPSEC_CONNECTION_AUTHBY_SECRET, NULL, 1, MSK_NORMAL},
+	{"X.509", "Use X.509 ceritificates", NULL, ipsec_authby_x509, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -588,6 +588,55 @@ cish_command CMD_CRYPTO_NO_L2TP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef OPTION_PKI
+cish_command CMD_CRYPTO_PKI_GENERATE[] = {
+	{"generate", "Trigger generation", NULL, pki_generate, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_KEYLEN[] = {
+	{"768-2048", "key length", CMD_CRYPTO_PKI_GENERATE, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_CA_NAME[] = {
+	{"<string>", "CA identification", NULL, pki_cacert_add, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_CA[] = {
+	{"add", "Add CA", CMD_CRYPTO_PKI_CA_NAME, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_CERT[] = {
+	{"add", "Add host certificate signed by CA", NULL, pki_cert_add, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_CSR[] = {
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI[] = {
+	{"ca", "X.509 Certificate Authorities Options", CMD_CRYPTO_PKI_CA, NULL, 1, MSK_NORMAL},
+	{"cert", "X.509 Certificate Options", CMD_CRYPTO_PKI_CERT, NULL, 1, MSK_NORMAL},
+	{"csr", "X.509 Certificate Signing Request Options", CMD_CRYPTO_PKI_GENERATE, NULL, 1, MSK_NORMAL},
+	{"privkey", "Private RSA Key Options", CMD_CRYPTO_PKI_KEYLEN, NULL, 1, MSK_NORMAL},
+	{"save", "Save PKI keys and certificates in non-volatile memory", NULL, pki_save, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_NO[] = {
+	{"ca", "X.509 Certificate Authorities Options", CMD_CRYPTO_PKI_CA, NULL, 1, MSK_NORMAL},
+	{"cert", "X.509 Certificate Options", CMD_CRYPTO_PKI_CERT, NULL, 1, MSK_NORMAL},
+	{"csr", "X.509 Certificate Signing Request Options", CMD_CRYPTO_PKI_CSR, NULL, 1, MSK_NORMAL},
+	{"privkey", "Private RSA Key Options", CMD_CRYPTO_PKI_KEYLEN, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+#endif /* OPTION_PKI */
+
 cish_command CMD_CRYPTO_NO[] = {
 #if 0
 	{"auto-reload", "Disable auto-reload interval", NULL, ipsec_autoreload, 1, MSK_NORMAL},
@@ -596,6 +645,9 @@ cish_command CMD_CRYPTO_NO[] = {
 	{"l2tp", "Manage L2TP server", CMD_CRYPTO_NO_L2TP, NULL, 1, MSK_NORMAL},
 	{"nat-traversal", "Disable NAT-Traversal", NULL, ipsec_nat_traversal, 1, MSK_NORMAL},
 	{"overridemtu", "Disable override interface crypto MTU setting", NULL, ipsec_overridemtu, 1, MSK_NORMAL},
+#ifdef OPTION_PKI
+	{"pki", "Public-Key Infrastructure Settings", CMD_CRYPTO_PKI_NO, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -615,6 +667,9 @@ cish_command CMD_CONFIG_CRYPTO[] = {
 	{"nat-traversal", "Manage NAT-Traversal", NULL, ipsec_nat_traversal, 1, MSK_NORMAL},
 	{"no", "Reverse settings", CMD_CRYPTO_NO, NULL, 1, MSK_NORMAL},
 	{"overridemtu", "Override interface crypto MTU setting", CMD_CONFIG_CRYPTO_OVERRIDEMTU, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_PKI
+	{"pki", "Public-Key Infrastructure Settings", CMD_CRYPTO_PKI, NULL, 1, MSK_NORMAL},
+#endif
 #ifdef OPTION_SHOWLEVEL
 	{"show", "Show level configuration", CMD_SHOW_LEVEL, NULL, 0, MSK_NORMAL},
 #endif

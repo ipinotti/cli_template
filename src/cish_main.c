@@ -318,7 +318,9 @@ int main(int argc, char *argv[])
 			librouter_nv_load_ntp_secret(NTP_KEY_FILE);
 			librouter_nv_load_banner_login(router_cfg->banner_login);
 			librouter_nv_load_banner_system(router_cfg->banner_system);
-			syslog(LOG_DEBUG, "Preparing SNMP users\n");
+#ifdef OPTION_PKI
+			librouter_pki_load();
+#endif
 			librouter_snmp_load_prepare_users();
 #if defined(OPTION_MANAGED_SWITCH)
 #if defined (CONFIG_DIGISTAR_EFM)

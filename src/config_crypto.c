@@ -11,10 +11,14 @@
 #include <sys/stat.h>
 #include <arpa/inet.h>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include "commands.h"
 #include "commandtree.h"
 #include "cish_main.h"
 #include "pprintf.h"
+#include "terminal_echo.h"
 
 #ifdef OPTION_IPSEC
 
@@ -256,9 +260,7 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 
 void generate_rsa_key(const char *cmd)
 {
-	int i, ret;
 	arglist *args;
-	char **list = NULL, **list_ini = NULL, buf[100];
 
 	args = librouter_make_args(cmd);
 	if (args->argc == 4) {
@@ -268,10 +270,142 @@ void generate_rsa_key(const char *cmd)
 			goto free_args;
 		}
 
-		librouter_ipsec_exec(RESTART);
+		if (librouter_ipsec_is_running())
+			librouter_ipsec_exec(RESTART);
 	}
-	free_args: librouter_destroy_args(args);
+free_args:
+	librouter_destroy_args(args);
 }
+
+#ifdef OPTION_PKI
+void pki_generate(const char *cmd)
+{
+	arglist *args;
+	char buf[2048];
+	args = librouter_make_args(cmd);
+	char in;
+
+
+
+	if (!strcmp(args->argv[1], "privkey")) {
+		if (!librouter_pki_get_privkey(buf, sizeof(buf))) {
+			printf("%% Private key already exists.\n"
+					"%% Continuing will invalidate any "
+					"certificate derived from the "
+					"current key.\n"
+					"%% Do you wish to continue?[y/N]\n");
+
+			/* FIXME Do this in a library function ! */
+			/* Wait for input in non-canonical mode */
+			canon_off();
+			echo_off();
+			in = fgetc(stdin);
+			canon_on();
+			echo_on();
+			cish_timeout = 0;
+			printf("\n");
+
+			if ((in != 'y') && (in != 'Y'))
+				goto free_args;
+			/* End of FIXME */
+		}
+
+		printf("%% Please wait... computation may take long time!\n");
+		if (librouter_pki_gen_privkey(atoi(args->argv[2])) < 0) {
+			printf("%% Not possible to generate private key!\n");
+			goto free_args;
+		}
+	} else if (!strcmp(args->argv[1], "csr")) {
+		if (librouter_pki_gen_csr() < 0) {
+			printf("%% Not possible to generate csr!\n");
+			goto free_args;
+		}
+	}
+
+	if (librouter_ipsec_is_running())
+		librouter_ipsec_exec(RESTART);
+free_args:
+	librouter_destroy_args(args);
+}
+
+static void _cert_add(char **buf)
+{
+	char *line, *cert;
+	int spaceleft;
+
+	cert = malloc(getpagesize());
+	if (cert == NULL)
+		return;
+
+	spaceleft = getpagesize();
+
+	printf("%% Paste the certificate signed by the Certificate Authority.\n");
+	printf("%% (Type ENTER twice when finished)\n");
+
+	while (1) {
+		line = readline(NULL);
+		if (line == NULL) {
+			/* This will happend on abort (CTRL + D) */
+			cert = NULL;
+			free(cert);
+			return;
+		}
+
+		if (strlen(line) == 0) {
+			free(line);
+			break;
+		}
+
+		strncat(cert, line, spaceleft);
+		strcat(cert, "\n");
+		spaceleft -= strlen(line) + 1;
+		free(line);
+	}
+
+	*buf = cert;
+}
+
+void pki_cert_add(const char *cmd)
+{
+	char *c = NULL;
+
+	_cert_add(&c);
+	if (c == NULL) {
+		printf("%% No certificate was added\n");
+		return;
+	}
+
+	if (librouter_pki_set_cert(c, strlen(c)) < 0)
+		printf("%% Could not add X.509 host certificate\n");
+
+	free(c);
+}
+
+void pki_cacert_add(const char *cmd)
+{
+	arglist *args;
+	char *c = NULL;
+
+	args = librouter_make_args(cmd);
+
+	_cert_add(&c);
+	if (c == NULL) {
+		printf("%% No certificate was added\n");
+		return;
+	}
+
+	if (librouter_pki_set_cacert(args->argv[3], c, strlen(c)) < 0)
+		printf("%% Could not add CA\n");
+
+	free(c);
+	librouter_destroy_args(args);
+}
+
+void pki_save(const char *cmd)
+{
+	librouter_pki_save();
+}
+#endif /* OPTION_PKI */
 
 void config_crypto_done(const char *cmd)
 {
@@ -316,7 +450,7 @@ void ipsec_set_secret_key(const char *cmd) /* authby secret password */
 			goto free_args;
 		}
 
-		// se o link estiver ativo, entao provocamos um RESTART no starter
+		/* If connection was enabled, we need to restart the service */
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Not possible to set secret authentication type\n");
@@ -340,7 +474,31 @@ void ipsec_authby_rsa(const char *cmd)
 			printf("%% Not possible to set RSA authentication type:\n");
 			goto free_args;
 		}
-		// se o link estiver ativo, entao provocamos um RESTART no starter
+		/* If connection was enabled, we need to restart the service */
+		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
+		if (ret < 0) {
+			printf("%% Could not get connection link status\n");
+			goto free_args;
+		}
+		if (ret > 0)
+			librouter_ipsec_exec(RESTART);
+	}
+	free_args: librouter_destroy_args(args);
+}
+
+void ipsec_authby_x509(const char *cmd)
+{
+	int ret;
+	arglist *args;
+
+	args = librouter_make_args(cmd);
+	if (args->argc == 2) {
+		if (librouter_ipsec_set_auth(dynamic_ipsec_menu_name, X509) < 0) {
+			printf("%% Not possible to set RSA authentication type:\n");
+			goto free_args;
+		}
+
+		/* If connection was enabled, we need to restart the service */
 		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 		if (ret < 0) {
 			printf("%% Could not get connection link status\n");
