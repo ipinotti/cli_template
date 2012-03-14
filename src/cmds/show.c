@@ -185,7 +185,7 @@ cish_command CMD_SHOW_PKI[] = {
 	{"csr", "Certificate Signing Request to be sent to CA", CMD_SHOW_PKI_CONTENTS, show_pki, 1, MSK_VPN},
 	{"host-certificate", "X.509 host certificate", CMD_SHOW_PKI_CONTENTS, show_pki, 1, MSK_VPN},
 	{"ca", "Certificate Authorities", CMD_SHOW_PKI_CONTENTS, show_pki, 1, MSK_VPN},
-	{"<enter>", "", NULL, NULL, 0, MSK_VPN},
+	{"<enter>", "", NULL, show_pki, 1, MSK_VPN},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
@@ -280,7 +280,7 @@ cish_command CMD_SHOW[] = {
 	{"policy-route", "List Policy-route rules/routes (PBR)", CMD_SHOW_POLICYROUTE, NULL, 1, MSK_NORMAL},
 #endif
 #ifdef OPTION_PKI
-	{"pki", "PKI certificates and keys", CMD_SHOW_PKI, NULL, 1, MSK_VPN},
+	{"pki", "PKI certificates and keys", CMD_SHOW_PKI, show_pki, 1, MSK_VPN},
 #endif
 #ifdef OPTION_NTPD
 	{"ntp", "Show NTP info", CMD_SHOW_NTP, NULL, 1, MSK_NORMAL},

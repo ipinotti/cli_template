@@ -21,7 +21,9 @@ cish_command CMD_IPSEC_CONNECTION_AUTHBY_SECRET[] = {
 cish_command CMD_IPSEC_CONNECTION_AUTHBY[] = {
 	{"rsa", "Use RSA pair keys", NULL, ipsec_authby_rsa, 1, MSK_NORMAL},
 	{"secret", "Use pre-shared key", CMD_IPSEC_CONNECTION_AUTHBY_SECRET, NULL, 1, MSK_NORMAL},
+#ifdef OPTION_PKI
 	{"X.509", "Use X.509 ceritificates", NULL, ipsec_authby_x509, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -589,6 +591,19 @@ cish_command CMD_CRYPTO_NO_L2TP[] = {
 };
 
 #ifdef OPTION_PKI
+cish_command CMD_CRYPTO_PKI_NO_CA[] = {
+	{"<string>", "CA identification", NULL, pki_no, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_NO[] = {
+	{"ca", "Delete X.509 Certificate Authority", CMD_CRYPTO_PKI_NO_CA, NULL, 1, MSK_NORMAL},
+	{"cert", "Delete X.509 Certificate", NULL, pki_no, 1, MSK_NORMAL},
+	{"csr", "Delete X.509 Certificate Signing Request", NULL, pki_no, 1, MSK_NORMAL},
+	{"privkey", "Delete Private RSA Key", NULL, pki_no, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CRYPTO_PKI_GENERATE[] = {
 	{"generate", "Trigger generation", NULL, pki_generate, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -624,14 +639,6 @@ cish_command CMD_CRYPTO_PKI[] = {
 	{"csr", "X.509 Certificate Signing Request Options", CMD_CRYPTO_PKI_GENERATE, NULL, 1, MSK_NORMAL},
 	{"privkey", "Private RSA Key Options", CMD_CRYPTO_PKI_KEYLEN, NULL, 1, MSK_NORMAL},
 	{"save", "Save PKI keys and certificates in non-volatile memory", NULL, pki_save, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CRYPTO_PKI_NO[] = {
-	{"ca", "X.509 Certificate Authorities Options", CMD_CRYPTO_PKI_CA, NULL, 1, MSK_NORMAL},
-	{"cert", "X.509 Certificate Options", CMD_CRYPTO_PKI_CERT, NULL, 1, MSK_NORMAL},
-	{"csr", "X.509 Certificate Signing Request Options", CMD_CRYPTO_PKI_CSR, NULL, 1, MSK_NORMAL},
-	{"privkey", "Private RSA Key Options", CMD_CRYPTO_PKI_KEYLEN, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 

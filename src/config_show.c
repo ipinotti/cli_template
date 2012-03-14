@@ -1973,7 +1973,9 @@ void show_pki(const char *cmdline)
 
 	args = librouter_make_args(cmdline);
 
-	if (args->argc == 4) {
+	if (args->argc == 2) {
+		librouter_pki_dump_general_info();
+	} else if (args->argc == 4) {
 		if (strstr(args->argv[2], "csr")) {
 			if (librouter_pki_get_csr_contents(buf, sizeof(buf)) == 0)
 				printf(buf);

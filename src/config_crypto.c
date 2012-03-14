@@ -278,6 +278,23 @@ free_args:
 }
 
 #ifdef OPTION_PKI
+void pki_no(const char *cmd)
+{
+	arglist *args;
+	args = librouter_make_args(cmd);
+
+	if (!strcmp(args->argv[2], "csr"))
+		librouter_pki_flush_csr();
+	else if (!strcmp(args->argv[2], "cert"))
+		librouter_pki_flush_cert();
+	else if (!strcmp(args->argv[2], "cert"))
+		librouter_pki_flush_privkey();
+	else if (!strcmp(args->argv[2], "ca"))
+		librouter_pki_del_cacert(args->argv[3]);
+
+	librouter_destroy_args(args);
+}
+
 void pki_generate(const char *cmd)
 {
 	arglist *args;
@@ -385,6 +402,11 @@ void pki_cacert_add(const char *cmd)
 {
 	arglist *args;
 	char *c = NULL;
+
+	if (librouter_pki_get_ca_num() == PKI_MAX_CA) {
+		printf("%% Already reached maximum supported number of CAs\n");
+		return;
+	}
 
 	args = librouter_make_args(cmd);
 
@@ -581,34 +603,57 @@ void set_ipsec_id(const char *cmd)
 {
 	int ret;
 	arglist *args;
-	char tp[MAX_ID_LEN];
+	int local = 0;
 
 	args = librouter_make_args(cmd);
+
+	if (args->argc < 3)
+		goto free_args;
+
+	if (strncmp(args->argv[0], "local", 5) == 0)
+		local = 1;
+
 	if (args->argc == 3) {
-		if (strlen(args->argv[2]) < MAX_ID_LEN)
-			strcpy(tp, args->argv[2]);
-		else {
-			printf("%% ID to long\n");
+		if (strlen(args->argv[2]) > MAX_ID_LEN) {
+			printf("%% ERROR: ID too long!\n");
 			goto free_args;
 		}
-		if (strncmp(args->argv[0], "local", 5) == 0)
-			ret = librouter_ipsec_set_local_id(dynamic_ipsec_menu_name, tp);
+
+		if (local)
+			ret = librouter_ipsec_set_local_id(dynamic_ipsec_menu_name, args->argv[2]);
 		else
-			ret = librouter_ipsec_set_remote_id(dynamic_ipsec_menu_name, tp);
-		if (ret < 0) {
-			printf("%% Not possible to set %s id\n", args->argv[0]);
+			ret = librouter_ipsec_set_remote_id(dynamic_ipsec_menu_name, args->argv[2]);
+
+	} else { /* DN for X.509 certificates */
+		char *p;
+
+		p = strstr(cmd, args->argv[2]); /* Get beggining of ID string */
+		if (p == NULL) /* WTF! */
 			goto free_args;
-		}
-		// se o link estiver ativo, entao provocamos um RESTART no starter
-		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
-		if (ret < 0) {
-			printf("%% Not possible to set %s id\n", args->argv[0]);
-			goto free_args;
-		}
-		if (ret > 0)
-			librouter_ipsec_exec(RESTART);
+
+		if (local)
+			ret = librouter_ipsec_set_local_id(dynamic_ipsec_menu_name, p);
+		else
+			ret = librouter_ipsec_set_remote_id(dynamic_ipsec_menu_name, p);
 	}
-	free_args: librouter_destroy_args(args);
+
+	if (ret < 0) {
+		printf("%% Not possible to set %s id\n", args->argv[0]);
+		goto free_args;
+	}
+
+	/* Restart IPSec if it was active */
+	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
+	if (ret < 0) {
+		printf("%% Not possible to set %s id\n", args->argv[0]);
+		goto free_args;
+	}
+
+	if (ret > 0)
+		librouter_ipsec_exec(RESTART);
+
+free_args:
+	librouter_destroy_args(args);
 }
 
 void clear_ipsec_id(const char *cmd) /* no local/remote id */

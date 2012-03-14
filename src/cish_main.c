@@ -1559,7 +1559,11 @@ cish_command *expand_token(const char *unexpanded, cish_command *queue, int iter
 					}
 				}
 			} else if (strcmp(queue[idx_inqueue].name, "<text>") == 0) {
+#if 0	/* I don't understand why double quotes weren't allowed */
 				if (strlen(unexpanded) && (strchr(unexpanded, '\"') == 0)) {
+#else
+				if (strlen(unexpanded)) {
+#endif
 					if (iteration < 1) {
 						strncpy(EXTCMD, unexpanded, 1023);
 						EXTCMD[1023] = 0;
