@@ -1790,6 +1790,7 @@ static int show_conn_specific(char *name, int state)
 	return 1;
 }
 
+/* FIXME Most stuff here should be in librouter */
 void show_crypto(const char *cmdline)
 {
 	int i, ret;
@@ -1819,14 +1820,7 @@ void show_crypto(const char *cmdline)
 	librouter_destroy_args(args);
 
 	total_name_len = 0;
-#if 0
-	if (librouter_ipsec_get_interface(iface, 20) < 1)
-	{
-		printf("%% Not possible to show ipsec interface\n");
-		return;
-	}
-	printf("interface %s\n", iface);
-#endif
+
 	if ((ret = librouter_ipsec_get_autoreload()) > 0)
 		printf("auto-reload in %d seconds\n", ret);
 	if ((ret = librouter_ipsec_get_nat_traversal()) >= 0) {
@@ -1885,33 +1879,33 @@ void show_crypto(const char *cmdline)
 					break;
 				args = librouter_make_args(line);
 
-				if (args->argc == 7) {
-					if (!strstr(args->argv[2], "...%any")) /* skip roadwarrior master! */
-					{
-						for (i = 0, list = list_ini; i < IPSEC_MAX_CONN; i++, list++) {
-							if (*list) {
-								char name[64];
-								sprintf(name, "\"%s\"", *list);
-								if (strstr(args->argv[1], name)) {
-									if (strstr(args->argv[3], "erouted"))
-										flag = CONN_UP;
-									else if (strstr(args->argv[3],
-									                "unrouted"))
-										flag = CONN_DOWN;
+				if (!strstr(args->argv[2], "...%any")) /* skip roadwarrior master! */
+				{
+					for (i = 0, list = list_ini; i < IPSEC_MAX_CONN;
+					                i++, list++) {
+						if (*list) {
+							char name[64];
+							sprintf(name, "\"%s\"", *list);
+							if (strstr(args->argv[1], name)) {
+								if (strstr(line, "erouted"))
+									flag = CONN_UP;
+								else if (strstr(line, "unrouted"))
+									flag = CONN_DOWN;
 
-									if (show_conn_specific(*list, flag)
-									                < 1)
-										goto go_error;
+								if (show_conn_specific(*list, flag)
+								                < 1)
+									goto go_error;
 
-									printf("\n");
-									free(*list);
-									*list = NULL;
-									break;
-								}
+								printf("\n");
+								free(*list);
+								*list = NULL;
+								break;
 							}
 						}
 					}
 				}
+
+
 				librouter_destroy_args(args);
 			}
 			pclose(output);
