@@ -19,7 +19,9 @@ cish_command CMD_IPSEC_CONNECTION_AUTHBY_SECRET[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_AUTHBY[] = {
+#ifdef IPSEC_SUPPORT_RSA_RAW
 	{"rsa", "Use RSA pair keys", NULL, ipsec_authby_rsa, 1, MSK_NORMAL},
+#endif
 	{"secret", "Use pre-shared key", CMD_IPSEC_CONNECTION_AUTHBY_SECRET, NULL, 1, MSK_NORMAL},
 #ifdef OPTION_PKI
 	{"X.509", "Use X.509 ceritificates", NULL, ipsec_authby_x509, 1, MSK_NORMAL},
@@ -28,7 +30,7 @@ cish_command CMD_IPSEC_CONNECTION_AUTHBY[] = {
 };
 
 cish_command CMD_IPSEC_CONNECTION_AUTHPROTO[] = {
-#if 0
+#ifdef IPSEC_SUPPORT_TRANSPORT_MODE
 	{"transport", "Transport mode", NULL, ipsec_authproto_ah, 1, MSK_NORMAL},
 #endif
 	{"tunnel", "Tunnel mode", NULL, ipsec_authproto_esp, 1, MSK_NORMAL},
@@ -127,10 +129,12 @@ cish_command CMD_IPSEC_CONNECTION_LR_NEXTHOP[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef IPSEC_SUPPORT_RSA_RAW
 cish_command CMD_IPSEC_CONNECTION_R_RSAKEY[] = {
 	{"<text>", "The public key", NULL, set_ipsec_remote_rsakey, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif /* IPSEC_SUPPORT_RSA_RAW */
 
 cish_command CMD_IPSEC_CONNECTION_LR_SUBNET_MASK[] = {
 	{"<netmask>", "subnet mask", NULL, set_ipsec_subnet, 1, MSK_NORMAL},
@@ -154,7 +158,9 @@ cish_command CMD_IPSEC_CONNECTION_REMOTE[] = {
 	{"address", "The remote address type entered by the user", CMD_IPSEC_CONNECTION_R_ADDR, NULL, 1, MSK_NORMAL},
 	{"id", "Remote identification of the tunnel", CMD_IPSEC_CONNECTION_LR_ID, NULL, 1, MSK_NORMAL},
 	{"nexthop", "Equipment that gives access to the network", CMD_IPSEC_CONNECTION_LR_NEXTHOP, NULL, 1, MSK_NORMAL},
+#ifdef IPSEC_SUPPORT_RSA_RAW
 	{"rsakey", "The RSA public key of the remote", CMD_IPSEC_CONNECTION_R_RSAKEY, NULL, 1, MSK_NORMAL},
+#endif
 	{"subnet", "The remote subnet (network & mask)", CMD_IPSEC_CONNECTION_LR_SUBNET, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -283,7 +289,9 @@ cish_command CMD_IPSEC_CONNECTION_NO_LOCAL[] = {
 cish_command CMD_IPSEC_CONNECTION_NO_REMOTE[] = {
 	{"id", "Clear remote identification of the tunnel", NULL, clear_ipsec_id, 1, MSK_NORMAL},
 	{"nexthop", "Clear remote nexthop", NULL, clear_ipsec_nexthop, 1, MSK_NORMAL},
+#ifdef IPSEC_SUPPORT_RSA_RAW
 	{"rsakey", "Clear the RSA public key of the remote", NULL, clear_ipsec_remote_rsakey, 1, MSK_NORMAL},
+#endif
 	{"subnet", "Clear remote subnet", NULL, clear_ipsec_subnet, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -406,6 +414,7 @@ cish_command CMD_CRYPTO_IPSEC_CONNECTION[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef IPSEC_SUPPORT_RSA_RAW
 cish_command CMD_CRYPTO_KEY_RSA_LEN[] = {
 	{"512-2048", "Length in bits (multiple of 16)", NULL, generate_rsa_key, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -420,6 +429,7 @@ cish_command CMD_CRYPTO_KEY_GENERATE[] = {
 	{"generate", "Generate new keys", CMD_CRYPTO_KEY_RSA, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif /* IPSEC_SUPPORT_RSA_RAW */
 
 cish_command CMD_CRYPTO_IPSEC_NO_CONN[] = {
 #if IPSEC_MAX_CONN <= 50
@@ -669,7 +679,9 @@ cish_command CMD_CONFIG_CRYPTO[] = {
 #endif
 	{"exit", "Exit from crypto configuration mode", NULL, config_crypto_done, 1, MSK_NORMAL},
 	{"ipsec", "Manage IPSEC tunnels", CMD_CRYPTO_IPSEC_CONNECTION, NULL, 1, MSK_NORMAL},
+#ifdef IPSEC_SUPPORT_RSA_RAW
 	{"key", "Manage keys", CMD_CRYPTO_KEY_GENERATE, NULL, 1, MSK_NORMAL},
+#endif
 	{"l2tp", "Manage L2TP server", CMD_CRYPTO_L2TP, NULL, 1, MSK_NORMAL},
 	{"nat-traversal", "Manage NAT-Traversal", NULL, ipsec_nat_traversal, 1, MSK_NORMAL},
 	{"no", "Reverse settings", CMD_CRYPTO_NO, NULL, 1, MSK_NORMAL},

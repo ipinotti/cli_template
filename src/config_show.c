@@ -1831,6 +1831,8 @@ void show_crypto(const char *cmdline)
 	}
 	if ((ret = librouter_ipsec_get_overridemtu()) > 0)
 		printf("overridemtu %d\n", ret);
+
+#ifdef IPSEC_SUPPORT_RSA_RAW
 	/* RSA Keys */
 	rsa = malloc(8192);
 	if (librouter_nv_load_ipsec_secret(rsa)) {
@@ -1846,6 +1848,7 @@ void show_crypto(const char *cmdline)
 	} else
 		printf("You have to generate rsa keys!\n");
 	free(rsa);
+#endif
 
 	/* Search for connections */
 	if (librouter_ipsec_list_all_names(&list_ini) < 1) {

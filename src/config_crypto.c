@@ -258,6 +258,7 @@ void del_ipsec_conn(const char *cmd) /* no ipsec connection [name] */
 	free_args: librouter_destroy_args(args);
 }
 
+#ifdef IPSEC_SUPPORT_RSA_RAW
 void generate_rsa_key(const char *cmd)
 {
 	arglist *args;
@@ -276,6 +277,7 @@ void generate_rsa_key(const char *cmd)
 free_args:
 	librouter_destroy_args(args);
 }
+#endif /* IPSEC_SUPPORT_RSA_RAW */
 
 #ifdef OPTION_PKI
 void pki_no(const char *cmd)
@@ -485,6 +487,7 @@ void ipsec_set_secret_key(const char *cmd) /* authby secret password */
 	free_args: librouter_destroy_args(args);
 }
 
+#ifdef OPTION_SUPPORT_RSA_RAW
 void ipsec_authby_rsa(const char *cmd)
 {
 	int ret;
@@ -507,6 +510,7 @@ void ipsec_authby_rsa(const char *cmd)
 	}
 	free_args: librouter_destroy_args(args);
 }
+#endif /* OPTION_SUPPORT_RSA_RAW */
 
 void ipsec_authby_x509(const char *cmd)
 {
@@ -818,6 +822,7 @@ void clear_ipsec_nexthop(const char *cmd) /* no local/remote nexthop */
 	free_args: librouter_destroy_args(args);
 }
 
+#ifdef IPSEC_SUPPORT_RSA_RAW
 void set_ipsec_remote_rsakey(const char *cmd) /* remote rsakey [publickey] */
 {
 	int ret;
@@ -864,6 +869,7 @@ void clear_ipsec_remote_rsakey(const char *cmd) /* no local/remote rsakey */
 	}
 	free_args: librouter_destroy_args(args);
 }
+#endif /* IPSEC_SUPPORT_RSA_RAW */
 
 void set_ipsec_subnet(const char *cmd)
 {
