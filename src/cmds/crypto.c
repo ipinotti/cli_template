@@ -643,6 +643,7 @@ cish_command CMD_CRYPTO_PKI_CERT[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef IPSEC_SUPPORT_SCEP
 cish_command CMD_CRYPTO_PKI_SCEP_CA[] = {
 	{"<text>", "CA used to generate PKCS#7 message", NULL, pki_csr_enroll, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -652,9 +653,12 @@ cish_command CMD_CRYPTO_PKI_SCEP[] = {
 	{"<url>", "SCEP Server URL", CMD_CRYPTO_PKI_SCEP_CA, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif
 
 cish_command CMD_CRYPTO_PKI_CSR[] = {
+#ifdef IPSEC_SUPPORT_SCEP
 	{"scep", "Simple Certificate Enrollment Protocol Options",  CMD_CRYPTO_PKI_SCEP, NULL, 1, MSK_NORMAL},
+#endif
 	{"generate", "Generate PKCS#10 to offline enrollment", NULL, pki_generate, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
