@@ -384,6 +384,36 @@ static void _cert_add(char **buf)
 	*buf = cert;
 }
 
+#ifdef IPSEC_SUPPORT_SCEP
+void pki_csr_enroll(const char *cmd)
+{
+	arglist *args;
+	char buf[4096];
+	char *url, *ca;
+
+	args = librouter_make_args(cmd);
+
+	url = args->argv[3];
+	ca = args->argv[4];
+
+	if (librouter_pki_get_privkey(buf, sizeof(buf)) < 0) {
+		printf("%% Need to generate RSA Private-Key first\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	if (librouter_pki_get_cacert(ca, buf, sizeof(buf)) < 0) {
+		printf("%% Need to add %s CA certificate first\n", ca);
+		librouter_destroy_args(args);
+		return;
+	}
+
+	librouter_pki_cert_enroll(url, ca);
+
+	librouter_destroy_args(args);
+}
+#endif /* IPSEC_SUPPORT_SCEP */
+
 void pki_cert_add(const char *cmd)
 {
 	char *c = NULL;
@@ -712,7 +742,9 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 			printf("%% Not possible to set local address to default-route\n");
 			goto free_args;
 		}
-	} else if (local && !strncmp(args->argv[2], "interface", 9)) {
+	}
+#ifdef IPSEC_SUPPORT_LOCAL_ADDRESS_INTERFACE
+	else if (local && !strncmp(args->argv[2], "interface", 9)) {
 		cish_dbg("Adding local as interface\n");
 
 		sprintf(tp, "%%%s", args->argv[3]);
@@ -723,7 +755,9 @@ void set_ipsec_addr(const char *cmd) /* local/remote address default-route/inter
 					args->argv[0], args->argv[3]);
 			goto free_args;
 		}
-	} else if (!local && !strncmp(args->argv[2], "any", 3)) {
+	}
+#endif /* IPSEC_SUPPORT_LOCAL_ADDRESS_INTERFACE */
+	else if (!local && !strncmp(args->argv[2], "any", 3)) {
 		ret = librouter_ipsec_set_remote_addr(dynamic_ipsec_menu_name, STRING_ANY);
 		if (ret < 0) {
 			printf("%% Not possible to set %s address to any\n", args->argv[0]);

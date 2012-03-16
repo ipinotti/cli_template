@@ -450,6 +450,7 @@ void crypto_on_off(int);
 #ifdef OPTION_PKI
 void pki_no(const char *cmd);
 void pki_generate(const char *cmd);
+void pki_csr_enroll(const char *cmd);
 void pki_cert_add(const char *cmd);
 void pki_cacert_add(const char *cmd);
 void pki_save(const char *cmd);

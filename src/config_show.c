@@ -49,11 +49,6 @@ extern char *tzname[2];
 
 static char tbuf[256];
 
-#ifdef OPTION_IPSEC
-static int total_name_len;
-char separator[] = "<--->";
-#endif
-
 void show_output(FILE *tf)
 {
 	if (tf == NULL)
@@ -189,7 +184,7 @@ static int show_logging_file(time_t tm_start, FILE *tf)
 				if ((strncmp(info, "last message repeated", 21) == 0) && last_one_was_printed) {
 					pprintf("%s %s", date, info);
 				}
-#ifdef CONFIG_DEVELOPMENT /* Show all lines... */
+#if 0 //#ifdef CONFIG_DEVELOPMENT /* Show all lines... */
 				else
 				pprintf("%s %s", date, info);
 #endif
@@ -1526,6 +1521,8 @@ void show_qos(const char *cmdline)
 #endif
 
 #ifdef OPTION_IPSEC
+
+#if 0
 static void print_ipsec_show_line(char *name,
                                   char *local,
                                   char *remote,
@@ -1789,10 +1786,23 @@ static int show_conn_specific(char *name, int state)
 	}
 	return 1;
 }
+#endif /* if 0 */
 
 /* FIXME Most stuff here should be in librouter */
 void show_crypto(const char *cmdline)
 {
+#if 1
+	arglist *args;
+
+	args = librouter_make_args(cmdline);
+
+	if (args->argc == 3) /* show crypto <conn-name> */
+		librouter_ipsec_show_conn(args->argv[2]);
+	else
+		librouter_ipsec_show_all();
+
+	librouter_destroy_args(args);
+#else
 	int i, ret;
 	arglist *args;
 	char *p, *rsa, **list = NULL, **list_ini = NULL, line[1024];
@@ -1958,6 +1968,7 @@ void show_crypto(const char *cmdline)
 	}
 #endif
 	return;
+#endif /* #if 0 */
 }
 
 #ifdef OPTION_PKI

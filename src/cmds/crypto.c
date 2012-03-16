@@ -62,6 +62,7 @@ cish_command CMD_IPSEC_CONNECTION_LR_ADDR_FQDN[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+#ifdef IPSEC_SUPPORT_LOCAL_ADDRESS_INTERFACE
 cish_command CMD_IPSEC_CONNECTION_INTERFACE_ETHERNET[] = {
 	{CLI_STRING_ETH_IFACES, "Ethernet interface number", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -101,14 +102,17 @@ cish_command CMD_IPSEC_CONNECTION_INTERFACE[] = {
 #endif
 	{NULL,NULL,NULL,NULL, 0}
 };
+#endif /* IPSEC_SUPPORT_LOCAL_ADDRESS_INTERFACE */
 
 cish_command CMD_IPSEC_CONNECTION_L_ADDR[] = {
 	{"default-route", "Use default route as address", NULL, set_ipsec_addr, 1, MSK_NORMAL},
-#if 0
+#if IPSEC_SUPPORT_LOCAL_ADDRESS_FQDN
 	{"fqdn", "Address in the name format", CMD_IPSEC_CONNECTION_LR_ADDR_FQDN, NULL, 1, MSK_NORMAL},
 #endif
 	{"ip", "Address in the dotted representation", CMD_IPSEC_CONNECTION_LR_ADDR_IP, NULL, 1, MSK_NORMAL},
+#ifdef IPSEC_SUPPORT_LOCAL_ADDRESS_INTERFACE
 	{"interface", "Interface to be used", CMD_IPSEC_CONNECTION_INTERFACE, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -639,14 +643,26 @@ cish_command CMD_CRYPTO_PKI_CERT[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_CRYPTO_PKI_SCEP_CA[] = {
+	{"<text>", "CA used to generate PKCS#7 message", NULL, pki_csr_enroll, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_SCEP[] = {
+	{"<url>", "SCEP Server URL", CMD_CRYPTO_PKI_SCEP_CA, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_CRYPTO_PKI_CSR[] = {
+	{"scep", "Simple Certificate Enrollment Protocol Options",  CMD_CRYPTO_PKI_SCEP, NULL, 1, MSK_NORMAL},
+	{"generate", "Generate PKCS#10 to offline enrollment", NULL, pki_generate, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_CRYPTO_PKI[] = {
 	{"ca", "X.509 Certificate Authorities Options", CMD_CRYPTO_PKI_CA, NULL, 1, MSK_NORMAL},
 	{"cert", "X.509 Certificate Options", CMD_CRYPTO_PKI_CERT, NULL, 1, MSK_NORMAL},
-	{"csr", "X.509 Certificate Signing Request Options", CMD_CRYPTO_PKI_GENERATE, NULL, 1, MSK_NORMAL},
+	{"csr", "X.509 Certificate Signing Request Options", CMD_CRYPTO_PKI_CSR, NULL, 1, MSK_NORMAL},
 	{"privkey", "Private RSA Key Options", CMD_CRYPTO_PKI_KEYLEN, NULL, 1, MSK_NORMAL},
 	{"save", "Save PKI keys and certificates in non-volatile memory", NULL, pki_save, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
