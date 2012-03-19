@@ -1998,13 +1998,20 @@ void show_pki(const char *cmdline)
 		} else if (strstr(args->argv[2], "host")) {
 			if (librouter_pki_get_cert(buf, sizeof(buf)) == 0)
 				printf(buf);
-		}
-#if 0
-		else if (!strcmp(args->argv[2], "ca")) {
-			if (librouter_pki_get_cacert(buf, sizeof(buf)) == 0)
+		} else if (!strcmp(args->argv[2], "ca")) {
+			int i, n;
+			char name[32];
+
+			n = librouter_pki_get_ca_num();
+			printf("Number of CA certificates: %d\n", n);
+			for (i = 0; i < n; i++) {
+				librouter_pki_get_ca_name_by_index(i, name);
+				librouter_pki_get_cacert(name, buf, sizeof(buf));
+				printf("CA Name: %s\n", name);
 				printf(buf);
+				printf("-------------------------\n");
+			}
 		}
-#endif
 	}
 
 	librouter_destroy_args(args);
