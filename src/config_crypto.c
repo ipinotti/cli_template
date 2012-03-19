@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -389,7 +390,8 @@ void pki_csr_enroll(const char *cmd)
 {
 	arglist *args;
 	char buf[4096];
-	char *url, *ca;
+	char *url, *ca, *p;
+	struct pki_dn dn;
 
 	args = librouter_make_args(cmd);
 
@@ -408,7 +410,45 @@ void pki_csr_enroll(const char *cmd)
 		return;
 	}
 
-	librouter_pki_cert_enroll(url, ca);
+	printf("You are about to be asked to enter information that will be incorporated\n"
+			"into your certificate request.\n"
+			"What you are about to enter is what is called a Distinguished Name or a DN.\n"
+			"There are quite a few fields but you can leave some blank\n"
+			"For some fields there will be a default value,\n");
+
+
+	fflush(STDIN_FILENO);
+	printf("Country Name (2 letter code) [BR]:");
+	dn.c = readline(NULL);
+	printf("State or Province Name (full name) [Some-State]:");
+	dn.state = readline(NULL);
+	printf("Locality Name (eg, city) []:");
+	dn.city = readline(NULL);
+	printf("Organization Name (eg, company) [Digistar Telecom SA]:");
+	dn.org = readline(NULL);
+	printf("Organizational Unit Name (eg, section) []:");
+	dn.section = readline(NULL);
+	printf("Common Name (eg, YOUR name) []:");
+	dn.name = readline(NULL);
+	printf("Email Address []:");
+	dn.email = readline(NULL);
+
+	librouter_pki_cert_enroll(url, ca, &dn);
+
+	if (dn.c)
+		free(dn.c);
+	if (dn.state)
+		free(dn.state);
+	if (dn.city)
+		free(dn.city);
+	if (dn.org)
+		free(dn.org);
+	if (dn.section)
+		free(dn.section);
+	if (dn.name)
+		free(dn.name);
+	if (dn.email)
+		free(dn.email);
 
 	librouter_destroy_args(args);
 }
