@@ -169,6 +169,11 @@ cish_command CMD_IPSEC_CONNECTION_REMOTE[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_IPSEC_CONNECTION_IKEVERSION[] = {
+	{"1-2", "Version number", NULL, ipsec_conn_set_ike_version, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_IPSEC_CONNECTION_L2TP_PEER1[] = {
 	{"<netmask>", "Remote address mask", NULL, l2tp_peer, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -337,6 +342,7 @@ cish_command CMD_IPSEC_CONNECTION_CHILDREN[] = {
 	{"authproto", "Authentication protocol", CMD_IPSEC_CONNECTION_AUTHPROTO, NULL, 1, MSK_NORMAL},
 	{"esp", "ESP crypto configuration", CMD_IPSEC_CONNECTION_ESP, set_esp_hash, 1, MSK_NORMAL},
 	{"exit", "Exit from connection configuration mode", NULL, config_connection_done, 1, MSK_NORMAL},
+	{"ike-version", "Internet Key Exchange Protocol Version", CMD_IPSEC_CONNECTION_IKEVERSION, NULL, 1, MSK_NORMAL},
 	{"local", "Local settings of the tunnel", CMD_IPSEC_CONNECTION_LOCAL, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse settings", CMD_IPSEC_CONNECTION_NO, NULL, 1, MSK_NORMAL},
 	{"pfs", "Enable PFS", NULL, ipsec_pfs, 1, MSK_NORMAL},

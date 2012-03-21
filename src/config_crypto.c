@@ -390,7 +390,7 @@ void pki_csr_enroll(const char *cmd)
 {
 	arglist *args;
 	char buf[4096];
-	char *url, *ca, *p;
+	char *url, *ca;
 	struct pki_dn dn;
 
 	args = librouter_make_args(cmd);
@@ -410,6 +410,10 @@ void pki_csr_enroll(const char *cmd)
 		return;
 	}
 
+	/*
+	 * Try to reproduce the same openssl output
+	 * when setting a DN.
+	 */
 	printf("You are about to be asked to enter information that will be incorporated\n"
 			"into your certificate request.\n"
 			"What you are about to enter is what is called a Distinguished Name or a DN.\n"
@@ -664,6 +668,37 @@ void set_esp_hash(const char *cmd)
 	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 	if (ret < 0) {
 		printf("%% Not possible to set cypher\n");
+		goto free_args;
+	}
+
+	if (ret > 0)
+		librouter_ipsec_exec(RESTART);
+free_args:
+	librouter_destroy_args(args);
+}
+
+void ipsec_conn_set_ike_version(const char *cmd)
+{
+	int ret;
+	arglist *args;
+	int version = IKEv1;
+
+	args = librouter_make_args(cmd);
+
+	if (strcmp(args->argv[1], "2"))
+		version = IKEv2;
+	else
+		version = IKEv1;
+
+	if (librouter_ipsec_set_ike_version(dynamic_ipsec_menu_name, version) < 0) {
+		printf("%% Not possible to reset esp\n");
+		goto free_args;
+	}
+
+	/* Restart link if it was already enabled */
+	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
+	if (ret < 0) {
+		printf("%% Not possible to set IKE version\n");
 		goto free_args;
 	}
 
