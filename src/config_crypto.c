@@ -685,7 +685,7 @@ void ipsec_conn_set_ike_version(const char *cmd)
 
 	args = librouter_make_args(cmd);
 
-	if (strcmp(args->argv[1], "2"))
+	if (strcmp(args->argv[1], "2") == 0)
 		version = IKEv2;
 	else
 		version = IKEv1;
