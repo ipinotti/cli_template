@@ -304,6 +304,15 @@ void pki_no(const char *cmd)
 	librouter_destroy_args(args);
 }
 
+void pki_csr_show(const char *cmd)
+{
+	char buf[4096];
+
+	memset(buf, 0, sizeof(buf));
+	if (librouter_pki_get_csr(buf, sizeof(buf)) == 0)
+		printf(buf);
+}
+
 void pki_generate(const char *cmd)
 {
 	arglist *args;

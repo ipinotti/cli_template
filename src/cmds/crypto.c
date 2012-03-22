@@ -662,10 +662,11 @@ cish_command CMD_CRYPTO_PKI_SCEP[] = {
 #endif
 
 cish_command CMD_CRYPTO_PKI_CSR[] = {
+	{"generate", "Generate PKCS#10 to offline enrollment", NULL, pki_generate, 1, MSK_NORMAL},
 #ifdef IPSEC_SUPPORT_SCEP
 	{"scep", "Simple Certificate Enrollment Protocol Options",  CMD_CRYPTO_PKI_SCEP, NULL, 1, MSK_NORMAL},
 #endif
-	{"generate", "Generate PKCS#10 to offline enrollment", NULL, pki_generate, 1, MSK_NORMAL},
+	{"show", "Show generated CSR to be sent to CA", NULL, pki_csr_show, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
