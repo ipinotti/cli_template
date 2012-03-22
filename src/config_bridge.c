@@ -151,6 +151,11 @@ void bridge_set_no_ipv4_addr(const char *cmd)
 
 	args = librouter_make_args(cmd);
 
+	if (!check_bridge(args->argv[2], brname)) {
+		librouter_destroy_args(args);
+		return;
+	}
+
 	strcpy(brname, BRIDGE_NAME);
 	strcat(brname, args->argv[2]);
 
@@ -178,6 +183,11 @@ void bridge_set_ipv4_addr(const char *cmd)
 	char *addr, *mask;
 
 	args = librouter_make_args(cmd);
+
+	if (!check_bridge(args->argv[1], brname)) {
+		librouter_destroy_args(args);
+		return;
+	}
 
 	strcpy(brname, BRIDGE_NAME);
 	strcat(brname, args->argv[1]);
