@@ -176,46 +176,52 @@ void add_ipsec_conn(const char *cmd) /* ipsec connection add [name] */
 	int i, go_out, count;
 
 	args = librouter_make_args(cmd);
-	if (args->argc == 4) {
-		if (strlen(args->argv[3]) >= IPSEC_MAX_CONN_NAME) {
-			printf("%% Connection name to long\n");
-			goto free_args;
-		}
-		if (librouter_ipsec_list_all_names(&list) < 1) {
-			printf("%% Not possible to add ipsec connection\n");
-			goto free_args;
-		}
-		if (*list != NULL) {
-			list_ini = list;
-			for (i = 0, go_out = 0, count = 0; *list != NULL && i < IPSEC_MAX_CONN; i++, list++, count++) {
-				if (strcmp(args->argv[3], *list) == 0)
-					go_out++;
-				free(*list);
-			}
-			free(list_ini);
-			if (go_out) {
-				if (!_cish_booting)
-					printf("%% Connection with name %s already exists!\n",
-					                args->argv[3]);
-				goto free_args;
-			}
 
-			if (count >= IPSEC_MAX_CONN) {
-				printf("%% You have reached the max number of connections!\n");
-				goto free_args;
-			}
-		}
+	if (args->argc != 4)
+		goto free_args;
 
-		if (librouter_ipsec_create_conn(args->argv[3])) {
-			printf("%% Not possible to add ipsec connection %s\n", args->argv[3]);
+	if (strlen(args->argv[3]) >= IPSEC_MAX_CONN_NAME) {
+		printf("%% Connection name to long\n");
+		goto free_args;
+	}
+
+	if (librouter_ipsec_list_all_names(&list) < 1) {
+		printf("%% Not possible to add ipsec connection\n");
+		goto free_args;
+	}
+
+	if (*list != NULL) {
+		list_ini = list;
+		for (i = 0, go_out = 0, count = 0; *list != NULL && i < IPSEC_MAX_CONN;
+		                i++, list++, count++) {
+			if (strcmp(args->argv[3], *list) == 0)
+				go_out++;
+			free(*list);
+		}
+		free(list_ini);
+		if (go_out) {
+			if (!_cish_booting)
+				printf("%% Connection with name %s already exists!\n",
+				                args->argv[3]);
 			goto free_args;
 		}
 
-		if (eval_connections_menus(1, args->argv[3]) < 0) {
-			librouter_ipsec_delete_conn(args->argv[3]);
+		if (count >= IPSEC_MAX_CONN) {
+			printf("%% You have reached the max number of connections!\n");
 			goto free_args;
 		}
 	}
+
+	if (librouter_ipsec_create_conn(args->argv[3])) {
+		printf("%% Not possible to add ipsec connection %s\n", args->argv[3]);
+		goto free_args;
+	}
+
+	if (eval_connections_menus(1, args->argv[3]) < 0) {
+		librouter_ipsec_delete_conn(args->argv[3]);
+		goto free_args;
+	}
+
 	free_args: librouter_destroy_args(args);
 }
 
