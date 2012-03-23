@@ -652,27 +652,36 @@ void set_esp_hash(const char *cmd)
 {
 	int ret;
 	arglist *args;
-	int cypher = CYPHER_ANY, hash = HASH_ANY;
+	int cypher, hash;
 
 	args = librouter_make_args(cmd);
 
-	if (args->argc > 1) {
-		if (strstr(args->argv[1], "aes"))
-			cypher = CYPHER_AES;
-		else if (strstr(args->argv[1],"3des"))
-			cypher = CYPHER_3DES;
-		else if (strstr(args->argv[1],"null"))
-			cypher = CYPHER_NULL;
-		else
-			cypher = CYPHER_DES;
-	}
+	if (args->argc != 3)
+		goto free_args;
 
-	if (args->argc > 2) {
-		if (strstr(args->argv[2], "sha1"))
-			hash = HASH_SHA1;
-		else
-			hash = HASH_MD5;
-	}
+	if (!strcmp(args->argv[1], "aes"))
+		cypher = CYPHER_AES;
+	else if (!strcmp(args->argv[1], "aes192"))
+		cypher = CYPHER_AES192;
+	else if (!strcmp(args->argv[1], "aes256"))
+		cypher = CYPHER_AES256;
+	else if (!strcmp(args->argv[1], "3des"))
+		cypher = CYPHER_3DES;
+	else if (!strcmp(args->argv[1], "null"))
+		cypher = CYPHER_NULL;
+	else
+		cypher = CYPHER_DES;
+
+	if (!strcmp(args->argv[2], "sha1"))
+		hash = HASH_SHA1;
+	else if (!strcmp(args->argv[2], "sha256"))
+		hash = HASH_SHA256;
+	else if (!strcmp(args->argv[2], "sha384"))
+		hash = HASH_SHA384;
+	else if (!strcmp(args->argv[2], "sha512"))
+		hash = HASH_SHA512;
+	else
+		hash = HASH_MD5;
 
 	if (librouter_ipsec_set_esp(dynamic_ipsec_menu_name, cypher, hash) < 0) {
 		printf("%% Not possible to reset esp\n");
@@ -683,6 +692,69 @@ void set_esp_hash(const char *cmd)
 	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
 	if (ret < 0) {
 		printf("%% Not possible to set cypher\n");
+		goto free_args;
+	}
+
+	if (ret > 0)
+		librouter_ipsec_exec(RESTART);
+free_args:
+	librouter_destroy_args(args);
+}
+
+void ipsec_set_ike_protocols(const char *cmd)
+{
+	int ret;
+	arglist *args;
+	int cypher, hash, dh;
+
+	args = librouter_make_args(cmd);
+
+	if (args->argc != 4)
+		goto free_args;
+
+	if (!strcmp(args->argv[1], "aes"))
+		cypher = CYPHER_AES;
+	else if (!strcmp(args->argv[1], "aes192"))
+		cypher = CYPHER_AES192;
+	else if (!strcmp(args->argv[1], "aes256"))
+		cypher = CYPHER_AES256;
+	else if (!strcmp(args->argv[1], "3des"))
+		cypher = CYPHER_3DES;
+	else if (!strcmp(args->argv[1], "null"))
+		cypher = CYPHER_NULL;
+	else
+		cypher = CYPHER_DES;
+
+	if (!strcmp(args->argv[2], "sha1"))
+		hash = HASH_SHA1;
+	else if (!strcmp(args->argv[2], "sha256"))
+		hash = HASH_SHA256;
+	else if (!strcmp(args->argv[2], "sha384"))
+		hash = HASH_SHA384;
+	else if (!strcmp(args->argv[2], "sha512"))
+		hash = HASH_SHA512;
+	else
+		hash = HASH_MD5;
+
+	if (!strcmp(args->argv[3], "1"))
+		dh = DH_GROUP_1;
+	else if (!strcmp(args->argv[3], "2"))
+		dh = DH_GROUP_2;
+	else if (!strcmp(args->argv[3], "5"))
+		dh = DH_GROUP_5;
+	else
+		dh = DH_GROUP_14;
+
+
+	if (librouter_ipsec_set_ike_algs(dynamic_ipsec_menu_name, cypher, hash, dh) < 0) {
+		printf("%% Not possible to set IKE protocol\n");
+		goto free_args;
+	}
+
+	/* Restart link if it was already enabled */
+	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
+	if (ret < 0) {
+		printf("%% Not possible to get IPSec link status\n");
 		goto free_args;
 	}
 

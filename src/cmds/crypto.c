@@ -37,21 +37,62 @@ cish_command CMD_IPSEC_CONNECTION_AUTHPROTO[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+/**************************/
+/* ESP Cyphers and hashes */
+/**************************/
 cish_command CMD_IPSEC_CONNECTION_ESP_HASH[] = {
 	{"md5", "MD5 hash", NULL, set_esp_hash, 1, MSK_NORMAL},
-	{"sha1", "SHA1 hash", NULL, set_esp_hash, 1, MSK_NORMAL},
+	{"sha1", "SHA-1 hash", NULL, set_esp_hash, 1, MSK_NORMAL},
+	{"sha256", "256-bit SHA-2 hash", NULL, set_esp_hash, 1, MSK_NORMAL},
+	{"sha384", "384-bit SHA-2 hash", NULL, set_esp_hash, 1, MSK_NORMAL},
+	{"sha512", "512-bit SHA-2 hash", NULL, set_esp_hash, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 cish_command CMD_IPSEC_CONNECTION_ESP[] = {
-	{"3des", "3DES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, set_esp_hash, 1, MSK_NORMAL},
-	{"aes", "AES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, set_esp_hash, 1, MSK_NORMAL},
-	{"des", "DES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, set_esp_hash, 1, MSK_NORMAL},
-	{"null", "NULL cypher", CMD_IPSEC_CONNECTION_ESP_HASH, set_esp_hash, 1, MSK_NORMAL},
-	{"<enter>", "cypher do not care", NULL, NULL, 0, MSK_NORMAL},
+	{"3des", "3DES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, NULL, 1, MSK_NORMAL},
+	{"aes", "128-bit AES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, NULL, 1, MSK_NORMAL},
+	{"aes192", "192-bit AES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, NULL, 1, MSK_NORMAL},
+	{"aes256", "256-bit AES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, NULL, 1, MSK_NORMAL},
+	{"des", "DES cypher", CMD_IPSEC_CONNECTION_ESP_HASH, NULL, 1, MSK_NORMAL},
+	{"null", "NULL cypher", CMD_IPSEC_CONNECTION_ESP_HASH, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+/*********************************/
+/* IKE/ISAKMP Cyphers and Hashes */
+/*********************************/
+
+cish_command CMD_IPSEC_CONNECTION_IKE_DHGROUP[] = {
+	{"1", "Group 1 (768-bit)", NULL, ipsec_set_ike_protocols, 1, MSK_NORMAL},
+	{"2", "Group 2 (1024-bit)", NULL, ipsec_set_ike_protocols, 1, MSK_NORMAL},
+	{"5", "Group 5 (1536-bit)", NULL, ipsec_set_ike_protocols, 1, MSK_NORMAL},
+	{"14", "Group 14 (2048-bit)", NULL, ipsec_set_ike_protocols, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IPSEC_CONNECTION_IKE_HASH[] = {
+	{"md5", "MD5 hash", CMD_IPSEC_CONNECTION_IKE_DHGROUP, NULL, 1, MSK_NORMAL},
+	{"sha1", "SHA-1 hash", CMD_IPSEC_CONNECTION_IKE_DHGROUP, NULL, 1, MSK_NORMAL},
+	{"sha256", "256-bit SHA-2 hash", CMD_IPSEC_CONNECTION_IKE_DHGROUP, NULL, 1, MSK_NORMAL},
+	{"sha384", "384-bit SHA-2 hash", CMD_IPSEC_CONNECTION_IKE_DHGROUP, NULL, 1, MSK_NORMAL},
+	{"sha512", "512-bit SHA-2 hash", CMD_IPSEC_CONNECTION_IKE_DHGROUP, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_IPSEC_CONNECTION_IKE[] = {
+	{"3des", "3DES cypher", CMD_IPSEC_CONNECTION_IKE_HASH, NULL, 1, MSK_NORMAL},
+	{"aes", "128-bit AES cypher", CMD_IPSEC_CONNECTION_IKE_HASH, NULL, 1, MSK_NORMAL},
+	{"aes192", "192-bit AES cypher", CMD_IPSEC_CONNECTION_IKE_HASH, NULL, 1, MSK_NORMAL},
+	{"aes256", "256-bit AES cypher", CMD_IPSEC_CONNECTION_IKE_HASH, NULL, 1, MSK_NORMAL},
+	{"des", "DES cypher", CMD_IPSEC_CONNECTION_IKE_HASH, NULL, 1, MSK_NORMAL},
+	{"null", "NULL cypher", CMD_IPSEC_CONNECTION_IKE_HASH, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+/**************************/
+/* Local/ Remote Settings */
+/**************************/
 cish_command CMD_IPSEC_CONNECTION_LR_ADDR_IP[] = {
 	{"<ipaddress>", "IP address", NULL, set_ipsec_addr, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -340,8 +381,9 @@ cish_command CMD_IPSEC_CONNECTION_NO[] = {
 cish_command CMD_IPSEC_CONNECTION_CHILDREN[] = {
 	{"authby", "Key type", CMD_IPSEC_CONNECTION_AUTHBY, NULL, 1, MSK_NORMAL},
 	{"authproto", "Authentication protocol", CMD_IPSEC_CONNECTION_AUTHPROTO, NULL, 1, MSK_NORMAL},
-	{"esp", "ESP crypto configuration", CMD_IPSEC_CONNECTION_ESP, set_esp_hash, 1, MSK_NORMAL},
+	{"esp", "ESP crypto configuration", CMD_IPSEC_CONNECTION_ESP, NULL, 1, MSK_NORMAL},
 	{"exit", "Exit from connection configuration mode", NULL, config_connection_done, 1, MSK_NORMAL},
+	{"ike-algs", "IKE/ISAKMP SA encryption/authentication algorithms", CMD_IPSEC_CONNECTION_IKE, NULL, 1, MSK_NORMAL},
 	{"ike-version", "Internet Key Exchange Protocol Version", CMD_IPSEC_CONNECTION_IKEVERSION, NULL, 1, MSK_NORMAL},
 	{"local", "Local settings of the tunnel", CMD_IPSEC_CONNECTION_LOCAL, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse settings", CMD_IPSEC_CONNECTION_NO, NULL, 1, MSK_NORMAL},
