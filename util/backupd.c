@@ -562,7 +562,7 @@ static int _remove_default_route(struct bckp_conf_t *conf)
 		return -1;
 
 	for (next = route; next != NULL; next = next->next) {
-		if (strcmp(next->interface, conf->intf_name))
+		if (next->interface && strcmp(next->interface, conf->intf_name))
 			continue;
 		if (!strcmp(next->network, "0.0.0.0"))
 			break;
@@ -570,6 +570,8 @@ static int _remove_default_route(struct bckp_conf_t *conf)
 
 	if (next)
 		librouter_quagga_del_route_hash(next->hash);
+
+	librouter_quagga_free_routes(route);
 
 	return 0;
 }
