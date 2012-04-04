@@ -15,8 +15,7 @@ void ping (const char *cmdline)
 	arglist *args;
 	int argc;
 	char count[32], size[32], addr[INET6_ADDRSTRLEN + 1];
-	char *xargv[16];
-	pid_t ping_pid;
+	char cmd[16];
 	
 	args = librouter_make_args (cmdline);
 	
@@ -28,14 +27,15 @@ void ping (const char *cmdline)
 			
 	argc = 2;
 	
-	while (argc<args->argc)	
+	while (argc < args->argc)
 	{
-		if (strcmp(args->argv[argc], "count")==0)
+		if (strcmp(args->argv[argc], "count") == 0)
 		{
 			strncpy(count, args->argv[argc+1], 31); 
 			count[31] = 0;
 		}
-		if (strcmp(args->argv[argc], "size")==0)
+
+		if (strcmp(args->argv[argc], "size") == 0)
 		{
 			strncpy(size, args->argv[argc+1], 31); 
 			size[31] = 0;
@@ -43,31 +43,15 @@ void ping (const char *cmdline)
 		argc += 2;
 	}
 	
+	if (!strcmp(args->argv[0],"ping6"))
+		strcpy(cmd, "/bin/ping6");
+	else
+		strcpy(cmd, "/bin/ping");
+
+	if (librouter_exec_prog(0, cmd, "-c", count, "-s", size, addr, NULL) < 0)
+		printf("%% Could not execute %s\n", args->argv[0]);
+
 	librouter_destroy_args (args);
-	
-	switch (ping_pid = fork())
-	{
-		case -1:
-			fprintf (stderr, "%% No processes left\n");
-			return;
-			
-		case 0:
-			if (!strcmp(args->argv[0],"ping6"))
-				xargv[0] = "/bin/ping6";
-			else
-				xargv[0] = "/bin/ping";
-			xargv[1] = "-c";
-			xargv[2] = count;
-			xargv[3] = "-s";
-			xargv[4] = size;
-			xargv[5] = addr;
-			xargv[6] = NULL;
-			execv(xargv[0], xargv);
-			
-		default:
-			waitpid (ping_pid, NULL, 0);
-			break;
-	}
 }
 
 void traceroute (const char *cmdline)
