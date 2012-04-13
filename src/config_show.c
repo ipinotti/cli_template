@@ -1981,6 +1981,9 @@ void show_pki(const char *cmdline)
 
 	args = librouter_make_args(cmdline);
 
+	if (!librouter_ipsec_is_running())
+		librouter_ipsec_exec(START);
+
 	if (args->argc == 2) {
 		librouter_pki_dump_general_info();
 	} else if (args->argc == 4) {
@@ -2008,7 +2011,10 @@ void show_pki(const char *cmdline)
 				librouter_pki_get_ca_name_by_index(i, name);
 				librouter_pki_get_cacert(name, buf, sizeof(buf));
 				printf("CA Name: %s\n", name);
-				printf(buf);
+				if (strstr(buf,"-----BEGIN CERTIFICATE-----"))
+					printf(buf);
+				else
+					printf("Binary DER ASN.1 Format\n");
 				printf("-------------------------\n");
 			}
 		}

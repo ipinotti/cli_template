@@ -363,14 +363,19 @@ free_args:
 	librouter_destroy_args(args);
 }
 
-static void _cert_add(char **buf)
+#define X509_BEGIN_CERTIFICATE_STR	"-----BEGIN CERTIFICATE-----"
+#define X509_BEGIN_CERTIFICATE_STR_LEN	strlen(X509_BEGIN_CERTIFICATE_STR)
+#define X509_END_CERTIFICATE_STR	"-----END CERTIFICATE-----"
+#define X509_END_CERTIFICATE_STR_LEN	strlen(X509_END_CERTIFICATE_STR)
+
+static int _cert_add(char **buf)
 {
 	char *line, *cert;
 	int spaceleft;
 
 	cert = malloc(getpagesize());
 	if (cert == NULL)
-		return;
+		return -1;
 
 	spaceleft = getpagesize();
 
@@ -381,9 +386,7 @@ static void _cert_add(char **buf)
 		line = readline(NULL);
 		if (line == NULL) {
 			/* This will happend on abort (CTRL + D) */
-			cert = NULL;
-			free(cert);
-			return;
+			goto  cert_err;
 		}
 
 		if (strlen(line) == 0) {
@@ -397,10 +400,57 @@ static void _cert_add(char **buf)
 		free(line);
 	}
 
+	/* Check if certificate is valid */
+	if (strlen(cert) < (X509_BEGIN_CERTIFICATE_STR_LEN + X509_END_CERTIFICATE_STR_LEN)) {
+		printf("%% Invalid certificate lenght: certificate will not be saved\n");
+		goto  cert_err;
+	}
+
+	/* Try to find begin of certificate string */
+	if (strncmp(cert, X509_BEGIN_CERTIFICATE_STR, X509_BEGIN_CERTIFICATE_STR_LEN)) {
+		printf("%% Invalid syntax (begin): certificate will not be saved\n");
+		goto  cert_err;
+	}
+
+	/* Try to find end of certificate string */
+	line = cert + strlen(cert) - X509_END_CERTIFICATE_STR_LEN - 1;
+	if (strncmp(line, X509_END_CERTIFICATE_STR, X509_END_CERTIFICATE_STR_LEN)) {
+		printf("%% Invalid syntax (end): certificate will not be saved\n");
+		goto  cert_err;
+	}
+
 	*buf = cert;
+	return 0;
+cert_err:
+	free(cert);
+	cert = NULL;
+
+	return -1;
 }
 
 #ifdef IPSEC_SUPPORT_SCEP
+void pki_ca_enroll(const char *cmd)
+{
+	arglist *args;
+	char buf[4096];
+	char *url, *ca;
+
+	args = librouter_make_args(cmd);
+
+	ca = args->argv[3];
+	url = args->argv[4];
+
+	if (librouter_pki_get_privkey(buf, sizeof(buf)) < 0) {
+		printf("%% Need to generate RSA Private-Key first\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	librouter_pki_ca_enroll(url, ca);
+
+	librouter_destroy_args(args);
+}
+
 void pki_csr_enroll(const char *cmd)
 {
 	arglist *args;
@@ -410,8 +460,8 @@ void pki_csr_enroll(const char *cmd)
 
 	args = librouter_make_args(cmd);
 
-	url = args->argv[3];
-	ca = args->argv[4];
+	ca = args->argv[3];
+	url = args->argv[4];
 
 	if (librouter_pki_get_privkey(buf, sizeof(buf)) < 0) {
 		printf("%% Need to generate RSA Private-Key first\n");
@@ -477,8 +527,7 @@ void pki_cert_add(const char *cmd)
 {
 	char *c = NULL;
 
-	_cert_add(&c);
-	if (c == NULL) {
+	if ((_cert_add(&c) <  0) || (c == NULL)) {
 		printf("%% No certificate was added\n");
 		return;
 	}
@@ -501,8 +550,7 @@ void pki_cacert_add(const char *cmd)
 
 	args = librouter_make_args(cmd);
 
-	_cert_add(&c);
-	if (c == NULL) {
+	if ((_cert_add(&c) < 0) || (c == NULL)) {
 		printf("%% No certificate was added\n");
 		return;
 	}

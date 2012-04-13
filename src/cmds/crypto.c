@@ -676,6 +676,23 @@ cish_command CMD_CRYPTO_PKI_KEYLEN[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_CRYPTO_PKI_CERT[] = {
+	{"add", "Add host certificate signed by CA", NULL, pki_cert_add, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+#ifdef IPSEC_SUPPORT_SCEP
+cish_command CMD_CRYPTO_PKI_CA_SCEP2[] = {
+	{"<url>", "SCEP Server URL", NULL, pki_ca_enroll, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
+cish_command CMD_CRYPTO_PKI_CA_SCEP1[] = {
+	{"<text>", "CA name", CMD_CRYPTO_PKI_CA_SCEP2, NULL, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+#endif
+
 cish_command CMD_CRYPTO_PKI_CA_NAME[] = {
 	{"<string>", "CA identification", NULL, pki_cacert_add, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
@@ -683,22 +700,20 @@ cish_command CMD_CRYPTO_PKI_CA_NAME[] = {
 
 cish_command CMD_CRYPTO_PKI_CA[] = {
 	{"add", "Add CA", CMD_CRYPTO_PKI_CA_NAME, NULL, 1, MSK_NORMAL},
-	{NULL,NULL,NULL,NULL, 0}
-};
-
-cish_command CMD_CRYPTO_PKI_CERT[] = {
-	{"add", "Add host certificate signed by CA", NULL, pki_cert_add, 1, MSK_NORMAL},
+#ifdef IPSEC_SUPPORT_SCEP
+	{"scep", "Request CA Root Certificate via SCEP protocol", CMD_CRYPTO_PKI_CA_SCEP1, NULL, 1, MSK_NORMAL},
+#endif
 	{NULL,NULL,NULL,NULL, 0}
 };
 
 #ifdef IPSEC_SUPPORT_SCEP
-cish_command CMD_CRYPTO_PKI_SCEP_CA[] = {
-	{"<text>", "CA used to generate PKCS#7 message", NULL, pki_csr_enroll, 1, MSK_NORMAL},
+cish_command CMD_CRYPTO_PKI_SCEP_CSR2[] = {
+	{"<url>", "SCEP Server URL", NULL, pki_csr_enroll, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
-cish_command CMD_CRYPTO_PKI_SCEP[] = {
-	{"<url>", "SCEP Server URL", CMD_CRYPTO_PKI_SCEP_CA, NULL, 1, MSK_NORMAL},
+cish_command CMD_CRYPTO_PKI_SCEP_CSR1[] = {
+	{"<text>", "CA to sign PKCS#7 message", CMD_CRYPTO_PKI_SCEP_CSR2, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 #endif
@@ -706,7 +721,7 @@ cish_command CMD_CRYPTO_PKI_SCEP[] = {
 cish_command CMD_CRYPTO_PKI_CSR[] = {
 	{"generate", "Generate PKCS#10 to offline enrollment", NULL, pki_generate, 1, MSK_NORMAL},
 #ifdef IPSEC_SUPPORT_SCEP
-	{"scep", "Simple Certificate Enrollment Protocol Options",  CMD_CRYPTO_PKI_SCEP, NULL, 1, MSK_NORMAL},
+	{"scep", "Simple Certificate Enrollment Protocol Options",  CMD_CRYPTO_PKI_SCEP_CSR1, NULL, 1, MSK_NORMAL},
 #endif
 	{"show", "Show generated CSR to be sent to CA", NULL, pki_csr_show, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
