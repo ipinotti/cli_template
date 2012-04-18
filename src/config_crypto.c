@@ -351,10 +351,16 @@ void pki_generate(const char *cmd)
 			goto free_args;
 		}
 	} else if (!strcmp(args->argv[1], "csr")) {
-		if (librouter_pki_gen_csr() < 0) {
+		struct pki_dn dn;
+
+		librouter_pki_dn_prompt(&dn);
+
+		if (librouter_pki_gen_csr(&dn) < 0) {
 			printf("%% Not possible to generate csr!\n");
 			goto free_args;
 		}
+
+		librouter_pki_dn_free(&dn);
 	}
 
 	if (librouter_ipsec_is_running())
@@ -475,49 +481,21 @@ void pki_csr_enroll(const char *cmd)
 		return;
 	}
 
-	/*
-	 * Try to reproduce the same openssl output
-	 * when setting a DN.
-	 */
-	printf("You are about to be asked to enter information that will be incorporated\n"
-			"into your certificate request.\n"
-			"What you are about to enter is what is called a Distinguished Name or a DN.\n"
-			"There are quite a few fields but you can leave some blank\n"
-			"For some fields there will be a default value,\n");
-
-
-	fflush(STDIN_FILENO);
-	printf("Country Name (2 letter code) [BR]:");
-	dn.c = readline(NULL);
-	printf("State or Province Name (full name) [Some-State]:");
-	dn.state = readline(NULL);
-	printf("Locality Name (eg, city) []:");
-	dn.city = readline(NULL);
-	printf("Organization Name (eg, company) [Digistar Telecom SA]:");
-	dn.org = readline(NULL);
-	printf("Organizational Unit Name (eg, section) []:");
-	dn.section = readline(NULL);
-	printf("Common Name (eg, YOUR name) []:");
-	dn.name = readline(NULL);
-	printf("Email Address []:");
-	dn.email = readline(NULL);
+#if 0
+	librouter_pki_dn_prompt(&dn);
 
 	librouter_pki_cert_enroll(url, ca, &dn);
 
-	if (dn.c)
-		free(dn.c);
-	if (dn.state)
-		free(dn.state);
-	if (dn.city)
-		free(dn.city);
-	if (dn.org)
-		free(dn.org);
-	if (dn.section)
-		free(dn.section);
-	if (dn.name)
-		free(dn.name);
-	if (dn.email)
-		free(dn.email);
+	librouter_pki_dn_free(&dn);
+#else
+	if (librouter_pki_get_csr(buf, sizeof(buf)) < 0) {
+		printf("%% Need to generate Certificate request first\n");
+		librouter_destroy_args(args);
+		return;
+	}
+
+	librouter_pki_cert_enroll(url, ca);
+#endif
 
 	librouter_destroy_args(args);
 }
