@@ -653,24 +653,32 @@ void ipsec_authby_x509(const char *cmd)
 
 void ipsec_authproto_esp(const char *cmd)
 {
-	int ret;
+	int ret, auth;
 	arglist *args;
 
 	args = librouter_make_args(cmd);
-	if (args->argc == 2) {
-		if (librouter_ipsec_set_ike_authproto(dynamic_ipsec_menu_name, ESP) < 0) {
-			printf("%% Not possible to set authproto to esp\n");
-			goto free_args;
-		}
-		// se o link estiver up, entao provocamos um RESTART no starter
-		ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
-		if (ret < 0) {
-			printf("%% Not possible to set authproto to esp\n");
-			goto free_args;
-		}
-		if (ret > 0)
-			librouter_ipsec_exec(RESTART);
+
+	if (!strcmp(args->argv[2], "ah"))
+		auth = AUTH_AH;
+	else
+		auth = AUTH_ESP;
+
+	if (librouter_ipsec_set_ike_auth_type(dynamic_ipsec_menu_name, auth) < 0) {
+		printf("%% Not possible to set authentication protocol\n");
+		goto free_args;
 	}
+
+	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
+	if (ret < 0) {
+		printf("%% Failed to get IPSec status\n");
+		goto free_args;
+	}
+	if (ret > 0)
+		librouter_ipsec_exec(RESTART);
+
+	free_args: librouter_destroy_args(args);
+}
+
 void ipsec_ipcomp(const char *cmd)
 {
 	int ret, ipcomp;

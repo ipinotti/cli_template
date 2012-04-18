@@ -1691,8 +1691,8 @@ static int show_conn_specific(char *name, int state)
 	}
 
 	/* Get cyphers */
-	switch (librouter_ipsec_get_ike_authproto(name)) {
-	case ESP:
+	switch (librouter_ipsec_get_ike_auth_type(name)) {
+	case AUTH_ESP:
 		strcat(b.authproto, "ESP");
 		switch (librouter_ipsec_get_esp(name, tmp)) {
 		case 1:
@@ -1716,7 +1716,7 @@ static int show_conn_specific(char *name, int state)
 			break;
 		}
 		break;
-	case AH:
+	case AUTH_AH:
 		break;
 	}
 

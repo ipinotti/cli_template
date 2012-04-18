@@ -29,11 +29,17 @@ cish_command CMD_IPSEC_CONNECTION_AUTHBY[] = {
 	{NULL,NULL,NULL,NULL, 0}
 };
 
+cish_command CMD_IPSEC_CONNECTION_AUTHPROTO1[] = {
+	{"esp", "Encapsulating Security Payload", NULL, ipsec_authproto_esp, 1, MSK_NORMAL},
+	{"ah", "Authentication Header", NULL, ipsec_authproto_esp, 1, MSK_NORMAL},
+	{NULL,NULL,NULL,NULL, 0}
+};
+
 cish_command CMD_IPSEC_CONNECTION_AUTHPROTO[] = {
 #ifdef IPSEC_SUPPORT_TRANSPORT_MODE
-	{"transport", "Transport mode", NULL, ipsec_authproto_ah, 1, MSK_NORMAL},
+	{"transport", "Transport mode", CMD_IPSEC_CONNECTION_AUTHPROTO1, NULL, 1, MSK_NORMAL},
 #endif
-	{"tunnel", "Tunnel mode", NULL, ipsec_authproto_esp, 1, MSK_NORMAL},
+	{"tunnel", "Tunnel mode", CMD_IPSEC_CONNECTION_AUTHPROTO1, NULL, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
