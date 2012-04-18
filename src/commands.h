@@ -473,6 +473,7 @@ void ipsec_set_secret_key(const char *cmd);
 void ipsec_authby_rsa(const char *cmd);
 void ipsec_authby_x509(const char *cmd);
 void ipsec_authproto_esp(const char *cmd);
+void ipsec_ipcomp(const char *cmd);
 void ipsec_conn_set_ike_version(const char *cmd);
 void ipsec_set_ike_protocols(const char *cmd);
 void set_esp_hash(const char *cmd);

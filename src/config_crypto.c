@@ -693,6 +693,31 @@ void ipsec_authproto_esp(const char *cmd)
 		if (ret > 0)
 			librouter_ipsec_exec(RESTART);
 	}
+void ipsec_ipcomp(const char *cmd)
+{
+	int ret, ipcomp;
+	arglist *args;
+
+	args = librouter_make_args(cmd);
+
+	if (!strcmp(args->argv[0], "no"))
+		ipcomp = 0;
+	else
+		ipcomp = 1;
+
+	if (librouter_ipsec_set_ipcomp(dynamic_ipsec_menu_name, ipcomp) < 0) {
+		printf("%% Not possible to set IP compression\n");
+		goto free_args;
+	}
+
+	ret = librouter_ipsec_get_link(dynamic_ipsec_menu_name);
+	if (ret < 0) {
+		printf("%% Failed to get IPSec status\n");
+		goto free_args;
+	}
+	if (ret > 0)
+		librouter_ipsec_exec(RESTART);
+
 	free_args: librouter_destroy_args(args);
 }
 

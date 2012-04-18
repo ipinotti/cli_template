@@ -372,6 +372,7 @@ cish_command CMD_IPSEC_CONNECTION_NO_L2TP[] = {
 cish_command CMD_IPSEC_CONNECTION_NO[] = {
 	{"local", "Local settings of the tunnel", CMD_IPSEC_CONNECTION_NO_LOCAL, NULL, 1, MSK_NORMAL},
 	{"pfs", "Disable PFS", NULL, ipsec_pfs, 1, MSK_NORMAL},
+	{"ip-compression", "Disable IP Payload Compression", NULL, ipsec_ipcomp, 1, MSK_NORMAL},
 	{"remote", "Remote settings of the tunnel", CMD_IPSEC_CONNECTION_NO_REMOTE, NULL, 1, MSK_NORMAL},
 	{"l2tp", "L2TP settings of the tunnel", CMD_IPSEC_CONNECTION_NO_L2TP, NULL, 1, MSK_NORMAL},
 	{"shutdown", "Bring the connection up", NULL, ipsec_link_up, 1, MSK_NORMAL},
@@ -385,6 +386,7 @@ cish_command CMD_IPSEC_CONNECTION_CHILDREN[] = {
 	{"exit", "Exit from connection configuration mode", NULL, config_connection_done, 1, MSK_NORMAL},
 	{"ike-algs", "IKE/ISAKMP SA encryption/authentication algorithms", CMD_IPSEC_CONNECTION_IKE, NULL, 1, MSK_NORMAL},
 	{"ike-version", "Internet Key Exchange Protocol Version", CMD_IPSEC_CONNECTION_IKEVERSION, NULL, 1, MSK_NORMAL},
+	{"ip-compression", "Enable IP Payload Compression", NULL, ipsec_ipcomp, 1, MSK_NORMAL},
 	{"local", "Local settings of the tunnel", CMD_IPSEC_CONNECTION_LOCAL, NULL, 1, MSK_NORMAL},
 	{"no", "Reverse settings", CMD_IPSEC_CONNECTION_NO, NULL, 1, MSK_NORMAL},
 	{"pfs", "Enable PFS", NULL, ipsec_pfs, 1, MSK_NORMAL},
