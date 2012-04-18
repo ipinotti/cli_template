@@ -1983,6 +1983,8 @@ void show_pki(const char *cmdline)
 
 	if (!librouter_ipsec_is_running())
 		librouter_ipsec_exec(START);
+	else
+		librouter_ipsec_exec(RELOAD);
 
 	if (args->argc == 2) {
 		librouter_pki_dump_general_info();
