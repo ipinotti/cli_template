@@ -703,7 +703,7 @@ cish_command CMD_CRYPTO_PKI_CA_NAME[] = {
 cish_command CMD_CRYPTO_PKI_CA[] = {
 	{"add", "Add CA", CMD_CRYPTO_PKI_CA_NAME, NULL, 1, MSK_NORMAL},
 #ifdef IPSEC_SUPPORT_SCEP
-	{"scep", "Request CA Root Certificate via SCEP protocol", CMD_CRYPTO_PKI_CA_SCEP1, NULL, 1, MSK_NORMAL},
+	{"enroll", "Request CA Root Certificate via SCEP protocol", CMD_CRYPTO_PKI_CA_SCEP1, NULL, 1, MSK_NORMAL},
 #endif
 	{NULL,NULL,NULL,NULL, 0}
 };
@@ -723,7 +723,7 @@ cish_command CMD_CRYPTO_PKI_SCEP_CSR1[] = {
 cish_command CMD_CRYPTO_PKI_CSR[] = {
 	{"generate", "Generate PKCS#10 to offline enrollment", NULL, pki_generate, 1, MSK_NORMAL},
 #ifdef IPSEC_SUPPORT_SCEP
-	{"scep", "Simple Certificate Enrollment Protocol Options",  CMD_CRYPTO_PKI_SCEP_CSR1, NULL, 1, MSK_NORMAL},
+	{"enroll", "Simple Certificate Enrollment Protocol Options",  CMD_CRYPTO_PKI_SCEP_CSR1, NULL, 1, MSK_NORMAL},
 #endif
 	{"show", "Show generated CSR to be sent to CA", NULL, pki_csr_show, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
