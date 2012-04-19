@@ -313,6 +313,38 @@ void pki_csr_show(const char *cmd)
 		printf(buf);
 }
 
+static int _dn_prompt(struct pki_dn *dn)
+{
+	memset(dn, 0, sizeof(struct pki_dn));
+
+	printf("You are about to be asked to enter information that will be incorporated\n"
+			"into your certificate request.\n"
+			"What you are about to enter is what is called a Distinguished Name or a DN.\n"
+			"There are quite a few fields but you can leave some blank\n"
+			"For some fields there will be a default value,\n");
+
+
+	fflush(STDIN_FILENO);
+	printf("Country Name (2 letter code):");
+	dn->c = readline(NULL);
+	printf("State or Province Name:");
+	dn->state = readline(NULL);
+	printf("Locality Name (eg, city):");
+	dn->city = readline(NULL);
+	printf("Organization Name (eg, company):");
+	dn->org = readline(NULL);
+	printf("Organizational Unit Name (eg, section):");
+	dn->section = readline(NULL);
+	printf("Common Name (eg, YOUR name):");
+	dn->name = readline(NULL);
+	printf("Email Address:");
+	dn->email = readline(NULL);
+	printf("Challenge Password:");
+	dn->challenge = readline(NULL);
+
+	return 0;
+}
+
 void pki_generate(const char *cmd)
 {
 	arglist *args;
@@ -353,7 +385,7 @@ void pki_generate(const char *cmd)
 	} else if (!strcmp(args->argv[1], "csr")) {
 		struct pki_dn dn;
 
-		librouter_pki_dn_prompt(&dn);
+		_dn_prompt(&dn);
 
 		if (librouter_pki_gen_csr(&dn) < 0) {
 			printf("%% Not possible to generate csr!\n");
