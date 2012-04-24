@@ -467,7 +467,7 @@ cert_err:
 }
 
 #ifdef IPSEC_SUPPORT_SCEP
-void pki_ca_enroll(const char *cmd)
+void pki_ca_authenticate(const char *cmd)
 {
 	arglist *args;
 	char buf[4096];
@@ -484,7 +484,7 @@ void pki_ca_enroll(const char *cmd)
 		return;
 	}
 
-	librouter_pki_ca_enroll(url, ca);
+	librouter_pki_ca_authenticate(url, ca);
 
 	librouter_destroy_args(args);
 }
@@ -494,7 +494,6 @@ void pki_csr_enroll(const char *cmd)
 	arglist *args;
 	char buf[4096];
 	char *url, *ca;
-	struct pki_dn dn;
 
 	args = librouter_make_args(cmd);
 
@@ -513,13 +512,6 @@ void pki_csr_enroll(const char *cmd)
 		return;
 	}
 
-#if 0
-	librouter_pki_dn_prompt(&dn);
-
-	librouter_pki_cert_enroll(url, ca, &dn);
-
-	librouter_pki_dn_free(&dn);
-#else
 	if (librouter_pki_get_csr(buf, sizeof(buf)) < 0) {
 		printf("%% Need to generate Certificate request first\n");
 		librouter_destroy_args(args);
@@ -527,7 +519,6 @@ void pki_csr_enroll(const char *cmd)
 	}
 
 	librouter_pki_cert_enroll(url, ca);
-#endif
 
 	librouter_destroy_args(args);
 }

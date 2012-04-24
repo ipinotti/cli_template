@@ -451,7 +451,7 @@ void crypto_on_off(int);
 void pki_no(const char *cmd);
 void pki_csr_show(const char *cmd);
 void pki_generate(const char *cmd);
-void pki_ca_enroll(const char *cmd);
+void pki_ca_authenticate(const char *cmd);
 void pki_csr_enroll(const char *cmd);
 void pki_cert_add(const char *cmd);
 void pki_cacert_add(const char *cmd);

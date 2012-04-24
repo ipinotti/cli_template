@@ -691,7 +691,7 @@ cish_command CMD_CRYPTO_PKI_CERT[] = {
 
 #ifdef IPSEC_SUPPORT_SCEP
 cish_command CMD_CRYPTO_PKI_CA_SCEP2[] = {
-	{"<url>", "SCEP Server URL", NULL, pki_ca_enroll, 1, MSK_NORMAL},
+	{"<url>", "SCEP Server URL", NULL, pki_ca_authenticate, 1, MSK_NORMAL},
 	{NULL,NULL,NULL,NULL, 0}
 };
 
@@ -709,7 +709,7 @@ cish_command CMD_CRYPTO_PKI_CA_NAME[] = {
 cish_command CMD_CRYPTO_PKI_CA[] = {
 	{"add", "Add CA", CMD_CRYPTO_PKI_CA_NAME, NULL, 1, MSK_NORMAL},
 #ifdef IPSEC_SUPPORT_SCEP
-	{"enroll", "Request CA Root Certificate via SCEP protocol", CMD_CRYPTO_PKI_CA_SCEP1, NULL, 1, MSK_NORMAL},
+	{"authenticate", "Request CA Root Certificate via SCEP protocol", CMD_CRYPTO_PKI_CA_SCEP1, NULL, 1, MSK_NORMAL},
 #endif
 	{NULL,NULL,NULL,NULL, 0}
 };
